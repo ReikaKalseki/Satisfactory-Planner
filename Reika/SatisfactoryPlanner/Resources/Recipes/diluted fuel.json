@@ -1,0 +1,12 @@
+{
+  "name": "Diluted Fuel",
+  "ingredients":
+    {
+      "Heavy Oil Residue": "50",
+      "Water": "100"
+    },
+  "products":
+    {
+      "Fuel": "100",
+    }
+}

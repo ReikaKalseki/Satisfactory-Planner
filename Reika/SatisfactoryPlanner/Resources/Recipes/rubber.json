@@ -1,0 +1,11 @@
+{
+  "name": "Rubber",
+  "ingredients":
+    {
+      "Crude Oil": "30"
+    },
+  "products": {
+      "Rubber": "20",
+      "Heavy Oil Residue": "20"
+    }
+}

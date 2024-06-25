@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.text.Font?>
+
+
+<HBox alignment="CENTER_LEFT" fillHeight="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="4.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.ItemViewController">
+   <children>
+      <ImageView fx:id="icon" cache="true" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" />
+      <VBox fx:id="countContainer" alignment="CENTER">
+         <children>
+            <Label fx:id="amount" text="32">
+               <font>
+                  <Font size="14.0" />
+               </font>
+               <VBox.margin>
+                  <Insets bottom="-3.0" top="-2.0" />
+               </VBox.margin>
+            </Label>
+            <Line fx:id="divider" endX="20.0" stroke="#00000080" strokeLineCap="ROUND" strokeWidth="1.5" />
+            <Label layoutX="10.0" layoutY="10.0" text="min">
+               <font>
+                  <Font size="14.0" />
+               </font>
+               <VBox.margin>
+                  <Insets bottom="-2.0" top="-4.0" />
+               </VBox.margin>
+            </Label>
+         </children>
+      </VBox>
+   </children>
+</HBox>

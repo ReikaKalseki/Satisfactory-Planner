@@ -1,0 +1,11 @@
+{
+  "name": "",
+  "ingredients": {
+    "item1": "20",
+    "item2": "30"
+  },
+  "products": {
+    "item1": "10",
+    "item2": "5"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "Residual Rubber",
+  "ingredients":
+    {
+      "Polymer Resin": "40",
+      "Water": "40"
+    },
+  "products":
+    {
+      "Rubber": "20",
+    }
+}

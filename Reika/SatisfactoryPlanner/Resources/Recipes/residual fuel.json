@@ -1,0 +1,11 @@
+{
+  "name": "Residual Fuel",
+  "ingredients":
+    {
+      "Heavy Oil Residue": "60"
+    },
+  "products":
+    {
+      "Fuel": "40"
+    }
+}

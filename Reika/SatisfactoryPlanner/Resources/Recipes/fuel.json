@@ -1,0 +1,12 @@
+{
+  "name": "Fuel",
+  "ingredients":
+    {
+      "Crude Oil": "60"
+    },
+  "products":
+    {
+      "Fuel": "40",
+      "Polymer Resin": "30"
+    }
+}

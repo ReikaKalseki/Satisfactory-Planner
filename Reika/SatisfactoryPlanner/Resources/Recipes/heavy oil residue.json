@@ -1,0 +1,12 @@
+{
+  "name": "Heavy Oil Residue",
+  "ingredients":
+    {
+      "Crude Oil": "30"
+    },
+  "products":
+    {
+      "Polymer Resin": "20",
+      "Heavy Oil Residue": "40"
+    }
+}

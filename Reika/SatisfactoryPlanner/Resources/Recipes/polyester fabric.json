@@ -1,0 +1,12 @@
+{
+  "name": "Polyester Fabric",
+  "ingredients":
+    {
+      "Polymer Resin": "30",
+      "Water": "30"
+    },
+  "products":
+    {
+      "Fabric": "30"
+    }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "Residual Plastic",
+  "ingredients":
+    {
+      "Polymer Resin": "60",
+      "Water": "20"
+    },
+  "products":
+    {
+      "Plastic": "20"
+    }
+}

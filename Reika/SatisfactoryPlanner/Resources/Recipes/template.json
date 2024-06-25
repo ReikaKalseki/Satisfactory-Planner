@@ -1,0 +1,27 @@
+{
+  "name": "",
+  "ingredients": [
+    {
+      "ingredient1": {
+        "item": "item1",
+        "amount": "1"
+      },
+      "ingredient2": {
+        "item": "item2",
+        "amount": "1"
+      }
+    }
+  ],
+  "products": [
+    {
+      "product1": {
+        "item": "item1",
+        "amount": "1"
+      },
+      "product2": {
+        "item": "item2",
+        "amount": "1"
+      }
+    }
+  ]
+}
