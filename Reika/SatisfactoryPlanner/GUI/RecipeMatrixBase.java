@@ -1,13 +1,19 @@
 package Reika.SatisfactoryPlanner.GUI;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Recipe;
+import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
+import Reika.SatisfactoryPlanner.Util.MultiMap;
 
 import javafx.collections.ObservableList;
+import javafx.scene.control.Label;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -15,6 +21,9 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 
 public abstract class RecipeMatrixBase {
 
@@ -29,6 +38,15 @@ public abstract class RecipeMatrixBase {
 	protected int inoutGapColumn;
 	protected int ingredientsStartColumn;
 	protected int productsStartColumn;
+
+	protected Label nameLabel;
+	protected Label consumptionLabel;
+	protected Label productionLabel;
+
+	protected ArrayList<Consumable> inputs;
+	protected ArrayList<Consumable> outputs;
+
+	protected final MultiMap<Recipe, GuiInstance> recipeEntries = new MultiMap();
 
 	protected RecipeMatrixBase() {
 
@@ -55,7 +73,7 @@ public abstract class RecipeMatrixBase {
 		for (Recipe r : this.getRecipes()) {
 			Integer get = r.getCost().get(c);
 			if (get != null)
-				amt += get.intValue();
+				amt += get.intValue()*this.getMultiplier(r);
 		}
 		return amt;
 	}
@@ -65,12 +83,86 @@ public abstract class RecipeMatrixBase {
 		for (Recipe r : this.getRecipes()) {
 			Integer get = r.getProducts().get(c);
 			if (get != null)
-				amt += get.intValue();
+				amt += get.intValue()*this.getMultiplier(r);
 		}
 		return amt;
 	}
 
+	protected int getMultiplier(Recipe r) {
+		return 1;
+	}
+
 	public abstract GridPane createGrid(ControllerBase con) throws IOException;
+
+	protected final void computeIO() {
+		inputs = new ArrayList(this.getAllIngredients());
+		outputs = new ArrayList(this.getAllProducts());
+		Collections.sort(inputs);
+		Collections.sort(outputs);
+	}
+
+	protected final void addInputColumns(GridPane gp) {
+		for (int i = 0; i < inputs.size(); i++) {
+			this.addColumn(gp);
+			if (i < inputs.size()-1)
+				minorColumnGaps.add(this.addColumn(gp)); //separator
+		}
+		if (inputs.isEmpty())
+			this.addColumn(gp); //space for "consuming" title
+		if (inputs.size() <= 1)
+			gp.getColumnConstraints().get(gp.getColumnCount()-1).setMinWidth(96);
+	}
+
+	protected final void addOutputColumns(GridPane gp) {
+		for (int i = 0; i < outputs.size(); i++) {
+			this.addColumn(gp);
+			if (i < outputs.size()-1)
+				minorColumnGaps.add(this.addColumn(gp)); //separator
+		}
+		if (outputs.isEmpty())
+			this.addColumn(gp); //space for "producing" title
+		if (outputs.size() <= 1)
+			gp.getColumnConstraints().get(gp.getColumnCount()-1).setMinWidth(96);
+	}
+
+	protected int addRecipeRow(ControllerBase con, GridPane gp, Recipe r, int i) throws IOException {
+		Label lb = new Label(r.name);
+		lb.setFont(Font.font(lb.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, 14));
+		int rowIndex = titleGapRow+1+i*2;
+		gp.add(lb, nameColumn, rowIndex);
+		for (Entry<Consumable, Integer> e : r.getCost().entrySet()) {
+			Consumable c = e.getKey();
+			GuiInstance gui = con.loadNestedFXML("ItemView", gp, ingredientsStartColumn+inputs.indexOf(c)*2, rowIndex);
+			((ItemViewController)gui.controller).setItem(c, e.getValue()*this.getMultiplier(r));
+			recipeEntries.addValue(r, gui);
+		}
+		for (Entry<Consumable, Integer> e : r.getProducts().entrySet()) {
+			Consumable c = e.getKey();
+			GuiInstance gui = con.loadNestedFXML("ItemView", gp, productsStartColumn+outputs.indexOf(c)*2, rowIndex);
+			((ItemViewController)gui.controller).setItem(c, e.getValue()*this.getMultiplier(r));
+			recipeEntries.addValue(r, gui);
+		}
+
+		this.createDivider(gp, mainGapColumn, rowIndex, 0);
+		this.createDivider(gp, inoutGapColumn, rowIndex, 1);
+		for (int col : minorColumnGaps)
+			this.createDivider(gp, col, rowIndex, 2);
+		return rowIndex;
+	}
+
+	protected void addTitles(GridPane gp) {
+		nameLabel = new Label("Item Name");
+		nameLabel.setFont(Font.font(nameLabel.getFont().getFamily(), FontWeight.BOLD, 16));
+		gp.add(nameLabel, nameColumn, titlesRow);
+		consumptionLabel = new Label("Consuming");
+		consumptionLabel.setFont(Font.font(consumptionLabel.getFont().getFamily(), FontWeight.BOLD, 16));
+		gp.add(consumptionLabel, ingredientsStartColumn, titlesRow);
+		productionLabel = new Label("Producing");
+		productionLabel.setFont(Font.font(productionLabel.getFont().getFamily(), FontWeight.BOLD, 16));
+		gp.add(productionLabel, productsStartColumn, titlesRow);
+		gp.setColumnSpan(consumptionLabel, productsStartColumn-ingredientsStartColumn);
+		gp.setColumnSpan(productionLabel, GridPane.REMAINING);
+	}
 
 	protected final int addRow(GridPane gp) {
 		RowConstraints cc = new RowConstraints();

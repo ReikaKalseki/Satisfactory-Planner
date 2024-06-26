@@ -27,15 +27,22 @@ public class ItemViewController extends ControllerBase {
 	@FXML
 	private ImageView icon;
 
+	private int baseAmount;
+
 	@Override
 	public void init(HostServices services) throws IOException {
 		divider.endXProperty().bind(countContainer.widthProperty().subtract(2));
 	}
 
 	public void setItem(Consumable c, int amt) {
+		baseAmount = amt;
 		icon.setImage(new Image(c.getIcon(), 32, 32, true, true));
 		amount.setText(String.valueOf(amt));
 		GuiUtil.setTooltip(icon, c.name);
+	}
+
+	public void setScale(int scale) {
+		amount.setText(String.valueOf(baseAmount*scale));
 	}
 
 	@Override
