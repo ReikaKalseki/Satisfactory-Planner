@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Generator;
 import Reika.SatisfactoryPlanner.Data.Recipe;
+import Reika.SatisfactoryPlanner.Data.ResourceSupply;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
 import Reika.SatisfactoryPlanner.GUI.ItemViewController.WarningState;
 import Reika.SatisfactoryPlanner.Util.FactoryListener;
@@ -225,6 +226,16 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase implements FactoryListe
 
 	@Override
 	public void onSetCount(Generator g, int amt) {
+
+	}
+
+	@Override
+	public void onAddSupply(ResourceSupply res) {
+
+	}
+
+	@Override
+	public void onRemoveSupply(ResourceSupply res) {
 
 	}
 

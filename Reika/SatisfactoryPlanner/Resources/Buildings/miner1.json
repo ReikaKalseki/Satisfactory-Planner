@@ -1,0 +1,10 @@
+{
+  "name": "Miner Mk.1",
+  "icon": "MinerMk1",
+  "powerCost": "5",
+  "ingredients": {
+    "Iron Plate": "10",
+    "Concrete": "10",
+    "Portable Miner": "1"
+  }
+}

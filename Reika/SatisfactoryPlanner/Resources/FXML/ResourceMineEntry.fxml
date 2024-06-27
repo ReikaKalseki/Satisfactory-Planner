@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox prefWidth="150.0" spacing="8.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.ResourceMineEntryController">
+   <padding>
+      <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+   </padding>
+   <children>
+      <HBox fx:id="topBar" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
+      <HBox alignment="CENTER" maxWidth="1.7976931348623157E308">
+         <children>
+            <Label fx:id="speedValue" text="speed" />
+         </children>
+      </HBox>
+      <HBox fx:id="shardDisplay" alignment="CENTER_LEFT" spacing="4.0" />
+      <HBox fx:id="yieldDisplay" alignment="CENTER_LEFT" spacing="4.0" />
+      <Button fx:id="deleteButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Remove" />
+   </children>
+</VBox>

@@ -1,5 +1,11 @@
 package Reika.SatisfactoryPlanner.Data;
 
+import java.util.Locale;
+
+import Reika.SatisfactoryPlanner.Main;
+
+import javafx.scene.image.Image;
+
 public class Constants {
 
 	public static final int PIPE1_LIMIT = 300;
@@ -21,8 +27,11 @@ public class Constants {
 
 		public final float yieldMultiplier;
 
+		public final Image image;
+
 		private Purity(float y) {
 			yieldMultiplier = y;
+			image = new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/"+this.name().toLowerCase(Locale.ENGLISH)+".png"));
 		}
 
 		public int getSolidYield() {
@@ -61,6 +70,10 @@ public class Constants {
 
 		private MinerTier(float s) {
 			speedMultiplier = s;
+		}
+
+		public Building getMiner() {
+			return Database.lookupBuilding("Miner Mk."+(this.ordinal()+1));
 		}
 	}
 	/*

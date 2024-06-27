@@ -7,4 +7,9 @@ public class Item extends Consumable {
 		super(n, img);
 	}
 
+	@Override
+	public int compareTo(Consumable c) {
+		return c instanceof Fluid ? -1 : super.compareTo(c);
+	}
+
 }

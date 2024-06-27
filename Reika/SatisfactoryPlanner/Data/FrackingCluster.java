@@ -8,12 +8,19 @@ public class FrackingCluster implements ExtractableResource<Fluid> {
 
 	private final ArrayList<FrackingNode> nodes = new ArrayList();
 
+	public final int pureCount;
+	public final int normalCount;
+	public final int impureCount;
+
 	public final Fluid resource;
 
 	private float clockSpeed = 1;
 
 	public FrackingCluster(Fluid f, int pure, int normal, int impure) {
 		resource = f;
+		pureCount = pure;
+		normalCount = normal;
+		impureCount = impure;
 		for (int i = 0; i < pure; i++)
 			nodes.add(new FrackingNode(f, Purity.PURE));
 		for (int i = 0; i < normal; i++)
@@ -42,6 +49,11 @@ public class FrackingCluster implements ExtractableResource<Fluid> {
 	@Override
 	public Fluid getResource() {
 		return resource;
+	}
+
+	@Override
+	public Building getBuilding() {
+		return Database.lookupBuilding("Resource Well Pressurizer");
 	}
 
 }

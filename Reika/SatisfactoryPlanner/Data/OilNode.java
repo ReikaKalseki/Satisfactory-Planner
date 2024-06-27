@@ -14,4 +14,9 @@ public class OilNode extends BaseResourceNode<Fluid> {
 		return purityLevel == null ? 0 : (int)(purityLevel.getOilYield()*this.getClockSpeed());
 	}
 
+	@Override
+	public Building getBuilding() {
+		return Database.lookupBuilding("Oil Extractor");
+	}
+
 }

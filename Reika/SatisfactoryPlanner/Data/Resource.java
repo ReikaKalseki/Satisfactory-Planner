@@ -4,7 +4,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 
 import Reika.SatisfactoryPlanner.Main;
-import Reika.SatisfactoryPlanner.Util.GuiUtil;
+import Reika.SatisfactoryPlanner.GUI.GuiUtil;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;

@@ -3,14 +3,13 @@ package Reika.SatisfactoryPlanner.GUI;
 import java.io.IOException;
 import java.util.function.Consumer;
 
+import Reika.SatisfactoryPlanner.GUI.GuiSystem.DialogWindow;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
-import Reika.SatisfactoryPlanner.GUI.GuiSystem.MainWindow;
 
 import javafx.application.HostServices;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Labeled;
@@ -21,9 +20,6 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 public abstract class ControllerBase {
 
@@ -34,11 +30,19 @@ public abstract class ControllerBase {
 	@FXML
 	public final void initialize() {
 		try {
-			this.init(GuiSystem.service);
+			this.init(GuiSystem.getHSVC());
 		}
 		catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	protected final Parent getRootNode() {
+		return container.root;
+	}
+
+	protected final void close() {
+		container.window.close();
 	}
 
 	public abstract void init(HostServices services) throws IOException;
@@ -47,6 +51,8 @@ public abstract class ControllerBase {
 		container = w;
 		container.window.widthProperty().addListener((v, o, n) -> {this.onWindowResize();});
 		container.window.heightProperty().addListener((v, o, n) -> {this.onWindowResize();});
+
+		this.setFont(this.getRootNode(), GuiSystem.getDefaultFont());
 	}
 
 	public final GuiInstance loadNestedFXML(String fxml, Pane container) throws IOException {
@@ -66,25 +72,22 @@ public abstract class ControllerBase {
 	}
 
 	public final GuiInstance loadNestedFXML(String fxml, Consumer<Parent> acceptor) throws IOException {
+		if (container == null)
+			throw new RuntimeException("You can only load nested FXML in post-init, after the window is initialized!");
 		GuiInstance ret = GuiSystem.loadFXML(fxml, container);
 		acceptor.accept(ret.rootNode);
 		ret.controller.owner = this;
 		return ret;
 	}
 
-	public final GuiInstance openFXMLDialog(String title, String fxml) throws IOException {
-		Stage dialog = new Stage();
-		dialog.setTitle(title);
-		GuiInstance ret = GuiSystem.loadFXML(fxml, container);
-		ret.controller.owner = this;
-		dialog.setScene(new Scene(ret.rootNode));
-		dialog.initStyle(StageStyle.DECORATED);
-		dialog.initModality(Modality.APPLICATION_MODAL);
-		dialog.initOwner(container.window);
-		dialog.toFront();
+	public final DialogWindow openFXMLDialog(String title, String fxml) throws IOException {
+		if (container == null)
+			throw new RuntimeException("You can only load nested FXML in post-init, after the window is initialized!");
+		DialogWindow dialog = new DialogWindow(title, fxml, container);
+		dialog.controller.owner = this;
 		dialog.show();
 
-		return ret;
+		return dialog;
 	}
 
 	protected final void setVisible(Node n, boolean visible) {
@@ -108,10 +111,15 @@ public abstract class ControllerBase {
 			this.setFont(((Labeled)n).getGraphic(), f);
 		}
 		if (n instanceof ComboBox) {
-			n.setStyle(MainWindow.getGUI().getFontStyle(12));
+			n.setStyle(GuiSystem.getFontStyle(12));
 		}
 		if (n instanceof ChoiceBox) {
-			n.setStyle(MainWindow.getGUI().getFontStyle(12));
+			n.setStyle(GuiSystem.getFontStyle(12));
+		}
+		if (n instanceof Parent) {
+			for (Node n2 : ((Parent)n).getChildrenUnmodifiable()) {
+				this.setFont(n2, f);
+			}
 		}
 	}
 

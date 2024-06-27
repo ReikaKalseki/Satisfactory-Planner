@@ -1,0 +1,10 @@
+{
+  "name": "Oil Extractor",
+  "icon": "OilPump",
+  "powerCost": "40",
+  "ingredients": {
+    "Motor": "15",
+    "Encased Industrial Beam": "20",
+    "Cable": "60"
+  }
+}

@@ -9,6 +9,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
 
 public abstract class WindowBase {
@@ -20,8 +21,8 @@ public abstract class WindowBase {
 
 	protected WindowBase(String title, String fxmlName) throws IOException {
 		window = new Stage();
-		if (GuiSystem.icon != null)
-			window.getIcons().add(GuiSystem.icon);
+		if (GuiSystem.getIcon() != null)
+			window.getIcons().add(GuiSystem.getIcon());
 		//window.setHeight(640);
 		window.setResizable(true);
 
@@ -35,6 +36,7 @@ public abstract class WindowBase {
 
 		window.setTitle(title);
 		window.setScene(display);
+		window.initStyle(StageStyle.DECORATED);
 
 		window.setOnCloseRequest(new EventHandler<WindowEvent>() {
 			@Override

@@ -1,0 +1,11 @@
+{
+  "name": "Miner Mk.2",
+  "icon": "MinerMk2",
+  "powerCost": "12",
+  "ingredients": {
+    "Encased Industrial Beam": "10",
+    "Steel Pipe": "20",
+    "Modular Frame": "10",
+    "Portable Miner": "2"
+  }
+}

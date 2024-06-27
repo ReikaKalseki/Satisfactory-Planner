@@ -39,6 +39,7 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.image.ImageView?>
@@ -84,18 +85,22 @@
             <Insets />
          </VBox.margin>
          <content>
-            <HBox fx:id="minerBar" spacing="4.0">
-               <children>
-                  <Button fx:id="addMinerButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="128.0" prefWidth="96.0">
-                     <graphic>
-                        <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" />
-                     </graphic>
-                  </Button>
-               </children>
-               <padding>
-                  <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
-               </padding>
-            </HBox>
+            <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER">
+               <content>
+                  <HBox fx:id="minerBar" spacing="4.0">
+                     <children>
+                        <Button fx:id="addMinerButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="128.0" prefWidth="96.0">
+                           <graphic>
+                              <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" />
+                           </graphic>
+                        </Button>
+                     </children>
+                     <padding>
+                        <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                     </padding>
+                  </HBox>
+               </content>
+            </ScrollPane>
          </content>
       </TitledPane>
       <TitledPane fx:id="inputsPanel" layoutX="14.0" layoutY="148.0" text="External Inputs">
@@ -103,18 +108,22 @@
             <Insets />
          </VBox.margin>
          <content>
-            <HBox fx:id="inputBar" spacing="4.0">
-               <children>
-                  <Button fx:id="addInputButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="128.0" prefWidth="96.0">
-                     <graphic>
-                        <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" />
-                     </graphic>
-                  </Button>
-               </children>
-               <padding>
-                  <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
-               </padding>
-            </HBox>
+            <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER">
+               <content>
+                  <HBox fx:id="inputBar" spacing="4.0">
+                     <children>
+                        <Button fx:id="addInputButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="128.0" prefWidth="96.0">
+                           <graphic>
+                              <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" />
+                           </graphic>
+                        </Button>
+                     </children>
+                     <padding>
+                        <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                     </padding>
+                  </HBox>
+               </content>
+            </ScrollPane>
          </content>
       </TitledPane>
       <TitledPane fx:id="generatorsPanel" layoutX="14.0" layoutY="89.0" text="Generators" />

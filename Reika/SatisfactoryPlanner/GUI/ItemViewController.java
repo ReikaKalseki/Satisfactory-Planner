@@ -5,7 +5,6 @@ import java.util.function.Consumer;
 
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Util.ColorUtil;
-import Reika.SatisfactoryPlanner.Util.GuiUtil;
 
 import javafx.application.HostServices;
 import javafx.fxml.FXML;

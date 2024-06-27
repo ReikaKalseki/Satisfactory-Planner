@@ -2,6 +2,7 @@ package Reika.SatisfactoryPlanner.Data;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -67,18 +68,26 @@ public class Factory {
 
 	public void addExternalSupply(ExtractableResource res) {
 		resourceSources.addValue(res.getResource(), res);
+		for (FactoryListener rr : changeCallback)
+			rr.onAddSupply(res);
 	}
 
 	public void addExternalSupply(LogisticSupply res) {
 		externalSupplies.addValue(res.getResource(), res);
+		for (FactoryListener rr : changeCallback)
+			rr.onAddSupply(res);
 	}
 
 	public void removeExternalSupply(ExtractableResource res) {
 		resourceSources.remove(res.getResource(), res);
+		for (FactoryListener rr : changeCallback)
+			rr.onRemoveSupply(res);
 	}
 
 	public void removeExternalSupply(LogisticSupply res) {
 		externalSupplies.remove(res.getResource(), res);
+		for (FactoryListener rr : changeCallback)
+			rr.onRemoveSupply(res);
 	}
 
 	public int getExternalSupply(Consumable c) {
@@ -88,6 +97,14 @@ public class Factory {
 		for (LogisticSupply res : externalSupplies.get(c))
 			ret += res.getYield();
 		return ret;
+	}
+
+	public Collection<ExtractableResource> getMines() {
+		return Collections.unmodifiableCollection(resourceSources.allValues(false));
+	}
+
+	public Collection<LogisticSupply> getSupplies() {
+		return Collections.unmodifiableCollection(externalSupplies.allValues(false));
 	}
 
 	public boolean isDesiredFinalProduct(Consumable c) {
@@ -139,6 +156,8 @@ public class Factory {
 			map.increment(r.productionBuilding, this.getCount(r));
 		for (Generator g : generators.keySet())
 			map.increment(g, this.getCount(g));
+		for (ExtractableResource res : resourceSources.allValues(false))
+			map.increment(res.getBuilding(), 1);
 		return map;
 	}
 	/*

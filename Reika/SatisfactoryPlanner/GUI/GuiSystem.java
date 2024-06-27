@@ -1,7 +1,5 @@
 package Reika.SatisfactoryPlanner.GUI;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -14,18 +12,26 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.image.Image;
 import javafx.scene.text.Font;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class GuiSystem extends Application {
 
-	public static Image icon;
-	public static HostServices service;
+	private static Font font;
+	private static Image icon;
+	private static HostServices service;
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		primaryStage.hide();
 
 		service = this.getHostServices();
+
+		font = Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans-Regular.ttf"), 12);
+		if (font == null) {
+			System.err.println("Could not load font file!");
+			font = Font.font(12);
+		}
 
 		InputStream in = this.getClass().getResourceAsStream("icon.png");
 		if (in != null)
@@ -34,6 +40,30 @@ public class GuiSystem extends Application {
 		//this.setFont(root, MainWindow.getGUI().getFont(10));
 		Main.isJFXActive = true;
 		new MainWindow().show();
+	}
+
+	public static Font getFont(double size) {
+		return Font.font(font.getFamily(), size);
+	}
+
+	public static String getFontStyle() {
+		return "-fx-font-family: \""+getFont(1).getFamily()+"\";";
+	}
+
+	public static String getFontStyle(int size) {
+		return "-fx-font-family: \""+getFont(1).getFamily()+"\"; -fx-font-size: "+size+"px;";
+	}
+
+	public static Font getDefaultFont() {
+		return font;
+	}
+
+	public static Image getIcon() {
+		return icon;
+	}
+
+	public static HostServices getHSVC() {
+		return service;
 	}
 
 	public static GuiInstance loadFXML(String fxml, WindowBase window) throws IOException {
@@ -60,47 +90,38 @@ public class GuiSystem extends Application {
 
 		private static MainWindow gui;
 
-		private Font font;
-
 		public MainWindow() throws IOException {
 			super("Satisfactory Planner", "mainUI-Dynamic");
 			gui = this;
-
-			File f = this.getFontFile();
-			font = f == null ? null : Font.loadFont(new FileInputStream(f), 12);
-			if (font == null) {
-				System.err.println("Could not load font file!");
-				font = Font.font(12);
-			}
 
 			window.setWidth(1200);
 			window.setHeight(900);
 		}
 
-		private File getFontFile() {
-			return null;
-		}
-
 		@Override
 		protected void onCloseButtonClicked() {
-
 			Platform.exit();
-		}
-
-		public Font getFont(double size) {
-			return Font.font(font.getFamily(), size);
-		}
-
-		public String getFontStyle() {
-			return "-fx-font-family: \""+this.getFont(1).getFamily()+"\";";
-		}
-
-		public String getFontStyle(int size) {
-			return "-fx-font-family: \""+this.getFont(1).getFamily()+"\"; -fx-font-size: "+size+"px;";
 		}
 
 		public static MainWindow getGUI() {
 			return gui;
+		}
+
+	}
+
+	public static class DialogWindow extends WindowBase {
+
+		protected DialogWindow(String title, String fxmlName, WindowBase from) throws IOException {
+			super(title, fxmlName);
+
+			window.initModality(Modality.APPLICATION_MODAL);
+			window.initOwner(from.window);
+		}
+
+		@Override
+		public void show() throws IOException {
+			window.toFront();
+			super.show();
 		}
 
 	}

@@ -5,5 +5,6 @@ public interface ExtractableResource<R extends Consumable> extends ResourceSuppl
 
 	public float getClockSpeed();
 	public void setClockSpeed(float spd);
+	public Building getBuilding();
 
 }

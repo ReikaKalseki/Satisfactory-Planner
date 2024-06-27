@@ -24,4 +24,9 @@ public class WaterExtractor implements ExtractableResource<Fluid> {
 		return (Fluid)Database.lookupItem("Water");
 	}
 
+	@Override
+	public Building getBuilding() {
+		return Database.lookupBuilding("Water Extractor");
+	}
+
 }

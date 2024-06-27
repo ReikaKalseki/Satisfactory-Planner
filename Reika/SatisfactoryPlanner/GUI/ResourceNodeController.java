@@ -15,16 +15,14 @@ import Reika.SatisfactoryPlanner.Data.Item;
 import Reika.SatisfactoryPlanner.Data.OilNode;
 import Reika.SatisfactoryPlanner.Data.SolidResourceNode;
 import Reika.SatisfactoryPlanner.Data.WaterExtractor;
-import Reika.SatisfactoryPlanner.Util.GuiUtil;
+import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
 
 import javafx.application.HostServices;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.RadioButton;
-import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.Toggle;
@@ -38,9 +36,6 @@ public class ResourceNodeController extends ControllerBase {
 
 	@FXML
 	private Button addButton;
-
-	@FXML
-	private Slider clockspeed;
 
 	@FXML
 	private GridPane extraGrid;
@@ -58,10 +53,10 @@ public class ResourceNodeController extends ControllerBase {
 	private Spinner<Integer> frackingPure;
 
 	@FXML
-	private ChoiceBox<Purity> purity;
+	private ComboBox<Purity> purity;
 
 	@FXML
-	private ChoiceBox<MinerTier> solidMinerTier;
+	private ComboBox<MinerTier> solidMinerTier;
 
 	@FXML
 	private HBox shardDisplay;
@@ -86,6 +81,8 @@ public class ResourceNodeController extends ControllerBase {
 
 	private ToggleGroup radioButtons = new ToggleGroup();
 
+	private int clockSpeed;
+
 	@Override
 	public void init(HostServices services) throws IOException {
 		solidDropdown.setItems(FXCollections.observableArrayList(Database.getMineables()));
@@ -107,17 +104,16 @@ public class ResourceNodeController extends ControllerBase {
 		solidDropdown.setConverter(cv);
 		frackingDropdown.setConverter(cv);
 
-		solidMinerTier.setConverter(new StringConverter<MinerTier>() {
-			@Override
-			public String toString(MinerTier mt) {
-				return mt == null ? "" : "Miner Mk"+(mt.ordinal()+1);
-			}
+		solidDropdown.setButtonCell(new ItemListCell<Item>("Choose Item...", true));
+		solidDropdown.setCellFactory(c -> new ItemListCell<Item>("", false));
+		frackingDropdown.setButtonCell(new ItemListCell<Fluid>("Choose Fluid...", true));
+		frackingDropdown.setCellFactory(c -> new ItemListCell<Fluid>("", false));
+		solidMinerTier.setButtonCell(new MinerListCell("Choose Miner...", true));
+		solidMinerTier.setCellFactory(c -> new MinerListCell("", false));
+		purity.setButtonCell(new PurityListCell("Choose Purity...", true));
+		purity.setCellFactory(c -> new PurityListCell("", false));
 
-			@Override
-			public MinerTier fromString(String s) {
-				return Strings.isNullOrEmpty(s) ? null : MinerTier.values()[Integer.parseInt(s.substring(s.length()-1))-1];
-			}
-		});
+		solidMinerTier.setConverter(MinerListCell.converter);
 
 		solidRadio.setToggleGroup(radioButtons);
 		waterRadio.setToggleGroup(radioButtons);
@@ -132,20 +128,20 @@ public class ResourceNodeController extends ControllerBase {
 			frackingNormal.setDisable(nnew != frackingRadio);
 			frackingPure.setDisable(nnew != frackingRadio);
 			frackingDropdown.setDisable(nnew != frackingRadio);
-			this.updateStats((int)clockspeed.getValue());
+			this.updateStats();
 		});
 
 		purity.getSelectionModel().selectedItemProperty().addListener((val, old, nnew) -> {
-			this.updateStats((int)clockspeed.getValue());
+			this.updateStats();
 		});
 		solidDropdown.getSelectionModel().selectedItemProperty().addListener((val, old, nnew) -> {
-			this.updateStats((int)clockspeed.getValue());
+			this.updateStats();
 		});
 		solidMinerTier.getSelectionModel().selectedItemProperty().addListener((val, old, nnew) -> {
-			this.updateStats((int)clockspeed.getValue());
+			this.updateStats();
 		});
 		frackingDropdown.getSelectionModel().selectedItemProperty().addListener((val, old, nnew) -> {
-			this.updateStats((int)clockspeed.getValue());
+			this.updateStats();
 		});
 
 		radioButtons.selectToggle(solidRadio);
@@ -154,55 +150,54 @@ public class ResourceNodeController extends ControllerBase {
 		this.setupFrackingSpinner(frackingNormal, Purity.NORMAL);
 		this.setupFrackingSpinner(frackingPure, Purity.PURE);
 
-		clockspeed.valueProperty().addListener((val, old, nnew) -> {
-			this.updateStats(nnew.intValue());
-		});
-
 		addButton.setOnAction(e -> {
 			if (!purity.isDisabled() && purity.getSelectionModel().getSelectedItem() == null) {
-				//error
+				//TODO error
 				return;
 			}
 			if (radioButtons.getSelectedToggle() == solidRadio && solidDropdown.getSelectionModel().getSelectedItem() == null) {
-				//error
+				//TODO error
 				return;
 			}
 			if (radioButtons.getSelectedToggle() == solidRadio && solidMinerTier.getSelectionModel().getSelectedItem() == null) {
-				//error
+				//TODO error
 				return;
 			}
 			if (radioButtons.getSelectedToggle() == frackingRadio && frackingDropdown.getSelectionModel().getSelectedItem() == null) {
-				//error
+				//TODO error
 				return;
 			}
 			ExtractableResource res = this.createResource();
-			res.setClockSpeed((int)clockspeed.getValue());
+			res.setClockSpeed(clockSpeed/100F);
 			((MainGuiController)owner).getFactory().addExternalSupply(res);
+			this.close();
 		});
 	}
 
-	private void updateStats(int clock) {
+	private void updateStats() {
 		ExtractableResource res = this.createResource();
 		shardDisplay.getChildren().clear();
 		yieldDisplay.getChildren().clear();
-		for (int i = 0; i < Math.ceil((clock-100)/50D); i++) {
-			shardDisplay.getChildren().add(Database.lookupItem("Power Shard").createImageView());
+		if (clockSpeed > 100) {
+			for (int i = 0; i < Math.ceil((clockSpeed-100)/50D); i++) {
+				shardDisplay.getChildren().add(Database.lookupItem("Power Shard").createImageView());
+			}
 		}
 		if (res != null && res.getResource() != null && res.getYield() > 0) {
-			res.setClockSpeed(clock/100F);
+			res.setClockSpeed(clockSpeed/100F);
 			GuiUtil.addIconCount(yieldDisplay, res.getResource(), res.getYield());
 		}
 	}
 
 	private void setupFrackingSpinner(Spinner<Integer> counter, Purity p) {
 		counter.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 99, 0));
-		counter.setEditable(true);
+		counter.setEditable(false);
 		counter.setPrefWidth(64);
 		counter.setMinWidth(Region.USE_PREF_SIZE);
 		counter.setMaxWidth(Region.USE_PREF_SIZE);
 		counter.getValueFactory().setValue(0);
 		counter.getValueFactory().valueProperty().addListener((val, old, nnew) -> {
-			this.updateStats((int)clockspeed.getValue());
+			this.updateStats();
 		});
 	}
 
@@ -219,6 +214,9 @@ public class ResourceNodeController extends ControllerBase {
 	@Override
 	protected void postInit(WindowBase w) throws IOException {
 		super.postInit(w);
+
+		GuiInstance gui = this.loadNestedFXML("ClockspeedSlider", extraGrid, 1, 1);
+		((ClockspeedSliderController)gui.controller).setCallback(v -> {clockSpeed = v; this.updateStats();});
 	}
 
 }

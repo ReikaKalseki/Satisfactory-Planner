@@ -11,27 +11,24 @@ import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Data.Building;
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Database;
+import Reika.SatisfactoryPlanner.Data.ExtractableResource;
 import Reika.SatisfactoryPlanner.Data.Factory;
 import Reika.SatisfactoryPlanner.Data.Generator;
 import Reika.SatisfactoryPlanner.Data.Item;
 import Reika.SatisfactoryPlanner.Data.Recipe;
+import Reika.SatisfactoryPlanner.Data.ResourceSupply;
+import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
 import Reika.SatisfactoryPlanner.Util.ColorUtil;
 import Reika.SatisfactoryPlanner.Util.CountMap;
 import Reika.SatisfactoryPlanner.Util.FactoryListener;
-import Reika.SatisfactoryPlanner.Util.GuiUtil;
 
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -43,7 +40,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Rectangle;
 import javafx.util.StringConverter;
 
 public class MainGuiController extends ControllerBase implements FactoryListener {
@@ -175,8 +171,8 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 			if (nnew != null)
 				Platform.runLater(() -> factory.addRecipe(nnew)); //need to delay since this updates the selection and contents, which cannot be done inside a selection change
 		});
-		recipeDropdown.setButtonCell(new RecipeListCell(true));
-		recipeDropdown.setCellFactory(c -> new RecipeListCell(false));
+		recipeDropdown.setButtonCell(new RecipeListCell("Click To Add Recipe...", true));
+		recipeDropdown.setCellFactory(c -> new RecipeListCell("", false));
 
 
 		((ImageView)addMinerButton.getGraphic()).setImage(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/add.png")));
@@ -239,6 +235,9 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 			gridContainer.setContent(factory.createRawMatrix(this));
 			netGridContainer.setContent(factory.createNetMatrix(this));
 
+			this.setFont(gridContainer, GuiSystem.getDefaultFont());
+			this.setFont(netGridContainer, GuiSystem.getDefaultFont());
+
 			this.updateStats();
 		}
 		catch (IOException e) {
@@ -268,11 +267,13 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 	@Override
 	public void onAddProduct(Consumable c) {
 		productGrid.getChildren().add(productGrid.getChildren().size()-1, this.createProductButton(c));
+		this.updateRecipes();
 	}
 
 	@Override
 	public void onRemoveProduct(Consumable c) {
 		productGrid.getChildren().remove(productButtons.get(c));
+		this.updateRecipes();
 	}
 
 	@Override
@@ -285,7 +286,29 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 		this.updateStats();
 	}
 
+	@Override
+	public void onAddSupply(ResourceSupply res) {
+		this.updateRecipes();
+	}
+
+	@Override
+	public void onRemoveSupply(ResourceSupply res) {
+		this.updateRecipes();
+	}
+
 	private void updateStats() {
+		minerBar.getChildren().removeIf(n -> !(n instanceof Button));
+		inputBar.getChildren().removeIf(n -> !(n instanceof Button));
+		for (ExtractableResource res : factory.getMines()) {
+			try {
+				GuiInstance gui = this.loadNestedFXML("ResourceMineEntry", minerBar);
+				((ResourceMineEntryController)gui.controller).setMine(factory, res);
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
 		costBar.getChildren().clear();
 		buildingBar.getChildren().clear();
 
@@ -311,84 +334,6 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 		else {
 			powerProduction.setStyle("");
 		}
-	}
-
-	private static class RecipeListCell extends ListCell<Recipe> {
-
-		private static final String PROMPT = "Click To Add Recipe...";
-
-		public RecipeListCell(boolean isButton) {
-			super();
-
-			//this.setGraphicTextGap(24);
-			this.setContentDisplay(ContentDisplay.RIGHT);
-			this.setMinHeight(Region.USE_PREF_SIZE);
-			if (!isButton) {
-				this.setPadding(new Insets(2, 12, 2, 6));
-			}
-			Insets in = this.getInsets();
-			this.setPrefHeight(32+in.getTop()+in.getBottom());
-		}
-
-		@Override
-		protected void updateItem(Recipe r, boolean empty) {
-			super.updateItem(r, empty);
-			if (empty || r == null) {
-				this.setText(PROMPT);
-				this.setGraphic(null);
-			}
-			else {
-				//this.setText(r.name);
-				this.setText("");
-				this.setGraphic(this.createRecipePreview(r));
-			}
-		}
-
-		private Node createRecipePreview(Recipe r) {
-			HBox ingredients = new HBox();
-			HBox products = new HBox();
-			ingredients.setSpacing(8);
-			products.setSpacing(8);
-			ingredients.setMinWidth(Region.USE_PREF_SIZE);
-			ingredients.setMaxWidth(Region.USE_PREF_SIZE);
-			products.setMinWidth(Region.USE_PREF_SIZE);
-			products.setMaxWidth(Region.USE_PREF_SIZE);
-			ingredients.prefWidthProperty().bind(ingredients.spacingProperty().multiply(Recipe.getMaxIngredients()-1).add(Recipe.getMaxIngredients()*32));
-			products.prefWidthProperty().bind(products.spacingProperty().multiply(Recipe.getMaxProducts()-1).add(Recipe.getMaxProducts()*32));
-
-			for (Consumable c : r.getCost().keySet())
-				ingredients.getChildren().add(new ImageView(c.createIcon()));
-			for (Consumable c : r.getProducts().keySet())
-				products.getChildren().add(new ImageView(c.createIcon()));
-			HBox itemBar = new HBox();
-			itemBar.getChildren().add(ingredients);
-			ImageView img = new ImageView(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/arrow-right-small.png")));
-			itemBar.getChildren().add(img);
-			HBox.setMargin(img, new Insets(0, 4, 0, 4));
-			itemBar.getChildren().add(products);
-			HBox buildingBar = new HBox();
-			buildingBar.setAlignment(Pos.CENTER);
-			buildingBar.setSpacing(12);
-			buildingBar.getChildren().add(new ImageView(r.productionBuilding.createIcon()));
-			buildingBar.getChildren().add(new Label(r.productionBuilding.name));
-			buildingBar.setPrefWidth(96);
-			buildingBar.setMinWidth(Region.USE_PREF_SIZE);
-			buildingBar.setMaxWidth(Region.USE_PREF_SIZE);
-			HBox graphicBar = new HBox();
-			graphicBar.getChildren().add(itemBar);
-			Rectangle rect = new Rectangle();
-			rect.setFill(UIConstants.FADE_COLOR);
-			rect.setWidth(4);
-			rect.setHeight(32);
-			graphicBar.getChildren().add(rect);
-			graphicBar.getChildren().add(buildingBar);
-			graphicBar.setSpacing(24);
-			Label lb = new Label(r.name);
-			lb.setStyle("-fx-font-weight: bold;");
-			return GuiUtil.createSpacedHBox(lb, graphicBar, null);
-
-		}
-
 	}
 
 }

@@ -1,4 +1,4 @@
-package Reika.SatisfactoryPlanner.Util;
+package Reika.SatisfactoryPlanner.GUI;
 
 import Reika.SatisfactoryPlanner.Data.Resource;
 
@@ -29,7 +29,7 @@ public class GuiUtil {
 
 	public static void setTooltip(Node n, String msg, int delay) {
 		Tooltip t = new Tooltip(msg);
-		t.setStyle("-fx-font-size: 12");
+		t.setStyle("-fx-font-size: 12; "+GuiSystem.getFontStyle());
 		t.setShowDelay(Duration.millis(delay));
 		if (n instanceof Control)
 			((Control)n).setTooltip(t);

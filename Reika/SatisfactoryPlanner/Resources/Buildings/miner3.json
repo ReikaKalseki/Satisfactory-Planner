@@ -1,0 +1,12 @@
+{
+  "name": "Miner Mk.3",
+  "icon": "MinerMk3",
+  "powerCost": "30",
+  "ingredients": {
+    "Steel Pipe": "50",
+    "Supercomputer": "5",
+    "Fused Modular Frame": "10",
+    "Turbo Motor": "3",
+    "Portable Miner": "3"
+  }
+}

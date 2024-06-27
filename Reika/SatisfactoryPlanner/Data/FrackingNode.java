@@ -14,4 +14,9 @@ public class FrackingNode extends BaseResourceNode<Fluid> {
 		return purityLevel == null ? 0 : (int)(purityLevel.getFrackingYield()*this.getClockSpeed());
 	}
 
+	@Override
+	public Building getBuilding() {
+		return Database.lookupBuilding("Resource Well Extractor");
+	}
+
 }
