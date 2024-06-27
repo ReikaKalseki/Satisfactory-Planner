@@ -3,14 +3,20 @@ package Reika.SatisfactoryPlanner.GUI;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import com.google.common.base.Strings;
 
 import Reika.SatisfactoryPlanner.Main;
+import Reika.SatisfactoryPlanner.Data.Building;
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Data.Factory;
+import Reika.SatisfactoryPlanner.Data.Generator;
+import Reika.SatisfactoryPlanner.Data.Item;
 import Reika.SatisfactoryPlanner.Data.Recipe;
+import Reika.SatisfactoryPlanner.Util.ColorUtil;
+import Reika.SatisfactoryPlanner.Util.CountMap;
 import Reika.SatisfactoryPlanner.Util.FactoryListener;
 import Reika.SatisfactoryPlanner.Util.GuiUtil;
 
@@ -32,6 +38,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TitledPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.TilePane;
@@ -44,13 +51,28 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 	private boolean hasLoaded;
 
 	@FXML
+	private Button addInputButton;
+
+	@FXML
+	private Button addMinerButton;
+
+	@FXML
 	private Button addProductButton;
+
+	@FXML
+	private HBox buildingBar;
 
 	@FXML
 	private MenuItem clearMenu;
 
 	@FXML
+	private MenuItem clearProductMenu;
+
+	@FXML
 	private Menu controlMenu;
+
+	@FXML
+	private HBox costBar;
 
 	@FXML
 	private Menu currentMenu;
@@ -59,19 +81,28 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 	private Menu factoryMenu;
 
 	@FXML
+	private TitledPane generatorsPanel;
+
+	@FXML
 	private TitledPane gridContainer;
 
 	@FXML
-	private TitledPane inputsPanel;
+	private HBox inputBar;
 
 	@FXML
-	private TitledPane inputsPanel1;
+	private TitledPane inputsPanel;
 
 	@FXML
 	private MenuItem isolateMenu;
 
 	@FXML
 	private MenuBar menu;
+
+	@FXML
+	private HBox minerBar;
+
+	@FXML
+	private TitledPane minersPanel;
 
 	@FXML
 	private TitledPane netGridContainer;
@@ -83,10 +114,13 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 	private MenuItem openMenu;
 
 	@FXML
-	private TitledPane productsPanel;
+	private Label powerProduction;
 
 	@FXML
 	private TilePane productGrid;
+
+	@FXML
+	private TitledPane productsPanel;
 
 	@FXML
 	private MenuItem quitMenu;
@@ -105,6 +139,9 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 
 	@FXML
 	private MenuItem settingsMenu;
+
+	@FXML
+	private GridPane statisticsGrid;
 
 	@FXML
 	private TitledPane statsPanel;
@@ -141,10 +178,30 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 		recipeDropdown.setButtonCell(new RecipeListCell(true));
 		recipeDropdown.setCellFactory(c -> new RecipeListCell(false));
 
+
+		((ImageView)addMinerButton.getGraphic()).setImage(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/add.png")));
+		addMinerButton.setOnAction(e -> {
+			try {
+				this.openFXMLDialog("Add Resource Node", "ResourceNodeDialog");
+			}
+			catch (IOException ex) {
+				throw new RuntimeException(ex);
+			}
+		});
+
+		((ImageView)addInputButton.getGraphic()).setImage(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/add.png")));
+		addInputButton.setOnAction(e -> {
+
+		});
+
 		((ImageView)addProductButton.getGraphic()).setImage(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/add.png")));
 		addProductButton.setOnAction(e -> {
 
 		});
+	}
+
+	public Factory getFactory() {
+		return factory;
 	}
 
 	private Button createProductButton(Consumable c) {
@@ -181,10 +238,21 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 
 			gridContainer.setContent(factory.createRawMatrix(this));
 			netGridContainer.setContent(factory.createNetMatrix(this));
+
+			this.updateStats();
 		}
 		catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void updateWarnings() {
+		boolean any = false;
+		warningPanel.setDisable(!any);
+		if (!any)
+			warningPanel.setExpanded(false);
+		warningPanel.setCollapsible(any);
+		warningPanel.setVisible(any);
 	}
 
 	@Override
@@ -199,12 +267,50 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 
 	@Override
 	public void onAddProduct(Consumable c) {
-		productGrid.getChildren().add(this.createProductButton(c));
+		productGrid.getChildren().add(productGrid.getChildren().size()-1, this.createProductButton(c));
 	}
 
 	@Override
 	public void onRemoveProduct(Consumable c) {
 		productGrid.getChildren().remove(productButtons.get(c));
+	}
+
+	@Override
+	public void onSetCount(Recipe r, int amt) {
+		this.updateStats();
+	}
+
+	@Override
+	public void onSetCount(Generator g, int amt) {
+		this.updateStats();
+	}
+
+	private void updateStats() {
+		costBar.getChildren().clear();
+		buildingBar.getChildren().clear();
+
+		CountMap<Building> c = factory.getBuildings();
+		for (Building b : c.keySet()) {
+
+			int amt = c.get(b);
+			GuiUtil.addIconCount(buildingBar, b, amt);
+
+			for (Entry<Item, Integer> e : b.getConstructionCost().entrySet()) {
+				GuiUtil.addIconCount(costBar, e.getKey(), e.getValue()*amt);
+			}
+		}
+
+		int prod = factory.getNetPowerProduction();
+		powerProduction.setText(prod+" MW");
+		if (prod > 0) {
+			powerProduction.setStyle("-fx-font-weight: bold; -fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.OKAY_COLOR)+";");
+		}
+		else if (prod < 0) {
+			powerProduction.setStyle("-fx-font-weight: bold; -fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.WARN_COLOR)+";");
+		}
+		else {
+			powerProduction.setStyle("");
+		}
 	}
 
 	private static class RecipeListCell extends ListCell<Recipe> {
@@ -238,30 +344,7 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 			}
 		}
 
-		private Node createRecipePreview(Recipe r) {/*
-			HBox hb = new HBox();
-			hb.setAlignment(Pos.CENTER_RIGHT);
-			GuiUtil.addSpacer(hb);
-			hb.setSpacing(8);
-			for (Consumable c : r.getCost().keySet()) {
-				ImageView img = new ImageView(c.createIcon());
-				hb.getChildren().add(img);
-			}
-			hb.getChildren().add(new ImageView(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/arrow-right-small.png"))));
-			for (Consumable c : r.getProducts().keySet())
-				hb.getChildren().add(new ImageView(c.createIcon()));
-			graphicTextGapProperty().bind(widthProperty().subtract(this.labelPaddingProperty().);*/
-
-			/*
-			for (Consumable c : r.getCost().keySet())
-				hb1.getChildren().add(new ImageView(c.createIcon()));
-			for (Consumable c : r.getProducts().keySet())
-				hb2.getChildren().add(new ImageView(c.createIcon()));
-			HBox hb0 = GuiUtil.createSpacedHBox(hb1, new ImageView(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/arrow-right-small.png"))), hb2);
-			hb0.setMaxWidth(Double.POSITIVE_INFINITY);
-			HBox.setHgrow(hb0, Priority.ALWAYS);
-			return GuiUtil.createSpacedHBox(new Label(r.name), hb0, null);*/
-
+		private Node createRecipePreview(Recipe r) {
 			HBox ingredients = new HBox();
 			HBox products = new HBox();
 			ingredients.setSpacing(8);

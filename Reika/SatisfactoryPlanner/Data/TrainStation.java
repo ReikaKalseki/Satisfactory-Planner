@@ -2,11 +2,11 @@ package Reika.SatisfactoryPlanner.Data;
 
 import Reika.SatisfactoryPlanner.Data.Constants.BeltTier;
 
-public class TrainStation extends LogisticSupply {
+public class TrainStation<R extends Consumable> extends LogisticSupply<R> {
 
 	public final int numberBuildings;
 
-	public TrainStation(Consumable c, int buildings) {
+	public TrainStation(R c, int buildings) {
 		super(c);
 		numberBuildings = buildings;
 	}

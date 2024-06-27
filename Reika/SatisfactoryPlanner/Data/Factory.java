@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import Reika.SatisfactoryPlanner.GUI.ControllerBase;
 import Reika.SatisfactoryPlanner.GUI.RecipeMatrix;
 import Reika.SatisfactoryPlanner.GUI.ScaledRecipeMatrix;
+import Reika.SatisfactoryPlanner.Util.CountMap;
 import Reika.SatisfactoryPlanner.Util.FactoryListener;
 import Reika.SatisfactoryPlanner.Util.MultiMap;
 
@@ -16,7 +16,10 @@ import javafx.scene.layout.GridPane;
 
 public class Factory {
 
-	private final ArrayList<Recipe> recipes = new ArrayList();
+	private final CountMap<Recipe> recipes = new CountMap();
+	private final ArrayList<Recipe> recipeList = new ArrayList();
+
+	private final CountMap<Generator> generators = new CountMap();
 
 	private final ArrayList<FactoryListener> changeCallback = new ArrayList();
 
@@ -37,16 +40,18 @@ public class Factory {
 	}
 
 	public void addRecipe(Recipe r) {
-		if (r == null || recipes.contains(r))
+		if (r == null || recipeList.contains(r))
 			return;
-		recipes.add(r);
-		Collections.sort(recipes);
+		recipeList.add(r);
+		this.setCount(r, 0);
+		Collections.sort(recipeList);
 		for (FactoryListener rr : changeCallback)
 			rr.onAddRecipe(r);
 	}
 
 	public void removeRecipe(Recipe r) {
-		if (recipes.remove(r)) {
+		if (recipeList.remove(r)) {
+			recipes.remove(r);
 			for (FactoryListener rr : changeCallback)
 				rr.onRemoveRecipe(r);
 		}
@@ -58,6 +63,22 @@ public class Factory {
 
 	public GridPane createNetMatrix(ControllerBase con) throws IOException {
 		return scaleMatrix.createGrid(con);
+	}
+
+	public void addExternalSupply(ExtractableResource res) {
+		resourceSources.addValue(res.getResource(), res);
+	}
+
+	public void addExternalSupply(LogisticSupply res) {
+		externalSupplies.addValue(res.getResource(), res);
+	}
+
+	public void removeExternalSupply(ExtractableResource res) {
+		resourceSources.remove(res.getResource(), res);
+	}
+
+	public void removeExternalSupply(LogisticSupply res) {
+		externalSupplies.remove(res.getResource(), res);
 	}
 
 	public int getExternalSupply(Consumable c) {
@@ -89,15 +110,55 @@ public class Factory {
 	}
 
 	public List<Recipe> getRecipes() {
-		return Collections.unmodifiableList(recipes);
+		return Collections.unmodifiableList(recipeList);
 	}
 
-	public Map<Item, Integer> getConstructionCost() {
-
+	public int getCount(Recipe r) {
+		return recipes.get(r);
 	}
+
+	public void setCount(Recipe r, int amt) {
+		recipes.set(r, amt);
+		for (FactoryListener rr : changeCallback)
+			rr.onSetCount(r, amt);
+	}
+
+	public int getCount(Generator g) {
+		return generators.get(g);
+	}
+
+	public void setCount(Generator g, int amt) {
+		generators.set(g, amt);
+		for (FactoryListener rr : changeCallback)
+			rr.onSetCount(g, amt);
+	}
+
+	public CountMap<Building> getBuildings() {
+		CountMap<Building> map = new CountMap();
+		for (Recipe r : recipeList)
+			map.increment(r.productionBuilding, this.getCount(r));
+		for (Generator g : generators.keySet())
+			map.increment(g, this.getCount(g));
+		return map;
+	}
+	/*
+	public CountMap<Item> getConstructionCost() {
+		CountMap<Item> map = new CountMap();
+		for (Recipe r : recipeList) {
+			for (Entry<Item, Integer> e : r.productionBuilding.getConstructionCost().entrySet()) {
+				map.increment(e.getKey(), e.getValue()*recipes.get(r));
+			}
+		}
+		return map;
+	}*/
 
 	public int getNetPowerProduction() {
-
+		int ret = 0;
+		for (Generator g : generators.keySet())
+			ret += g.powerGenerationMW*this.getCount(g);
+		for (Recipe r : recipeList)
+			ret -= r.productionBuilding.basePowerCostMW*this.getCount(r);
+		return ret;
 	}
 
 }

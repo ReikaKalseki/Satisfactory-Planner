@@ -104,26 +104,4 @@ public class GuiSystem extends Application {
 		}
 
 	}
-
-	/*
-	public static void forceUpdate() {
-		if (Platform.isFxApplicationThread()) {
-			try {
-				((MainGuiController)MainWindow.getGUI().controller).updateTick(true);
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		else {
-			Platform.runLater(() -> {
-				try {
-					((MainGuiController)MainWindow.getGUI().controller).updateTick(true);
-				}
-				catch (IOException e) {
-					e.printStackTrace();
-				}
-			});
-		}
-	}*/
 }

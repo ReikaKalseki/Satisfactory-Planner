@@ -3,15 +3,15 @@ package Reika.SatisfactoryPlanner.Data;
 import Reika.SatisfactoryPlanner.Data.Constants.Purity;
 
 
-public class OilNode extends BaseResourceNode {
+public class OilNode extends BaseResourceNode<Fluid> {
 
 	public OilNode(Purity p) {
-		super(Database.lookupItem("Crude Oil"), p);
+		super((Fluid)Database.lookupItem("Crude Oil"), p);
 	}
 
 	@Override
 	public int getYield() {
-		return (int)(purityLevel.getOilYield()*this.getClockSpeed());
+		return purityLevel == null ? 0 : (int)(purityLevel.getOilYield()*this.getClockSpeed());
 	}
 
 }

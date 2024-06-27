@@ -1,12 +1,17 @@
 package Reika.SatisfactoryPlanner.Util;
 
+import Reika.SatisfactoryPlanner.Data.Resource;
+
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Control;
+import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -70,6 +75,24 @@ public class GuiUtil {
 		add.setMaxHeight(Double.POSITIVE_INFINITY);
 		p.getChildren().add(add);
 		VBox.setVgrow(add, Priority.ALWAYS);
+	}
+
+	public static void addIconCount(Pane p, Resource r, int amt) {
+		HBox n = new HBox();
+		n.setSpacing(4);
+		n.setAlignment(Pos.CENTER);
+		n.getChildren().add(r.createImageView());
+		n.getChildren().add(new Label("x"+amt));
+		p.getChildren().add(n);
+	}
+
+	public static void addIconCount(GridPane p, int col, int row, Resource r, int amt) {
+		HBox n = new HBox();
+		n.setSpacing(4);
+		n.setAlignment(Pos.CENTER);
+		n.getChildren().add(r.createImageView());
+		n.getChildren().add(new Label("x"+amt));
+		p.add(n, col, row);
 	}
 
 }

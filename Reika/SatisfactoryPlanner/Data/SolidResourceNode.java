@@ -4,7 +4,7 @@ import Reika.SatisfactoryPlanner.Data.Constants.MinerTier;
 import Reika.SatisfactoryPlanner.Data.Constants.Purity;
 
 
-public class SolidResourceNode extends BaseResourceNode {
+public class SolidResourceNode extends BaseResourceNode<Item> {
 
 	public final MinerTier minerLevel;
 
@@ -15,7 +15,7 @@ public class SolidResourceNode extends BaseResourceNode {
 
 	@Override
 	public int getYield() {
-		return (int)(purityLevel.getSolidYield()*minerLevel.speedMultiplier*this.getClockSpeed());
+		return purityLevel == null || minerLevel == null ? 0 : (int)(purityLevel.getSolidYield()*minerLevel.speedMultiplier*this.getClockSpeed());
 	}
 
 }

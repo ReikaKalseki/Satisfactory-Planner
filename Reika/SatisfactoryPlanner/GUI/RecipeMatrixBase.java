@@ -10,12 +10,10 @@ import java.util.Map.Entry;
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
-import Reika.SatisfactoryPlanner.Util.GuiUtil;
 import Reika.SatisfactoryPlanner.Util.MultiMap;
 
 import javafx.collections.ObservableList;
 import javafx.scene.control.Label;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -147,9 +145,7 @@ public abstract class RecipeMatrixBase {
 			((ItemViewController)gui.controller).setItem(c, e.getValue()*this.getMultiplier(r));
 			recipeEntries.addValue(r, gui);
 		}
-		ImageView img = new ImageView(r.productionBuilding.createIcon());
-		GuiUtil.setTooltip(img, r.productionBuilding.name);
-		gp.add(img, buildingColumn, rowIndex);
+		gp.add(r.productionBuilding.createImageView(), buildingColumn, rowIndex);
 
 		this.createDivider(gp, mainGapColumn, rowIndex, 0);
 		this.createDivider(gp, inoutGapColumn, rowIndex, 1);

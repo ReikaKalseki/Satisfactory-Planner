@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import Reika.SatisfactoryPlanner.Data.Constants.Purity;
 
-public class FrackingCluster implements ExtractableResource {
+public class FrackingCluster implements ExtractableResource<Fluid> {
 
 	private final ArrayList<FrackingNode> nodes = new ArrayList();
 
@@ -37,6 +37,11 @@ public class FrackingCluster implements ExtractableResource {
 
 	public float getClockSpeed() {
 		return clockSpeed;
+	}
+
+	@Override
+	public Fluid getResource() {
+		return resource;
 	}
 
 }

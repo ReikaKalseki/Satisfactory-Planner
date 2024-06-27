@@ -1,13 +1,13 @@
 package Reika.SatisfactoryPlanner.Data;
 
 
-public abstract class LogisticSupply implements ResourceSupply {
+public abstract class LogisticSupply<R extends Consumable> implements ResourceSupply<R> {
 
-	public final Consumable resource;
+	public final R resource;
 
 	private int chosenThroughput;
 
-	protected LogisticSupply(Consumable c) {
+	protected LogisticSupply(R c) {
 		resource = c;
 	}
 
@@ -24,6 +24,10 @@ public abstract class LogisticSupply implements ResourceSupply {
 
 	public final boolean isBottlenecked() {
 		return chosenThroughput > this.getMaximumIO();
+	}
+
+	public final R getResource() {
+		return resource;
 	}
 
 }

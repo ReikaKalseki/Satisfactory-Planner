@@ -10,6 +10,7 @@ import javafx.application.HostServices;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Labeled;
@@ -20,6 +21,9 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public abstract class ControllerBase {
 
@@ -65,6 +69,21 @@ public abstract class ControllerBase {
 		GuiInstance ret = GuiSystem.loadFXML(fxml, container);
 		acceptor.accept(ret.rootNode);
 		ret.controller.owner = this;
+		return ret;
+	}
+
+	public final GuiInstance openFXMLDialog(String title, String fxml) throws IOException {
+		Stage dialog = new Stage();
+		dialog.setTitle(title);
+		GuiInstance ret = GuiSystem.loadFXML(fxml, container);
+		ret.controller.owner = this;
+		dialog.setScene(new Scene(ret.rootNode));
+		dialog.initStyle(StageStyle.DECORATED);
+		dialog.initModality(Modality.APPLICATION_MODAL);
+		dialog.initOwner(container.window);
+		dialog.toFront();
+		dialog.show();
+
 		return ret;
 	}
 

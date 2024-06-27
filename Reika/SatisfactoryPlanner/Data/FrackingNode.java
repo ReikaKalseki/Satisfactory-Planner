@@ -3,7 +3,7 @@ package Reika.SatisfactoryPlanner.Data;
 import Reika.SatisfactoryPlanner.Data.Constants.Purity;
 
 
-public class FrackingNode extends BaseResourceNode {
+public class FrackingNode extends BaseResourceNode<Fluid> {
 
 	public FrackingNode(Fluid c, Purity p) {
 		super(c, p);
@@ -11,7 +11,7 @@ public class FrackingNode extends BaseResourceNode {
 
 	@Override
 	public int getYield() {
-		return (int)(purityLevel.getFrackingYield()*this.getClockSpeed());
+		return purityLevel == null ? 0 : (int)(purityLevel.getFrackingYield()*this.getClockSpeed());
 	}
 
 }

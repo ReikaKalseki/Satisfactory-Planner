@@ -16,13 +16,14 @@
 <?import javafx.scene.layout.VBox?>
 
 
-<VBox prefWidth="250.0" spacing="8.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.ItemViewController">
+<VBox prefWidth="250.0" spacing="8.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.ResourceNodeController">
    <children>
       <TitledPane collapsible="false" contentDisplay="RIGHT" text="Solids">
          <content>
-            <VBox>
+            <VBox spacing="4.0">
                <children>
                   <ComboBox fx:id="solidDropdown" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="32.0" promptText="Choose Item..." />
+                  <ChoiceBox fx:id="solidMinerTier" disable="true" maxWidth="1.7976931348623157E308" />
                </children>
                <padding>
                   <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
@@ -96,6 +97,7 @@
             <Label layoutX="10.0" layoutY="59.0" text="Net Yield" GridPane.rowIndex="3" />
             <Label layoutX="10.0" layoutY="136.0" text="Power Shards" GridPane.rowIndex="2" />
             <HBox fx:id="shardDisplay" prefHeight="32.0" spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <HBox fx:id="yieldDisplay" layoutX="94.0" layoutY="88.0" prefHeight="32.0" spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
          </children>
          <VBox.margin>
             <Insets left="5.0" right="5.0" />

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox prefWidth="250.0" spacing="8.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.ItemViewController">
+   <padding>
+      <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+   </padding>
+   <children>
+      <Slider fx:id="clockspeed" blockIncrement="1.0" majorTickUnit="50.0" max="250.0" minorTickCount="5" showTickLabels="true" showTickMarks="true" value="100.0" />
+   </children>
+</VBox>

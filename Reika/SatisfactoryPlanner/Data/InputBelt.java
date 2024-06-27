@@ -2,7 +2,7 @@ package Reika.SatisfactoryPlanner.Data;
 
 import Reika.SatisfactoryPlanner.Data.Constants.BeltTier;
 
-public class InputBelt extends LogisticSupply {
+public class InputBelt extends LogisticSupply<Item> {
 
 	public final BeltTier tier;
 

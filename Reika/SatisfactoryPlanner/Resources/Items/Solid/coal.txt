@@ -1,0 +1,3 @@
+name=Coal
+icon=Coal
+mineable=true

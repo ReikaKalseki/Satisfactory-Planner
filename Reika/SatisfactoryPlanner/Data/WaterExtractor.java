@@ -1,7 +1,7 @@
 package Reika.SatisfactoryPlanner.Data;
 
 
-public class WaterExtractor implements ExtractableResource {
+public class WaterExtractor implements ExtractableResource<Fluid> {
 
 	private float clockSpeed = 1;
 
@@ -17,6 +17,11 @@ public class WaterExtractor implements ExtractableResource {
 
 	public float getClockSpeed() {
 		return clockSpeed;
+	}
+
+	@Override
+	public Fluid getResource() {
+		return (Fluid)Database.lookupItem("Water");
 	}
 
 }

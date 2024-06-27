@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import Reika.SatisfactoryPlanner.Data.Consumable;
+import Reika.SatisfactoryPlanner.Data.Generator;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
 import Reika.SatisfactoryPlanner.GUI.ItemViewController.WarningState;
-import Reika.SatisfactoryPlanner.Util.CountMap;
 import Reika.SatisfactoryPlanner.Util.FactoryListener;
 
 import javafx.scene.control.Label;
@@ -24,8 +24,6 @@ import javafx.scene.text.FontWeight;
 public class ScaledRecipeMatrix extends RecipeMatrixBase implements FactoryListener {
 
 	private final RecipeMatrix parent;
-
-	private final CountMap<Recipe> scales = new CountMap();
 
 	protected int countGapColumn;
 	protected int countColumn;
@@ -47,7 +45,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase implements FactoryListe
 
 	@Override
 	protected int getMultiplier(Recipe r) {
-		return buildingGrid ? 1 : scales.get(r);
+		return buildingGrid ? 1 : parent.owner.getCount(r);
 	}
 
 	@Override
@@ -131,7 +129,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase implements FactoryListe
 		this.addTitles(gp);
 
 		for (Recipe r : recipes)
-			this.setScale(r, scales.get(r));
+			this.onSetCount(r, parent.owner.getCount(r));
 
 		gp.setHgap(4);
 		gp.setVgap(4);
@@ -155,7 +153,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase implements FactoryListe
 		counter.setMaxHeight(Region.USE_PREF_SIZE);
 		counter.valueProperty().addListener((val, old, nnew) -> {
 			if (nnew != null)
-				this.setScale(r, nnew);
+				parent.owner.setCount(r, nnew);
 		});
 		TextField txt = counter.getEditor();
 		txt.textProperty().addListener((val, old, nnew) -> {
@@ -164,7 +162,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase implements FactoryListe
 			nnew = nnew.replaceAll("[^\\d.]", "");
 			txt.setText(nnew);
 		});
-		counter.getValueFactory().setValue(scales.get(r));
+		counter.getValueFactory().setValue(parent.owner.getCount(r));
 		gp.add(counter, countColumn, rowIndex);
 		return rowIndex;
 	}
@@ -179,8 +177,33 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase implements FactoryListe
 		gp.setColumnSpan(countLabel, GridPane.REMAINING);
 	}
 
-	private void setScale(Recipe r, int amt) {
-		scales.set(r, amt);
+	@Override
+	public List<Recipe> getRecipes() {
+		return parent.getRecipes();
+	}
+
+	@Override
+	public void onAddRecipe(Recipe r) {
+		this.onSetCount(r, 0);
+	}
+
+	@Override
+	public void onRemoveRecipe(Recipe r) {
+
+	}
+
+	@Override
+	public void onAddProduct(Consumable c) {
+
+	}
+
+	@Override
+	public void onRemoveProduct(Consumable c) {
+
+	}
+
+	@Override
+	public void onSetCount(Recipe r, int amt) {
 		for (GuiInstance gui : recipeEntries.get(r)) {
 			((ItemViewController)gui.controller).setScale(amt);
 		}
@@ -201,28 +224,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase implements FactoryListe
 	}
 
 	@Override
-	public List<Recipe> getRecipes() {
-		return parent.getRecipes();
-	}
-
-	@Override
-	public void onAddRecipe(Recipe r) {
-		this.setScale(r, 0);
-
-	}
-
-	@Override
-	public void onRemoveRecipe(Recipe r) {
-
-	}
-
-	@Override
-	public void onAddProduct(Consumable c) {
-
-	}
-
-	@Override
-	public void onRemoveProduct(Consumable c) {
+	public void onSetCount(Generator g, int amt) {
 
 	}
 
