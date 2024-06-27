@@ -1,5 +1,6 @@
 {
   "name": "Residual Plastic",
+  "building": "Refinery",
   "ingredients":
     {
       "Polymer Resin": "60",

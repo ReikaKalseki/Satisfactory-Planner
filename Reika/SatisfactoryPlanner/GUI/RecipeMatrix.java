@@ -1,60 +1,33 @@
 package Reika.SatisfactoryPlanner.GUI;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import Reika.SatisfactoryPlanner.Main;
-import Reika.SatisfactoryPlanner.Data.Database;
+import Reika.SatisfactoryPlanner.Data.Factory;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 
-import javafx.collections.FXCollections;
 import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
-import javafx.util.StringConverter;
 
 public class RecipeMatrix extends RecipeMatrixBase {
 
-	private final ArrayList<Recipe> recipes = new ArrayList();
+	public final Factory owner;
 
-	private final Runnable changeCallback;
-
-	protected int addNewRow;
 	protected int deleteColumn;
 
-	public RecipeMatrix() {
-		this(null);
-	}
-
-	public RecipeMatrix(Runnable onChange) {
-		changeCallback = onChange;
-	}
-
-	public void addRecipe(Recipe r) {
-		if (recipes.contains(r))
-			return;
-		recipes.add(r);
-		Collections.sort(recipes);
-		if (changeCallback != null)
-			changeCallback.run();
-	}
-
-	public void removeRecipe(Recipe r) {
-		recipes.remove(r);
-		if (changeCallback != null)
-			changeCallback.run();
+	public RecipeMatrix(Factory f) {
+		owner = f;
 	}
 
 	@Override
 	public GridPane createGrid(ControllerBase con) throws IOException {
 		GridPane gp = new GridPane();
 		this.computeIO();
-		addNewRow = this.addRow(gp);
+		List<Recipe> recipes = this.getRecipes();
 		titlesRow = this.addRow(gp);
 		titleGapRow = this.addRow(gp);
 		minorRowGaps.clear();
@@ -74,6 +47,9 @@ public class RecipeMatrix extends RecipeMatrixBase {
 
 		this.addOutputColumns(gp);
 
+		buildingGapColumn = this.addColumn(gp);
+		buildingColumn = this.addColumn(gp);
+
 		ingredientsStartColumn = mainGapColumn+1;
 		productsStartColumn = inoutGapColumn+1;
 
@@ -84,37 +60,10 @@ public class RecipeMatrix extends RecipeMatrixBase {
 		}
 		this.createDivider(gp, mainGapColumn, titlesRow, 0);
 		this.createDivider(gp, inoutGapColumn, titlesRow, 1);
+		this.createDivider(gp, buildingGapColumn, titlesRow, 1);
 		this.createRowDivider(gp, titleGapRow, 0);
 		for (int row : minorRowGaps)
 			this.createRowDivider(gp, row, 2);
-
-		ArrayList<Recipe> li = new ArrayList(Database.getAllRecipes());
-		li.removeAll(recipes);
-		ChoiceBox<Recipe> cb = new ChoiceBox(FXCollections.observableList(li));
-		cb.setConverter(new StringConverter<Recipe>() {
-			@Override
-			public String toString(Recipe r) {
-				return r == null ? "" : r.name;
-			}
-
-			@Override
-			public Recipe fromString(String id) {
-				return Database.lookupRecipe(id);
-			}
-		});
-		cb.getSelectionModel().selectedItemProperty().addListener((val, old, nnew) -> {
-			this.addRecipe(nnew);
-		});
-		cb.setDisable(li.isEmpty());
-		//cb.setPrefWidth(-1);
-		cb.setPrefHeight(32);
-		cb.setMinHeight(Region.USE_PREF_SIZE);
-		cb.setMaxHeight(Region.USE_PREF_SIZE);
-		cb.setMinWidth(Region.USE_PREF_SIZE);
-		cb.setMaxWidth(Region.USE_PREF_SIZE);
-		cb.minWidthProperty().bind(gp.widthProperty().subtract(24));
-		gp.add(cb, 0, addNewRow);
-		gp.setColumnSpan(cb, GridPane.REMAINING);
 
 		this.addTitles(gp);
 
@@ -138,7 +87,7 @@ public class RecipeMatrix extends RecipeMatrixBase {
 		b.setMinWidth(Region.USE_PREF_SIZE);
 		b.setMaxWidth(Region.USE_PREF_SIZE);
 		b.setOnAction(e -> {
-			this.removeRecipe(r);
+			owner.removeRecipe(r);
 		});
 		gp.add(b, deleteColumn, rowIndex);
 		return rowIndex;
@@ -146,7 +95,7 @@ public class RecipeMatrix extends RecipeMatrixBase {
 
 	@Override
 	public List<Recipe> getRecipes() {
-		return Collections.unmodifiableList(recipes);
+		return owner.getRecipes();
 	}
 
 }

@@ -146,4 +146,12 @@ public class ColorUtil {
 	public static Color getColor(int rgb, double alpha) {
 		return Color.rgb(getRed(rgb), getGreen(rgb), getBlue(rgb), alpha);
 	}
+
+	public static String getCSSHexForColor(double frac) {
+		return String.format("%02X", (int)(frac*255));
+	}
+
+	public static String getCSSHex(Color c) {
+		return "#"+getCSSHexForColor(c.getRed())+getCSSHexForColor(c.getGreen())+getCSSHexForColor(c.getBlue());
+	}
 }

@@ -1,5 +1,6 @@
 {
   "name": "Fuel",
+  "building": "Refinery",
   "ingredients":
     {
       "Crude Oil": "60"

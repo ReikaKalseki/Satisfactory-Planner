@@ -8,7 +8,9 @@ import java.util.Map.Entry;
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
+import Reika.SatisfactoryPlanner.GUI.ItemViewController.WarningState;
 import Reika.SatisfactoryPlanner.Util.CountMap;
+import Reika.SatisfactoryPlanner.Util.FactoryListener;
 
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
@@ -19,7 +21,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
-public class ScaledRecipeMatrix extends RecipeMatrixBase {
+public class ScaledRecipeMatrix extends RecipeMatrixBase implements FactoryListener {
 
 	private final RecipeMatrix parent;
 
@@ -36,21 +38,23 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 	private final HashMap<GuiInstance, Consumable> sumEntriesIn = new HashMap();
 	private final HashMap<GuiInstance, Consumable> sumEntriesOut = new HashMap();
 
+	private boolean buildingGrid;
+
 	public ScaledRecipeMatrix(RecipeMatrix r) {
 		parent = r;
+		parent.owner.addCallback(this);
 	}
 
 	@Override
 	protected int getMultiplier(Recipe r) {
-		return scales.get(r);
+		return buildingGrid ? 1 : scales.get(r);
 	}
 
 	@Override
 	public GridPane createGrid(ControllerBase con) throws IOException {
+		buildingGrid = true;
 		GridPane gp = new GridPane();
 		List<Recipe> recipes = this.getRecipes();
-		for (Recipe r : recipes)
-			this.setScale(r, 1);
 		this.computeIO();
 		titlesRow = this.addRow(gp);
 		titleGapRow = this.addRow(gp);
@@ -70,6 +74,9 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 
 		this.addOutputColumns(gp);
 
+		buildingGapColumn = this.addColumn(gp);
+		buildingColumn = this.addColumn(gp);
+
 		countGapColumn = this.addColumn(gp);
 		countColumn = this.addColumn(gp);
 
@@ -83,6 +90,8 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 		}
 		this.createDivider(gp, mainGapColumn, titlesRow, 0);
 		this.createDivider(gp, inoutGapColumn, titlesRow, 1);
+		this.createDivider(gp, buildingGapColumn, titlesRow, 1);
+		this.createDivider(gp, countGapColumn, titlesRow, 0);
 		sumGapRow = this.addRow(gp);
 		sumsRow = this.addRow(gp);
 		this.createRowDivider(gp, titleGapRow, 0);
@@ -96,6 +105,9 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 		this.createDivider(gp, mainGapColumn, sumsRow, 0);
 		this.createDivider(gp, countGapColumn, sumsRow, 0);
 		this.createDivider(gp, inoutGapColumn, sumsRow, 1);
+		this.createDivider(gp, buildingGapColumn, sumsRow, 1);
+
+		buildingGrid = false;
 
 		for (int i = 0; i < inputs.size(); i++) {
 			Consumable c = inputs.get(i);
@@ -119,7 +131,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 		this.addTitles(gp);
 
 		for (Recipe r : recipes)
-			this.setScale(r, 0);
+			this.setScale(r, scales.get(r));
 
 		gp.setHgap(4);
 		gp.setVgap(4);
@@ -152,6 +164,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 			nnew = nnew.replaceAll("[^\\d.]", "");
 			txt.setText(nnew);
 		});
+		counter.getValueFactory().setValue(scales.get(r));
 		gp.add(counter, countColumn, rowIndex);
 		return rowIndex;
 	}
@@ -160,7 +173,6 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 	protected void addTitles(GridPane gp) {
 		super.addTitles(gp);
 
-		gp.setColumnSpan(productionLabel, countGapColumn-productsStartColumn);
 		countLabel = new Label("Counts");
 		countLabel.setFont(Font.font(countLabel.getFont().getFamily(), FontWeight.BOLD, 16));
 		gp.add(countLabel, countColumn, titlesRow);
@@ -174,17 +186,44 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 		}
 		for (Entry<GuiInstance, Consumable> gui : sumEntriesIn.entrySet()) {
 			Consumable c = gui.getValue();
-			((ItemViewController)gui.getKey().controller).setItem(c, this.getTotalConsumption(c));
+			int total = this.getTotalConsumption(c);
+			ItemViewController cc = (ItemViewController)gui.getKey().controller;
+			cc.setItem(c, total);
+			cc.setState(total > this.getTotalProduction(c)+parent.owner.getExternalSupply(c) ? WarningState.INSUFFICIENT : WarningState.NONE);
 		}
 		for (Entry<GuiInstance, Consumable> gui : sumEntriesOut.entrySet()) {
 			Consumable c = gui.getValue();
-			((ItemViewController)gui.getKey().controller).setItem(c, this.getTotalProduction(c));
+			int total = this.getTotalProduction(c);
+			ItemViewController cc = (ItemViewController)gui.getKey().controller;
+			cc.setItem(c, total);
+			cc.setState(!parent.owner.isDesiredFinalProduct(c) && total > this.getTotalConsumption(c) ? WarningState.LEFTOVER : WarningState.NONE);
 		}
 	}
 
 	@Override
 	public List<Recipe> getRecipes() {
 		return parent.getRecipes();
+	}
+
+	@Override
+	public void onAddRecipe(Recipe r) {
+		this.setScale(r, 0);
+
+	}
+
+	@Override
+	public void onRemoveRecipe(Recipe r) {
+
+	}
+
+	@Override
+	public void onAddProduct(Consumable c) {
+
+	}
+
+	@Override
+	public void onRemoveProduct(Consumable c) {
+
 	}
 
 }

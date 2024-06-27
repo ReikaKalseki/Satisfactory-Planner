@@ -2,9 +2,14 @@ package Reika.SatisfactoryPlanner.Util;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Control;
 import javafx.scene.control.Tooltip;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 public class GuiUtil {
@@ -25,6 +30,46 @@ public class GuiUtil {
 			((Control)n).setTooltip(t);
 		else
 			Tooltip.install(n, t);
+	}
+
+	public static HBox createSpacedHBox(Node left, Node ctr, Node right) {
+		HBox p = new HBox();
+		p.setAlignment(Pos.CENTER);
+		p.getChildren().add(left);
+		addSpacer(p);
+		p.getChildren().add(ctr);
+		if (right != null) {
+			addSpacer(p);
+			p.getChildren().add(right);
+		}
+		return p;
+	}
+
+	public static VBox createSpacedVBox(Node left, Node ctr, Node right) {
+		VBox p = new VBox();
+		p.setAlignment(Pos.CENTER);
+		p.getChildren().add(left);
+		addSpacer(p);
+		if (right != null) {
+			p.getChildren().add(ctr);
+			addSpacer(p);
+			p.getChildren().add(right);
+		}
+		return p;
+	}
+
+	public static void addSpacer(HBox p) {
+		Region add = new HBox();
+		add.setMaxWidth(Double.POSITIVE_INFINITY);
+		p.getChildren().add(add);
+		HBox.setHgrow(add, Priority.ALWAYS);
+	}
+
+	public static void addSpacer(VBox p) {
+		Region add = new HBox();
+		add.setMaxHeight(Double.POSITIVE_INFINITY);
+		p.getChildren().add(add);
+		VBox.setVgrow(add, Priority.ALWAYS);
 	}
 
 }

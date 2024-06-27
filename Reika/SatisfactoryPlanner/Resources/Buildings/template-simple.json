@@ -1,0 +1,9 @@
+{
+  "name": "",
+  "icon": "",
+  "powerCost": "0",
+  "ingredients": {
+    "item1": "20",
+    "item2": "30"
+  }
+}

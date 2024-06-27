@@ -1,5 +1,6 @@
 {
   "name": "Diluted Fuel",
+  "building": "Blender",
   "ingredients":
     {
       "Heavy Oil Residue": "50",

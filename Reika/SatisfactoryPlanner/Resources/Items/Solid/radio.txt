@@ -1,0 +1,2 @@
+name=Radio Control Unit
+icon=ModularFrameLightweight

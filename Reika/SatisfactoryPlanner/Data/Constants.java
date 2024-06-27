@@ -1,31 +1,18 @@
 package Reika.SatisfactoryPlanner.Data;
 
-
 public class Constants {
 
 	public static final int PIPE1_LIMIT = 300;
 	public static final int PIPE2_LIMIT = 600;
 
-	public static final int BELT1_LIMIT = 60;
-	public static final int BELT2_LIMIT = 120;
-	public static final int BELT3_LIMIT = 270;
-	public static final int BELT4_LIMIT = 480;
-	public static final int BELT5_LIMIT = 780;
-
 	public static final int WATER_PUMP_PRODUCTION = 120;
 
 	public static final int TRUCK_STOP_PORTS = 2;
+	public static final int TRAIN_STATION_PORTS = 2;
 
 	public static final int BASE_SOLID_YIELD = 60;
 	public static final int BASE_OIL_YIELD = 120;
-
-	public static int getMinerYield(Purity purity, MinerTier miner, float overclock) {
-		return (int)(purity.getSolidYield()*miner.speedMultiplier*overclock);
-	}
-
-	public static int getOilYield(Purity purity, MinerTier miner, float overclock) {
-		return (int)(purity.getOilYield()*miner.speedMultiplier*overclock);
-	}
+	public static final int BASE_FRACKING_YIELD = 60;
 
 	public static enum Purity {
 		IMPURE(0.5F),
@@ -45,6 +32,24 @@ public class Constants {
 		public int getOilYield() {
 			return (int)(BASE_OIL_YIELD*yieldMultiplier);
 		}
+
+		public int getFrackingYield() {
+			return (int)(BASE_FRACKING_YIELD*yieldMultiplier);
+		}
+	}
+
+	public static enum BeltTier {
+		ONE(60),
+		TWO(120),
+		THREE(270),
+		FOUR(480),
+		FIVE(780);
+
+		public final int maxThroughput;
+
+		private BeltTier(int s) {
+			maxThroughput = s;
+		}
 	}
 
 	public static enum MinerTier {
@@ -58,5 +63,52 @@ public class Constants {
 			speedMultiplier = s;
 		}
 	}
+	/*
+	public static enum SolidResources {
+		IRON("Iron Ore"),
+		COPPER("Copper Ore"),
+		LIMESTONE(),
+		COAL(),
+		CATERIUM("Caterium Ore"),
+		QUARTZ("Raw Quartz"),
+		SULFUR(),
+		BAUXITE(),
+		URANIUM(),
+		SAM("SAM Ore");
 
+		private final String itemName;
+
+		private SolidResources() {
+			this(null);
+		}
+
+		private SolidResources(String n) {
+			itemName = Strings.isNullOrEmpty(n) ? StringUtils.capitalize(this.name()) : n;
+		}
+
+		public Item getItem() {
+			return (Item)Database.lookupItem(itemName);
+		}
+	}
+
+	public static enum FrackableResources {
+		WATER(),
+		OIL(),
+		NITROGEN();
+
+		private final String itemName;
+
+		private FrackableResources() {
+			this(null);
+		}
+
+		private FrackableResources(String n) {
+			itemName = Strings.isNullOrEmpty(n) ? StringUtils.capitalize(this.name()) : n;
+		}
+
+		public Fluid getItem() {
+			return (Fluid)Database.lookupItem(itemName);
+		}
+	}
+	 */
 }

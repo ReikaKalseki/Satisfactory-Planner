@@ -1,0 +1,2 @@
+name=Encased Industrial Beam
+icon=SteelPlateReinforced

@@ -1,0 +1,2 @@
+name=Aluminum Casing
+icon=AluminumCasing

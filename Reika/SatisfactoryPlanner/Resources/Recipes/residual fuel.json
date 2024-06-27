@@ -1,5 +1,6 @@
 {
   "name": "Residual Fuel",
+  "building": "Refinery",
   "ingredients":
     {
       "Heavy Oil Residue": "60"

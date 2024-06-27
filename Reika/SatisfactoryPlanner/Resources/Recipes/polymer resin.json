@@ -1,5 +1,6 @@
 {
   "name": "Polymer Resin",
+  "building": "Refinery",
   "ingredients":
     {
       "Crude Oil": "60"

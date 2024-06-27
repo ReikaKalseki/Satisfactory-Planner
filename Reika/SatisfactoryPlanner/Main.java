@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
+import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem;
 import Reika.SatisfactoryPlanner.Util.Logging;
@@ -25,7 +26,10 @@ public class Main {
 		Logging.instance.log("Relative root: "+getRelativeFile(""));
 		Platform.setImplicitExit(false);
 		Database.loadItems();
+		Database.loadBuildings();
 		Database.loadRecipes();
+		for (Consumable c : Database.getAllItems())
+			c.createIcon(); //cache default icon size
 		Application.launch(GuiSystem.class, args);
 		Platform.exit();
 	}

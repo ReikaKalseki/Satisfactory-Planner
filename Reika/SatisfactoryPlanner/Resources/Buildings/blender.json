@@ -1,0 +1,11 @@
+{
+  "name": "Blender",
+  "icon": "Blender",
+  "powerCost": "75",
+  "ingredients": {
+    "Motor": "20",
+    "Heavy Modular Frame": "10",
+    "Aluminum Casing": "50",
+    "Radio Control Unit": "5"
+  }
+}

@@ -1,5 +1,6 @@
 {
   "name": "Residual Rubber",
+  "building": "Refinery",
   "ingredients":
     {
       "Polymer Resin": "40",

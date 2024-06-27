@@ -10,10 +10,12 @@ import java.util.Map.Entry;
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
+import Reika.SatisfactoryPlanner.Util.GuiUtil;
 import Reika.SatisfactoryPlanner.Util.MultiMap;
 
 import javafx.collections.ObservableList;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -33,6 +35,8 @@ public abstract class RecipeMatrixBase {
 
 	protected int nameColumn;
 	protected int mainGapColumn;
+	protected int buildingGapColumn;
+	protected int buildingColumn;
 	protected final HashSet<Integer> minorColumnGaps = new HashSet();
 
 	protected int inoutGapColumn;
@@ -42,6 +46,7 @@ public abstract class RecipeMatrixBase {
 	protected Label nameLabel;
 	protected Label consumptionLabel;
 	protected Label productionLabel;
+	protected Label buildingLabel;
 
 	protected ArrayList<Consumable> inputs;
 	protected ArrayList<Consumable> outputs;
@@ -142,11 +147,15 @@ public abstract class RecipeMatrixBase {
 			((ItemViewController)gui.controller).setItem(c, e.getValue()*this.getMultiplier(r));
 			recipeEntries.addValue(r, gui);
 		}
+		ImageView img = new ImageView(r.productionBuilding.createIcon());
+		GuiUtil.setTooltip(img, r.productionBuilding.name);
+		gp.add(img, buildingColumn, rowIndex);
 
 		this.createDivider(gp, mainGapColumn, rowIndex, 0);
 		this.createDivider(gp, inoutGapColumn, rowIndex, 1);
 		for (int col : minorColumnGaps)
 			this.createDivider(gp, col, rowIndex, 2);
+		this.createDivider(gp, buildingGapColumn, rowIndex, 1);
 		return rowIndex;
 	}
 
@@ -160,8 +169,12 @@ public abstract class RecipeMatrixBase {
 		productionLabel = new Label("Producing");
 		productionLabel.setFont(Font.font(productionLabel.getFont().getFamily(), FontWeight.BOLD, 16));
 		gp.add(productionLabel, productsStartColumn, titlesRow);
+		buildingLabel = new Label("In");
+		buildingLabel.setFont(Font.font(productionLabel.getFont().getFamily(), FontWeight.BOLD, 16));
+		gp.add(buildingLabel, buildingColumn, titlesRow);
 		gp.setColumnSpan(consumptionLabel, productsStartColumn-ingredientsStartColumn);
-		gp.setColumnSpan(productionLabel, GridPane.REMAINING);
+		gp.setColumnSpan(productionLabel, buildingGapColumn-productsStartColumn);
+		gp.setColumnSpan(buildingLabel, 1);
 	}
 
 	protected final int addRow(GridPane gp) {

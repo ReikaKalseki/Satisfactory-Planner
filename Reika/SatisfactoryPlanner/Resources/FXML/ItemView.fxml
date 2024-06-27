@@ -8,8 +8,7 @@
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
 
-
-<HBox alignment="CENTER_LEFT" fillHeight="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="4.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.ItemViewController">
+<HBox fx:id="mainPanel" alignment="CENTER_LEFT" fillHeight="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="4.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.ItemViewController">
    <children>
       <ImageView fx:id="icon" cache="true" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" />
       <VBox fx:id="countContainer" alignment="CENTER">
@@ -23,7 +22,7 @@
                </VBox.margin>
             </Label>
             <Line fx:id="divider" endX="20.0" stroke="#00000080" strokeLineCap="ROUND" strokeWidth="1.5" />
-            <Label layoutX="10.0" layoutY="10.0" text="min">
+            <Label fx:id="minLabel" layoutX="10.0" layoutY="10.0" text="min">
                <font>
                   <Font size="14.0" />
                </font>

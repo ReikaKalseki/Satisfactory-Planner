@@ -1,5 +1,6 @@
 {
   "name": "Heavy Oil Residue",
+  "building": "Refinery",
   "ingredients":
     {
       "Crude Oil": "30"

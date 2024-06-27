@@ -18,18 +18,41 @@ import Reika.SatisfactoryPlanner.Util.Logging;
 
 public class Database {
 
+	private static final HashMap<String, Building> allBuildings = new HashMap();
+	private static final ArrayList<Building> allBuildingsSorted = new ArrayList();
+
 	private static final HashMap<String, Consumable> allItems = new HashMap();
+	private static final ArrayList<Consumable> allItemsSorted = new ArrayList();
+
+	private static final ArrayList<Recipe> allRecipesSorted = new ArrayList();
 	private static final HashMap<String, Recipe> allRecipes = new HashMap();
 
-	private static final ArrayList<Consumable> allItemsSorted = new ArrayList();
-	private static final ArrayList<Recipe> allRecipesSorted = new ArrayList();
+	private static final ArrayList<Item> mineableItems = new ArrayList();
+	private static final ArrayList<Fluid> frackableFluids = new ArrayList();
+
+	public static void loadBuildings() throws IOException {
+		File f = Main.extractResourceFolder("Buildings");
+		for (File f2 : f.listFiles()) {
+			if (f2.getName().endsWith(".json") && !f2.getName().startsWith("template")) {
+				Logging.instance.log("Loading building file "+f2);
+				JSONObject data = new JSONObject(FileUtils.readFileToString(f2, Charsets.UTF_8));
+				Building r = new Building(data.getString("name"), data.getString("icon"), data.getInt("powerCost"));
+				JSONObject ing = data.getJSONObject("ingredients");
+				for (String s : ing.keySet()) {
+					r.addIngredient((Item)lookupItem(s), ing.getInt(s));
+				}
+				Logging.instance.log("Loaded building "+r);
+				allBuildings.put(r.name, r);
+				allBuildingsSorted.add(r);
+			}
+		}
+		Collections.sort(allRecipesSorted);
+	}
 
 	public static void loadRecipes() throws IOException {
 		File f = Main.extractResourceFolder("Recipes");
 		for (File f2 : f.listFiles()) {
 			if (f2.getName().endsWith(".json") && !f2.getName().startsWith("template")) {
-				//DefFile def = new DefFile(f2);
-				//Recipe r = new Recipe(def.name, Boolean.parseBoolean(def.data.get("alternate")));
 				/* fuck modular java
 				JsonObject data = new Gson().fromJson(new BufferedReader(new FileReader(f2)), JsonObject.class);
 				boolean alt = data.has("alternate") && data.get("alternate").getAsBoolean();
@@ -43,7 +66,7 @@ public class Database {
 				Logging.instance.log("Loading recipe file "+f2);
 				JSONObject data = new JSONObject(FileUtils.readFileToString(f2, Charsets.UTF_8));
 				boolean alt = data.has("alternate") && data.getBoolean("alternate");
-				Recipe r = new Recipe(data.getString("name"), alt);
+				Recipe r = new Recipe(data.getString("name"), lookupBuilding(data.getString("building")), alt);
 				JSONObject ing = data.getJSONObject("ingredients");
 				for (String s : ing.keySet()) {
 					r.addIngredient(lookupItem(s), ing.getInt(s));
@@ -67,6 +90,8 @@ public class Database {
 			Item i = new Item(def.name, def.data.get("icon"));
 			allItems.put(i.name, i);
 			allItemsSorted.add(i);
+			if (Boolean.parseBoolean(def.data.get("mineable")))
+				mineableItems.add(i);
 			Logging.instance.log("Loaded item "+i);
 		}
 		for (File f2 : new File(f, "Fluid").listFiles()) {
@@ -74,9 +99,18 @@ public class Database {
 			Fluid i = new Fluid(def.name, def.data.get("icon"));
 			allItems.put(i.name, i);
 			allItemsSorted.add(i);
+			if (Boolean.parseBoolean(def.data.get("frackable")))
+				frackableFluids.add(i);
 			Logging.instance.log("Loaded fluid "+i);
 		}
 		Collections.sort(allItemsSorted);
+	}
+
+	public static Building lookupBuilding(String name) {
+		Building c = allBuildings.get(name);
+		if (c == null)
+			throw new IllegalArgumentException("No such building '"+name+"'");
+		return c;
 	}
 
 	public static Consumable lookupItem(String name) {
@@ -93,12 +127,24 @@ public class Database {
 		return c;
 	}
 
+	public static List<Building> getAllBuildings() {
+		return Collections.unmodifiableList(allBuildingsSorted);
+	}
+
 	public static List<Consumable> getAllItems() {
 		return Collections.unmodifiableList(allItemsSorted);
 	}
 
 	public static List<Recipe> getAllRecipes() {
 		return Collections.unmodifiableList(allRecipesSorted);
+	}
+
+	public static List<Item> getMineables() {
+		return Collections.unmodifiableList(mineableItems);
+	}
+
+	public static List<Fluid> getFrackables() {
+		return Collections.unmodifiableList(frackableFluids);
 	}
 
 	private static class DefFile {

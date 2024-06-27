@@ -1,5 +1,6 @@
 {
   "name": "Polyester Fabric",
+  "building": "Refinery",
   "ingredients":
     {
       "Polymer Resin": "30",

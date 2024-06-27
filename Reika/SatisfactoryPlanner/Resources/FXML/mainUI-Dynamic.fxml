@@ -32,36 +32,77 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.TilePane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:id="root" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.MainGuiController">
+<VBox fx:id="root" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="900.0" minWidth="1200.0" spacing="12.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.MainGuiController">
   <children>
-    <MenuBar VBox.vgrow="NEVER">
+    <MenuBar fx:id="menu" VBox.vgrow="NEVER">
       <menus>
-            <Menu mnemonicParsing="false" text="Control">
+            <Menu fx:id="controlMenu" mnemonicParsing="false" text="Program">
               <items>
             <MenuItem fx:id="settingsMenu" mnemonicParsing="false" text="Settings" />
             <SeparatorMenuItem mnemonicParsing="false" />
             <MenuItem fx:id="quitMenu" mnemonicParsing="false" text="Quit" />
               </items>
             </Menu>
-        <Menu mnemonicParsing="false" text="Factories">
+        <Menu fx:id="factoryMenu" mnemonicParsing="false" text="Factories">
           <items>
-            <MenuItem mnemonicParsing="false" text="New" />
-            <MenuItem mnemonicParsing="false" text="Open…" />
-            <Menu mnemonicParsing="false" text="Open Recent" />
+            <MenuItem fx:id="newMenu" mnemonicParsing="false" text="New" />
+            <MenuItem fx:id="openMenu" mnemonicParsing="false" text="Open…" />
+            <Menu fx:id="recentMenu" mnemonicParsing="false" text="Open Recent" />
             <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" text="Save" />
+            <MenuItem fx:id="saveMenu" mnemonicParsing="false" text="Save" />
           </items>
         </Menu>
+            <Menu fx:id="currentMenu" mnemonicParsing="false" text="Current Factory">
+               <items>
+                  <MenuItem fx:id="clearMenu" mnemonicParsing="false" text="Clear Crafting" />
+                  <MenuItem fx:id="zeroMenu" mnemonicParsing="false" text="Zero Crafting Counts" />
+                  <MenuItem fx:id="isolateMenu" mnemonicParsing="false" text="Isolate" />
+               </items>
+            </Menu>
       </menus>
     </MenuBar>
-      <TitledPane fx:id="gridContainer" text="Item Matrix" />
-      <TitledPane fx:id="netGridContainer" layoutX="10.0" layoutY="35.0" text="Net Matrix" />
+      <TitledPane fx:id="inputsPanel1" layoutX="14.0" layoutY="51.0" text="Local Resources" />
+      <TitledPane fx:id="inputsPanel" layoutX="14.0" layoutY="148.0" text="External Inputs" />
+      <TitledPane fx:id="productsPanel" collapsible="false" layoutX="14.0" layoutY="80.0" text="Desired Products">
+         <content>
+            <TilePane fx:id="productGrid" hgap="4.0" vgap="4.0">
+               <children>
+                  <Button fx:id="addProductButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="32.0" prefWidth="32.0">
+                     <graphic>
+                        <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" />
+                     </graphic>
+                  </Button>
+               </children>
+            </TilePane>
+         </content>
+      </TitledPane>
+      <TitledPane text="Local Crafting">
+         <content>
+            <VBox spacing="4.0">
+               <children>
+                  <ComboBox fx:id="recipeDropdown" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="32.0" promptText="Click To Add Recipe..." />
+                  <TitledPane fx:id="gridContainer" text="Item Matrix" />
+                  <TitledPane fx:id="netGridContainer" collapsible="false" text="Net Matrix" />
+               </children>
+            </VBox>
+         </content>
+      </TitledPane>
+      <TitledPane fx:id="statsPanel" text="Statistics" />
+      <TitledPane fx:id="warningPanel" layoutX="14.0" layoutY="308.0" text="Warnings" />
   </children>
+   <padding>
+      <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+   </padding>
 </VBox>
