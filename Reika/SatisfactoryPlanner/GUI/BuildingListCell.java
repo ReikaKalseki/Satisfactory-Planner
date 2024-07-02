@@ -12,7 +12,7 @@ class BuildingListCell extends DecoratedListCell<Building> {
 
 	@Override
 	protected String getString(Building obj) {
-		return obj.name;
+		return obj.displayName;
 	}
 
 	@Override

@@ -25,9 +25,12 @@ public class Main {
 		Logging.instance.log("Running in compiled environment: "+isCompiled+" @ "+executionLocation);
 		Logging.instance.log("Relative root: "+getRelativeFile(""));
 		Platform.setImplicitExit(false);
+		/*
 		Database.loadItems();
 		Database.loadBuildings();
 		Database.loadRecipes();
+		 */
+		Database.parseGameJSON();
 		for (Consumable c : Database.getAllItems())
 			c.createIcon(); //cache default icon size
 		Application.launch(GuiSystem.class, args);

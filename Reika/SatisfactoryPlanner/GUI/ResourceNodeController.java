@@ -93,7 +93,7 @@ public class ResourceNodeController extends ControllerBase {
 		StringConverter cv = new StringConverter<Consumable>() {
 			@Override
 			public String toString(Consumable mt) {
-				return mt == null ? "" : mt.name;
+				return mt == null ? "" : mt.displayName;
 			}
 
 			@Override

@@ -1,6 +1,7 @@
 package Reika.SatisfactoryPlanner.GUI;
 
 import Reika.SatisfactoryPlanner.Main;
+import Reika.SatisfactoryPlanner.Data.Building;
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 
@@ -22,7 +23,7 @@ class RecipeListCell extends DecoratedListCell<Recipe> {
 
 	@Override
 	protected String getString(Recipe obj) {
-		return obj.name;
+		return obj.displayName;
 	}
 
 	@Override
@@ -51,8 +52,9 @@ class RecipeListCell extends DecoratedListCell<Recipe> {
 		HBox buildingBar = new HBox();
 		buildingBar.setAlignment(Pos.CENTER);
 		buildingBar.setSpacing(12);
-		buildingBar.getChildren().add(new ImageView(r.productionBuilding.createIcon()));
-		buildingBar.getChildren().add(new Label(r.productionBuilding.name));
+		Building b = r.getBuilding();
+		buildingBar.getChildren().add(new ImageView(b.createIcon()));
+		buildingBar.getChildren().add(new Label(b.displayName));
 		buildingBar.setPrefWidth(96);
 		buildingBar.setMinWidth(Region.USE_PREF_SIZE);
 		buildingBar.setMaxWidth(Region.USE_PREF_SIZE);

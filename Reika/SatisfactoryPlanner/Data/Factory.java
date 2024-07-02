@@ -153,7 +153,7 @@ public class Factory {
 	public CountMap<Building> getBuildings() {
 		CountMap<Building> map = new CountMap();
 		for (Recipe r : recipeList)
-			map.increment(r.productionBuilding, this.getCount(r));
+			map.increment(r.getBuilding(), this.getCount(r));
 		for (Generator g : generators.keySet())
 			map.increment(g, this.getCount(g));
 		for (ExtractableResource res : resourceSources.allValues(false))
@@ -171,12 +171,12 @@ public class Factory {
 		return map;
 	}*/
 
-	public int getNetPowerProduction() {
-		int ret = 0;
+	public float getNetPowerProduction() {
+		float ret = 0;
 		for (Generator g : generators.keySet())
 			ret += g.powerGenerationMW*this.getCount(g);
 		for (Recipe r : recipeList)
-			ret -= r.productionBuilding.basePowerCostMW*this.getCount(r);
+			ret -= r.getBuilding().basePowerCostMW*this.getCount(r);
 		return ret;
 	}
 

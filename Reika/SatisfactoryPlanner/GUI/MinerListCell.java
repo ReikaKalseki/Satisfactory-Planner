@@ -12,7 +12,7 @@ class MinerListCell extends DecoratedListCell<MinerTier> {
 	public static final StringConverter<MinerTier> converter = new StringConverter<MinerTier>() {
 		@Override
 		public String toString(MinerTier mt) {
-			return mt == null ? "" : mt.getMiner().name;
+			return mt == null ? "" : mt.getMiner().displayName;
 		}
 
 		@Override

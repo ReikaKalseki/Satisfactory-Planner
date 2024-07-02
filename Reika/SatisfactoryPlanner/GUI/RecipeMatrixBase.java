@@ -71,22 +71,22 @@ public abstract class RecipeMatrixBase {
 		return ret;
 	}
 
-	public final int getTotalConsumption(Consumable c) {
+	public final float getTotalConsumption(Consumable c) {
 		int amt = 0;
 		for (Recipe r : this.getRecipes()) {
-			Integer get = r.getCost().get(c);
+			Float get = r.getCost().get(c);
 			if (get != null)
-				amt += get.intValue()*this.getMultiplier(r);
+				amt += get.floatValue()*this.getMultiplier(r);
 		}
 		return amt;
 	}
 
-	public final int getTotalProduction(Consumable c) {
+	public final float getTotalProduction(Consumable c) {
 		int amt = 0;
 		for (Recipe r : this.getRecipes()) {
-			Integer get = r.getProducts().get(c);
+			Float get = r.getProducts().get(c);
 			if (get != null)
-				amt += get.intValue()*this.getMultiplier(r);
+				amt += get.floatValue()*this.getMultiplier(r);
 		}
 		return amt;
 	}
@@ -129,23 +129,23 @@ public abstract class RecipeMatrixBase {
 	}
 
 	protected int addRecipeRow(ControllerBase con, GridPane gp, Recipe r, int i) throws IOException {
-		Label lb = new Label(r.name);
+		Label lb = new Label(r.displayName);
 		lb.setFont(Font.font(lb.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, 14));
 		int rowIndex = titleGapRow+1+i*2;
 		gp.add(lb, nameColumn, rowIndex);
-		for (Entry<Consumable, Integer> e : r.getCost().entrySet()) {
+		for (Entry<Consumable, Float> e : r.getCost().entrySet()) {
 			Consumable c = e.getKey();
 			GuiInstance gui = con.loadNestedFXML("ItemView", gp, ingredientsStartColumn+inputs.indexOf(c)*2, rowIndex);
 			((ItemViewController)gui.controller).setItem(c, e.getValue()*this.getMultiplier(r));
 			recipeEntries.addValue(r, gui);
 		}
-		for (Entry<Consumable, Integer> e : r.getProducts().entrySet()) {
+		for (Entry<Consumable, Float> e : r.getProducts().entrySet()) {
 			Consumable c = e.getKey();
 			GuiInstance gui = con.loadNestedFXML("ItemView", gp, productsStartColumn+outputs.indexOf(c)*2, rowIndex);
 			((ItemViewController)gui.controller).setItem(c, e.getValue()*this.getMultiplier(r));
 			recipeEntries.addValue(r, gui);
 		}
-		gp.add(r.productionBuilding.createImageView(), buildingColumn, rowIndex);
+		gp.add(r.getBuilding().createImageView(), buildingColumn, rowIndex);
 
 		this.createDivider(gp, mainGapColumn, rowIndex, 0);
 		this.createDivider(gp, inoutGapColumn, rowIndex, 1);

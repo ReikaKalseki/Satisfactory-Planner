@@ -1,10 +1,14 @@
 package Reika.SatisfactoryPlanner.Data;
 
+import javafx.scene.paint.Color;
 
 public class Fluid extends Consumable {
 
-	protected Fluid(String n, String img) {
-		super(n, img);
+	public final Color baseColor;
+
+	protected Fluid(String id, String dn, String img, String desc, Color c) {
+		super(id, dn, img, desc);
+		baseColor = c;
 	}
 
 	@Override

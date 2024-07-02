@@ -210,14 +210,14 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase implements FactoryListe
 		}
 		for (Entry<GuiInstance, Consumable> gui : sumEntriesIn.entrySet()) {
 			Consumable c = gui.getValue();
-			int total = this.getTotalConsumption(c);
+			float total = this.getTotalConsumption(c);
 			ItemViewController cc = (ItemViewController)gui.getKey().controller;
 			cc.setItem(c, total);
 			cc.setState(total > this.getTotalProduction(c)+parent.owner.getExternalSupply(c) ? WarningState.INSUFFICIENT : WarningState.NONE);
 		}
 		for (Entry<GuiInstance, Consumable> gui : sumEntriesOut.entrySet()) {
 			Consumable c = gui.getValue();
-			int total = this.getTotalProduction(c);
+			float total = this.getTotalProduction(c);
 			ItemViewController cc = (ItemViewController)gui.getKey().controller;
 			cc.setItem(c, total);
 			cc.setState(!parent.owner.isDesiredFinalProduct(c) && total > this.getTotalConsumption(c) ? WarningState.LEFTOVER : WarningState.NONE);

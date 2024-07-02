@@ -12,7 +12,7 @@ class ItemListCell<C extends Consumable> extends DecoratedListCell<C> {
 
 	@Override
 	protected String getString(Consumable obj) {
-		return obj.name;
+		return obj.displayName;
 	}
 
 	@Override

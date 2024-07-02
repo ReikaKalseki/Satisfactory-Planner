@@ -11,19 +11,21 @@ import javafx.scene.image.ImageView;
 
 public abstract class Resource {
 
-	public final String name;
+	public final String id;
+	public final String displayName;
 	public final String iconName;
 
 	private final HashMap<Integer, Image> iconCache = new HashMap();
 
-	protected Resource(String n, String img) {
-		name = n;
+	protected Resource(String id, String dn, String img) {
+		this.id = id;
+		displayName = dn;
 		iconName = img;
 	}
 
 	@Override
 	public String toString() {
-		return name+" ["+this.getClass().getName()+"]";
+		return displayName+" ["+this.getClass().getName()+"]";
 	}
 
 	private InputStream getIcon() {
@@ -49,7 +51,7 @@ public abstract class Resource {
 
 	public final ImageView createImageView(int size) {
 		ImageView ret = new ImageView(this.createIcon(size));
-		GuiUtil.setTooltip(ret, name);
+		GuiUtil.setTooltip(ret, displayName);
 		return ret;
 	}
 

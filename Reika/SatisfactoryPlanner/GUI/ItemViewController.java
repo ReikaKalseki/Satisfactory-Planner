@@ -35,7 +35,7 @@ public class ItemViewController extends ControllerBase {
 	@FXML
 	private ImageView icon;
 
-	private int baseAmount;
+	private float baseAmount;
 
 	@Override
 	public void init(HostServices services) throws IOException {
@@ -47,11 +47,11 @@ public class ItemViewController extends ControllerBase {
 		super.postInit(w);
 	}
 
-	public void setItem(Consumable c, int amt) {
+	public void setItem(Consumable c, float amt) {
 		baseAmount = amt;
 		icon.setImage(c.createIcon());
-		amount.setText(String.valueOf(amt));
-		GuiUtil.setTooltip(icon, c.name);
+		amount.setText(String.format("%.3f", amt));
+		GuiUtil.setTooltip(icon, c.displayName);
 	}
 
 	public void setScale(int scale) {

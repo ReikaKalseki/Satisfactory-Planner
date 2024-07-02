@@ -6,11 +6,11 @@ import Reika.SatisfactoryPlanner.Util.CountMap;
 
 public class Generator extends Building {
 
-	public final int powerGenerationMW;
+	public final float powerGenerationMW;
 	private final CountMap<Consumable> fuelCost = new CountMap();
 
-	public Generator(String name, String icon, int mw) {
-		super(name, icon, 0);
+	public Generator(String id, String dis, String icon, float mw) {
+		super(id, dis, icon, 0);
 		powerGenerationMW = mw;
 	}
 

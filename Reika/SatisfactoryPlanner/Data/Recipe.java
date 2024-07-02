@@ -4,56 +4,66 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import Reika.SatisfactoryPlanner.Util.Logging;
+
 public class Recipe implements Comparable<Recipe> {
 
 	private static int maxIngredients;
 	private static int maxProducts;
 
-	public final String name;
+	public final String id;
+	public final String displayName;
 	public final boolean isAlternate;
 	public final Building productionBuilding;
 
-	private final HashMap<Consumable, Integer> costsPerMinute = new HashMap();
-	private final HashMap<Consumable, Integer> productPerMinute = new HashMap();
+	public final float craftingTime;
+	public final float timeCoefficient;
 
-	public Recipe(String n, Building b) {
-		this(n, b, false);
+	private final HashMap<Consumable, Float> costsPerMinute = new HashMap();
+	private final HashMap<Consumable, Float> productPerMinute = new HashMap();
+	/*
+	public Recipe(String id, String dn, Building b, float time) {
+		this(id, dn, b, false, time);
 	}
-
-	public Recipe(String n, Building b, boolean alt) {
-		name = n;
+	 */
+	public Recipe(String id, String dn, Building b, float time) {
+		this.id = id;
+		displayName = dn;
 		productionBuilding = b;
-		isAlternate = alt;
+		isAlternate = id.startsWith("Recipe_Alternate");
+		craftingTime = time;
+		timeCoefficient = 60F/craftingTime;
+		Logging.instance.log("Registered recipe type "+this);
 	}
 
 	@Override
 	public String toString() {
-		return name;
+		return displayName;
 	}
 
 	public Recipe addIngredient(Consumable i, int amt) {
-		costsPerMinute.put(i, amt);
+		costsPerMinute.put(i, amt*craftingTime);
 		maxIngredients = Math.max(costsPerMinute.size(), maxIngredients);
 		return this;
 	}
 
 	public Recipe addProduct(Consumable i, int amt) {
-		productPerMinute.put(i, amt);
+		productPerMinute.put(i, amt*craftingTime);
 		maxProducts = Math.max(productPerMinute.size(), maxProducts);
 		return this;
 	}
 
-	public Map<Consumable, Integer> getCost() {
+	public Map<Consumable, Float> getCost() {
 		return Collections.unmodifiableMap(costsPerMinute);
 	}
 
-	public Map<Consumable, Integer> getProducts() {
+	public Map<Consumable, Float> getProducts() {
 		return Collections.unmodifiableMap(productPerMinute);
 	}
 
 	@Override
 	public int compareTo(Recipe o) {
-		return String.CASE_INSENSITIVE_ORDER.compare(name, o.name);
+		return String.CASE_INSENSITIVE_ORDER.compare(id, o.id);
 	}
 
 	public static int getMaxIngredients() {

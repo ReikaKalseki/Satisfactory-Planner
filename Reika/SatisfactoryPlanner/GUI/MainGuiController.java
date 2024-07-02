@@ -159,7 +159,7 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 		recipeDropdown.setConverter(new StringConverter<Recipe>() {
 			@Override
 			public String toString(Recipe r) {
-				return r == null ? "" : r.name;
+				return r == null ? "" : r.displayName;
 			}
 
 			@Override
@@ -203,7 +203,7 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 	private Button createProductButton(Consumable c) {
 		Button b = new Button();
 		b.setGraphic(new ImageView(c.createIcon()));
-		GuiUtil.setTooltip(b, c.name);
+		GuiUtil.setTooltip(b, c.displayName);
 		b.setPrefWidth(32);
 		b.setPrefHeight(32);
 		b.setMinHeight(Region.USE_PREF_SIZE);
@@ -323,8 +323,8 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 			}
 		}
 
-		int prod = factory.getNetPowerProduction();
-		powerProduction.setText(prod+" MW");
+		float prod = factory.getNetPowerProduction();
+		powerProduction.setText(String.format("%.2fMW", prod));
 		if (prod > 0) {
 			powerProduction.setStyle("-fx-font-weight: bold; -fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.OKAY_COLOR)+";");
 		}
