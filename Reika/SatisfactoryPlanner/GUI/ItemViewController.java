@@ -1,9 +1,13 @@
 package Reika.SatisfactoryPlanner.GUI;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 import java.util.function.Consumer;
 
 import Reika.SatisfactoryPlanner.Data.Consumable;
+import Reika.SatisfactoryPlanner.GUI.GuiSystem.FontModifier;
 import Reika.SatisfactoryPlanner.Util.ColorUtil;
 
 import javafx.application.HostServices;
@@ -45,17 +49,25 @@ public class ItemViewController extends ControllerBase {
 	@Override
 	protected void postInit(WindowBase w) throws IOException {
 		super.postInit(w);
+		this.setTextStyle(GuiSystem.getFontStyle(FontModifier.SEMIBOLD));
 	}
 
 	public void setItem(Consumable c, float amt) {
 		baseAmount = amt;
 		icon.setImage(c.createIcon());
-		amount.setText(String.format("%.3f", amt));
+		this.setAmountText(amt);
+
 		GuiUtil.setTooltip(icon, c.displayName);
 	}
 
 	public void setScale(int scale) {
-		amount.setText(String.valueOf(baseAmount*scale));
+		this.setAmountText(baseAmount*scale);
+	}
+
+	private void setAmountText(float amt) {
+		DecimalFormat df = new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+		df.setMaximumFractionDigits(340); //340 = DecimalFormat.DOUBLE_FRACTION_DIGITS
+		amount.setText(df.format(amt));
 	}
 
 	public void setState(WarningState st) {
@@ -73,9 +85,9 @@ public class ItemViewController extends ControllerBase {
 	}
 
 	public static enum WarningState {
-		NONE(v -> {v.setTextStyle(""); v.mainPanel.setStyle(""); v.setLineStyle(UIConstants.FADE_COLOR, 1.5);}),
-		LEFTOVER(v -> {v.setTextStyle("-fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.WARN_COLOR)+"; -fx-font-weight: bold;"); v.setLineStyle(UIConstants.WARN_COLOR, 2); v.mainPanel.setStyle("");}),
-		INSUFFICIENT(v -> {v.setTextStyle("-fx-text-fill: #fff; -fx-font-weight: bold;"); v.setLineStyle(Color.WHITE, 3); v.mainPanel.setStyle("-fx-background-color: "+ColorUtil.getCSSHex(UIConstants.SEVERE_COLOR)+";");});
+		NONE(v -> {v.setTextStyle(GuiSystem.getFontStyle(FontModifier.SEMIBOLD)); v.mainPanel.setStyle(""); v.setLineStyle(UIConstants.FADE_COLOR, 1.5);}),
+		LEFTOVER(v -> {v.setTextStyle("-fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.WARN_COLOR)+"; "+GuiSystem.getFontStyle(FontModifier.BOLD)); v.setLineStyle(UIConstants.WARN_COLOR, 2); v.mainPanel.setStyle("");}),
+		INSUFFICIENT(v -> {v.setTextStyle("-fx-text-fill: #fff; "+GuiSystem.getFontStyle(FontModifier.BOLD)); v.setLineStyle(Color.WHITE, 3); v.mainPanel.setStyle("-fx-background-color: "+ColorUtil.getCSSHex(UIConstants.SEVERE_COLOR)+";");});
 
 		private final Consumer<ItemViewController> applyStyles;
 

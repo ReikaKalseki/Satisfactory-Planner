@@ -60,21 +60,21 @@ public abstract class RecipeMatrixBase {
 	public final HashSet<Consumable> getAllIngredients() {
 		HashSet<Consumable> ret = new HashSet();
 		for (Recipe r : this.getRecipes())
-			ret.addAll(r.getCost().keySet());
+			ret.addAll(r.getIngredientsPerMinute().keySet());
 		return ret;
 	}
 
 	public final HashSet<Consumable> getAllProducts() {
 		HashSet<Consumable> ret = new HashSet();
 		for (Recipe r : this.getRecipes())
-			ret.addAll(r.getProducts().keySet());
+			ret.addAll(r.getProductsPerMinute().keySet());
 		return ret;
 	}
 
 	public final float getTotalConsumption(Consumable c) {
 		int amt = 0;
 		for (Recipe r : this.getRecipes()) {
-			Float get = r.getCost().get(c);
+			Float get = r.getIngredientsPerMinute().get(c);
 			if (get != null)
 				amt += get.floatValue()*this.getMultiplier(r);
 		}
@@ -84,7 +84,7 @@ public abstract class RecipeMatrixBase {
 	public final float getTotalProduction(Consumable c) {
 		int amt = 0;
 		for (Recipe r : this.getRecipes()) {
-			Float get = r.getProducts().get(c);
+			Float get = r.getProductsPerMinute().get(c);
 			if (get != null)
 				amt += get.floatValue()*this.getMultiplier(r);
 		}
@@ -133,19 +133,19 @@ public abstract class RecipeMatrixBase {
 		lb.setFont(Font.font(lb.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, 14));
 		int rowIndex = titleGapRow+1+i*2;
 		gp.add(lb, nameColumn, rowIndex);
-		for (Entry<Consumable, Float> e : r.getCost().entrySet()) {
+		for (Entry<Consumable, Float> e : r.getIngredientsPerMinute().entrySet()) {
 			Consumable c = e.getKey();
 			GuiInstance gui = con.loadNestedFXML("ItemView", gp, ingredientsStartColumn+inputs.indexOf(c)*2, rowIndex);
 			((ItemViewController)gui.controller).setItem(c, e.getValue()*this.getMultiplier(r));
 			recipeEntries.addValue(r, gui);
 		}
-		for (Entry<Consumable, Float> e : r.getProducts().entrySet()) {
+		for (Entry<Consumable, Float> e : r.getProductsPerMinute().entrySet()) {
 			Consumable c = e.getKey();
 			GuiInstance gui = con.loadNestedFXML("ItemView", gp, productsStartColumn+outputs.indexOf(c)*2, rowIndex);
 			((ItemViewController)gui.controller).setItem(c, e.getValue()*this.getMultiplier(r));
 			recipeEntries.addValue(r, gui);
 		}
-		gp.add(r.getBuilding().createImageView(), buildingColumn, rowIndex);
+		gp.add(r.productionBuilding.createImageView(), buildingColumn, rowIndex);
 
 		this.createDivider(gp, mainGapColumn, rowIndex, 0);
 		this.createDivider(gp, inoutGapColumn, rowIndex, 1);

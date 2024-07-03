@@ -1,5 +1,7 @@
 package Reika.SatisfactoryPlanner.GUI;
 
+import Reika.SatisfactoryPlanner.GUI.GuiSystem.FontModifier;
+
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.ContentDisplay;
@@ -50,7 +52,7 @@ abstract class DecoratedListCell<T> extends ListCell<T> {
 
 	private Node createCellContent(T r) {
 		Label lb = new Label(this.getString(r));
-		lb.setStyle("-fx-font-weight: bold; -fx-text-fill: #222");
+		lb.setStyle(GuiSystem.getFontStyle(FontModifier.SEMIBOLD)+" -fx-text-fill: #222");
 		return GuiUtil.createSpacedHBox(lb, this.createDecoration(r), null);
 	}
 

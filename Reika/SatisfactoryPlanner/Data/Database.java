@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map.Entry;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
@@ -14,6 +16,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Strings;
 import com.google.common.io.Files;
 
 import Reika.SatisfactoryPlanner.Util.Logging;
@@ -28,11 +31,23 @@ public class Database {
 	private static final HashMap<String, Consumable> allItems = new HashMap();
 	private static final ArrayList<Consumable> allItemsSorted = new ArrayList();
 
-	private static final ArrayList<Recipe> allRecipesSorted = new ArrayList();
+	private static final ArrayList<Recipe> allAutoRecipesSorted = new ArrayList();
+	private static final ArrayList<Recipe> allBuildingRecipesSorted = new ArrayList();
 	private static final HashMap<String, Recipe> allRecipes = new HashMap();
 
 	private static final ArrayList<Item> mineableItems = new ArrayList();
 	private static final ArrayList<Fluid> frackableFluids = new ArrayList();
+
+	private static final HashMap<String, Milestone> allMilestones = new HashMap();
+
+	private static final HashMap<String, ClassType> lookup = new HashMap();
+
+	static {
+		for (ClassType t : ClassType.values()) {
+			for (String s : t.classTypes)
+				lookup.put(s, t);
+		}
+	}
 	/*
 	public static void loadBuildings() throws IOException {
 		File f = Main.extractResourceFolder("Buildings");
@@ -110,6 +125,13 @@ public class Database {
 		Collections.sort(allItemsSorted);
 	}
 				 */
+	public static Milestone lookupMilestone(String name) {
+		Milestone c = allMilestones.get(name);
+		if (c == null)
+			throw new IllegalArgumentException("No such milestone '"+name+"'");
+		return c;
+	}
+
 	public static Building lookupBuilding(String name) {
 		Building c = allBuildings.get(name);
 		if (c == null)
@@ -139,8 +161,12 @@ public class Database {
 		return Collections.unmodifiableList(allItemsSorted);
 	}
 
-	public static List<Recipe> getAllRecipes() {
-		return Collections.unmodifiableList(allRecipesSorted);
+	public static List<Recipe> getAllAutoRecipes() {
+		return Collections.unmodifiableList(allAutoRecipesSorted);
+	}
+
+	public static List<Recipe> getAllBuildingRecipes() {
+		return Collections.unmodifiableList(allBuildingRecipesSorted);
 	}
 
 	public static List<Item> getMineables() {
@@ -168,6 +194,13 @@ public class Database {
 
 	}
 
+	public static void sort() {
+		Collections.sort(allItemsSorted);
+		Collections.sort(allAutoRecipesSorted);
+		Collections.sort(allBuildingRecipesSorted);
+		Collections.sort(allBuildingsSorted);
+	}
+
 	public static void parseGameJSON() throws IOException {
 		File f = new File("P:/SteamOverflow/steamapps/common/Satisfactory/CommunityResources/Docs/Docs.json");
 		String UTF8_BOM = "\uFEFF";
@@ -178,51 +211,33 @@ public class Database {
 		JSONArray all = (JSONArray)value;
 		for (Object o : all) {
 			JSONObject obj = (JSONObject)o;
-			switch (obj.getString("NativeClass")) {
-				case "/Script/CoreUObject.Class'/Script/FactoryGame.FGItemDescriptor'":
-				case "/Script/CoreUObject.Class'/Script/FactoryGame.FGResourceDescriptor'":
-				case "/Script/CoreUObject.Class'/Script/FactoryGame.FGItemDescriptorBiomass'":
-				case "/Script/CoreUObject.Class'/Script/FactoryGame.FGItemDescriptorNuclearFuel'":
-					parseItemsJSON(obj);
-					break;
-				case "/Script/CoreUObject.Class'/Script/FactoryGame.FGRecipe'":
-					parseRecipeJSON(obj);
-					break;/*
-				case "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildingDescriptor'":
-					parseBuildingJSON(obj);
-					break;*/
-				case "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableGeneratorFuel'":
-					parseGeneratorJSON(obj);
-					break;
+			ClassType ct = lookup.get(obj.getString("NativeClass"));
+			if (ct != null) {
+				for (Object entry : obj.getJSONArray("Classes"))
+					ct.pendingParses.add((JSONObject)entry);
 			}
 		}
-		Collections.sort(allItemsSorted);
-		Collections.sort(allRecipesSorted);
-		Collections.sort(allBuildingsSorted);
 	}
 
-	private static void parseItemsJSON(JSONObject li) {
-		for (Object entry : li.getJSONArray("Classes")) {
-			JSONObject obj = (JSONObject)entry;
-			String id = obj.getString("ClassName");
-			Logging.instance.log("Parsing JSON elem "+id);
-			String form = obj.getString("mForm");
-			boolean gas = form.equalsIgnoreCase("RF_GAS");
-			boolean fluid = form.equalsIgnoreCase("RF_LIQUID") || gas;
-			String disp = obj.getString("mDisplayName");
-			String desc = obj.getString("mDescription");
-			String ico = obj.getString("mPersistentBigIcon");
-			if (fluid) {
-				String clr = obj.getString(gas ? "mGasColor" : "mFluidColor");
-				Fluid f = new Fluid(id, disp, ico, desc, parseColor(clr));
-				allItems.put(f.id, f);
-				allItemsSorted.add(f);
-			}
-			else {
-				Item i = new Item(id, disp, ico, desc);
-				allItems.put(i.id, i);
-				allItemsSorted.add(i);
-			}
+	private static void parseItemsJSON(JSONObject obj) {
+		String id = obj.getString("ClassName");
+		Logging.instance.log("Parsing JSON elem "+id);
+		String form = obj.getString("mForm");
+		boolean gas = form.equalsIgnoreCase("RF_GAS");
+		boolean fluid = form.equalsIgnoreCase("RF_LIQUID") || gas;
+		String disp = obj.getString("mDisplayName");
+		String desc = obj.getString("mDescription");
+		String ico = id.substring(id.indexOf('_')+1, id.length()-2);// strip Desc_ and _C //obj.getString("mPersistentBigIcon");
+		if (fluid) {
+			String clr = obj.getString(gas ? "mGasColor" : "mFluidColor");
+			Fluid f = new Fluid(id, disp, ico, desc, parseColor(clr));
+			allItems.put(f.id, f);
+			allItemsSorted.add(f);
+		}
+		else {
+			Item i = new Item(id, disp, ico, desc);
+			allItems.put(i.id, i);
+			allItemsSorted.add(i);
 		}
 	}
 
@@ -253,53 +268,181 @@ public class Database {
 		return new Color(r/255F, g/255F, b/255F, a/255F);
 	}
 
-	private static void parseRecipeJSON(JSONObject li) {
-		for (Object entry : li.getJSONArray("Classes")) {
-			JSONObject obj = (JSONObject)entry;
-			String id = obj.getString("ClassName");
-			Logging.instance.log("Parsing JSON elem "+id);
-			String disp = obj.getString("mDisplayName");
-			String in = obj.getString("mIngredients");
-			String out = obj.getString("mProduct");
-			String bld = obj.getString("mProducedIn");
-			String time = obj.getString("mManufactoringDuration");
-			Recipe r = new Recipe(id, disp, bld, Float.parseFloat(time));
-			for (String ing : in.substring(2, in.length()-2).split("\\),\\(")) {
-				String[] parts = ing.split(",");
-				String iid = parts[0].split("=")[1];
-				iid = iid.substring(iid.lastIndexOf('/')+1, iid.lastIndexOf('"'));
-				iid = iid.substring(iid.lastIndexOf('.')+1);
-				r.addIngredient(lookupItem(iid), Integer.parseInt(parts[1].split("=")[1]));
+	private static String parseID(String iid) {
+		iid = iid.substring(iid.lastIndexOf('/')+1, iid.lastIndexOf('"'));
+		iid = iid.substring(iid.lastIndexOf('.')+1);
+		return iid;
+	}
+
+	private static void parseRecipeJSON(JSONObject obj) {
+		String id = obj.getString("ClassName");
+		Logging.instance.log("Parsing JSON elem "+id);
+		String bld = obj.getString("mProducedIn");
+		if (Strings.isNullOrEmpty(bld))
+			return;
+		bld = bld.substring(1, bld.length()-1); //trim ()
+		String[] blds = bld.split(",");
+		String building = null;
+		for (String e : blds) {
+			String parse = parseID(e);
+			if (parse.equalsIgnoreCase("BP_BuildGun_C") || parse.equalsIgnoreCase("FGBuildGun"))
+				break;
+			if (parse.equalsIgnoreCase("BP_WorkBenchComponent_C") || parse.equalsIgnoreCase("Build_AutomatedWorkBench_C") || parse.equalsIgnoreCase("FGBuildableAutomatedWorkBench"))
+				continue;
+			if (parse.equalsIgnoreCase("BP_WorkshopComponent_C"))
+				continue;
+			building = parse;
+		}
+		String disp = obj.getString("mDisplayName");
+		String in = obj.getString("mIngredients");
+		String out = obj.getString("mProduct");
+		String time = obj.getString("mManufactoringDuration");
+		Building b = building == null ? null : lookupBuilding(building);
+		Recipe r = new Recipe(id, disp, b, Float.parseFloat(time));
+		for (String ing : in.substring(2, in.length()-2).split("\\),\\(")) {
+			String[] parts = ing.split(",");
+			Consumable c = lookupItem(parseID(parts[0].split("=")[1]));
+			int amt = Integer.parseInt(parts[1].split("=")[1]);
+			if (c instanceof Fluid)
+				amt /= 1000; //they store fluids in mB
+			r.addIngredient(c, amt);
+		}
+		if (r.productionBuilding == null) { //is a buildable
+			String bid = parseID(out);
+			if (allBuildings.containsKey(bid)) {
+				b = lookupBuilding(id);
+				for (Entry<Consumable, Integer> e : r.getDirectCost().entrySet()) {
+					b.addIngredient((Item)e.getKey(), e.getValue());
+				}
+				Logging.instance.log("Set "+b+" recipe: "+b.getConstructionCost());
+			}
+		}
+		else {
+			for (String prod : out.substring(2, out.length()-2).split("\\),\\(")) {
+				String[] parts = prod.split(",");
+				Consumable c = lookupItem(parseID(parts[0].split("=")[1]));
+				int amt = Integer.parseInt(parts[1].split("=")[1]);
+				if (c instanceof Fluid)
+					amt /= 1000; //they store fluids in mB
+				r.addProduct(c, amt);
 			}
 			allRecipes.put(r.id, r);
-			allRecipesSorted.add(r);
+			if (r.productionBuilding == null)
+				allBuildingRecipesSorted.add(r);
+			else
+				allAutoRecipesSorted.add(r);
 		}
 	}
 
-	private static void parseBuildingJSON(JSONObject li) {
-
+	private static void parseBuildingJSON(JSONObject obj) {
+		String id = obj.getString("ClassName");
+		Logging.instance.log("Parsing JSON elem "+id);
+		String disp = obj.getString("mDisplayName");
+		String pwr = obj.getString("mPowerConsumption");
+		String pwrExp = obj.getString("mPowerConsumptionExponent"); //FIXME handle this for overclock!
+		//JSONArray fuels = obj.getJSONArray("mFuel");
+		String ico = id.substring(id.indexOf('_')+1, id.length()-2);// strip Desc_ and _C
+		Building r = new Building(id, disp, ico, Float.parseFloat(pwr));
+		allBuildings.put(r.id, r);
+		allBuildingsSorted.add(r);
 	}
 
-	private static void parseGeneratorJSON(JSONObject li) {
-		for (Object entry : li.getJSONArray("Classes")) {
-			JSONObject obj = (JSONObject)entry;
-			String id = obj.getString("ClassName");
-			Logging.instance.log("Parsing JSON elem "+id);
-			String disp = obj.getString("mDisplayName");
-			String pwr = obj.getString("mPowerProduction");
-			//JSONArray fuels = obj.getJSONArray("mFuel");
-			Generator r = new Generator(id, disp, "", Float.parseFloat(pwr));
-			allBuildings.put(r.id, r);
-			allBuildingsSorted.add(r);
+	private static void parseGeneratorJSON(JSONObject obj) {
+		String id = obj.getString("ClassName");
+		Logging.instance.log("Parsing JSON elem "+id);
+		String disp = obj.getString("mDisplayName");
+		String pwr = obj.getString("mPowerProduction");
+		//JSONArray fuels = obj.getJSONArray("mFuel");
+		Generator r = new Generator(id, disp, "", Float.parseFloat(pwr));
+		allBuildings.put(r.id, r);
+		allBuildingsSorted.add(r);
+	}
+
+	private static void parseMilestoneJSON(JSONObject obj) { //also has mCost, ingredients format
+		String id = obj.getString("ClassName");
+		Logging.instance.log("Parsing JSON elem "+id);
+		boolean isAltRecipe = id.startsWith("Schematic_Alternate_");
+		String disp = obj.getString("mDisplayName");
+		int tier = Integer.parseInt(obj.getString("mTechTier"));
+		JSONArray unlocks = obj.getJSONArray("mUnlocks");
+		JSONArray deps = obj.getJSONArray("mSchematicDependencies");
+		Milestone m = new Milestone(tier, disp);
+		for (Object o : deps) {
+			JSONObject ulock = (JSONObject)o;
+			String type = ulock.getString("Class");
+			if (type.equalsIgnoreCase("BP_SchematicPurchasedDependency_C")) {
+				String recc = ulock.getString("mSchematics");
+				String[] recipes = recc.substring(1, recc.length()-1).split(",");
+				for (String s : recipes) {
+					String rs = parseID(s);
+					if (allMilestones.containsKey(rs)) {
+						m.addDependency(lookupMilestone(rs));
+					}
+				}
+			}
 		}
+		boolean flag = false;
+		for (Object o : unlocks) {
+			JSONObject ulock = (JSONObject)o;
+			String type = ulock.getString("Class");
+			if (type.equalsIgnoreCase("BP_UnlockRecipe_C")) {
+				String recc = ulock.getString("mRecipes");
+				String[] recipes = recc.substring(1, recc.length()-1).split(",");
+				for (String s : recipes) {
+					String rs = parseID(s);
+					if (allRecipes.containsKey(rs)) {
+						flag = true;
+						m.addRecipe(lookupRecipe(rs));
+					}
+				}
+			}
+		}
+		if (flag)
+			allMilestones.put(id, m);
 	}
 
-	private static enum ClassType {
-		ITEM,
-		RECIPE,
-		BUILDING;
-		
-		
+	public static enum ClassType {
+		ITEM("/Script/CoreUObject.Class'/Script/FactoryGame.FGItemDescriptor'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGResourceDescriptor'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGItemDescriptorBiomass'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGItemDescriptorNuclearFuel'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGEquipmentDescriptor'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGConsumableDescriptor'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGAmmoTypeInstantHit'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGAmmoTypeProjectile'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGAmmoTypeSpreadshot'"),
+		RECIPE("/Script/CoreUObject.Class'/Script/FactoryGame.FGRecipe'"),
+		GENERATOR("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableGeneratorFuel'"),
+		CRAFTER("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableManufacturer'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableManufacturerVariablePower'"),
+		MILESTONE("/Script/CoreUObject.Class'/Script/FactoryGame.FGSchematic'")
+		;
+
+		private final HashSet<String> classTypes = new HashSet();
+
+		private final ArrayList<JSONObject> pendingParses = new ArrayList();
+
+		private ClassType(String... ids) {
+			for (String s : ids) {
+				classTypes.add(s);
+			}
+		}
+
+		public void parsePending() {
+			for (JSONObject obj : pendingParses)
+				this.parseObject(obj);
+		}
+
+		private void parseObject(JSONObject obj) {
+			switch(this) {
+				case ITEM:
+					parseItemsJSON(obj);
+					break;
+				case RECIPE:
+					parseRecipeJSON(obj);
+					break;
+				case GENERATOR:
+					parseGeneratorJSON(obj);
+					break;
+				case CRAFTER:
+					parseBuildingJSON(obj);
+					break;
+				case MILESTONE:
+					parseMilestoneJSON(obj);
+					break;
+			}
+		}
 	}
 
 }

@@ -31,6 +31,12 @@ public class Main {
 		Database.loadRecipes();
 		 */
 		Database.parseGameJSON();
+		Database.ClassType.ITEM.parsePending();
+		Database.ClassType.CRAFTER.parsePending();
+		Database.ClassType.RECIPE.parsePending();
+		Database.ClassType.GENERATOR.parsePending();
+		Database.ClassType.MILESTONE.parsePending();
+		Database.sort();
 		for (Consumable c : Database.getAllItems())
 			c.createIcon(); //cache default icon size
 		Application.launch(GuiSystem.class, args);

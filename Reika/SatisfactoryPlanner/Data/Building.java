@@ -35,8 +35,8 @@ public class Building extends Resource implements Comparable<Building> {
 	}
 
 	@Override
-	public int compareTo(Building o) { //TODO
-		return 0;
+	public int compareTo(Building o) {
+		return Float.compare(basePowerCostMW, o.basePowerCostMW); //loosely correlates with tier/advancement
 	}
 
 }

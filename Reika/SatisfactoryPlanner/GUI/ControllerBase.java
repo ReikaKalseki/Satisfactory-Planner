@@ -111,10 +111,10 @@ public abstract class ControllerBase {
 			this.setFont(((Labeled)n).getGraphic(), f);
 		}
 		if (n instanceof ComboBox) {
-			n.setStyle(GuiSystem.getFontStyle(12));
+			n.setStyle(GuiSystem.getFontStyle());
 		}
 		if (n instanceof ChoiceBox) {
-			n.setStyle(GuiSystem.getFontStyle(12));
+			n.setStyle(GuiSystem.getFontStyle());
 		}
 		if (n instanceof Parent) {
 			for (Node n2 : ((Parent)n).getChildrenUnmodifiable()) {

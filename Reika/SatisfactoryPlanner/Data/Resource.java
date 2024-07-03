@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.GUI.GuiUtil;
+import Reika.SatisfactoryPlanner.Util.Logging;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -39,7 +40,12 @@ public abstract class Resource {
 	public final Image createIcon(int size) {
 		Image img = iconCache.get(size);
 		if (img == null) {
-			img = new Image(this.getIcon(), size, size, true, true);
+			InputStream in = this.getIcon();
+			if (in == null) {
+				Logging.instance.log("No icon '"+iconName+"' for "+this);
+				in = Main.class.getResourceAsStream("Resources/Graphics/Icons/NotFound.png");
+			}
+			img = new Image(in, size, size, true, true);
 			iconCache.put(size, img);
 		}
 		return img;

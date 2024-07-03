@@ -17,6 +17,7 @@ import Reika.SatisfactoryPlanner.Data.Generator;
 import Reika.SatisfactoryPlanner.Data.Item;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.Data.ResourceSupply;
+import Reika.SatisfactoryPlanner.GUI.GuiSystem.FontModifier;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
 import Reika.SatisfactoryPlanner.Util.ColorUtil;
 import Reika.SatisfactoryPlanner.Util.CountMap;
@@ -227,7 +228,7 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 	private void updateRecipes() {
 		try {
 			recipeDropdown.getSelectionModel().clearSelection();
-			ArrayList<Recipe> li = new ArrayList(Database.getAllRecipes());
+			ArrayList<Recipe> li = new ArrayList(Database.getAllAutoRecipes());
 			li.removeAll(factory.getRecipes());
 			recipeDropdown.setItems(FXCollections.observableList(li));
 			recipeDropdown.setDisable(li.isEmpty());
@@ -326,10 +327,10 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 		float prod = factory.getNetPowerProduction();
 		powerProduction.setText(String.format("%.2fMW", prod));
 		if (prod > 0) {
-			powerProduction.setStyle("-fx-font-weight: bold; -fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.OKAY_COLOR)+";");
+			powerProduction.setStyle(GuiSystem.getFontStyle(FontModifier.BOLD)+" -fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.OKAY_COLOR)+";");
 		}
 		else if (prod < 0) {
-			powerProduction.setStyle("-fx-font-weight: bold; -fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.WARN_COLOR)+";");
+			powerProduction.setStyle(GuiSystem.getFontStyle(FontModifier.BOLD)+" -fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.WARN_COLOR)+";");
 		}
 		else {
 			powerProduction.setStyle("");
