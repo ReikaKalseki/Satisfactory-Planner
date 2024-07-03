@@ -16,7 +16,7 @@ public class FrackingNode extends BaseResourceNode<Fluid> {
 
 	@Override
 	public Building getBuilding() {
-		return Database.lookupBuilding("Resource Well Extractor");
+		return Database.lookupBuilding("Desc_FrackingExtractor_C");
 	}
 
 }

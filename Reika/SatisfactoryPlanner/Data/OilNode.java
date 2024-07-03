@@ -6,7 +6,7 @@ import Reika.SatisfactoryPlanner.Data.Constants.Purity;
 public class OilNode extends BaseResourceNode<Fluid> {
 
 	public OilNode(Purity p) {
-		super((Fluid)Database.lookupItem("Crude Oil"), p);
+		super((Fluid)Database.lookupItem("Desc_LiquidOil_C"), p);
 	}
 
 	@Override
@@ -16,7 +16,7 @@ public class OilNode extends BaseResourceNode<Fluid> {
 
 	@Override
 	public Building getBuilding() {
-		return Database.lookupBuilding("Oil Extractor");
+		return Database.lookupBuilding("Build_OilPump_C");
 	}
 
 }

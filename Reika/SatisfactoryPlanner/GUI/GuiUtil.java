@@ -8,6 +8,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
+import javafx.scene.control.Labeled;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -15,6 +16,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 public class GuiUtil {
@@ -93,6 +95,16 @@ public class GuiUtil {
 		n.getChildren().add(r.createImageView());
 		n.getChildren().add(new Label("x"+amt));
 		p.add(n, col, row);
+	}
+
+	public static double getWidth(Labeled node) {
+		Text text = new Text(node.getText());
+		text.setFont(node.getFont());
+		return text.getLayoutBounds().getWidth();
+	}
+
+	public static void sizeToContent(Labeled node) {
+		node.setMinWidth(getWidth(node));
 	}
 
 }

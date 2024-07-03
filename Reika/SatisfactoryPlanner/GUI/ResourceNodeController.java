@@ -180,7 +180,7 @@ public class ResourceNodeController extends ControllerBase {
 		yieldDisplay.getChildren().clear();
 		if (clockSpeed > 100) {
 			for (int i = 0; i < Math.ceil((clockSpeed-100)/50D); i++) {
-				shardDisplay.getChildren().add(Database.lookupItem("Power Shard").createImageView());
+				shardDisplay.getChildren().add(Database.lookupItem("Desc_CrystalShard_C").createImageView());
 			}
 		}
 		if (res != null && res.getResource() != null && res.getYield() > 0) {
@@ -217,6 +217,7 @@ public class ResourceNodeController extends ControllerBase {
 
 		GuiInstance gui = this.loadNestedFXML("ClockspeedSlider", extraGrid, 1, 1);
 		((ClockspeedSliderController)gui.controller).setCallback(v -> {clockSpeed = v; this.updateStats();});
+		this.setFont(this.getRootNode(), GuiSystem.getDefaultFont());
 	}
 
 }

@@ -44,12 +44,16 @@ public class ResourceMineEntryController extends ControllerBase {
 	@Override
 	protected void postInit(WindowBase w) throws IOException {
 		super.postInit(w);
+		this.setFont(this.getRootNode(), GuiSystem.getDefaultFont());
 	}
 
 	public void setMine(Factory f, ExtractableResource res) {
 		Node right = null;
-		if (res instanceof SolidResourceNode)
-			right = new ImageView(((SolidResourceNode)res).purityLevel.image);
+		if (res instanceof SolidResourceNode) {
+			Purity pp = ((SolidResourceNode)res).purityLevel;
+			right = new ImageView(pp.image);
+			GuiUtil.setTooltip(right, pp.name());
+		}
 		Node n = GuiUtil.createSpacedHBox(res.getResource().createImageView(), res.getBuilding().createImageView(), right);
 		if (res instanceof FrackingCluster) {
 			FrackingCluster fc = (FrackingCluster)res;
@@ -71,7 +75,7 @@ public class ResourceMineEntryController extends ControllerBase {
 		speedValue.setText(pct+"%");
 		if (pct > 100) {
 			for (int i = 0; i < Math.ceil((pct-100)/50D); i++) {
-				shardDisplay.getChildren().add(Database.lookupItem("Power Shard").createImageView());
+				shardDisplay.getChildren().add(Database.lookupItem("Desc_CrystalShard_C").createImageView());
 			}
 		}
 		else {

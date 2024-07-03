@@ -31,9 +31,11 @@ public class Main {
 		Database.loadRecipes();
 		 */
 		Database.parseGameJSON();
+		Database.ClassType.RESOURCE.parsePending();
 		Database.ClassType.ITEM.parsePending();
 		Database.ClassType.CRAFTER.parsePending();
 		Database.ClassType.RECIPE.parsePending();
+		Database.ClassType.MINER.parsePending();
 		Database.ClassType.GENERATOR.parsePending();
 		Database.ClassType.MILESTONE.parsePending();
 		Database.sort();

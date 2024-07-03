@@ -73,7 +73,7 @@ public class Constants {
 		}
 
 		public Building getMiner() {
-			return Database.lookupBuilding("Miner Mk."+(this.ordinal()+1));
+			return Database.lookupBuilding("Build_MinerMk"+(this.ordinal()+1)+"_C");
 		}
 	}
 	/*

@@ -33,6 +33,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TitledPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -49,9 +51,6 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 
 	@FXML
 	private Button addInputButton;
-
-	@FXML
-	private Button addMinerButton;
 
 	@FXML
 	private Button addProductButton;
@@ -72,34 +71,40 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 	private HBox costBar;
 
 	@FXML
+	private Tab craftingTab;
+
+	@FXML
 	private Menu currentMenu;
 
 	@FXML
 	private Menu factoryMenu;
 
 	@FXML
-	private TitledPane generatorsPanel;
+	private VBox generatorList;
 
 	@FXML
 	private TitledPane gridContainer;
 
 	@FXML
-	private HBox inputBar;
+	private GridPane infoGrid;
 
 	@FXML
-	private TitledPane inputsPanel;
+	private TitledPane infoPanel;
+
+	@FXML
+	private TilePane inputGrid;
+
+	@FXML
+	private TitledPane inputPanel;
+
+	@FXML
+	private Tab ioTab;
 
 	@FXML
 	private MenuItem isolateMenu;
 
 	@FXML
 	private MenuBar menu;
-
-	@FXML
-	private HBox minerBar;
-
-	@FXML
-	private TitledPane minersPanel;
 
 	@FXML
 	private TitledPane netGridContainer;
@@ -111,13 +116,19 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 	private MenuItem openMenu;
 
 	@FXML
+	private TitledPane outputPanel;
+
+	@FXML
+	private Tab overviewTab;
+
+	@FXML
 	private Label powerProduction;
 
 	@FXML
-	private TilePane productGrid;
+	private Tab powerTab;
 
 	@FXML
-	private TitledPane productsPanel;
+	private TilePane productGrid;
 
 	@FXML
 	private MenuItem quitMenu;
@@ -142,6 +153,12 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 
 	@FXML
 	private TitledPane statsPanel;
+
+	@FXML
+	private TabPane tabs;
+
+	@FXML
+	private VBox warningList;
 
 	@FXML
 	private TitledPane warningPanel;
@@ -176,8 +193,8 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 		recipeDropdown.setCellFactory(c -> new RecipeListCell("", false));
 
 
-		((ImageView)addMinerButton.getGraphic()).setImage(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/add.png")));
-		addMinerButton.setOnAction(e -> {
+		((ImageView)addInputButton.getGraphic()).setImage(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/add.png")));
+		addInputButton.setOnAction(e -> {
 			try {
 				this.openFXMLDialog("Add Resource Node", "ResourceNodeDialog");
 			}
@@ -186,14 +203,16 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 			}
 		});
 
-		((ImageView)addInputButton.getGraphic()).setImage(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/add.png")));
-		addInputButton.setOnAction(e -> {
-
-		});
-
 		((ImageView)addProductButton.getGraphic()).setImage(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/add.png")));
 		addProductButton.setOnAction(e -> {
 
+		});
+
+		saveMenu.setOnAction(e -> {
+			factory.save();
+		});
+		openMenu.setOnAction(e -> {
+			//load factory
 		});
 	}
 
@@ -203,10 +222,11 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 
 	private Button createProductButton(Consumable c) {
 		Button b = new Button();
-		b.setGraphic(new ImageView(c.createIcon()));
+		int size = 64;//32;
+		b.setGraphic(new ImageView(c.createIcon(size)));
 		GuiUtil.setTooltip(b, c.displayName);
-		b.setPrefWidth(32);
-		b.setPrefHeight(32);
+		b.setPrefWidth(size);
+		b.setPrefHeight(size);
 		b.setMinHeight(Region.USE_PREF_SIZE);
 		b.setMaxHeight(Region.USE_PREF_SIZE);
 		b.setMinWidth(Region.USE_PREF_SIZE);
@@ -233,13 +253,23 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 			recipeDropdown.setItems(FXCollections.observableList(li));
 			recipeDropdown.setDisable(li.isEmpty());
 
-			gridContainer.setContent(factory.createRawMatrix(this));
-			netGridContainer.setContent(factory.createNetMatrix(this));
+			GridPane gp = factory.createRawMatrix(this);
+			gp.setMaxWidth(Double.POSITIVE_INFINITY);
+			gp.setMaxHeight(Double.POSITIVE_INFINITY);
+			gridContainer.setContent(gp);
+
+			gp = factory.createNetMatrix(this);
+			gp.setMaxWidth(Double.POSITIVE_INFINITY);
+			gp.setMaxHeight(Double.POSITIVE_INFINITY);
+			netGridContainer.setContent(gp);
 
 			this.setFont(gridContainer, GuiSystem.getDefaultFont());
 			this.setFont(netGridContainer, GuiSystem.getDefaultFont());
 
 			this.updateStats();
+			Platform.runLater(() -> tabs.requestLayout()); //ugly hack but necessary to resize the tabpane
+			if (this.getRootNode() != null)
+				this.getRootNode().layout();
 		}
 		catch (IOException e) {
 			e.printStackTrace();
@@ -298,11 +328,10 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 	}
 
 	private void updateStats() {
-		minerBar.getChildren().removeIf(n -> !(n instanceof Button));
-		inputBar.getChildren().removeIf(n -> !(n instanceof Button));
+		inputGrid.getChildren().removeIf(n -> !(n instanceof Button));
 		for (ExtractableResource res : factory.getMines()) {
 			try {
-				GuiInstance gui = this.loadNestedFXML("ResourceMineEntry", minerBar);
+				GuiInstance gui = this.loadNestedFXML("ResourceMineEntry", inputGrid);
 				((ResourceMineEntryController)gui.controller).setMine(factory, res);
 			}
 			catch (IOException e) {

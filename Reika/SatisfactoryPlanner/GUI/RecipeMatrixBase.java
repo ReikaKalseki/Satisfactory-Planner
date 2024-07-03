@@ -131,6 +131,7 @@ public abstract class RecipeMatrixBase {
 	protected int addRecipeRow(ControllerBase con, GridPane gp, Recipe r, int i) throws IOException {
 		Label lb = new Label(r.displayName);
 		lb.setFont(Font.font(lb.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, 14));
+		GuiUtil.sizeToContent(lb);
 		int rowIndex = titleGapRow+1+i*2;
 		gp.add(lb, nameColumn, rowIndex);
 		for (Entry<Consumable, Float> e : r.getIngredientsPerMinute().entrySet()) {

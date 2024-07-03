@@ -11,9 +11,9 @@
 <HBox fx:id="mainPanel" alignment="CENTER_LEFT" fillHeight="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="4.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.ItemViewController">
    <children>
       <ImageView fx:id="icon" cache="true" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" />
-      <VBox fx:id="countContainer" alignment="CENTER">
+      <VBox fx:id="countContainer" alignment="CENTER" HBox.hgrow="ALWAYS">
          <children>
-            <Label fx:id="amount" text="32">
+            <Label fx:id="amount" text="32" textAlignment="CENTER">
                <font>
                   <Font size="14.0" />
                </font>
@@ -22,7 +22,7 @@
                </VBox.margin>
             </Label>
             <Line fx:id="divider" endX="20.0" stroke="#00000080" strokeLineCap="ROUND" strokeWidth="1.5" />
-            <Label fx:id="minLabel" layoutX="10.0" layoutY="10.0" text="min">
+            <Label fx:id="minLabel" layoutX="10.0" layoutY="10.0" text="min" textAlignment="CENTER">
                <font>
                   <Font size="14.0" />
                </font>

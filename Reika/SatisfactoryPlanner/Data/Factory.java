@@ -31,6 +31,8 @@ public class Factory {
 	private final MultiMap<Consumable, LogisticSupply> externalSupplies = new MultiMap();
 	private final ArrayList<Consumable> desiredProducts = new ArrayList();
 
+	public String name;
+
 	public Factory() {
 
 	}
@@ -178,6 +180,14 @@ public class Factory {
 		for (Recipe r : recipeList)
 			ret -= r.productionBuilding.basePowerCostMW*this.getCount(r);
 		return ret;
+	}
+
+	public void save() {
+
+	}
+
+	public void load() {
+
 	}
 
 }

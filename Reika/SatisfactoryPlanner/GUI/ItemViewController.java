@@ -50,6 +50,9 @@ public class ItemViewController extends ControllerBase {
 	protected void postInit(WindowBase w) throws IOException {
 		super.postInit(w);
 		this.setTextStyle(GuiSystem.getFontStyle(FontModifier.SEMIBOLD));
+
+		mainPanel.minWidthProperty().bind(countContainer.widthProperty().add(mainPanel.spacingProperty()).add(icon.fitWidthProperty()));
+		GuiUtil.sizeToContent(minLabel);
 	}
 
 	public void setItem(Consumable c, float amt) {
@@ -68,6 +71,8 @@ public class ItemViewController extends ControllerBase {
 		DecimalFormat df = new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
 		df.setMaximumFractionDigits(340); //340 = DecimalFormat.DOUBLE_FRACTION_DIGITS
 		amount.setText(df.format(amt));
+
+		GuiUtil.sizeToContent(amount);
 	}
 
 	public void setState(WarningState st) {

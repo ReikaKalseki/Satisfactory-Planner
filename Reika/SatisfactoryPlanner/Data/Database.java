@@ -219,7 +219,7 @@ public class Database {
 		}
 	}
 
-	private static void parseItemsJSON(JSONObject obj) {
+	private static void parseItemsJSON(JSONObject obj, boolean resource) {
 		String id = obj.getString("ClassName");
 		Logging.instance.log("Parsing JSON elem "+id);
 		String form = obj.getString("mForm");
@@ -233,11 +233,15 @@ public class Database {
 			Fluid f = new Fluid(id, disp, ico, desc, parseColor(clr));
 			allItems.put(f.id, f);
 			allItemsSorted.add(f);
+			if (resource)
+				frackableFluids.add(f);
 		}
 		else {
 			Item i = new Item(id, disp, ico, desc);
 			allItems.put(i.id, i);
 			allItemsSorted.add(i);
+			if (resource)
+				mineableItems.add(i);
 		}
 	}
 
@@ -402,10 +406,12 @@ public class Database {
 	}
 
 	public static enum ClassType {
-		ITEM("/Script/CoreUObject.Class'/Script/FactoryGame.FGItemDescriptor'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGResourceDescriptor'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGItemDescriptorBiomass'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGItemDescriptorNuclearFuel'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGEquipmentDescriptor'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGConsumableDescriptor'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGAmmoTypeInstantHit'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGAmmoTypeProjectile'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGAmmoTypeSpreadshot'"),
+		ITEM("/Script/CoreUObject.Class'/Script/FactoryGame.FGItemDescriptor'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGItemDescriptorBiomass'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGItemDescriptorNuclearFuel'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGEquipmentDescriptor'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGConsumableDescriptor'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGAmmoTypeInstantHit'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGAmmoTypeProjectile'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGAmmoTypeSpreadshot'"),
+		RESOURCE("/Script/CoreUObject.Class'/Script/FactoryGame.FGResourceDescriptor'"),
 		RECIPE("/Script/CoreUObject.Class'/Script/FactoryGame.FGRecipe'"),
 		GENERATOR("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableGeneratorFuel'"),
 		CRAFTER("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableManufacturer'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableManufacturerVariablePower'"),
+		MINER("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableResourceExtractor'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableWaterPump'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableFrackingActivator'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableFrackingExtractor'"),
 		MILESTONE("/Script/CoreUObject.Class'/Script/FactoryGame.FGSchematic'")
 		;
 
@@ -427,7 +433,8 @@ public class Database {
 		private void parseObject(JSONObject obj) {
 			switch(this) {
 				case ITEM:
-					parseItemsJSON(obj);
+				case RESOURCE:
+					parseItemsJSON(obj, this == RESOURCE);
 					break;
 				case RECIPE:
 					parseRecipeJSON(obj);
@@ -436,6 +443,9 @@ public class Database {
 					parseGeneratorJSON(obj);
 					break;
 				case CRAFTER:
+					parseBuildingJSON(obj);
+					break;
+				case MINER:
 					parseBuildingJSON(obj);
 					break;
 				case MILESTONE:

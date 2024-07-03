@@ -6,7 +6,8 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox prefWidth="150.0" spacing="8.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.ResourceMineEntryController">
+
+<VBox prefWidth="150.0" spacing="8.0" style="-fx-border-color: #aaa; -fx-border-width: 2; -fx-border-insets: 2; -fx-border-radius: 4;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.ResourceMineEntryController">
    <padding>
       <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
    </padding>
