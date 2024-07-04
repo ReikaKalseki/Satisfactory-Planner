@@ -1,0 +1,35 @@
+{
+    "recipes": [
+        {
+            "count": 10,
+            "id": "Recipe_Cable_C"
+        },
+        {
+            "count": 20,
+            "id": "Recipe_Wire_C"
+        },
+        {
+            "count": 3,
+            "id": "Recipe_Alternate_CopperAlloyIngot_C"
+        }
+    ],
+    "name": "factorytest",
+    "generators": [],
+    "resources": [
+        {
+            "item": "Desc_OreIron_C",
+            "type": "MINER",
+            "purity": "NORMAL",
+            "miner": "TWO",
+            "clock": 1
+        },
+        {
+            "item": "Desc_OreCopper_C",
+            "type": "MINER",
+            "purity": "NORMAL",
+            "miner": "TWO",
+            "clock": 1.5
+        }
+    ],
+    "products": []
+}

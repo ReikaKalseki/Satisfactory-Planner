@@ -1,9 +1,20 @@
 package Reika.SatisfactoryPlanner.Data;
 
+import org.json.JSONObject;
+
+import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
 
 public class WaterExtractor implements ExtractableResource<Fluid> {
 
 	private float clockSpeed = 1;
+
+	public WaterExtractor() {
+
+	}
+
+	private WaterExtractor(JSONObject obj) {
+		clockSpeed = obj.getFloat("clock");
+	}
 
 	@Override
 	public int getYield() {
@@ -25,8 +36,18 @@ public class WaterExtractor implements ExtractableResource<Fluid> {
 	}
 
 	@Override
-	public Building getBuilding() {
-		return Database.lookupBuilding("Build_WaterPump_C");
+	public FunctionalBuilding getBuilding() {
+		return (FunctionalBuilding)Database.lookupBuilding("Build_WaterPump_C");
+	}
+
+	@Override
+	public void save(JSONObject block) {
+		block.put("clock", clockSpeed);
+	}
+
+	@Override
+	public ResourceSupplyType getType() {
+		return ResourceSupplyType.WATER;
 	}
 
 }

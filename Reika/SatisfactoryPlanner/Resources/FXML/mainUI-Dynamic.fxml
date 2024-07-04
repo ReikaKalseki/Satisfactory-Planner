@@ -43,6 +43,7 @@
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -51,6 +52,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.TilePane?>
 <?import javafx.scene.layout.VBox?>
+<?import org.controlsfx.control.SearchableComboBox?>
 
 <VBox fx:id="root" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="12.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.MainGuiController">
   <children>
@@ -74,6 +76,7 @@
         </Menu>
             <Menu fx:id="currentMenu" mnemonicParsing="false" text="Current Factory">
                <items>
+                  <MenuItem fx:id="reloadMenu" mnemonicParsing="false" text="Reload From Disk" />
                   <MenuItem fx:id="clearMenu" mnemonicParsing="false" text="Clear Crafting" />
                   <MenuItem fx:id="zeroMenu" mnemonicParsing="false" text="Zero Crafting Counts" />
                   <MenuItem fx:id="isolateMenu" mnemonicParsing="false" text="Remove External Supply" />
@@ -98,10 +101,11 @@
                                           <ColumnConstraints hgrow="SOMETIMES" percentWidth="85.0" />
                                        </columnConstraints>
                                        <rowConstraints>
-                                          <RowConstraints minHeight="32.0" vgrow="SOMETIMES" />
+                                          <RowConstraints vgrow="SOMETIMES" />
                                        </rowConstraints>
                                        <children>
                                           <Label layoutX="20.0" layoutY="37.0" text="Name" />
+                                          <TextField fx:id="factoryName" GridPane.columnIndex="1" />
                                        </children>
                                     </GridPane>
                                  </content>
@@ -196,7 +200,7 @@
                      <content>
                         <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="4.0">
                            <children>
-                              <ComboBox fx:id="recipeDropdown" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="32.0" promptText="Click To Add Recipe..." />
+                              <SearchableComboBox fx:id="recipeDropdown" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="32.0" promptText="Click To Add Recipe..." />
                               <TitledPane fx:id="gridContainer" text="Item Matrix" />
                               <TitledPane fx:id="netGridContainer" collapsible="false" text="Net Matrix" />
                            </children>

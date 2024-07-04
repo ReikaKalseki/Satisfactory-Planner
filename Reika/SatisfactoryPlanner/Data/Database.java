@@ -35,6 +35,9 @@ public class Database {
 	private static final ArrayList<Recipe> allBuildingRecipesSorted = new ArrayList();
 	private static final HashMap<String, Recipe> allRecipes = new HashMap();
 
+	private static final HashMap<String, Vehicle> allVehicles = new HashMap();
+	private static final ArrayList<Vehicle> allVehiclesSorted = new ArrayList();
+
 	private static final ArrayList<Item> mineableItems = new ArrayList();
 	private static final ArrayList<Fluid> frackableFluids = new ArrayList();
 
@@ -153,6 +156,13 @@ public class Database {
 		return c;
 	}
 
+	public static Vehicle lookupVehicle(String name) {
+		Vehicle c = allVehicles.get(name);
+		if (c == null)
+			throw new IllegalArgumentException("No such vehicle '"+name+"'");
+		return c;
+	}
+
 	public static List<Building> getAllBuildings() {
 		return Collections.unmodifiableList(allBuildingsSorted);
 	}
@@ -199,6 +209,7 @@ public class Database {
 		Collections.sort(allAutoRecipesSorted);
 		Collections.sort(allBuildingRecipesSorted);
 		Collections.sort(allBuildingsSorted);
+		Collections.sort(allVehiclesSorted);
 	}
 
 	public static void parseGameJSON() throws IOException {
@@ -227,7 +238,7 @@ public class Database {
 		boolean fluid = form.equalsIgnoreCase("RF_LIQUID") || gas;
 		String disp = obj.getString("mDisplayName");
 		String desc = obj.getString("mDescription");
-		String ico = id.substring(id.indexOf('_')+1, id.length()-2);// strip Desc_ and _C //obj.getString("mPersistentBigIcon");
+		String ico = convertIDToIcon(id);
 		if (fluid) {
 			String clr = obj.getString(gas ? "mGasColor" : "mFluidColor");
 			Fluid f = new Fluid(id, disp, ico, desc, parseColor(clr));
@@ -243,6 +254,10 @@ public class Database {
 			if (resource)
 				mineableItems.add(i);
 		}
+	}
+
+	private static String convertIDToIcon(String id) {
+		return id.substring(id.indexOf('_')+1, id.length()-2);// strip Desc_ and _C //obj.getString("mPersistentBigIcon");
 	}
 
 	private static Color parseColor(String clr) {
@@ -301,7 +316,7 @@ public class Database {
 		String in = obj.getString("mIngredients");
 		String out = obj.getString("mProduct");
 		String time = obj.getString("mManufactoringDuration");
-		Building b = building == null ? null : lookupBuilding(building);
+		FunctionalBuilding b = building == null ? null : (FunctionalBuilding)lookupBuilding(building);
 		Recipe r = new Recipe(id, disp, b, Float.parseFloat(time));
 		for (String ing : in.substring(2, in.length()-2).split("\\),\\(")) {
 			String[] parts = ing.split(",");
@@ -312,13 +327,13 @@ public class Database {
 			r.addIngredient(c, amt);
 		}
 		if (r.productionBuilding == null) { //is a buildable
-			String bid = parseID(out);
+			String bid = parseID(out.replace("Desc_", "Build_"));
 			if (allBuildings.containsKey(bid)) {
-				b = lookupBuilding(id);
+				Building bb = lookupBuilding(bid);
 				for (Entry<Consumable, Integer> e : r.getDirectCost().entrySet()) {
-					b.addIngredient((Item)e.getKey(), e.getValue());
+					bb.addIngredient((Item)e.getKey(), e.getValue());
 				}
-				Logging.instance.log("Set "+b+" recipe: "+b.getConstructionCost());
+				Logging.instance.log("Set "+bb+" recipe: "+bb.getConstructionCost());
 			}
 		}
 		else {
@@ -335,6 +350,7 @@ public class Database {
 				allBuildingRecipesSorted.add(r);
 			else
 				allAutoRecipesSorted.add(r);
+			Logging.instance.log("Registered recipe type "+r);
 		}
 	}
 
@@ -342,11 +358,19 @@ public class Database {
 		String id = obj.getString("ClassName");
 		Logging.instance.log("Parsing JSON elem "+id);
 		String disp = obj.getString("mDisplayName");
+		Building r = new Building(id, disp, convertIDToIcon(id));
+		allBuildings.put(r.id, r);
+		allBuildingsSorted.add(r);
+	}
+
+	private static void parseFunctionalBuildingJSON(JSONObject obj) {
+		String id = obj.getString("ClassName");
+		Logging.instance.log("Parsing JSON elem "+id);
+		String disp = obj.getString("mDisplayName");
 		String pwr = obj.getString("mPowerConsumption");
 		String pwrExp = obj.getString("mPowerConsumptionExponent"); //FIXME handle this for overclock!
 		//JSONArray fuels = obj.getJSONArray("mFuel");
-		String ico = id.substring(id.indexOf('_')+1, id.length()-2);// strip Desc_ and _C
-		Building r = new Building(id, disp, ico, Float.parseFloat(pwr));
+		FunctionalBuilding r = new FunctionalBuilding(id, disp, convertIDToIcon(id), Float.parseFloat(pwr));
 		allBuildings.put(r.id, r);
 		allBuildingsSorted.add(r);
 	}
@@ -357,9 +381,18 @@ public class Database {
 		String disp = obj.getString("mDisplayName");
 		String pwr = obj.getString("mPowerProduction");
 		//JSONArray fuels = obj.getJSONArray("mFuel");
-		Generator r = new Generator(id, disp, "", Float.parseFloat(pwr));
+		Generator r = new Generator(id, disp, convertIDToIcon(id), Float.parseFloat(pwr));
 		allBuildings.put(r.id, r);
 		allBuildingsSorted.add(r);
+	}
+
+	private static void parseVehicleJSON(JSONObject obj) {
+		String id = obj.getString("ClassName");
+		Logging.instance.log("Parsing JSON elem "+id);
+		String disp = obj.getString("mDisplayName");
+		Vehicle v = new Vehicle(id, disp, convertIDToIcon(id));
+		allVehicles.put(v.id, v);
+		allVehiclesSorted.add(v);
 	}
 
 	private static void parseMilestoneJSON(JSONObject obj) { //also has mCost, ingredients format
@@ -412,7 +445,9 @@ public class Database {
 		GENERATOR("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableGeneratorFuel'"),
 		CRAFTER("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableManufacturer'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableManufacturerVariablePower'"),
 		MINER("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableResourceExtractor'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableWaterPump'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableFrackingActivator'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableFrackingExtractor'"),
-		MILESTONE("/Script/CoreUObject.Class'/Script/FactoryGame.FGSchematic'")
+		VEHICLE("/Script/CoreUObject.Class'/Script/FactoryGame.FGVehicleDescriptor'"),
+		MISCBUILD("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildingDescriptor'"),
+		MILESTONE("/Script/CoreUObject.Class'/Script/FactoryGame.FGSchematic'"),
 		;
 
 		private final HashSet<String> classTypes = new HashSet();
@@ -443,13 +478,19 @@ public class Database {
 					parseGeneratorJSON(obj);
 					break;
 				case CRAFTER:
-					parseBuildingJSON(obj);
+					parseFunctionalBuildingJSON(obj);
 					break;
 				case MINER:
+					parseFunctionalBuildingJSON(obj);
+					break;
+				case MISCBUILD:
 					parseBuildingJSON(obj);
 					break;
 				case MILESTONE:
 					parseMilestoneJSON(obj);
+					break;
+				case VEHICLE:
+					parseVehicleJSON(obj);
 					break;
 			}
 		}

@@ -1,5 +1,7 @@
 package Reika.SatisfactoryPlanner.Data;
 
+import org.json.JSONObject;
+
 import Reika.SatisfactoryPlanner.Data.Constants.Purity;
 
 public abstract class BaseResourceNode<R extends Consumable> implements ExtractableResource<R> {
@@ -25,6 +27,13 @@ public abstract class BaseResourceNode<R extends Consumable> implements Extracta
 	@Override
 	public final R getResource() {
 		return resource;
+	}
+
+	@Override
+	public void save(JSONObject block) {
+		block.put("item", resource.id);
+		block.put("purity", purityLevel.name());
+		block.put("clock", clockSpeed);
 	}
 
 }

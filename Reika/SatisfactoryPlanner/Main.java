@@ -34,9 +34,10 @@ public class Main {
 		Database.ClassType.RESOURCE.parsePending();
 		Database.ClassType.ITEM.parsePending();
 		Database.ClassType.CRAFTER.parsePending();
-		Database.ClassType.RECIPE.parsePending();
 		Database.ClassType.MINER.parsePending();
 		Database.ClassType.GENERATOR.parsePending();
+		Database.ClassType.VEHICLE.parsePending();
+		Database.ClassType.RECIPE.parsePending();
 		Database.ClassType.MILESTONE.parsePending();
 		Database.sort();
 		for (Consumable c : Database.getAllItems())

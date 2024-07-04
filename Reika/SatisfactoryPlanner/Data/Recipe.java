@@ -5,8 +5,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
 
-import Reika.SatisfactoryPlanner.Util.Logging;
-
 public class Recipe implements Comparable<Recipe> {
 
 	private static int maxIngredients;
@@ -15,7 +13,7 @@ public class Recipe implements Comparable<Recipe> {
 	public final String id;
 	public final String displayName;
 	public final boolean isAlternate;
-	public final Building productionBuilding;
+	public final FunctionalBuilding productionBuilding;
 
 	public final float craftingTime;
 	public final float timeCoefficient;
@@ -32,14 +30,13 @@ public class Recipe implements Comparable<Recipe> {
 		this(id, dn, b, false, time);
 	}
 	 */
-	public Recipe(String id, String dn, Building b, float time) {
+	public Recipe(String id, String dn, FunctionalBuilding b, float time) {
 		this.id = id;
 		displayName = dn;
 		productionBuilding = b;
 		isAlternate = id.startsWith("Recipe_Alternate");
 		craftingTime = time;
 		timeCoefficient = 60F/craftingTime;
-		Logging.instance.log("Registered recipe type "+this);
 	}
 
 	@Override

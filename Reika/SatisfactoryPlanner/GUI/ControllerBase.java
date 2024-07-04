@@ -81,10 +81,17 @@ public abstract class ControllerBase {
 	}
 
 	public final DialogWindow openFXMLDialog(String title, String fxml) throws IOException {
+		return this.openFXMLDialog(title, fxml, null);
+	}
+
+	public final DialogWindow openFXMLDialog(String title, String fxml, Consumer<ControllerBase> callback) throws IOException {
 		if (container == null)
 			throw new RuntimeException("You can only load nested FXML in post-init, after the window is initialized!");
 		DialogWindow dialog = new DialogWindow(title, fxml, container);
 		dialog.controller.owner = this;
+		if (callback != null) {
+			callback.accept(dialog.controller);
+		}
 		dialog.show();
 
 		return dialog;

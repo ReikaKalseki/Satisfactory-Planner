@@ -1,6 +1,7 @@
 package Reika.SatisfactoryPlanner.Data;
 
 import Reika.SatisfactoryPlanner.Data.Constants.Purity;
+import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
 
 
 public class FrackingNode extends BaseResourceNode<Fluid> {
@@ -15,8 +16,13 @@ public class FrackingNode extends BaseResourceNode<Fluid> {
 	}
 
 	@Override
-	public Building getBuilding() {
-		return Database.lookupBuilding("Desc_FrackingExtractor_C");
+	public FunctionalBuilding getBuilding() {
+		return (FunctionalBuilding)Database.lookupBuilding("Desc_FrackingExtractor_C");
+	}
+
+	@Override
+	public ResourceSupplyType getType() {
+		return ResourceSupplyType.FRACKING;
 	}
 
 }

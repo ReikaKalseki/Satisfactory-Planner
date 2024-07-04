@@ -1,14 +1,24 @@
 package Reika.SatisfactoryPlanner.GUI;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Optional;
+import java.util.function.Consumer;
+
 import Reika.SatisfactoryPlanner.Data.Resource;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonBase;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -17,6 +27,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.stage.Modality;
 import javafx.util.Duration;
 
 public class GuiUtil {
@@ -105,6 +116,70 @@ public class GuiUtil {
 
 	public static void sizeToContent(Labeled node) {
 		node.setMinWidth(getWidth(node));
+	}
+
+	public static void setButtonEvent(ButtonBase b, Errorable e) {
+		b.setOnAction(ev -> {tryWithErrorHandling(e);});
+	}
+
+	public static void setMenuEvent(MenuItem b, Errorable e) {
+		b.setOnAction(ev -> {tryWithErrorHandling(e);});
+	}
+
+	public static void tryWithErrorHandling(Errorable e) {
+		try {
+			e.run();
+		}
+		catch (Exception ex) {
+			ex.printStackTrace();
+			showException(ex);
+		}
+	}
+
+	public static void raiseUserErrorDialog(String title, String text) {
+		raiseDialog(AlertType.INFORMATION, title, text, ButtonType.OK);
+	}
+
+	public static boolean getConfirmation(String text) {
+		return raiseDialog(AlertType.CONFIRMATION, "Confirm Action", text, ButtonType.YES, ButtonType.NO) == ButtonType.YES;
+	}
+
+	public static void doWithConfirmation(String text, Errorable e) {
+		if (getConfirmation(text)) {
+			tryWithErrorHandling(e);
+		}
+	}
+
+	public static ButtonType raiseDialog(AlertType type, String title, String text, ButtonType... buttons) {
+		return raiseDialog(type, title, text, null, buttons);
+	}
+
+	public static ButtonType raiseDialog(AlertType type, String title, String text, Consumer<Alert> modifier, ButtonType... buttons) {
+		Alert a = new Alert(type, text, buttons);
+		a.setTitle(title);
+		a.initOwner(GuiSystem.MainWindow.getGUI().window);
+		a.initModality(Modality.APPLICATION_MODAL);
+		//a.getDialogPane().setPrefWidth(0);
+		Optional<ButtonType> b = a.showAndWait();
+		return b.isPresent() ? b.get() : null;
+	}
+
+	public static void showException(Throwable t) {
+		showException(t, null);
+	}
+
+	public static void showException(Throwable t, String msg) {
+		StringWriter sw = new StringWriter();
+		t.printStackTrace(new PrintWriter(sw));
+		raiseDialog(AlertType.ERROR, "Error", sw.toString(), a -> {if (msg != null) {a.getDialogPane().setHeaderText(msg);}}, ButtonType.OK);
+	}
+
+	@FunctionalInterface
+	public static interface Errorable {
+
+		public void run() throws Exception;
+		//public String getErrorBrief(Exception t);
+
 	}
 
 }

@@ -16,4 +16,5 @@ module satisfactoryplanner {
 	requires org.apache.commons.lang3;
 	requires org.apache.commons.logging;
 	requires org.json;
+	requires org.controlsfx.controls;
 }

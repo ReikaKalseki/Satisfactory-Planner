@@ -1,6 +1,9 @@
 package Reika.SatisfactoryPlanner.Data;
 
+import java.lang.reflect.Constructor;
 import java.util.Locale;
+
+import org.json.JSONObject;
 
 import Reika.SatisfactoryPlanner.Main;
 
@@ -15,6 +18,7 @@ public class Constants {
 
 	public static final int TRUCK_STOP_PORTS = 2;
 	public static final int TRAIN_STATION_PORTS = 2;
+	public static final int DRONE_STOP_PORTS = 1;
 
 	public static final int BASE_SOLID_YIELD = 60;
 	public static final int BASE_OIL_YIELD = 120;
@@ -59,6 +63,11 @@ public class Constants {
 		private BeltTier(int s) {
 			maxThroughput = s;
 		}
+
+		public Building getBelt() {
+			return Database.lookupBuilding("Desc_ConveyorBeltMk"+(this.ordinal()+1)+"_C");
+
+		}
 	}
 
 	public static enum MinerTier {
@@ -72,56 +81,32 @@ public class Constants {
 			speedMultiplier = s;
 		}
 
-		public Building getMiner() {
-			return Database.lookupBuilding("Build_MinerMk"+(this.ordinal()+1)+"_C");
-		}
-	}
-	/*
-	public static enum SolidResources {
-		IRON("Iron Ore"),
-		COPPER("Copper Ore"),
-		LIMESTONE(),
-		COAL(),
-		CATERIUM("Caterium Ore"),
-		QUARTZ("Raw Quartz"),
-		SULFUR(),
-		BAUXITE(),
-		URANIUM(),
-		SAM("SAM Ore");
-
-		private final String itemName;
-
-		private SolidResources() {
-			this(null);
-		}
-
-		private SolidResources(String n) {
-			itemName = Strings.isNullOrEmpty(n) ? StringUtils.capitalize(this.name()) : n;
-		}
-
-		public Item getItem() {
-			return (Item)Database.lookupItem(itemName);
+		public FunctionalBuilding getMiner() {
+			return (FunctionalBuilding)Database.lookupBuilding("Build_MinerMk"+(this.ordinal()+1)+"_C");
 		}
 	}
 
-	public static enum FrackableResources {
-		WATER(),
-		OIL(),
-		NITROGEN();
+	public static enum ResourceSupplyType {
+		MINER(SolidResourceNode.class),
+		WATER(WaterExtractor.class),
+		OIL(OilNode.class),
+		FRACKING(FrackingCluster.class),
+		BELT(InputBelt.class),
+		TRUCK(TruckStation.class),
+		TRAIN(TrainStation.class),
+		DRONE(DroneStation.class),
+		;
 
-		private final String itemName;
+		private final Class<? extends ResourceSupply> objectClass;
 
-		private FrackableResources() {
-			this(null);
+		private ResourceSupplyType(Class<? extends ResourceSupply> c) {
+			objectClass = c;
 		}
 
-		private FrackableResources(String n) {
-			itemName = Strings.isNullOrEmpty(n) ? StringUtils.capitalize(this.name()) : n;
-		}
-
-		public Fluid getItem() {
-			return (Fluid)Database.lookupItem(itemName);
+		public ResourceSupply construct(JSONObject obj) throws Exception {
+			Constructor<ResourceSupply> c = (Constructor<ResourceSupply>)objectClass.getDeclaredConstructor(JSONObject.class);
+			c.setAccessible(true);
+			return c.newInstance(obj);
 		}
 	}
-	 */
 }

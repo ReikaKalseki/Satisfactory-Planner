@@ -2,7 +2,10 @@ package Reika.SatisfactoryPlanner.Data;
 
 import java.util.ArrayList;
 
+import org.json.JSONObject;
+
 import Reika.SatisfactoryPlanner.Data.Constants.Purity;
+import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
 
 public class FrackingCluster implements ExtractableResource<Fluid> {
 
@@ -29,6 +32,11 @@ public class FrackingCluster implements ExtractableResource<Fluid> {
 			nodes.add(new FrackingNode(f, Purity.IMPURE));
 	}
 
+	private FrackingCluster(JSONObject obj) {
+		this((Fluid)Database.lookupItem(obj.getString("item")), obj.getInt("pure"), obj.getInt("normal"), obj.getInt("impure"));
+		this.setClockSpeed(obj.getFloat("clock"));
+	}
+
 	public int getYield() {
 		int ret = 0;
 		for (FrackingNode n : nodes)
@@ -52,8 +60,22 @@ public class FrackingCluster implements ExtractableResource<Fluid> {
 	}
 
 	@Override
-	public Building getBuilding() {
-		return Database.lookupBuilding("Desc_FrackingSmasher_C");
+	public FunctionalBuilding getBuilding() {
+		return (FunctionalBuilding)Database.lookupBuilding("Desc_FrackingSmasher_C");
+	}
+
+	@Override
+	public void save(JSONObject block) {
+		block.put("item", resource.id);
+		block.put("pure", pureCount);
+		block.put("normal", normalCount);
+		block.put("impure", impureCount);
+		block.put("clock", clockSpeed);
+	}
+
+	@Override
+	public ResourceSupplyType getType() {
+		return ResourceSupplyType.FRACKING;
 	}
 
 }

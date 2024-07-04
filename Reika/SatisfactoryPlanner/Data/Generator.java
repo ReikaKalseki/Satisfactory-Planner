@@ -4,7 +4,7 @@ import java.util.Map;
 
 import Reika.SatisfactoryPlanner.Util.CountMap;
 
-public class Generator extends Building {
+public class Generator extends FunctionalBuilding {
 
 	public final float powerGenerationMW;
 	private final CountMap<Consumable> fuelCost = new CountMap();

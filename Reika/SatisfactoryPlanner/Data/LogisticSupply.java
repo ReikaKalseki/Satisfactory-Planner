@@ -1,5 +1,6 @@
 package Reika.SatisfactoryPlanner.Data;
 
+import org.json.JSONObject;
 
 public abstract class LogisticSupply<R extends Consumable> implements ResourceSupply<R> {
 
@@ -28,6 +29,12 @@ public abstract class LogisticSupply<R extends Consumable> implements ResourceSu
 
 	public final R getResource() {
 		return resource;
+	}
+
+	@Override
+	public void save(JSONObject block) {
+		block.put("item", resource.id);
+		block.put("amount", chosenThroughput);
 	}
 
 }

@@ -2,19 +2,20 @@ package Reika.SatisfactoryPlanner.GUI;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map.Entry;
+
+import org.controlsfx.control.SearchableComboBox;
 
 import com.google.common.base.Strings;
 
 import Reika.SatisfactoryPlanner.Main;
-import Reika.SatisfactoryPlanner.Data.Building;
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Data.ExtractableResource;
 import Reika.SatisfactoryPlanner.Data.Factory;
-import Reika.SatisfactoryPlanner.Data.Generator;
+import Reika.SatisfactoryPlanner.Data.FunctionalBuilding;
 import Reika.SatisfactoryPlanner.Data.Item;
+import Reika.SatisfactoryPlanner.Data.LogisticSupply;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.Data.ResourceSupply;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.FontModifier;
@@ -28,13 +29,13 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -137,13 +138,16 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 	private Menu recentMenu;
 
 	@FXML
-	private ComboBox<Recipe> recipeDropdown;
+	private SearchableComboBox<Recipe> recipeDropdown;
 
 	@FXML
 	private VBox root;
 
 	@FXML
 	private MenuItem saveMenu;
+
+	@FXML
+	private MenuItem reloadMenu;
 
 	@FXML
 	private MenuItem settingsMenu;
@@ -166,9 +170,10 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 	@FXML
 	private MenuItem zeroMenu;
 
-	private Factory factory = new Factory();
+	@FXML
+	private TextField factoryName;
 
-	private final HashMap<Consumable, Button> productButtons = new HashMap();
+	private Factory factory = new Factory();
 
 	@Override
 	public void init(HostServices services) throws IOException {
@@ -194,58 +199,39 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 
 
 		((ImageView)addInputButton.getGraphic()).setImage(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/add.png")));
-		addInputButton.setOnAction(e -> {
-			try {
-				this.openFXMLDialog("Add Resource Node", "ResourceNodeDialog");
-			}
-			catch (IOException ex) {
-				throw new RuntimeException(ex);
-			}
-		});
+		GuiUtil.setButtonEvent(addInputButton, () -> this.openFXMLDialog("Add Resource Node", "ResourceNodeDialog"));
 
 		((ImageView)addProductButton.getGraphic()).setImage(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/add.png")));
-		addProductButton.setOnAction(e -> {
+		GuiUtil.setButtonEvent(addProductButton, () -> this.openFXMLDialog("Choose Item", "ItemChoiceDialog", ct -> ((ItemChoiceController)ct).setCallback(c -> factory.addProduct(c))));
 
+		factoryName.textProperty().addListener((val, old, nnew) -> {
+			factory.name = nnew;
 		});
 
-		saveMenu.setOnAction(e -> {
-			factory.save();
-		});
+		GuiUtil.setMenuEvent(saveMenu, () -> factory.save());
+		GuiUtil.setMenuEvent(reloadMenu, () -> factory.reload());
+		GuiUtil.setMenuEvent(openMenu, () -> this.openFXMLDialog("Open Factory", "ResourceNodeDialog"));
 		openMenu.setOnAction(e -> {
-			//load factory
+
 		});
+	}
+
+	private void loadFactory(Factory f) {
+
 	}
 
 	public Factory getFactory() {
 		return factory;
 	}
 
-	private Button createProductButton(Consumable c) {
-		Button b = new Button();
-		int size = 64;//32;
-		b.setGraphic(new ImageView(c.createIcon(size)));
-		GuiUtil.setTooltip(b, c.displayName);
-		b.setPrefWidth(size);
-		b.setPrefHeight(size);
-		b.setMinHeight(Region.USE_PREF_SIZE);
-		b.setMaxHeight(Region.USE_PREF_SIZE);
-		b.setMinWidth(Region.USE_PREF_SIZE);
-		b.setMaxWidth(Region.USE_PREF_SIZE);
-		b.setOnAction(e -> {
-			factory.removeProduct(c);
-		});
-		productButtons.put(c, b);
-		return b;
-	}
-
 	@Override
 	protected void postInit(WindowBase w) throws IOException {
 		super.postInit(w);
 
-		this.updateRecipes();
+		this.updateUI();
 	}
 
-	private void updateRecipes() {
+	private void updateUI() {
 		try {
 			recipeDropdown.getSelectionModel().clearSelection();
 			ArrayList<Recipe> li = new ArrayList(Database.getAllAutoRecipes());
@@ -266,10 +252,23 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 			this.setFont(gridContainer, GuiSystem.getDefaultFont());
 			this.setFont(netGridContainer, GuiSystem.getDefaultFont());
 
+			productGrid.getChildren().removeIf(n -> n instanceof ProductButton);
+			for (Consumable c : factory.getProducts())
+				productGrid.getChildren().add(productGrid.getChildren().size()-1, new ProductButton(c));
+
 			this.updateStats();
-			Platform.runLater(() -> tabs.requestLayout()); //ugly hack but necessary to resize the tabpane
 			if (this.getRootNode() != null)
 				this.getRootNode().layout();
+			Platform.runLater(() -> { //ugly hack but necessary to resize the tabpane, and later since it needs a layout pass to finish
+				tabs.requestLayout();/*
+				container.window.sizeToScene();
+				container.window.centerOnScreen();
+				Rectangle2D monitor = Screen.getPrimary().getVisualBounds();
+				if (container.window.getWidth() > monitor.getWidth())
+					container.window.setWidth(monitor.getWidth());
+				if (container.window.getHeight() > monitor.getHeight()-48) //48 for title bar
+					container.window.setHeight(monitor.getHeight()-48);*/
+			});
 		}
 		catch (IOException e) {
 			e.printStackTrace();
@@ -286,53 +285,22 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 	}
 
 	@Override
-	public void onAddRecipe(Recipe r) {
-		this.updateRecipes();
-	}
-
-	@Override
-	public void onRemoveRecipe(Recipe r) {
-		this.updateRecipes();
-	}
-
-	@Override
-	public void onAddProduct(Consumable c) {
-		productGrid.getChildren().add(productGrid.getChildren().size()-1, this.createProductButton(c));
-		this.updateRecipes();
-	}
-
-	@Override
-	public void onRemoveProduct(Consumable c) {
-		productGrid.getChildren().remove(productButtons.get(c));
-		this.updateRecipes();
-	}
-
-	@Override
-	public void onSetCount(Recipe r, int amt) {
-		this.updateStats();
-	}
-
-	@Override
-	public void onSetCount(Generator g, int amt) {
-		this.updateStats();
-	}
-
-	@Override
-	public void onAddSupply(ResourceSupply res) {
-		this.updateRecipes();
-	}
-
-	@Override
-	public void onRemoveSupply(ResourceSupply res) {
-		this.updateRecipes();
+	public void onContentsChange() {
+		this.updateUI();
 	}
 
 	private void updateStats() {
 		inputGrid.getChildren().removeIf(n -> !(n instanceof Button));
-		for (ExtractableResource res : factory.getMines()) {
+		for (ResourceSupply res : factory.getSupplies()) {
 			try {
-				GuiInstance gui = this.loadNestedFXML("ResourceMineEntry", inputGrid);
-				((ResourceMineEntryController)gui.controller).setMine(factory, res);
+				if (res instanceof ExtractableResource) {
+					GuiInstance gui = this.loadNestedFXML("ResourceMineEntry", inputGrid);
+					((ResourceMineEntryController)gui.controller).setSupply(factory, (ExtractableResource)res);
+				}
+				else if (res instanceof LogisticSupply) {
+					GuiInstance gui = this.loadNestedFXML("ResourceSupplyEntry", inputGrid);
+					((LogisticSupplyEntryController)gui.controller).setSupply(factory, (LogisticSupply)res);
+				}
 			}
 			catch (IOException e) {
 				e.printStackTrace();
@@ -342,15 +310,19 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 		costBar.getChildren().clear();
 		buildingBar.getChildren().clear();
 
-		CountMap<Building> c = factory.getBuildings();
-		for (Building b : c.keySet()) {
+		CountMap<Item> cost = new CountMap();
+		CountMap<FunctionalBuilding> c = factory.getBuildings();
+		for (FunctionalBuilding b : c.keySet()) {
 
 			int amt = c.get(b);
 			GuiUtil.addIconCount(buildingBar, b, amt);
 
 			for (Entry<Item, Integer> e : b.getConstructionCost().entrySet()) {
-				GuiUtil.addIconCount(costBar, e.getKey(), e.getValue()*amt);
+				cost.increment(e.getKey(), e.getValue()*amt);
 			}
+		}
+		for (Item i : cost.keySet()) {
+			GuiUtil.addIconCount(costBar, i, cost.get(i));
 		}
 
 		float prod = factory.getNetPowerProduction();
@@ -364,6 +336,28 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 		else {
 			powerProduction.setStyle("");
 		}
+	}
+
+	private class ProductButton extends Button {
+
+		public final Consumable item;
+
+		private ProductButton(Consumable c) {
+			item = c;
+			int size = 64;//32;
+			this.setGraphic(new ImageView(c.createIcon(size)));
+			GuiUtil.setTooltip(this, c.displayName);
+			this.setPrefWidth(size);
+			this.setPrefHeight(size);
+			this.setMinHeight(Region.USE_PREF_SIZE);
+			this.setMaxHeight(Region.USE_PREF_SIZE);
+			this.setMinWidth(Region.USE_PREF_SIZE);
+			this.setMaxWidth(Region.USE_PREF_SIZE);
+			this.setOnAction(e -> {
+				factory.removeProduct(c);
+			});
+		}
+
 	}
 
 }

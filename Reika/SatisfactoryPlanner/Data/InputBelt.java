@@ -1,6 +1,9 @@
 package Reika.SatisfactoryPlanner.Data;
 
+import org.json.JSONObject;
+
 import Reika.SatisfactoryPlanner.Data.Constants.BeltTier;
+import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
 
 public class InputBelt extends LogisticSupply<Item> {
 
@@ -11,9 +14,30 @@ public class InputBelt extends LogisticSupply<Item> {
 		tier = b;
 	}
 
+	private InputBelt(JSONObject obj) {
+		this((Item)Database.lookupItem(obj.getString("item")), BeltTier.valueOf(obj.getString("belt")));
+		this.setAmount(obj.getInt("amount"));
+	}
+
 	@Override
 	public int getMaximumIO() {
 		return tier.maxThroughput;
+	}
+
+	@Override
+	public Resource getIcon() {
+		return tier.getBelt();
+	}
+
+	@Override
+	public void save(JSONObject block) {
+		super.save(block);
+		block.put("belt", tier.name());
+	}
+
+	@Override
+	public ResourceSupplyType getType() {
+		return ResourceSupplyType.BELT;
 	}
 
 }

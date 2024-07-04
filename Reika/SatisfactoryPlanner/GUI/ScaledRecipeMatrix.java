@@ -6,9 +6,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import Reika.SatisfactoryPlanner.Data.Consumable;
-import Reika.SatisfactoryPlanner.Data.Generator;
 import Reika.SatisfactoryPlanner.Data.Recipe;
-import Reika.SatisfactoryPlanner.Data.ResourceSupply;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
 import Reika.SatisfactoryPlanner.GUI.ItemViewController.WarningState;
 import Reika.SatisfactoryPlanner.Util.FactoryListener;
@@ -129,8 +127,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase implements FactoryListe
 
 		this.addTitles(gp);
 
-		for (Recipe r : recipes)
-			this.onSetCount(r, parent.owner.getCount(r));
+		this.onContentsChange();
 
 		gp.setHgap(4);
 		gp.setVgap(4);
@@ -184,59 +181,26 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase implements FactoryListe
 	}
 
 	@Override
-	public void onAddRecipe(Recipe r) {
-		this.onSetCount(r, 0);
-	}
-
-	@Override
-	public void onRemoveRecipe(Recipe r) {
-
-	}
-
-	@Override
-	public void onAddProduct(Consumable c) {
-
-	}
-
-	@Override
-	public void onRemoveProduct(Consumable c) {
-
-	}
-
-	@Override
-	public void onSetCount(Recipe r, int amt) {
-		for (GuiInstance gui : recipeEntries.get(r)) {
-			((ItemViewController)gui.controller).setScale(amt);
+	public void onContentsChange() {
+		for (Recipe r : this.getRecipes()) {
+			for (GuiInstance gui : recipeEntries.get(r)) {
+				((ItemViewController)gui.controller).setScale(parent.owner.getCount(r));
+			}
+			for (Entry<GuiInstance, Consumable> gui : sumEntriesIn.entrySet()) {
+				Consumable c = gui.getValue();
+				float total = this.getTotalConsumption(c);
+				ItemViewController cc = (ItemViewController)gui.getKey().controller;
+				cc.setItem(c, total);
+				cc.setState(total > this.getTotalProduction(c)+parent.owner.getExternalSupply(c) ? WarningState.INSUFFICIENT : WarningState.NONE);
+			}
+			for (Entry<GuiInstance, Consumable> gui : sumEntriesOut.entrySet()) {
+				Consumable c = gui.getValue();
+				float total = this.getTotalProduction(c);
+				ItemViewController cc = (ItemViewController)gui.getKey().controller;
+				cc.setItem(c, total);
+				cc.setState(!parent.owner.isDesiredFinalProduct(c) && total > this.getTotalConsumption(c) ? WarningState.LEFTOVER : WarningState.NONE);
+			}
 		}
-		for (Entry<GuiInstance, Consumable> gui : sumEntriesIn.entrySet()) {
-			Consumable c = gui.getValue();
-			float total = this.getTotalConsumption(c);
-			ItemViewController cc = (ItemViewController)gui.getKey().controller;
-			cc.setItem(c, total);
-			cc.setState(total > this.getTotalProduction(c)+parent.owner.getExternalSupply(c) ? WarningState.INSUFFICIENT : WarningState.NONE);
-		}
-		for (Entry<GuiInstance, Consumable> gui : sumEntriesOut.entrySet()) {
-			Consumable c = gui.getValue();
-			float total = this.getTotalProduction(c);
-			ItemViewController cc = (ItemViewController)gui.getKey().controller;
-			cc.setItem(c, total);
-			cc.setState(!parent.owner.isDesiredFinalProduct(c) && total > this.getTotalConsumption(c) ? WarningState.LEFTOVER : WarningState.NONE);
-		}
-	}
-
-	@Override
-	public void onSetCount(Generator g, int amt) {
-
-	}
-
-	@Override
-	public void onAddSupply(ResourceSupply res) {
-
-	}
-
-	@Override
-	public void onRemoveSupply(ResourceSupply res) {
-
 	}
 
 }

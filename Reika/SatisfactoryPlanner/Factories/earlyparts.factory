@@ -1,0 +1,82 @@
+{
+    "recipes": [
+        {
+            "count": 61,
+            "id": "Recipe_IronPlate_C"
+        },
+        {
+            "count": 96,
+            "id": "Recipe_IngotIron_C"
+        },
+        {
+            "count": 0,
+            "id": "Recipe_IronPlateReinforced_C"
+        },
+        {
+            "count": 84,
+            "id": "Recipe_Alternate_Screw_C"
+        },
+        {
+            "count": 5,
+            "id": "Recipe_Alternate_BoltedFrame_C"
+        },
+        {
+            "count": 14,
+            "id": "Recipe_Alternate_ReinforcedIronPlate_1_C"
+        },
+        {
+            "count": 0,
+            "id": "Recipe_ModularFrame_C"
+        }
+    ],
+    "name": "earlyparts",
+    "generators": [],
+    "resources": [
+        {
+            "item": "Desc_OreIron_C",
+            "purity": "PURE",
+            "clock": 1,
+            "type": "MINER",
+            "miner": "THREE"
+        },
+        {
+            "item": "Desc_OreIron_C",
+            "purity": "PURE",
+            "clock": 1,
+            "type": "MINER",
+            "miner": "THREE"
+        },
+        {
+            "item": "Desc_OreIron_C",
+            "purity": "PURE",
+            "clock": 1,
+            "type": "MINER",
+            "miner": "THREE"
+        },
+        {
+            "item": "Desc_OreIron_C",
+            "purity": "PURE",
+            "clock": 1,
+            "type": "MINER",
+            "miner": "THREE"
+        },
+        {
+            "item": "Desc_OreIron_C",
+            "purity": "PURE",
+            "clock": 1,
+            "type": "MINER",
+            "miner": "THREE"
+        },
+        {
+            "item": "Desc_OreIron_C",
+            "purity": "PURE",
+            "clock": 1,
+            "type": "MINER",
+            "miner": "THREE"
+        }
+    ],
+    "products": [
+        "Desc_ModularFrame_C",
+        "Desc_IronPlateReinforced_C"
+    ]
+}

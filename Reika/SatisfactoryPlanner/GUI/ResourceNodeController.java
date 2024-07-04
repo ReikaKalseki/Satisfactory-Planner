@@ -2,6 +2,8 @@ package Reika.SatisfactoryPlanner.GUI;
 
 import java.io.IOException;
 
+import org.controlsfx.control.SearchableComboBox;
+
 import com.google.common.base.Strings;
 
 import Reika.SatisfactoryPlanner.Data.Constants.MinerTier;
@@ -41,7 +43,7 @@ public class ResourceNodeController extends ControllerBase {
 	private GridPane extraGrid;
 
 	@FXML
-	private ComboBox<Fluid> frackingDropdown;
+	private SearchableComboBox<Fluid> frackingDropdown;
 
 	@FXML
 	private Spinner<Integer> frackingImpure;
@@ -65,7 +67,7 @@ public class ResourceNodeController extends ControllerBase {
 	private HBox yieldDisplay;
 
 	@FXML
-	private ComboBox<Item> solidDropdown;
+	private SearchableComboBox<Item> solidDropdown;
 
 	@FXML
 	private RadioButton solidRadio;
@@ -152,19 +154,19 @@ public class ResourceNodeController extends ControllerBase {
 
 		addButton.setOnAction(e -> {
 			if (!purity.isDisabled() && purity.getSelectionModel().getSelectedItem() == null) {
-				//TODO error
+				GuiUtil.raiseUserErrorDialog("Resource Supply Invalid", "No purity selected.");
 				return;
 			}
 			if (radioButtons.getSelectedToggle() == solidRadio && solidDropdown.getSelectionModel().getSelectedItem() == null) {
-				//TODO error
+				GuiUtil.raiseUserErrorDialog("Resource Supply Invalid", "No item selected.");
 				return;
 			}
 			if (radioButtons.getSelectedToggle() == solidRadio && solidMinerTier.getSelectionModel().getSelectedItem() == null) {
-				//TODO error
+				GuiUtil.raiseUserErrorDialog("Resource Supply Invalid", "No miner selected.");
 				return;
 			}
 			if (radioButtons.getSelectedToggle() == frackingRadio && frackingDropdown.getSelectionModel().getSelectedItem() == null) {
-				//TODO error
+				GuiUtil.raiseUserErrorDialog("Resource Supply Invalid", "No fluid selected.");
 				return;
 			}
 			ExtractableResource res = this.createResource();

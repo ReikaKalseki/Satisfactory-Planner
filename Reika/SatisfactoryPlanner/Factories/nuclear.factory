@@ -1,0 +1,71 @@
+{
+    "recipes": [
+        {
+            "count": 18,
+            "id": "Recipe_Concrete_C"
+        },
+        {
+            "count": 3,
+            "id": "Recipe_EncasedIndustrialBeam_C"
+        },
+        {
+            "count": 8,
+            "id": "Recipe_SulfuricAcid_C"
+        },
+        {
+            "count": 15,
+            "id": "Recipe_NuclearFuelRod_C"
+        },
+        {
+            "count": 0,
+            "id": "Recipe_Alternate_FertileUranium_C"
+        },
+        {
+            "count": 12,
+            "id": "Recipe_UraniumCell_C"
+        }
+    ],
+    "name": "nuclear",
+    "generators": [],
+    "resources": [
+        {
+            "item": "Desc_Sulfur_C",
+            "purity": "NORMAL",
+            "clock": 2.0,
+            "type": "MINER",
+            "miner": "THREE"
+        },
+        {
+            "item": "Desc_Stone_C",
+            "purity": "NORMAL",
+            "clock": 1.5,
+            "type": "MINER",
+            "miner": "THREE"
+        },
+        {
+            "item": "Desc_Stone_C",
+            "purity": "NORMAL",
+            "clock": 1,
+            "type": "MINER",
+            "miner": "THREE"
+        },
+        {
+            "item": "Desc_Stone_C",
+            "purity": "NORMAL",
+            "clock": 1,
+            "type": "MINER",
+            "miner": "THREE"
+        },
+        {
+            "item": "Desc_OreUranium_C",
+            "purity": "NORMAL",
+            "clock": 2.5,
+            "type": "MINER",
+            "miner": "THREE"
+        }
+    ],
+    "products": [
+        "Desc_NuclearFuelRod_C",
+        "Desc_PlutoniumFuelRod_C"
+    ]
+}

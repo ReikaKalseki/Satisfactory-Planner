@@ -122,8 +122,8 @@ public class GuiSystem extends Application {
 			super("Satisfactory Planner", "mainUI-Dynamic");
 			gui = this;
 
-			window.setWidth(1200);
-			window.setHeight(900);
+			//window.setWidth(1200);
+			//window.setHeight(900);
 		}
 
 		@Override

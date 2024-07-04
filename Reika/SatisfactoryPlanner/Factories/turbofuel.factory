@@ -1,0 +1,77 @@
+{
+    "recipes": [
+        {
+            "count": 6,
+            "id": "Recipe_PackagedTurboFuel_C"
+        },
+        {
+            "count": 9,
+            "id": "Recipe_Alternate_EnrichedCoal_C"
+        },
+        {
+            "count": 14,
+            "id": "Recipe_Alternate_Turbofuel_C"
+        },
+        {
+            "count": 2,
+            "id": "Recipe_FluidCanister_C"
+        },
+        {
+            "count": 8,
+            "id": "Recipe_LiquidFuel_C"
+        },
+        {
+            "count": 0,
+            "id": "Recipe_ResidualFuel_C"
+        },
+        {
+            "count": 4,
+            "id": "Recipe_ResidualPlastic_C"
+        },
+        {
+            "count": 0,
+            "id": "Recipe_Alternate_DilutedFuel_C"
+        },
+        {
+            "count": 0,
+            "id": "Recipe_Alternate_TurboBlendFuel_C"
+        }
+    ],
+    "name": "turbofuel",
+    "generators": [],
+    "resources": [
+        {
+            "item": "Desc_LiquidOil_C",
+            "purity": "NORMAL",
+            "clock": 1,
+            "type": "OIL"
+        },
+        {
+            "item": "Desc_Coal_C",
+            "purity": "NORMAL",
+            "clock": 1,
+            "type": "MINER",
+            "miner": "THREE"
+        },
+        {
+            "item": "Desc_LiquidOil_C",
+            "purity": "NORMAL",
+            "clock": 1,
+            "type": "OIL"
+        },
+        {
+            "item": "Desc_Sulfur_C",
+            "purity": "NORMAL",
+            "clock": 1,
+            "type": "MINER",
+            "miner": "THREE"
+        },
+        {
+            "item": "Desc_LiquidOil_C",
+            "purity": "PURE",
+            "clock": 1,
+            "type": "OIL"
+        }
+    ],
+    "products": ["Desc_TurboFuel_C"]
+}
