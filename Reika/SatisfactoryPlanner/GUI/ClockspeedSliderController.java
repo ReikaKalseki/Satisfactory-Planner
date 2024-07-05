@@ -3,6 +3,7 @@ package Reika.SatisfactoryPlanner.GUI;
 import java.io.IOException;
 import java.util.function.Consumer;
 
+import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Util.MathUtil;
 
 import javafx.application.HostServices;
@@ -11,9 +12,10 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
 import javafx.util.StringConverter;
 
@@ -30,6 +32,9 @@ public class ClockspeedSliderController extends ControllerBase {
 
 	@FXML
 	private Label percentSign;
+
+	@FXML
+	private HBox shardDisplay;
 
 	private Consumer<Integer> callback;
 
@@ -94,30 +99,38 @@ public class ClockspeedSliderController extends ControllerBase {
 			}
 		});
 
-		spinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 250, 100));
-		spinner.setEditable(true);
 		spinner.valueProperty().addListener((val, old, nnew) -> {
 			if (nnew != null)
 				this.setValue(nnew.intValue(), true, false);
 		});
 		TextField txt = spinner.getEditor();
 		txt.textProperty().addListener((val, old, nnew) -> {
-			nnew = nnew.replaceAll("[^\\d.]", "");
-			if (!nnew.isEmpty() && Integer.parseInt(nnew) > 250)
-				nnew = "250";
 			this.setPercentSignPos(nnew, txt);
 		});
-		spinner.getValueFactory().setValue(100);
+		GuiUtil.setupCounter(spinner, 0, 250, 100, true);
+		spinner.setPrefWidth(Region.USE_COMPUTED_SIZE);
+		spinner.setMaxWidth(Double.POSITIVE_INFINITY);
 		Platform.runLater(() -> this.setPercentSignPos("100", txt)); //small delay necessary to give it time to size things
 
 		percentSign.layoutYProperty().bind(spinnerOverlay.heightProperty().subtract(percentSign.heightProperty()).divide(2));
 		//percentSign.layoutXProperty().bind(slider.valueProperty().divide(10));
+
+		//L to R
+		//shardDisplay.layoutXProperty().bind(percentSign.layoutXProperty().add(12));
+
+		//Center
+		//shardDisplay.layoutXProperty().bind(spinner.widthProperty().subtract(shardDisplay.widthProperty()).divide(2));
+
+		//Right
+		shardDisplay.layoutXProperty().bind(txt.widthProperty().subtract(shardDisplay.widthProperty()).subtract(8));
+		shardDisplay.layoutYProperty().bind(percentSign.layoutYProperty());
 	}
 
 	private void setPercentSignPos(String nnew, TextField txt) {
 		txt.setText(nnew);
 		Text text = new Text(nnew);
 		text.setFont(txt.getFont());
+		//Logging.instance.log(nnew+">"+text.getLayoutBounds().getWidth());
 		percentSign.setLayoutX(2+text.getLayoutBounds().getWidth()+txt.getPadding().getLeft());
 	}
 
@@ -135,7 +148,16 @@ public class ClockspeedSliderController extends ControllerBase {
 			slider.setValue(real);
 		if (updateSpinner)
 			spinner.getValueFactory().setValue(real);
-		callback.accept(real);
+
+		shardDisplay.getChildren().clear();
+		if (real > 100) {
+			for (int i = 0; i < Math.ceil((real-100)/50D); i++) {
+				shardDisplay.getChildren().add(Database.lookupItem("Desc_CrystalShard_C").createImageView(16));
+			}
+		}
+
+		if (callback != null)
+			callback.accept(real);
 	}
 
 	public void setCallback(Consumer<Integer> call) {

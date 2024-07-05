@@ -1,7 +1,7 @@
 package Reika.SatisfactoryPlanner.Data;
 
 
-public interface ExtractableResource<R extends Consumable> extends ResourceSupply<R> {
+public interface ExtractableResource<R extends Consumable> extends OverclockableResource<R>  {
 
 	public float getClockSpeed();
 	public void setClockSpeed(float spd);

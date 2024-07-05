@@ -1,25 +1,29 @@
 package Reika.SatisfactoryPlanner.GUI;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map.Entry;
 
 import org.controlsfx.control.SearchableComboBox;
 
-import com.google.common.base.Strings;
-
 import Reika.SatisfactoryPlanner.Main;
+import Reika.SatisfactoryPlanner.Data.Constants.ToggleableVisiblityGroup;
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Data.ExtractableResource;
 import Reika.SatisfactoryPlanner.Data.Factory;
 import Reika.SatisfactoryPlanner.Data.FunctionalBuilding;
+import Reika.SatisfactoryPlanner.Data.Generator;
 import Reika.SatisfactoryPlanner.Data.Item;
 import Reika.SatisfactoryPlanner.Data.LogisticSupply;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.Data.ResourceSupply;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.FontModifier;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
+import Reika.SatisfactoryPlanner.GUI.GuiUtil.SearchableSelector;
 import Reika.SatisfactoryPlanner.Util.ColorUtil;
 import Reika.SatisfactoryPlanner.Util.CountMap;
 import Reika.SatisfactoryPlanner.Util.FactoryListener;
@@ -29,10 +33,12 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
@@ -41,20 +47,39 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
-import javafx.util.StringConverter;
+import javafx.stage.FileChooser;
 
 public class MainGuiController extends ControllerBase implements FactoryListener {
 
 	private boolean hasLoaded;
 
 	@FXML
+	private ScrollPane overviewScroll;
+
+	@FXML
+	private ScrollPane ioScroll;
+
+	@FXML
+	private ScrollPane craftingScroll;
+
+	@FXML
+	private ScrollPane powerScroll;
+
+	@FXML
+	private TilePane toggleFilterBox;
+
+	@FXML
 	private Button addInputButton;
 
 	@FXML
-	private Button addProductButton;
+	private Button addMineButton;
+
+	@FXML
+	private SearchableComboBox<Consumable> addProductButton;
 
 	@FXML
 	private HBox buildingBar;
@@ -147,6 +172,9 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 	private MenuItem saveMenu;
 
 	@FXML
+	private MenuItem saveAsMenu;
+
+	@FXML
 	private MenuItem reloadMenu;
 
 	@FXML
@@ -175,69 +203,160 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 
 	private Factory factory = new Factory();
 
+	private final EnumMap<ToggleableVisiblityGroup, CheckBox> toggleFilters = new EnumMap(ToggleableVisiblityGroup.class);
+	private final HashMap<Generator, GeneratorRowController> generators = new HashMap();
+
 	@Override
 	public void init(HostServices services) throws IOException {
 		factory.addCallback(this);
 
-		recipeDropdown.setConverter(new StringConverter<Recipe>() {
+		GuiUtil.setupAddSelector(recipeDropdown, new SearchableSelector<Recipe>(){
 			@Override
-			public String toString(Recipe r) {
-				return r == null ? "" : r.displayName;
+			public void accept(Recipe t) {
+				factory.addRecipe(t);
 			}
 
 			@Override
-			public Recipe fromString(String id) {
-				return Strings.isNullOrEmpty(id) ? null : Database.lookupRecipe(id);
+			public DecoratedListCell<Recipe> createListCell(String text, boolean button) {
+				return new RecipeListCell(text, button);
+			}
+
+			@Override
+			public String getEntryTypeName() {
+				return "Recipe";
+			}
+
+			@Override
+			public String getActionName() {
+				return "Add";
 			}
 		});
-		recipeDropdown.getSelectionModel().selectedItemProperty().addListener((val, old, nnew) -> {
-			if (nnew != null)
-				Platform.runLater(() -> factory.addRecipe(nnew)); //need to delay since this updates the selection and contents, which cannot be done inside a selection change
+
+		GuiUtil.setButtonEvent(addMineButton, () -> this.openFXMLDialog("Add Resource Node", "ResourceNodeDialog"));
+		GuiUtil.setButtonEvent(addInputButton, () -> this.openFXMLDialog("Add Logistic Supply", "LogisticSupplyDialog"));
+
+		for (ToggleableVisiblityGroup tv : ToggleableVisiblityGroup.values()) {
+			CheckBox cb = new CheckBox(tv.name());
+			cb.setSelected(true);
+			cb.selectedProperty().addListener((val, old, nnew) -> {
+				if (old != nnew)
+					factory.setToggle(tv, nnew);
+			});
+			toggleFilters.put(tv, cb);
+			toggleFilterBox.getChildren().add(cb);
+		}
+
+		GuiUtil.setupAddSelector(addProductButton, new SearchableSelector<Consumable>(){
+			@Override
+			public void accept(Consumable t) {
+				factory.addProduct(t);
+			}
+
+			@Override
+			public DecoratedListCell<Consumable> createListCell(String text, boolean button) {
+				return new ItemListCell(text, button);
+			}
+
+			@Override
+			public String getEntryTypeName() {
+				return "Product";
+			}
+
+			@Override
+			public String getActionName() {
+				return "Add";
+			}
 		});
-		recipeDropdown.setButtonCell(new RecipeListCell("Click To Add Recipe...", true));
-		recipeDropdown.setCellFactory(c -> new RecipeListCell("", false));
-
-
-		((ImageView)addInputButton.getGraphic()).setImage(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/add.png")));
-		GuiUtil.setButtonEvent(addInputButton, () -> this.openFXMLDialog("Add Resource Node", "ResourceNodeDialog"));
-
-		((ImageView)addProductButton.getGraphic()).setImage(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/add.png")));
-		GuiUtil.setButtonEvent(addProductButton, () -> this.openFXMLDialog("Choose Item", "ItemChoiceDialog", ct -> ((ItemChoiceController)ct).setCallback(c -> factory.addProduct(c))));
 
 		factoryName.textProperty().addListener((val, old, nnew) -> {
 			factory.name = nnew;
 		});
 
+		GuiUtil.setMenuEvent(quitMenu, () -> this.close());
 		GuiUtil.setMenuEvent(saveMenu, () -> factory.save());
+		GuiUtil.setMenuEvent(saveAsMenu, () -> {
+			File f = this.openSaveAsDialog(factory.name, Main.getRelativeFile("Factories"));
+			if (f != null) {
+				if (f.exists() && f.length() > 0) {
+					if (!GuiUtil.getConfirmation("Overwrite existing file?"))
+						return;
+				}
+				factory.save(f);
+			}
+		});
 		GuiUtil.setMenuEvent(reloadMenu, () -> factory.reload());
-		GuiUtil.setMenuEvent(openMenu, () -> this.openFXMLDialog("Open Factory", "ResourceNodeDialog"));
-		openMenu.setOnAction(e -> {
-
+		//GuiUtil.setMenuEvent(openMenu, () -> this.openFXMLDialog("Open Factory", "OpenMenuDialog"));
+		GuiUtil.setMenuEvent(openMenu, () -> {
+			File f = this.openFileDialog("Factory", Main.getRelativeFile("Factories"), new FileChooser.ExtensionFilter("Factory files (*.factory)", "*.factory"));
+			if (f != null && f.exists()) {
+				Factory.loadFactory(f, this);
+			}
 		});
 	}
 
-	private void loadFactory(Factory f) {
-
+	@Override
+	public void onFileChange() {
+		boolean dis = !factory.hasExistingFile();
+		saveMenu.setDisable(dis);
+		reloadMenu.setDisable(dis);
 	}
 
 	public Factory getFactory() {
 		return factory;
 	}
 
+	public void setFactory(Factory f) {
+		factory = f;
+	}
+
 	@Override
 	protected void postInit(WindowBase w) throws IOException {
 		super.postInit(w);
 
+		for (Generator g : Database.getAllGenerators()) {
+			GuiInstance gui = this.loadNestedFXML("GeneratorRow", generatorList);
+			GeneratorRowController con = (GeneratorRowController)gui.controller;
+			con.setGenerator(g);
+			con.setCallback(amt -> factory.setCount(g, amt));
+			generators.put(g, con);
+		}
+
 		this.updateUI();
+	}
+
+	private boolean isItemValid(Consumable r) {
+		for (ToggleableVisiblityGroup tv : ToggleableVisiblityGroup.values()) {
+			if (tv.isItemInGroup.test(r) && !factory.getToggle(tv))
+				return false;
+		}
+		return true;
+	}
+
+	private boolean isRecipeValid(Recipe r) {
+		for (ToggleableVisiblityGroup tv : ToggleableVisiblityGroup.values()) {
+			if (tv.isRecipeInGroup.test(r) && !factory.getToggle(tv))
+				return false;
+		}
+		return true;
 	}
 
 	private void updateUI() {
 		try {
+			factoryName.setText(factory.name);
+			for (ToggleableVisiblityGroup tv : ToggleableVisiblityGroup.values()) {
+				toggleFilters.get(tv).setSelected(factory.getToggle(tv));
+			}
+
+			ArrayList<Consumable> li = new ArrayList(Database.getAllItems());
+			li.removeIf(c -> !this.isItemValid(c));
+			addProductButton.setItems(FXCollections.observableArrayList(li));
+
 			recipeDropdown.getSelectionModel().clearSelection();
-			ArrayList<Recipe> li = new ArrayList(Database.getAllAutoRecipes());
-			li.removeAll(factory.getRecipes());
-			recipeDropdown.setItems(FXCollections.observableList(li));
-			recipeDropdown.setDisable(li.isEmpty());
+			ArrayList<Recipe> li2 = new ArrayList(Database.getAllAutoRecipes());
+			li2.removeIf(r -> !this.isRecipeValid(r));
+
+			recipeDropdown.setItems(FXCollections.observableList(li2));
+			recipeDropdown.setDisable(li2.isEmpty());
 
 			GridPane gp = factory.createRawMatrix(this);
 			gp.setMaxWidth(Double.POSITIVE_INFINITY);
@@ -254,7 +373,11 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 
 			productGrid.getChildren().removeIf(n -> n instanceof ProductButton);
 			for (Consumable c : factory.getProducts())
-				productGrid.getChildren().add(productGrid.getChildren().size()-1, new ProductButton(c));
+				productGrid.getChildren().add(new ProductButton(c));
+
+			for (Entry<Generator, GeneratorRowController> e : generators.entrySet()) {
+				e.getValue().setCount(factory.getCount(e.getKey()), false);
+			}
 
 			this.updateStats();
 			if (this.getRootNode() != null)
@@ -345,7 +468,9 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 		private ProductButton(Consumable c) {
 			item = c;
 			int size = 64;//32;
-			this.setGraphic(new ImageView(c.createIcon(size)));
+			Pane p = new Pane();
+			ImageView ico = new ImageView(c.createIcon(size));
+			p.getChildren().add(ico);
 			GuiUtil.setTooltip(this, c.displayName);
 			this.setPrefWidth(size);
 			this.setPrefHeight(size);
@@ -356,9 +481,19 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 			this.setOnAction(e -> {
 				factory.removeProduct(c);
 			});
+			p.setPrefWidth(size);
+			p.setPrefHeight(size);
+			p.setMinHeight(Region.USE_PREF_SIZE);
+			p.setMaxHeight(Region.USE_PREF_SIZE);
+			p.setMinWidth(Region.USE_PREF_SIZE);
+			p.setMaxWidth(Region.USE_PREF_SIZE);
+			ImageView img = new ImageView(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/delete.png"), 16, 16, true, true));
+			img.layoutXProperty().bind(p.widthProperty().subtract(img.getImage().getWidth()));
+			img.layoutYProperty().bind(p.heightProperty().subtract(img.getImage().getHeight()));
+			p.getChildren().add(img);
+			this.setGraphic(p);
 		}
 
+
 	}
-
 }
-

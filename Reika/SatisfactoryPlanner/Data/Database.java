@@ -27,6 +27,7 @@ public class Database {
 
 	private static final HashMap<String, Building> allBuildings = new HashMap();
 	private static final ArrayList<Building> allBuildingsSorted = new ArrayList();
+	private static final ArrayList<Generator> allGeneratorsSorted = new ArrayList();
 
 	private static final HashMap<String, Consumable> allItems = new HashMap();
 	private static final ArrayList<Consumable> allItemsSorted = new ArrayList();
@@ -167,6 +168,10 @@ public class Database {
 		return Collections.unmodifiableList(allBuildingsSorted);
 	}
 
+	public static List<Generator> getAllGenerators() {
+		return Collections.unmodifiableList(allGeneratorsSorted);
+	}
+
 	public static List<Consumable> getAllItems() {
 		return Collections.unmodifiableList(allItemsSorted);
 	}
@@ -209,6 +214,7 @@ public class Database {
 		Collections.sort(allAutoRecipesSorted);
 		Collections.sort(allBuildingRecipesSorted);
 		Collections.sort(allBuildingsSorted);
+		Collections.sort(allGeneratorsSorted);
 		Collections.sort(allVehiclesSorted);
 	}
 
@@ -222,10 +228,14 @@ public class Database {
 		JSONArray all = (JSONArray)value;
 		for (Object o : all) {
 			JSONObject obj = (JSONObject)o;
-			ClassType ct = lookup.get(obj.getString("NativeClass"));
+			String nat = obj.getString("NativeClass");
+			ClassType ct = lookup.get(nat);
 			if (ct != null) {
-				for (Object entry : obj.getJSONArray("Classes"))
-					ct.pendingParses.add((JSONObject)entry);
+				for (Object o2 : obj.getJSONArray("Classes")) {
+					JSONObject entry = (JSONObject)o2;
+					entry.put("NativeClass", nat.substring(nat.lastIndexOf('.')+1, nat.lastIndexOf('\'')));
+					ct.pendingParses.add(entry);
+				}
 			}
 		}
 	}
@@ -241,14 +251,14 @@ public class Database {
 		String ico = convertIDToIcon(id);
 		if (fluid) {
 			String clr = obj.getString(gas ? "mGasColor" : "mFluidColor");
-			Fluid f = new Fluid(id, disp, ico, desc, parseColor(clr));
+			Fluid f = new Fluid(id, disp, ico, desc, obj.getString("NativeClass"), obj.getFloat("mEnergyValue"), parseColor(clr));
 			allItems.put(f.id, f);
 			allItemsSorted.add(f);
 			if (resource)
 				frackableFluids.add(f);
 		}
 		else {
-			Item i = new Item(id, disp, ico, desc);
+			Item i = new Item(id, disp, ico, desc, obj.getString("NativeClass"), obj.getFloat("mEnergyValue"));
 			allItems.put(i.id, i);
 			allItemsSorted.add(i);
 			if (resource)
@@ -317,7 +327,8 @@ public class Database {
 		String out = obj.getString("mProduct");
 		String time = obj.getString("mManufactoringDuration");
 		FunctionalBuilding b = building == null ? null : (FunctionalBuilding)lookupBuilding(building);
-		Recipe r = new Recipe(id, disp, b, Float.parseFloat(time));
+		boolean xmas = id.startsWith("Desc_Xmas") || disp.startsWith("FICSMAS") || obj.getString("mRelevantEvents").contains("EV_Christmas");
+		Recipe r = new Recipe(id, disp, b, Float.parseFloat(time), xmas);
 		for (String ing : in.substring(2, in.length()-2).split("\\),\\(")) {
 			String[] parts = ing.split(",");
 			Consumable c = lookupItem(parseID(parts[0].split("=")[1]));
@@ -369,7 +380,6 @@ public class Database {
 		String disp = obj.getString("mDisplayName");
 		String pwr = obj.getString("mPowerConsumption");
 		String pwrExp = obj.getString("mPowerConsumptionExponent"); //FIXME handle this for overclock!
-		//JSONArray fuels = obj.getJSONArray("mFuel");
 		FunctionalBuilding r = new FunctionalBuilding(id, disp, convertIDToIcon(id), Float.parseFloat(pwr));
 		allBuildings.put(r.id, r);
 		allBuildingsSorted.add(r);
@@ -380,10 +390,34 @@ public class Database {
 		Logging.instance.log("Parsing JSON elem "+id);
 		String disp = obj.getString("mDisplayName");
 		String pwr = obj.getString("mPowerProduction");
-		//JSONArray fuels = obj.getJSONArray("mFuel");
+		JSONArray fuels = obj.has("mFuel") ? obj.getJSONArray("mFuel") : null;
 		Generator r = new Generator(id, disp, convertIDToIcon(id), Float.parseFloat(pwr));
+		if (fuels != null) {
+			String fuelForm = obj.getString("mFuelResourceForm");
+			for (Object o : fuels) {
+				JSONObject fuel = (JSONObject)o;
+				String second = fuel.getString("mSupplementalResourceClass");
+				String out = fuel.getString("mByproduct");
+				Consumable secondItem = Strings.isNullOrEmpty(second) ? null : lookupItem(second);
+				Consumable outItem = Strings.isNullOrEmpty(out) ? null : lookupItem(out);
+				String item = fuel.getString("mFuelClass");
+				if (item.startsWith("Desc_")) {
+					Fuel f = new Fuel(lookupItem(item), secondItem, 1, outItem, outItem == null ? 0 : fuel.getInt("mByproductAmount"));
+					r.addFuel(f);
+				}
+				else if (item.startsWith("FGItemDescriptor")) {
+					for (Consumable c : Consumable.getForClass(item)) {
+						if (c.energyValue > 0 && ((fuelForm.equalsIgnoreCase("RF_SOLID") && c instanceof Item) || (fuelForm.equalsIgnoreCase("RF_FLUID") && c instanceof Fluid))) {
+							Fuel f = new Fuel(c, secondItem, 1, outItem, outItem == null ? 0 : fuel.getInt("mByproductAmount"));
+							r.addFuel(f);
+						}
+					}
+				}
+			}
+		}
 		allBuildings.put(r.id, r);
 		allBuildingsSorted.add(r);
+		allGeneratorsSorted.add(r);
 	}
 
 	private static void parseVehicleJSON(JSONObject obj) {
@@ -442,7 +476,7 @@ public class Database {
 		ITEM("/Script/CoreUObject.Class'/Script/FactoryGame.FGItemDescriptor'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGItemDescriptorBiomass'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGItemDescriptorNuclearFuel'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGEquipmentDescriptor'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGConsumableDescriptor'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGAmmoTypeInstantHit'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGAmmoTypeProjectile'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGAmmoTypeSpreadshot'"),
 		RESOURCE("/Script/CoreUObject.Class'/Script/FactoryGame.FGResourceDescriptor'"),
 		RECIPE("/Script/CoreUObject.Class'/Script/FactoryGame.FGRecipe'"),
-		GENERATOR("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableGeneratorFuel'"),
+		GENERATOR("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableGeneratorFuel'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableGeneratorNuclear'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableGeneratorGeoThermal'"),
 		CRAFTER("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableManufacturer'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableManufacturerVariablePower'"),
 		MINER("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableResourceExtractor'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableWaterPump'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableFrackingActivator'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableFrackingExtractor'"),
 		VEHICLE("/Script/CoreUObject.Class'/Script/FactoryGame.FGVehicleDescriptor'"),

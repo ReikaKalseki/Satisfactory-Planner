@@ -10,19 +10,24 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
 public abstract class ResourceSupplyEntryController<R extends ResourceSupply> extends ControllerBase {
+
+	@FXML
+	protected VBox root;
 
 	@FXML
 	private Button deleteButton;
 
 	@FXML
-	private HBox topBar;
+	protected HBox topBar;
 
 	@FXML
-	private HBox yieldDisplay;
+	protected HBox yieldDisplay;
 
-	private R supply;
+	protected R supply;
+	protected Factory factory;
 
 	@Override
 	public void init(HostServices services) throws IOException {
@@ -32,7 +37,14 @@ public abstract class ResourceSupplyEntryController<R extends ResourceSupply> ex
 	@Override
 	protected void postInit(WindowBase w) throws IOException {
 		super.postInit(w);
+
 		this.setFont(this.getRootNode(), GuiSystem.getDefaultFont());
+	}
+
+	protected void updateStats() {
+		yieldDisplay.getChildren().clear();
+		GuiUtil.addIconCount(yieldDisplay, supply.getResource(), supply.getYield());
+		//TODO update color/warn styles in recipe matrix
 	}
 
 	protected final R getSupply() {
@@ -47,16 +59,17 @@ public abstract class ResourceSupplyEntryController<R extends ResourceSupply> ex
 		return orig;
 	}
 
-	protected void onSetSupply(Factory f, R res) {
+	protected void onSetSupply(Factory f, R res) throws IOException {
 
 	}
 
-	public final void setSupply(Factory f, R res) {
+	public final void setSupply(Factory f, R res) throws IOException {
 		supply = res;
+		factory = f;
 		Node n = this.getTopBarContent(GuiUtil.createSpacedHBox(res.getResource().createImageView(), res.getIcon().createImageView(), this.getTopBarRightContent()));
 		if (n != null)
 			topBar.getChildren().add(n);
-		GuiUtil.addIconCount(yieldDisplay, res.getResource(), res.getYield());
+		this.updateStats();
 		deleteButton.setOnAction(e -> {
 			f.removeExternalSupply(res);
 		});

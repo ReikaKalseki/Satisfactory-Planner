@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Predicate;
 
 public class Recipe implements Comparable<Recipe> {
 
@@ -18,6 +19,8 @@ public class Recipe implements Comparable<Recipe> {
 	public final float craftingTime;
 	public final float timeCoefficient;
 
+	public final boolean isFicsmas;
+
 	private final TreeMap<Consumable, Integer> costsRaw = new TreeMap();
 	private final TreeMap<Consumable, Float> costsPerMinute = new TreeMap();
 	private final TreeMap<Consumable, Float> productPerMinute = new TreeMap();
@@ -30,13 +33,15 @@ public class Recipe implements Comparable<Recipe> {
 		this(id, dn, b, false, time);
 	}
 	 */
-	public Recipe(String id, String dn, FunctionalBuilding b, float time) {
+	public Recipe(String id, String dn, FunctionalBuilding b, float time, boolean ficsmas) {
 		this.id = id;
 		displayName = dn;
 		productionBuilding = b;
 		isAlternate = id.startsWith("Recipe_Alternate");
 		craftingTime = time;
 		timeCoefficient = 60F/craftingTime;
+
+		isFicsmas = ficsmas;
 	}
 
 	@Override
@@ -55,6 +60,27 @@ public class Recipe implements Comparable<Recipe> {
 		productPerMinute.put(i, amt*timeCoefficient);
 		maxProducts = Math.max(productPerMinute.size(), maxProducts);
 		return this;
+	}
+
+	public boolean isPackaging() {
+		return productionBuilding == Database.lookupBuilding("Build_Packager_C") && displayName.startsWith("Packaged");
+	}
+
+	public boolean isUnpackaging() {
+		return productionBuilding == Database.lookupBuilding("Build_Packager_C") && id.startsWith("Recipe_Unpackage");
+	}
+
+	public Consumable getSoleProduct() {
+		return productPerMinute.size() == 1 ? productPerMinute.firstKey() : null;
+	}
+
+	public boolean isSoleProduct(Predicate<Consumable> check) {
+		Consumable c = this.getSoleProduct();
+		return c != null && check.test(c);
+	}
+
+	public boolean isFindables() {
+		return id.startsWith("Recipe_PowerCrystalShard");
 	}
 
 	public Map<Consumable, Integer> getDirectCost() {

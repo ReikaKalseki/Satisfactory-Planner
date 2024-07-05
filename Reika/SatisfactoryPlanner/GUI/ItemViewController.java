@@ -69,7 +69,7 @@ public class ItemViewController extends ControllerBase {
 
 	private void setAmountText(float amt) {
 		DecimalFormat df = new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
-		df.setMaximumFractionDigits(340); //340 = DecimalFormat.DOUBLE_FRACTION_DIGITS
+		df.setMaximumFractionDigits(4);
 		amount.setText(df.format(amt));
 
 		GuiUtil.sizeToContent(amount);

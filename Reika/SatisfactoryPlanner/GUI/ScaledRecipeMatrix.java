@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import Reika.SatisfactoryPlanner.Data.Consumable;
+import Reika.SatisfactoryPlanner.Data.Factory;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
 import Reika.SatisfactoryPlanner.GUI.ItemViewController.WarningState;
@@ -13,8 +14,6 @@ import Reika.SatisfactoryPlanner.Util.FactoryListener;
 
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
@@ -141,11 +140,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase implements FactoryListe
 
 		this.createDivider(gp, countGapColumn, rowIndex, 0);
 		Spinner<Integer> counter = new Spinner();
-		counter.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 9999, 0));
-		counter.setEditable(true);
-		counter.setPrefWidth(72);
-		counter.setMinWidth(Region.USE_PREF_SIZE);
-		counter.setMaxWidth(Region.USE_PREF_SIZE);
+		GuiUtil.setupCounter(counter, 0, 9999, parent.owner.getCount(r), true);
 		counter.setPrefHeight(32);
 		counter.setMinHeight(Region.USE_PREF_SIZE);
 		counter.setMaxHeight(Region.USE_PREF_SIZE);
@@ -153,14 +148,6 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase implements FactoryListe
 			if (nnew != null)
 				parent.owner.setCount(r, nnew);
 		});
-		TextField txt = counter.getEditor();
-		txt.textProperty().addListener((val, old, nnew) -> {
-			if (nnew.length() > 4)
-				txt.setText(nnew.substring(0, 4));
-			nnew = nnew.replaceAll("[^\\d.]", "");
-			txt.setText(nnew);
-		});
-		counter.getValueFactory().setValue(parent.owner.getCount(r));
 		gp.add(counter, countColumn, rowIndex);
 		return rowIndex;
 	}
@@ -201,6 +188,16 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase implements FactoryListe
 				cc.setState(!parent.owner.isDesiredFinalProduct(c) && total > this.getTotalConsumption(c) ? WarningState.LEFTOVER : WarningState.NONE);
 			}
 		}
+	}
+
+	@Override
+	public void onFileChange() {
+
+	}
+
+	@Override
+	public void setFactory(Factory f) {
+		throw new UnsupportedOperationException();
 	}
 
 }

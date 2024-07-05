@@ -34,7 +34,6 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
@@ -45,6 +44,7 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -71,12 +71,13 @@
             <MenuItem fx:id="openMenu" mnemonicParsing="false" text="Open…" />
             <Menu fx:id="recentMenu" mnemonicParsing="false" text="Open Recent" />
             <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem fx:id="saveMenu" mnemonicParsing="false" text="Save" />
+            <MenuItem fx:id="saveMenu" disable="true" mnemonicParsing="false" text="Save" />
+                  <MenuItem fx:id="saveAsMenu" mnemonicParsing="false" text="Save As" />
           </items>
         </Menu>
             <Menu fx:id="currentMenu" mnemonicParsing="false" text="Current Factory">
                <items>
-                  <MenuItem fx:id="reloadMenu" mnemonicParsing="false" text="Reload From Disk" />
+                  <MenuItem fx:id="reloadMenu" disable="true" mnemonicParsing="false" text="Reload From Disk" />
                   <MenuItem fx:id="clearMenu" mnemonicParsing="false" text="Clear Crafting" />
                   <MenuItem fx:id="zeroMenu" mnemonicParsing="false" text="Zero Crafting Counts" />
                   <MenuItem fx:id="isolateMenu" mnemonicParsing="false" text="Remove External Supply" />
@@ -89,7 +90,7 @@
         <tabs>
             <Tab fx:id="overviewTab" closable="false" text="Factory Overview">
                <content>
-                  <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="ALWAYS" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vbarPolicy="ALWAYS">
+                  <ScrollPane fx:id="overviewScroll" fitToHeight="true" fitToWidth="true" hbarPolicy="ALWAYS" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vbarPolicy="ALWAYS">
                      <content>
                         <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
                            <children>
@@ -97,15 +98,22 @@
                                  <content>
                                     <GridPane fx:id="infoGrid" hgap="4.0" vgap="4.0">
                                        <columnConstraints>
-                                          <ColumnConstraints hgrow="SOMETIMES" percentWidth="15.0" />
-                                          <ColumnConstraints hgrow="SOMETIMES" percentWidth="85.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="128.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" />
                                        </columnConstraints>
                                        <rowConstraints>
+                                          <RowConstraints vgrow="SOMETIMES" />
                                           <RowConstraints vgrow="SOMETIMES" />
                                        </rowConstraints>
                                        <children>
                                           <Label layoutX="20.0" layoutY="37.0" text="Name" />
                                           <TextField fx:id="factoryName" GridPane.columnIndex="1" />
+                                          <Label layoutX="20.0" layoutY="24.0" text="Allow Items Or Recipes:" wrapText="true" GridPane.rowIndex="1" />
+                                          <TilePane fx:id="toggleFilterBox" alignment="CENTER_LEFT" hgap="24.0" tileAlignment="CENTER_LEFT" vgap="8.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                             <padding>
+                                                <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                                             </padding>
+                                          </TilePane>
                                        </children>
                                     </GridPane>
                                  </content>
@@ -156,37 +164,49 @@
             </Tab>
           <Tab fx:id="ioTab" closable="false" text="Inputs And Outputs">
                <content>
-                  <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="ALWAYS" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vbarPolicy="ALWAYS">
+                  <ScrollPane fx:id="ioScroll" fitToHeight="true" fitToWidth="true" hbarPolicy="ALWAYS" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vbarPolicy="ALWAYS">
                      <content>
                         <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
                            <children>
                               <TitledPane fx:id="inputPanel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Resource Supply" VBox.vgrow="ALWAYS">
                                  <content>
-                                    <TilePane fx:id="inputGrid">
+                                    <VBox spacing="4.0">
                                        <children>
-                                          <Button fx:id="addInputButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="128.0" prefWidth="96.0">
+                                          <Button fx:id="addInputButton" contentDisplay="RIGHT" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Add External Resource Input">
                                              <graphic>
-                                                <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" />
+                                                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                                                   <image>
+                                                      <Image url="@../Graphics/Icons/add.png" />
+                                                   </image>
+                                                </ImageView>
                                              </graphic>
                                           </Button>
+                                          <Button fx:id="addMineButton" contentDisplay="RIGHT" layoutX="20.0" layoutY="20.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Add Local Resource Mine">
+                                             <graphic>
+                                                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                                                   <image>
+                                                      <Image url="@../Graphics/Icons/add.png" />
+                                                   </image>
+                                                </ImageView>
+                                             </graphic>
+                                          </Button>
+                                          <TilePane fx:id="inputGrid" />
                                        </children>
-                                    </TilePane>
+                                    </VBox>
                                  </content>
                               </TitledPane>
                               <TitledPane fx:id="outputPanel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Desired Outputs" VBox.vgrow="ALWAYS">
                                  <content>
-                                    <TilePane fx:id="productGrid" hgap="4.0" vgap="4.0">
+                                    <VBox spacing="4.0">
                                        <children>
-                                          <Button fx:id="addProductButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="64.0" prefWidth="64.0">
-                                             <graphic>
-                                                <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" />
-                                             </graphic>
-                                          </Button>
+                                          <SearchableComboBox fx:id="addProductButton" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="32.0" promptText="Choose Item..." />
+                                          <TilePane fx:id="productGrid" hgap="4.0" vgap="4.0">
+                                             <padding>
+                                                <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                                             </padding>
+                                          </TilePane>
                                        </children>
-                                       <padding>
-                                          <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
-                                       </padding>
-                                    </TilePane>
+                                    </VBox>
                                  </content>
                               </TitledPane>
                            </children>
@@ -196,7 +216,7 @@
                </content></Tab>
           <Tab fx:id="craftingTab" closable="false" text="Recipes And Crafting">
                <content>
-                  <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="ALWAYS" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" pannable="true" vbarPolicy="ALWAYS">
+                  <ScrollPane fx:id="craftingScroll" fitToHeight="true" fitToWidth="true" hbarPolicy="ALWAYS" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" pannable="true" vbarPolicy="ALWAYS">
                      <content>
                         <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="4.0">
                            <children>
@@ -213,9 +233,12 @@
                </content></Tab>
             <Tab fx:id="powerTab" closable="false" text="Onsite Power Generation">
                <content>
-                  <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="ALWAYS" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vbarPolicy="ALWAYS">
+                  <ScrollPane fx:id="powerScroll" fitToHeight="true" fitToWidth="true" hbarPolicy="ALWAYS" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vbarPolicy="ALWAYS">
                      <content>
-                        <VBox fx:id="generatorList" prefHeight="200.0" prefWidth="100.0" />
+                        <VBox fx:id="generatorList" spacing="12.0">
+                           <padding>
+                              <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                           </padding></VBox>
                      </content>
                   </ScrollPane>
                </content></Tab>

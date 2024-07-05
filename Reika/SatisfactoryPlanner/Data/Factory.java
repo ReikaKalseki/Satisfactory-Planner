@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -15,8 +16,8 @@ import com.google.common.base.Charsets;
 
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
+import Reika.SatisfactoryPlanner.Data.Constants.ToggleableVisiblityGroup;
 import Reika.SatisfactoryPlanner.GUI.ControllerBase;
-import Reika.SatisfactoryPlanner.GUI.GuiUtil;
 import Reika.SatisfactoryPlanner.GUI.RecipeMatrix;
 import Reika.SatisfactoryPlanner.GUI.ScaledRecipeMatrix;
 import Reika.SatisfactoryPlanner.Util.CountMap;
@@ -42,9 +43,13 @@ public class Factory {
 	private final MultiMap<Consumable, ResourceSupply> resourceSources = new MultiMap();
 	private final ArrayList<Consumable> desiredProducts = new ArrayList();
 
+	private final EnumSet<ToggleableVisiblityGroup> toggles = EnumSet.allOf(ToggleableVisiblityGroup.class);
+
 	public String name;
 
 	private boolean bulkChanging;
+
+	private File currentFile;
 
 	static {
 		saveDir.mkdirs();
@@ -185,6 +190,18 @@ public class Factory {
 		return ret;
 	}
 
+	public void setToggle(ToggleableVisiblityGroup tv, boolean state) {
+		if (state)
+			toggles.add(tv);
+		else
+			toggles.remove(tv);
+		this.notifyListeners();
+	}
+
+	public boolean getToggle(ToggleableVisiblityGroup tv) {
+		return toggles.contains(tv);
+	}
+
 	public void notifyListeners() {
 		if (bulkChanging)
 			return;
@@ -193,27 +210,40 @@ public class Factory {
 	}
 
 	public void clear() {
+		boolean wasBulk = bulkChanging;
 		bulkChanging = true;
 		recipeList.clear();
 		recipes.clear();
 		generators.clear();
 		resourceSources.clear();
 		desiredProducts.clear();
-		bulkChanging = false;
-		this.notifyListeners();
+		toggles.clear();
+		bulkChanging = wasBulk;
+		if (!bulkChanging)
+			this.notifyListeners();
+	}
+
+	public File getDefaultFile() {
+		return new File(saveDir, name+".factory");
+	}
+
+	public boolean hasExistingFile() {
+		return currentFile != null && currentFile.exists();
 	}
 
 	public void save() throws IOException {
-		File f = new File(saveDir, name+".factory");
-		if (f.exists()) {
-			if (!GuiUtil.getConfirmation("Overwrite existing file?"))
-				return;
-		}
+		if (currentFile != null)
+			this.save(currentFile);
+	}
+
+	public void save(File f) throws IOException {
+		this.setCurrentFile(f);
 		JSONObject root = new JSONObject();
 		JSONArray recipes = new JSONArray();
 		JSONArray generators = new JSONArray();
 		JSONArray resources = new JSONArray();
 		JSONArray products = new JSONArray();
+		JSONArray toggles = new JSONArray();
 		root.put("name", name);
 
 		for (Recipe r : recipeList) {
@@ -245,16 +275,23 @@ public class Factory {
 		}
 		root.put("products", products);
 
+		for (ToggleableVisiblityGroup c : this.toggles) {
+			toggles.put(c.name());
+		}
+		root.put("toggles", toggles);
+
 		FileUtils.write(f, root.toString(4), Charsets.UTF_8);
 	}
 
 	public void reload() throws Exception {
-		this.load(new File(saveDir, name+".factory"));
+		this.load(currentFile);
 	}
 
 	private void load(File f) throws Exception {
 		bulkChanging = true;
 		this.clear();
+
+		this.setCurrentFile(f);
 
 		String file = FileUtils.readFileToString(f, Charsets.UTF_8);
 		JSONObject root = new JSONObject(file);
@@ -264,6 +301,7 @@ public class Factory {
 		JSONArray generators = root.getJSONArray("generators");
 		JSONArray resources = root.getJSONArray("resources");
 		JSONArray products = root.getJSONArray("products");
+		JSONArray toggles = root.has("toggles") ? root.getJSONArray("toggles") : null;
 		for (Object o : recipes) {
 			JSONObject block = (JSONObject)o;
 			Recipe r = Database.lookupRecipe(block.getString("id"));
@@ -284,13 +322,31 @@ public class Factory {
 		for (Object o : products) {
 			desiredProducts.add(Database.lookupItem((String)o));
 		}
+		if (toggles == null) {
+			this.toggles.addAll(EnumSet.allOf(ToggleableVisiblityGroup.class));
+		}
+		else {
+			for (Object o : toggles) {
+				this.toggles.add(ToggleableVisiblityGroup.valueOf((String)o));
+			}
+		}
 
 		bulkChanging = false;
 		this.notifyListeners();
 	}
 
-	public static Factory loadFactory(File f) throws Exception {
+	private void setCurrentFile(File f) {
+		currentFile = f;
+		for (FactoryListener rr : changeCallback)
+			rr.onFileChange();
+	}
+
+	public static Factory loadFactory(File f, FactoryListener... l) throws Exception {
 		Factory ret = new Factory();
+		for (FactoryListener fl : l) {
+			ret.addCallback(fl);
+			fl.setFactory(ret);
+		}
 		ret.load(f);
 		return ret;
 	}

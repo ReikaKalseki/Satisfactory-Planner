@@ -5,11 +5,15 @@ import java.io.StringWriter;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import org.controlsfx.control.SearchableComboBox;
+
 import Reika.SatisfactoryPlanner.Data.Resource;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -19,6 +23,10 @@ import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -28,6 +36,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
+import javafx.stage.Screen;
 import javafx.util.Duration;
 
 public class GuiUtil {
@@ -118,6 +127,30 @@ public class GuiUtil {
 		node.setMinWidth(getWidth(node));
 	}
 
+	public static void setupCounter(Spinner<Integer> spinner, int min, int max, int init, boolean allowEdit) {
+		spinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(min, max, init));
+		spinner.setEditable(allowEdit);
+
+		int maxChars = 1+(int)Math.log10(max);
+		int w = 56+8*maxChars;
+		spinner.setPrefWidth(w);
+		spinner.setMinWidth(Region.USE_PREF_SIZE);
+		spinner.setMaxWidth(Region.USE_PREF_SIZE);
+
+		if (allowEdit) {
+			TextField txt = spinner.getEditor();
+			txt.textProperty().addListener((val, old, nnew) -> {
+				nnew = nnew.replaceAll("[^\\d.]", "");
+				if (!nnew.isEmpty() && Integer.parseInt(nnew) > max)
+					nnew = String.valueOf(max);
+				//if (nnew.length() > maxChars)
+				//	txt.setText(nnew.substring(0, maxChars));
+				txt.setText(nnew);
+			});
+		}
+		spinner.getValueFactory().setValue(init);
+	}
+
 	public static void setButtonEvent(ButtonBase b, Errorable e) {
 		b.setOnAction(ev -> {tryWithErrorHandling(e);});
 	}
@@ -159,7 +192,12 @@ public class GuiUtil {
 		a.setTitle(title);
 		a.initOwner(GuiSystem.MainWindow.getGUI().window);
 		a.initModality(Modality.APPLICATION_MODAL);
-		//a.getDialogPane().setPrefWidth(0);
+		if (modifier != null)
+			modifier.accept(a);
+		Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
+		a.getDialogPane().setMaxHeight(bounds.getHeight()*0.8);
+		a.setX((bounds.getWidth()-a.getWidth())/2);
+		a.setX((bounds.getHeight()-a.getHeight())/2);
 		Optional<ButtonType> b = a.showAndWait();
 		return b.isPresent() ? b.get() : null;
 	}
@@ -171,7 +209,41 @@ public class GuiUtil {
 	public static void showException(Throwable t, String msg) {
 		StringWriter sw = new StringWriter();
 		t.printStackTrace(new PrintWriter(sw));
-		raiseDialog(AlertType.ERROR, "Error", sw.toString(), a -> {if (msg != null) {a.getDialogPane().setHeaderText(msg);}}, ButtonType.OK);
+		raiseDialog(AlertType.ERROR, "Error", "", a -> {
+			int w = 1000;
+			TextArea area = new TextArea(sw.toString());
+			area.setWrapText(false);
+			area.setEditable(false);
+			area.setPrefWidth(w);
+			area.setMinWidth(w);
+			area.setMaxWidth(w);
+			area.setPrefHeight(600);
+			a.getDialogPane().setContent(area);
+			if (msg != null) {
+				a.getDialogPane().setHeaderText(msg);
+			}
+		}, ButtonType.OK);
+	}
+
+	public static <E> void setupAddSelector(SearchableComboBox<E> sb, Consumer<E> onSelect) {
+		sb.getSelectionModel().selectedItemProperty().addListener((val, old, nnew) -> {
+			if (nnew != null)
+				Platform.runLater(() -> onSelect.accept(nnew)); //need to delay since this updates the selection and contents, which cannot be done inside a selection change
+		});
+	}
+
+	public static <E> void setupAddSelector(SearchableComboBox<E> sb, SearchableSelector<E> sel) {
+		setupAddSelector(sb, (Consumer<E>)sel);
+		sb.setButtonCell(sel.createListCell("Click to "+sel.getActionName()+" "+sel.getEntryTypeName()+"...", true));
+		sb.setCellFactory(c -> sel.createListCell("", false));
+	}
+
+	public static interface SearchableSelector<E> extends Consumer<E> {
+
+		public DecoratedListCell<E> createListCell(String text, boolean button);
+		public String getEntryTypeName();
+		public String getActionName();
+
 	}
 
 	@FunctionalInterface

@@ -1,5 +1,6 @@
 package Reika.SatisfactoryPlanner.GUI;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.function.Consumer;
 
@@ -20,6 +21,7 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
+import javafx.stage.FileChooser;
 
 public abstract class ControllerBase {
 
@@ -95,6 +97,27 @@ public abstract class ControllerBase {
 		dialog.show();
 
 		return dialog;
+	}
+
+	protected final File openFileDialog(String title, File dir, FileChooser.ExtensionFilter... filters) {
+		FileChooser fc = new FileChooser();
+		fc.setInitialDirectory(dir);
+		fc.setTitle("Choose "+title+" file");
+		if (filters.length > 0) {
+			for (FileChooser.ExtensionFilter extFilter : filters) {
+				fc.getExtensionFilters().add(extFilter);
+			}
+			fc.setSelectedExtensionFilter(filters[0]);
+		}
+		return fc.showOpenDialog(container.window);
+	}
+
+	protected final File openSaveAsDialog(String initialName, File dir) {
+		FileChooser fc = new FileChooser();
+		fc.setInitialDirectory(dir);
+		fc.setInitialFileName(initialName);
+		fc.setTitle("Choose file");
+		return fc.showSaveDialog(container.window);
 	}
 
 	protected final void setVisible(Node n, boolean visible) {

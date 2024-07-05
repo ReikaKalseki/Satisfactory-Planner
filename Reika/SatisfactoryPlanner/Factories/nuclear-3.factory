@@ -21,15 +21,23 @@
             "id": "Recipe_Alternate_IngotSteel_1_C"
         },
         {
-            "count": 8,
+            "count": 9,
             "id": "Recipe_SulfuricAcid_C"
+        },
+        {
+            "count": 2,
+            "id": "Recipe_Plutonium_C"
+        },
+        {
+            "count": 0,
+            "id": "Recipe_Alternate_PlutoniumFuelUnit_C"
         },
         {
             "count": 15,
             "id": "Recipe_NuclearFuelRod_C"
         },
         {
-            "count": 2,
+            "count": 3,
             "id": "Recipe_Alternate_FertileUranium_C"
         },
         {
@@ -37,7 +45,11 @@
             "id": "Recipe_UraniumCell_C"
         }
     ],
-    "name": "nuclear-2",
+    "toggles": [
+        "ALTERNATE",
+        "POST10"
+    ],
+    "name": "nuclear-3",
     "generators": [{
         "count": 30,
         "id": "Build_GeneratorNuclear_C"
@@ -58,16 +70,16 @@
             "miner": "THREE"
         },
         {
-            "item": "Desc_OreIron_C",
+            "item": "Desc_Stone_C",
             "purity": "NORMAL",
-            "clock": 1,
+            "clock": 1.5,
             "type": "MINER",
             "miner": "THREE"
         },
         {
-            "item": "Desc_Stone_C",
+            "item": "Desc_OreUranium_C",
             "purity": "NORMAL",
-            "clock": 1.5,
+            "clock": 2.5,
             "type": "MINER",
             "miner": "THREE"
         },
@@ -79,11 +91,18 @@
             "miner": "THREE"
         },
         {
-            "item": "Desc_OreUranium_C",
+            "item": "Desc_OreIron_C",
             "purity": "NORMAL",
-            "clock": 2.5,
+            "clock": 1,
             "type": "MINER",
             "miner": "THREE"
+        },
+        {
+            "item": "Desc_OreUranium_C",
+            "purity": "NORMAL",
+            "clock": 1,
+            "type": "MINER",
+            "miner": "TWO"
         },
         {
             "item": "Desc_Stone_C",

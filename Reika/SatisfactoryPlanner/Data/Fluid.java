@@ -6,8 +6,8 @@ public class Fluid extends Consumable {
 
 	public final Color baseColor;
 
-	protected Fluid(String id, String dn, String img, String desc, Color c) {
-		super(id, dn, img, desc);
+	protected Fluid(String id, String dn, String img, String desc, String cat, float nrg, Color c) {
+		super(id, dn, img, desc, cat, nrg);
 		baseColor = c;
 	}
 

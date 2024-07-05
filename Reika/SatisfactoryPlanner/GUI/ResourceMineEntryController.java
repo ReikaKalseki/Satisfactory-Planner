@@ -1,28 +1,28 @@
 package Reika.SatisfactoryPlanner.GUI;
 
+import java.io.IOException;
+
 import Reika.SatisfactoryPlanner.Data.Constants.Purity;
-import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Data.ExtractableResource;
 import Reika.SatisfactoryPlanner.Data.Factory;
 import Reika.SatisfactoryPlanner.Data.FrackingCluster;
 import Reika.SatisfactoryPlanner.Data.OilNode;
 import Reika.SatisfactoryPlanner.Data.SolidResourceNode;
+import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
 
-import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
 public class ResourceMineEntryController extends ResourceSupplyEntryController<ExtractableResource> {
 
-	@FXML
-	private HBox shardDisplay;
+	@Override
+	protected void postInit(WindowBase w) throws IOException {
+		super.postInit(w);
 
-	@FXML
-	private Label speedValue;
+		this.setFont(this.getRootNode(), GuiSystem.getDefaultFont());
+	}
 
 	@Override
 	protected Node getTopBarRightContent() {
@@ -61,17 +61,11 @@ public class ResourceMineEntryController extends ResourceSupplyEntryController<E
 	}
 
 	@Override
-	protected void onSetSupply(Factory f, ExtractableResource res) {
-		int pct = (int)(res.getClockSpeed()*100);
-		speedValue.setText(pct+"%");
-		if (pct > 100) {
-			for (int i = 0; i < Math.ceil((pct-100)/50D); i++) {
-				shardDisplay.getChildren().add(Database.lookupItem("Desc_CrystalShard_C").createImageView());
-			}
-		}
-		else {
-			((Pane)shardDisplay.getParent()).getChildren().remove(shardDisplay);
-		}
+	protected void onSetSupply(Factory f, ExtractableResource res) throws IOException {
+		GuiInstance gui = this.loadNestedFXML("ClockspeedSlider", root);
+		gui.rootNode.toBack();
+		topBar.toBack();
+		((ClockspeedSliderController)gui.controller).setCallback(v -> {supply.setClockSpeed(v/100F); this.updateStats();});
 	}
 
 }

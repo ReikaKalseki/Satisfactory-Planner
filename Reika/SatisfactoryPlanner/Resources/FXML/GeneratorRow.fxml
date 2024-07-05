@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+
+<GridPane hgap="2.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.GeneratorRowController">
+   <columnConstraints>
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" />
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" />
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="96.0" />
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" />
+      <ColumnConstraints hgrow="SOMETIMES" />
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" />
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints vgrow="SOMETIMES" />
+   </rowConstraints>
+   <children>
+      <ImageView fx:id="icon" fitHeight="64.0" fitWidth="64.0" pickOnBounds="true" preserveRatio="true" />
+      <Label fx:id="powerGenText" text="Power Gen" GridPane.columnIndex="4" />
+      <Spinner fx:id="counter" GridPane.columnIndex="2" />
+      <Label alignment="BOTTOM_RIGHT" text="x" GridPane.columnIndex="1">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+         <padding>
+            <Insets left="4.0" />
+         </padding>
+      </Label>
+      <Label alignment="BOTTOM_RIGHT" layoutX="82.0" layoutY="32.0" text="=" GridPane.columnIndex="3">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+      </Label>
+      <HBox fx:id="fuelCostBar" alignment="CENTER" minWidth="8.0" prefHeight="32.0" GridPane.columnIndex="5" />
+      <HBox fx:id="byproductBar" alignment="CENTER" layoutX="260.0" layoutY="10.0" minWidth="8.0" prefHeight="32.0" GridPane.columnIndex="6" />
+   </children>
+</GridPane>

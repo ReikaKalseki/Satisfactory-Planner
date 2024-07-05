@@ -2,6 +2,7 @@ package Reika.SatisfactoryPlanner.Data;
 
 import java.lang.reflect.Constructor;
 import java.util.Locale;
+import java.util.function.Predicate;
 
 import org.json.JSONObject;
 
@@ -107,6 +108,30 @@ public class Constants {
 			Constructor<ResourceSupply> c = (Constructor<ResourceSupply>)objectClass.getDeclaredConstructor(JSONObject.class);
 			c.setAccessible(true);
 			return c.newInstance(obj);
+		}
+	}
+
+	public static enum ToggleableVisiblityGroup {
+		EQUIPMENT(i -> i.isEquipment, r -> r.isSoleProduct(i -> i.isEquipment)),
+		BIOMASS(i -> i.isBiomass, r -> r.isSoleProduct(i -> i.isBiomass)),
+		FICSMAS(i -> i.isFicsmas, r -> r.isFicsmas),
+		ALTERNATE(i -> false, r -> r.isAlternate),
+		POST10(i -> false, r -> false), //TODO
+		FINDABLE(i -> i.isFindables(), r -> r.isFindables()), //TODO
+		PACKAGING(i -> false, r -> r.isPackaging()),
+		UNPACKAGING(i -> false, r -> r.isUnpackaging()),
+		;
+
+		public final int bitflag;
+
+		public final Predicate<Consumable> isItemInGroup;
+		public final Predicate<Recipe> isRecipeInGroup;
+
+		private ToggleableVisiblityGroup(Predicate<Consumable> pi, Predicate<Recipe> pr) {
+			isItemInGroup = pi;
+			isRecipeInGroup = pr;
+
+			bitflag = 1 << this.ordinal();
 		}
 	}
 }

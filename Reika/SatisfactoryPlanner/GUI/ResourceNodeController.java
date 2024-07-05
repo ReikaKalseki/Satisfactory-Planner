@@ -4,11 +4,8 @@ import java.io.IOException;
 
 import org.controlsfx.control.SearchableComboBox;
 
-import com.google.common.base.Strings;
-
 import Reika.SatisfactoryPlanner.Data.Constants.MinerTier;
 import Reika.SatisfactoryPlanner.Data.Constants.Purity;
-import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Data.ExtractableResource;
 import Reika.SatisfactoryPlanner.Data.Fluid;
@@ -18,6 +15,7 @@ import Reika.SatisfactoryPlanner.Data.OilNode;
 import Reika.SatisfactoryPlanner.Data.SolidResourceNode;
 import Reika.SatisfactoryPlanner.Data.WaterExtractor;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
+import Reika.SatisfactoryPlanner.GUI.GuiUtil.SearchableSelector;
 
 import javafx.application.HostServices;
 import javafx.collections.FXCollections;
@@ -31,8 +29,6 @@ import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
-import javafx.util.StringConverter;
 
 public class ResourceNodeController extends ControllerBase {
 
@@ -61,9 +57,6 @@ public class ResourceNodeController extends ControllerBase {
 	private ComboBox<MinerTier> solidMinerTier;
 
 	@FXML
-	private HBox shardDisplay;
-
-	@FXML
 	private HBox yieldDisplay;
 
 	@FXML
@@ -83,7 +76,7 @@ public class ResourceNodeController extends ControllerBase {
 
 	private ToggleGroup radioButtons = new ToggleGroup();
 
-	private int clockSpeed;
+	private int clockSpeed = 100;
 
 	@Override
 	public void init(HostServices services) throws IOException {
@@ -92,24 +85,49 @@ public class ResourceNodeController extends ControllerBase {
 		purity.setItems(FXCollections.observableArrayList(Purity.values()));
 		solidMinerTier.setItems(FXCollections.observableArrayList(MinerTier.values()));
 
-		StringConverter cv = new StringConverter<Consumable>() {
+		GuiUtil.setupAddSelector(solidDropdown, new SearchableSelector<Item>(){
 			@Override
-			public String toString(Consumable mt) {
-				return mt == null ? "" : mt.displayName;
+			public void accept(Item t) {
+
 			}
 
 			@Override
-			public Consumable fromString(String s) {
-				return Strings.isNullOrEmpty(s) ? null : Database.lookupItem(s);
+			public DecoratedListCell<Item> createListCell(String text, boolean button) {
+				return new ItemListCell<Item>(text, button);
 			}
-		};
-		solidDropdown.setConverter(cv);
-		frackingDropdown.setConverter(cv);
 
-		solidDropdown.setButtonCell(new ItemListCell<Item>("Choose Item...", true));
-		solidDropdown.setCellFactory(c -> new ItemListCell<Item>("", false));
-		frackingDropdown.setButtonCell(new ItemListCell<Fluid>("Choose Fluid...", true));
-		frackingDropdown.setCellFactory(c -> new ItemListCell<Fluid>("", false));
+			@Override
+			public String getEntryTypeName() {
+				return "Item";
+			}
+
+			@Override
+			public String getActionName() {
+				return "Choose";
+			}
+		});
+		GuiUtil.setupAddSelector(frackingDropdown, new SearchableSelector<Fluid>(){
+			@Override
+			public void accept(Fluid t) {
+
+			}
+
+			@Override
+			public DecoratedListCell<Fluid> createListCell(String text, boolean button) {
+				return new ItemListCell<Fluid>(text, button);
+			}
+
+			@Override
+			public String getEntryTypeName() {
+				return "Fluid";
+			}
+
+			@Override
+			public String getActionName() {
+				return "Choose";
+			}
+		});
+
 		solidMinerTier.setButtonCell(new MinerListCell("Choose Miner...", true));
 		solidMinerTier.setCellFactory(c -> new MinerListCell("", false));
 		purity.setButtonCell(new PurityListCell("Choose Purity...", true));
@@ -178,13 +196,7 @@ public class ResourceNodeController extends ControllerBase {
 
 	private void updateStats() {
 		ExtractableResource res = this.createResource();
-		shardDisplay.getChildren().clear();
 		yieldDisplay.getChildren().clear();
-		if (clockSpeed > 100) {
-			for (int i = 0; i < Math.ceil((clockSpeed-100)/50D); i++) {
-				shardDisplay.getChildren().add(Database.lookupItem("Desc_CrystalShard_C").createImageView());
-			}
-		}
 		if (res != null && res.getResource() != null && res.getYield() > 0) {
 			res.setClockSpeed(clockSpeed/100F);
 			GuiUtil.addIconCount(yieldDisplay, res.getResource(), res.getYield());
@@ -193,12 +205,8 @@ public class ResourceNodeController extends ControllerBase {
 
 	private void setupFrackingSpinner(Spinner<Integer> counter, Purity p) {
 		counter.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 99, 0));
-		counter.setEditable(false);
-		counter.setPrefWidth(64);
-		counter.setMinWidth(Region.USE_PREF_SIZE);
-		counter.setMaxWidth(Region.USE_PREF_SIZE);
-		counter.getValueFactory().setValue(0);
-		counter.getValueFactory().valueProperty().addListener((val, old, nnew) -> {
+		GuiUtil.setupCounter(counter, 0, 99, 0, false);
+		counter.valueProperty().addListener((val, old, nnew) -> {
 			this.updateStats();
 		});
 	}
