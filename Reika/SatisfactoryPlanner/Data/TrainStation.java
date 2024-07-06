@@ -3,6 +3,7 @@ package Reika.SatisfactoryPlanner.Data;
 import org.json.JSONObject;
 
 import Reika.SatisfactoryPlanner.Data.Constants.BeltTier;
+import Reika.SatisfactoryPlanner.Data.Constants.PipeTier;
 import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
 
 public class TrainStation<R extends Consumable> extends LogisticSupply<R> {
@@ -24,7 +25,7 @@ public class TrainStation<R extends Consumable> extends LogisticSupply<R> {
 
 	@Override
 	public int getMaximumIO() {
-		return numberBuildings*Constants.TRUCK_STOP_PORTS*(isFluid ? Constants.PIPE2_LIMIT : BeltTier.FIVE.maxThroughput);
+		return numberBuildings*Constants.TRUCK_STOP_PORTS*(isFluid ? PipeTier.TWO.maxThroughput : BeltTier.FIVE.maxThroughput);
 	}
 
 	@Override

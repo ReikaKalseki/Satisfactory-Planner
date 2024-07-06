@@ -94,6 +94,7 @@ public abstract class ControllerBase {
 		if (callback != null) {
 			callback.accept(dialog.controller);
 		}
+		dialog.window.sizeToScene();
 		dialog.show();
 
 		return dialog;

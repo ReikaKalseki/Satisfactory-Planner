@@ -65,7 +65,12 @@ public class ResourceMineEntryController extends ResourceSupplyEntryController<E
 		GuiInstance gui = this.loadNestedFXML("ClockspeedSlider", root);
 		gui.rootNode.toBack();
 		topBar.toBack();
-		((ClockspeedSliderController)gui.controller).setCallback(v -> {supply.setClockSpeed(v/100F); this.updateStats();});
+		ClockspeedSliderController cs = (ClockspeedSliderController)gui.controller;
+		cs.setValue((int)(res.getClockSpeed()*100));
+		cs.setCallback(v -> {
+			supply.setClockSpeed(v/100F);
+			this.updateStats();
+		});
 	}
 
 }

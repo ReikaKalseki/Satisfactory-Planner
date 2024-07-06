@@ -324,7 +324,7 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 		this.updateUI();
 	}
 
-	private boolean isItemValid(Consumable r) {
+	public boolean isItemValid(Consumable r) {
 		for (ToggleableVisiblityGroup tv : ToggleableVisiblityGroup.values()) {
 			if (tv.isItemInGroup.test(r) && !factory.getToggle(tv))
 				return false;
@@ -332,7 +332,7 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 		return true;
 	}
 
-	private boolean isRecipeValid(Recipe r) {
+	public boolean isRecipeValid(Recipe r) {
 		for (ToggleableVisiblityGroup tv : ToggleableVisiblityGroup.values()) {
 			if (tv.isRecipeInGroup.test(r) && !factory.getToggle(tv))
 				return false;
@@ -347,6 +347,7 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 				toggleFilters.get(tv).setSelected(factory.getToggle(tv));
 			}
 
+			addProductButton.getSelectionModel().clearSelection();
 			ArrayList<Consumable> li = new ArrayList(Database.getAllItems());
 			li.removeIf(c -> !this.isItemValid(c));
 			addProductButton.setItems(FXCollections.observableArrayList(li));
@@ -421,7 +422,7 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 					((ResourceMineEntryController)gui.controller).setSupply(factory, (ExtractableResource)res);
 				}
 				else if (res instanceof LogisticSupply) {
-					GuiInstance gui = this.loadNestedFXML("ResourceSupplyEntry", inputGrid);
+					GuiInstance gui = this.loadNestedFXML("LogisticSupplyEntry", inputGrid);
 					((LogisticSupplyEntryController)gui.controller).setSupply(factory, (LogisticSupply)res);
 				}
 			}

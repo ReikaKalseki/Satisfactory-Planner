@@ -2,20 +2,20 @@ package Reika.SatisfactoryPlanner.Data;
 
 import org.json.JSONObject;
 
-import Reika.SatisfactoryPlanner.Data.Constants.BeltTier;
+import Reika.SatisfactoryPlanner.Data.Constants.PipeTier;
 import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
 
-public class InputBelt extends LogisticSupply<Item> {
+public class InputPipe extends LogisticSupply<Fluid> {
 
-	public final BeltTier tier;
+	public final PipeTier tier;
 
-	public InputBelt(Item i, BeltTier b) {
+	public InputPipe(Fluid i, PipeTier b) {
 		super(i);
 		tier = b;
 	}
 
-	private InputBelt(JSONObject obj) {
-		this((Item)Database.lookupItem(obj.getString("item")), BeltTier.valueOf(obj.getString("belt")));
+	private InputPipe(JSONObject obj) {
+		this((Fluid)Database.lookupItem(obj.getString("item")), PipeTier.valueOf(obj.getString("pipe")));
 		this.setAmount(obj.getInt("amount"));
 	}
 
@@ -32,12 +32,12 @@ public class InputBelt extends LogisticSupply<Item> {
 	@Override
 	public void save(JSONObject block) {
 		super.save(block);
-		block.put("belt", tier.name());
+		block.put("pipe", tier.name());
 	}
 
 	@Override
 	public ResourceSupplyType getType() {
-		return ResourceSupplyType.BELT;
+		return ResourceSupplyType.PIPE;
 	}
 
 }

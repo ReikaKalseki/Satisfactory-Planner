@@ -36,6 +36,8 @@ public class ClockspeedSliderController extends ControllerBase {
 	@FXML
 	private HBox shardDisplay;
 
+	private boolean updatingValue;
+
 	private Consumer<Integer> callback;
 
 	@Override
@@ -87,7 +89,8 @@ public class ClockspeedSliderController extends ControllerBase {
 
 		slider.valueProperty().addListener((val, old, nnew) -> {
 			int real = (int)Math.round(nnew.doubleValue());
-			this.setValue(real, false, true);
+			if (!updatingValue)
+				this.setValue(real, false, true);
 			if (Math.abs(nnew.doubleValue()-real) >= 0.1)
 				slider.setValue(real);
 		});
@@ -100,7 +103,7 @@ public class ClockspeedSliderController extends ControllerBase {
 		});
 
 		spinner.valueProperty().addListener((val, old, nnew) -> {
-			if (nnew != null)
+			if (nnew != null && !updatingValue)
 				this.setValue(nnew.intValue(), true, false);
 		});
 		TextField txt = spinner.getEditor();
@@ -144,6 +147,7 @@ public class ClockspeedSliderController extends ControllerBase {
 	}
 
 	private void setValue(int real, boolean updateSlider, boolean updateSpinner) {
+		updatingValue = true;
 		if (updateSlider)
 			slider.setValue(real);
 		if (updateSpinner)
@@ -155,6 +159,8 @@ public class ClockspeedSliderController extends ControllerBase {
 				shardDisplay.getChildren().add(Database.lookupItem("Desc_CrystalShard_C").createImageView(16));
 			}
 		}
+
+		updatingValue = false;
 
 		if (callback != null)
 			callback.accept(real);

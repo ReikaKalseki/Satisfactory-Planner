@@ -28,7 +28,7 @@ public class SolidResourceNode extends BaseResourceNode<Item> {
 
 	@Override
 	public FunctionalBuilding getBuilding() {
-		return minerLevel.getMiner();
+		return (FunctionalBuilding)minerLevel.getBuilding();
 	}
 
 	@Override

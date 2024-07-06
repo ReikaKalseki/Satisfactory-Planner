@@ -1,22 +1,22 @@
 package Reika.SatisfactoryPlanner.GUI;
 
-import Reika.SatisfactoryPlanner.Data.FunctionalBuilding;
+import Reika.SatisfactoryPlanner.Data.Building;
 
 import javafx.scene.Node;
 
-class BuildingListCell extends DecoratedListCell<FunctionalBuilding> {
+class BuildingListCell<B extends Building> extends DecoratedListCell<B> {
 
 	public BuildingListCell(String ptext, boolean isButton) {
 		super(ptext, isButton);
 	}
 
 	@Override
-	protected String getString(FunctionalBuilding obj) {
+	protected String getString(B obj) {
 		return obj.displayName;
 	}
 
 	@Override
-	protected Node createDecoration(FunctionalBuilding obj) {
+	protected Node createDecoration(B obj) {
 		return obj.createImageView();
 	}
 

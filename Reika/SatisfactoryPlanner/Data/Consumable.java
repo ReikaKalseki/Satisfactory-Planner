@@ -32,7 +32,7 @@ public abstract class Consumable extends Resource implements Comparable<Consumab
 	}
 
 	public boolean isFindables() {
-		return id.equalsIgnoreCase("Desc_HardDrive_C") || id.startsWith("Desc_Crystal"); //TODO
+		return id.equalsIgnoreCase("Desc_HardDrive_C") || id.startsWith("Desc_Crystal"); //TODO isFindables
 	}
 
 	public int compareTo(Consumable c) {

@@ -12,9 +12,6 @@ import javafx.scene.image.Image;
 
 public class Constants {
 
-	public static final int PIPE1_LIMIT = 300;
-	public static final int PIPE2_LIMIT = 600;
-
 	public static final int WATER_PUMP_PRODUCTION = 120;
 
 	public static final int TRUCK_STOP_PORTS = 2;
@@ -52,7 +49,13 @@ public class Constants {
 		}
 	}
 
-	public static enum BeltTier {
+	public static interface BuildingTier {
+
+		public Building getBuilding();
+
+	}
+
+	public static enum BeltTier implements BuildingTier {
 		ONE(60),
 		TWO(120),
 		THREE(270),
@@ -65,13 +68,31 @@ public class Constants {
 			maxThroughput = s;
 		}
 
-		public Building getBelt() {
-			return Database.lookupBuilding("Desc_ConveyorBeltMk"+(this.ordinal()+1)+"_C");
+		public Building getBuilding() {
+			return Database.lookupBuilding("Build_ConveyorBeltMk"+(this.ordinal()+1)+"_C");
 
 		}
 	}
 
-	public static enum MinerTier {
+	public static enum PipeTier implements BuildingTier {
+		ONE(300, "Build_Pipeline_C"),
+		TWO(600, "Build_PipelineMK2_C");
+
+		public final int maxThroughput;
+		public final String buildingID;
+
+		private PipeTier(int s, String id) {
+			maxThroughput = s;
+			buildingID = id;
+		}
+
+		public Building getBuilding() {
+			return Database.lookupBuilding(buildingID);
+
+		}
+	}
+
+	public static enum MinerTier implements BuildingTier {
 		ONE(1),
 		TWO(2),
 		THREE(4);
@@ -82,8 +103,8 @@ public class Constants {
 			speedMultiplier = s;
 		}
 
-		public FunctionalBuilding getMiner() {
-			return (FunctionalBuilding)Database.lookupBuilding("Build_MinerMk"+(this.ordinal()+1)+"_C");
+		public Building getBuilding() {
+			return Database.lookupBuilding("Build_MinerMk"+(this.ordinal()+1)+"_C");
 		}
 	}
 
@@ -93,6 +114,7 @@ public class Constants {
 		OIL(OilNode.class),
 		FRACKING(FrackingCluster.class),
 		BELT(InputBelt.class),
+		PIPE(InputPipe.class),
 		TRUCK(TruckStation.class),
 		TRAIN(TrainStation.class),
 		DRONE(DroneStation.class),
@@ -116,8 +138,8 @@ public class Constants {
 		BIOMASS(i -> i.isBiomass, r -> r.isSoleProduct(i -> i.isBiomass)),
 		FICSMAS(i -> i.isFicsmas, r -> r.isFicsmas),
 		ALTERNATE(i -> false, r -> r.isAlternate),
-		POST10(i -> false, r -> false), //TODO
-		FINDABLE(i -> i.isFindables(), r -> r.isFindables()), //TODO
+		POST10(i -> false, r -> false), //TODO POST10
+		FINDABLE(i -> i.isFindables(), r -> r.isFindables()),
 		PACKAGING(i -> false, r -> r.isPackaging()),
 		UNPACKAGING(i -> false, r -> r.isUnpackaging()),
 		;

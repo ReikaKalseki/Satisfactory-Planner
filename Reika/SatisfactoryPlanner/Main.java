@@ -36,6 +36,10 @@ public class Main {
 		Database.ClassType.CRAFTER.parsePending();
 		Database.ClassType.MINER.parsePending();
 		Database.ClassType.GENERATOR.parsePending();
+		Database.ClassType.STATION.parsePending();
+		Database.ClassType.BELT.parsePending();
+		Database.ClassType.PIPE.parsePending();
+		//Database.ClassType.MISCBUILD.parsePending();
 		Database.ClassType.VEHICLE.parsePending();
 		Database.ClassType.RECIPE.parsePending();
 		Database.ClassType.MILESTONE.parsePending();

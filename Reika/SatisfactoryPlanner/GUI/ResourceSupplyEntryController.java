@@ -44,7 +44,7 @@ public abstract class ResourceSupplyEntryController<R extends ResourceSupply> ex
 	protected void updateStats() {
 		yieldDisplay.getChildren().clear();
 		GuiUtil.addIconCount(yieldDisplay, supply.getResource(), supply.getYield());
-		//TODO update color/warn styles in recipe matrix
+		//FIXME update color/warn styles in recipe matrix
 	}
 
 	protected final R getSupply() {

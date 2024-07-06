@@ -128,12 +128,10 @@ public class ResourceNodeController extends ControllerBase {
 			}
 		});
 
-		solidMinerTier.setButtonCell(new MinerListCell("Choose Miner...", true));
-		solidMinerTier.setCellFactory(c -> new MinerListCell("", false));
+		solidMinerTier.setButtonCell(new TierListCell<MinerTier>("Choose Miner...", true));
+		solidMinerTier.setCellFactory(c -> new TierListCell<MinerTier>("", false));
 		purity.setButtonCell(new PurityListCell("Choose Purity...", true));
 		purity.setCellFactory(c -> new PurityListCell("", false));
-
-		solidMinerTier.setConverter(MinerListCell.converter);
 
 		solidRadio.setToggleGroup(radioButtons);
 		waterRadio.setToggleGroup(radioButtons);
@@ -171,19 +169,20 @@ public class ResourceNodeController extends ControllerBase {
 		this.setupFrackingSpinner(frackingPure, Purity.PURE);
 
 		addButton.setOnAction(e -> {
+			Toggle b = radioButtons.getSelectedToggle();
 			if (!purity.isDisabled() && purity.getSelectionModel().getSelectedItem() == null) {
 				GuiUtil.raiseUserErrorDialog("Resource Supply Invalid", "No purity selected.");
 				return;
 			}
-			if (radioButtons.getSelectedToggle() == solidRadio && solidDropdown.getSelectionModel().getSelectedItem() == null) {
+			if (b == solidRadio && solidDropdown.getSelectionModel().getSelectedItem() == null) {
 				GuiUtil.raiseUserErrorDialog("Resource Supply Invalid", "No item selected.");
 				return;
 			}
-			if (radioButtons.getSelectedToggle() == solidRadio && solidMinerTier.getSelectionModel().getSelectedItem() == null) {
+			if (b == solidRadio && solidMinerTier.getSelectionModel().getSelectedItem() == null) {
 				GuiUtil.raiseUserErrorDialog("Resource Supply Invalid", "No miner selected.");
 				return;
 			}
-			if (radioButtons.getSelectedToggle() == frackingRadio && frackingDropdown.getSelectionModel().getSelectedItem() == null) {
+			if (b == frackingRadio && frackingDropdown.getSelectionModel().getSelectedItem() == null) {
 				GuiUtil.raiseUserErrorDialog("Resource Supply Invalid", "No fluid selected.");
 				return;
 			}

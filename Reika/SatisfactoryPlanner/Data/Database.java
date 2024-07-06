@@ -385,6 +385,26 @@ public class Database {
 		allBuildingsSorted.add(r);
 	}
 
+	private static void parseBeltJSON(JSONObject obj) {
+		String id = obj.getString("ClassName");
+		Logging.instance.log("Parsing JSON elem "+id);
+		String disp = obj.getString("mDisplayName");
+		String spd = obj.getString("mSpeed"); //TODO is 2x item transfer rate/min
+		Building r = new Building(id, disp, convertIDToIcon(id));
+		allBuildings.put(r.id, r);
+		allBuildingsSorted.add(r);
+	}
+
+	private static void parsePipeJSON(JSONObject obj) {
+		String id = obj.getString("ClassName");
+		Logging.instance.log("Parsing JSON elem "+id);
+		String disp = obj.getString("mDisplayName");
+		String spd = obj.getString("mFlowLimit"); //TODO is per second, so x60 for /min
+		Building r = new Building(id, disp, convertIDToIcon(id));
+		allBuildings.put(r.id, r);
+		allBuildingsSorted.add(r);
+	}
+
 	private static void parseGeneratorJSON(JSONObject obj) {
 		String id = obj.getString("ClassName");
 		Logging.instance.log("Parsing JSON elem "+id);
@@ -479,8 +499,11 @@ public class Database {
 		GENERATOR("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableGeneratorFuel'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableGeneratorNuclear'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableGeneratorGeoThermal'"),
 		CRAFTER("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableManufacturer'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableManufacturerVariablePower'"),
 		MINER("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableResourceExtractor'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableWaterPump'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableFrackingActivator'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableFrackingExtractor'"),
+		STATION("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableDockingStation'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableTrainPlatformCargo'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableDroneStation'"),
+		BELT("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableConveyorBelt'"),
+		PIPE("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildablePipeline'"),
 		VEHICLE("/Script/CoreUObject.Class'/Script/FactoryGame.FGVehicleDescriptor'"),
-		MISCBUILD("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildingDescriptor'"),
+		//MISCBUILD("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildingDescriptor'"),
 		MILESTONE("/Script/CoreUObject.Class'/Script/FactoryGame.FGSchematic'"),
 		;
 
@@ -517,9 +540,18 @@ public class Database {
 				case MINER:
 					parseFunctionalBuildingJSON(obj);
 					break;
-				case MISCBUILD:
-					parseBuildingJSON(obj);
+				case STATION:
+					parseFunctionalBuildingJSON(obj);
 					break;
+				case BELT:
+					parseBeltJSON(obj);
+					break;
+				case PIPE:
+					parsePipeJSON(obj);
+					break;
+					//case MISCBUILD:
+					//	parseBuildingJSON(obj);
+					//break;
 				case MILESTONE:
 					parseMilestoneJSON(obj);
 					break;
