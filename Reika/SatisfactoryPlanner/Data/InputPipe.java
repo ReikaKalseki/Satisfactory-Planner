@@ -40,4 +40,9 @@ public class InputPipe extends LogisticSupply<Fluid> {
 		return ResourceSupplyType.PIPE;
 	}
 
+	@Override
+	public ResourceSupply<Fluid> duplicate() {
+		return new InputPipe(resource, tier);
+	}
+
 }

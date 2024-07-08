@@ -334,7 +334,7 @@ public class Database {
 			Consumable c = lookupItem(parseID(parts[0].split("=")[1]));
 			int amt = Integer.parseInt(parts[1].split("=")[1]);
 			if (c instanceof Fluid)
-				amt /= 1000; //they store fluids in mB
+				amt /= Constants.LIQUID_SCALAR; //they store fluids in mB
 			r.addIngredient(c, amt);
 		}
 		if (r.productionBuilding == null) { //is a buildable
@@ -353,7 +353,7 @@ public class Database {
 				Consumable c = lookupItem(parseID(parts[0].split("=")[1]));
 				int amt = Integer.parseInt(parts[1].split("=")[1]);
 				if (c instanceof Fluid)
-					amt /= 1000; //they store fluids in mB
+					amt /= Constants.LIQUID_SCALAR; //they store fluids in mB
 				r.addProduct(c, amt);
 			}
 			allRecipes.put(r.id, r);
@@ -410,8 +410,10 @@ public class Database {
 		Logging.instance.log("Parsing JSON elem "+id);
 		String disp = obj.getString("mDisplayName");
 		String pwr = obj.getString("mPowerProduction");
+		String sup = obj.getString("mSupplementalToPowerRatio");
 		JSONArray fuels = obj.has("mFuel") ? obj.getJSONArray("mFuel") : null;
-		Generator r = new Generator(id, disp, convertIDToIcon(id), Float.parseFloat(pwr));
+		float suppl = Float.parseFloat(sup);
+		Generator r = new Generator(id, disp, convertIDToIcon(id), Float.parseFloat(pwr), suppl);
 		if (fuels != null) {
 			String fuelForm = obj.getString("mFuelResourceForm");
 			for (Object o : fuels) {
@@ -422,13 +424,13 @@ public class Database {
 				Consumable outItem = Strings.isNullOrEmpty(out) ? null : lookupItem(out);
 				String item = fuel.getString("mFuelClass");
 				if (item.startsWith("Desc_")) {
-					Fuel f = new Fuel(lookupItem(item), secondItem, 1, outItem, outItem == null ? 0 : fuel.getInt("mByproductAmount"));
+					Fuel f = new Fuel(r, lookupItem(item), secondItem, outItem, outItem == null ? 0 : fuel.getInt("mByproductAmount"));
 					r.addFuel(f);
 				}
 				else if (item.startsWith("FGItemDescriptor")) {
 					for (Consumable c : Consumable.getForClass(item)) {
 						if (c.energyValue > 0 && ((fuelForm.equalsIgnoreCase("RF_SOLID") && c instanceof Item) || (fuelForm.equalsIgnoreCase("RF_FLUID") && c instanceof Fluid))) {
-							Fuel f = new Fuel(c, secondItem, 1, outItem, outItem == null ? 0 : fuel.getInt("mByproductAmount"));
+							Fuel f = new Fuel(r, c, secondItem, outItem, outItem == null ? 0 : fuel.getInt("mByproductAmount"));
 							r.addFuel(f);
 						}
 					}

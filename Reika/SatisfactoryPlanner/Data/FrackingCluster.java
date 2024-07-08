@@ -78,4 +78,9 @@ public class FrackingCluster implements ExtractableResource<Fluid> {
 		return ResourceSupplyType.FRACKING;
 	}
 
+	@Override
+	public ResourceSupply<Fluid> duplicate() {
+		return new FrackingCluster(resource, pureCount, normalCount, impureCount);
+	}
+
 }

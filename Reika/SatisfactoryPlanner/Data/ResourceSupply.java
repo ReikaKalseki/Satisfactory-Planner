@@ -11,5 +11,6 @@ public interface ResourceSupply<R extends Consumable> {
 	public Resource getIcon();
 	public void save(JSONObject block);
 	public ResourceSupplyType getType();
+	public ResourceSupply<R> duplicate();
 
 }

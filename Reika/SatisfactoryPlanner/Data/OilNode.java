@@ -32,4 +32,9 @@ public class OilNode extends BaseResourceNode<Fluid> {
 		return ResourceSupplyType.OIL;
 	}
 
+	@Override
+	public ResourceSupply<Fluid> duplicate() {
+		return new OilNode(purityLevel);
+	}
+
 }

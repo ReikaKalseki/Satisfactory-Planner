@@ -42,4 +42,9 @@ public class SolidResourceNode extends BaseResourceNode<Item> {
 		block.put("miner", minerLevel.name());
 	}
 
+	@Override
+	public ResourceSupply<Item> duplicate() {
+		return new SolidResourceNode(resource, purityLevel, minerLevel);
+	}
+
 }

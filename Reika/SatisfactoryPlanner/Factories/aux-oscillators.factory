@@ -1,0 +1,110 @@
+{
+    "recipes": [
+        {
+            "count": 14,
+            "id": "Recipe_Cable_C"
+        },
+        {
+            "count": 0,
+            "id": "Recipe_IronPlate_C"
+        },
+        {
+            "count": 28,
+            "id": "Recipe_Wire_C"
+        },
+        {
+            "count": 14,
+            "id": "Recipe_IngotCopper_C"
+        },
+        {
+            "count": 0,
+            "id": "Recipe_IronPlateReinforced_C"
+        },
+        {
+            "count": 0,
+            "id": "Recipe_Alternate_CopperAlloyIngot_C"
+        },
+        {
+            "count": 0,
+            "id": "Recipe_Alternate_Wire_2_C"
+        },
+        {
+            "count": 24,
+            "id": "Recipe_QuartzCrystal_C"
+        },
+        {
+            "count": 0,
+            "id": "Recipe_IngotCaterium_C"
+        },
+        {
+            "count": 30,
+            "id": "Recipe_CrystalOscillator_C"
+        }
+    ],
+    "toggles": [
+        "ALTERNATE",
+        "POST10",
+        "FINDABLE"
+    ],
+    "name": "aux-oscillators",
+    "generators": [],
+    "resources": [
+        {
+            "item": "Desc_OreIron_C",
+            "purity": "NORMAL",
+            "clock": 1,
+            "type": "MINER",
+            "miner": "THREE"
+        },
+        {
+            "item": "Desc_OreGold_C",
+            "purity": "NORMAL",
+            "clock": 2.5,
+            "type": "MINER",
+            "miner": "THREE"
+        },
+        {
+            "item": "Desc_RawQuartz_C",
+            "purity": "NORMAL",
+            "clock": 2,
+            "type": "MINER",
+            "miner": "THREE"
+        },
+        {
+            "item": "Desc_OreIron_C",
+            "purity": "NORMAL",
+            "clock": 1,
+            "type": "MINER",
+            "miner": "THREE"
+        },
+        {
+            "item": "Desc_OreIron_C",
+            "purity": "NORMAL",
+            "clock": 1,
+            "type": "MINER",
+            "miner": "THREE"
+        },
+        {
+            "item": "Desc_RawQuartz_C",
+            "purity": "NORMAL",
+            "clock": 2,
+            "type": "MINER",
+            "miner": "THREE"
+        },
+        {
+            "item": "Desc_OreIron_C",
+            "purity": "NORMAL",
+            "clock": 1,
+            "type": "MINER",
+            "miner": "THREE"
+        },
+        {
+            "item": "Desc_OreCopper_C",
+            "purity": "NORMAL",
+            "clock": 2,
+            "type": "MINER",
+            "miner": "THREE"
+        }
+    ],
+    "products": ["Desc_CrystalOscillator_C"]
+}

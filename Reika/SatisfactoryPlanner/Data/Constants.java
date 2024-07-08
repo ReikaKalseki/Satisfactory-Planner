@@ -22,6 +22,8 @@ public class Constants {
 	public static final int BASE_OIL_YIELD = 120;
 	public static final int BASE_FRACKING_YIELD = 60;
 
+	public static final int LIQUID_SCALAR = 1000; //all fluid amounts are multiplied by this internally relative to UI values
+
 	public static enum Purity {
 		IMPURE(0.5F),
 		NORMAL(1F),

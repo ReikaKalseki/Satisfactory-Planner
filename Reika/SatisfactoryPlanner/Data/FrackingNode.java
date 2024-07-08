@@ -25,4 +25,9 @@ public class FrackingNode extends BaseResourceNode<Fluid> {
 		return ResourceSupplyType.FRACKING;
 	}
 
+	@Override
+	public ResourceSupply<Fluid> duplicate() {
+		return new FrackingNode(resource, purityLevel);
+	}
+
 }

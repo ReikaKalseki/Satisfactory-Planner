@@ -275,12 +275,8 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 		GuiUtil.setMenuEvent(quitMenu, () -> this.close());
 		GuiUtil.setMenuEvent(saveMenu, () -> factory.save());
 		GuiUtil.setMenuEvent(saveAsMenu, () -> {
-			File f = this.openSaveAsDialog(factory.name, Main.getRelativeFile("Factories"));
+			File f = this.openSaveAsDialog(factory.name+".factory", Main.getRelativeFile("Factories"));
 			if (f != null) {
-				if (f.exists() && f.length() > 0) {
-					if (!GuiUtil.getConfirmation("Overwrite existing file?"))
-						return;
-				}
 				factory.save(f);
 			}
 		});

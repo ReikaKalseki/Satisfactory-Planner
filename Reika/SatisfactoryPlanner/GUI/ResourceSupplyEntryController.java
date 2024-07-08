@@ -3,6 +3,8 @@ package Reika.SatisfactoryPlanner.GUI;
 import java.io.IOException;
 
 import Reika.SatisfactoryPlanner.Data.Factory;
+import Reika.SatisfactoryPlanner.Data.LogisticSupply;
+import Reika.SatisfactoryPlanner.Data.OverclockableResource;
 import Reika.SatisfactoryPlanner.Data.ResourceSupply;
 
 import javafx.application.HostServices;
@@ -19,6 +21,9 @@ public abstract class ResourceSupplyEntryController<R extends ResourceSupply> ex
 
 	@FXML
 	private Button deleteButton;
+
+	@FXML
+	private Button duplicateButton;
 
 	@FXML
 	protected HBox topBar;
@@ -72,6 +77,14 @@ public abstract class ResourceSupplyEntryController<R extends ResourceSupply> ex
 		this.updateStats();
 		deleteButton.setOnAction(e -> {
 			f.removeExternalSupply(res);
+		});
+		duplicateButton.setOnAction(e -> {
+			ResourceSupply r = res.duplicate();
+			if (r instanceof OverclockableResource)
+				((OverclockableResource)r).setClockSpeed(((OverclockableResource)res).getClockSpeed());
+			if (r instanceof LogisticSupply)
+				((LogisticSupply)r).setAmount(((LogisticSupply)res).getYield());
+			f.addExternalSupply(r);
 		});
 		this.onSetSupply(f, res);
 	}

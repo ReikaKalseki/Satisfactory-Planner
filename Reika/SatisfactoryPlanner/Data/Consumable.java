@@ -2,6 +2,7 @@ package Reika.SatisfactoryPlanner.Data;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 
 import Reika.SatisfactoryPlanner.Util.Logging;
 import Reika.SatisfactoryPlanner.Util.MultiMap;
@@ -17,7 +18,19 @@ public abstract class Consumable extends Resource implements Comparable<Consumab
 	public final boolean isBiomass;
 	public final boolean isFicsmas;
 
+	private static final HashSet<String> findableIDs = new HashSet();
+
 	private static final MultiMap<String, Consumable> byCategory = new MultiMap();
+
+	static {
+		findableIDs.add("Desc_HardDrive_C");
+		findableIDs.add("Desc_CrystalShard_C");
+		findableIDs.add("Desc_Crystal_C");
+		findableIDs.add("Desc_Crystal_mk2_C");
+		findableIDs.add("Desc_Crystal_mk3_C");
+		findableIDs.add("Desc_WTF1_C");
+		findableIDs.add("Desc_WTF2_C");
+	}
 
 	protected Consumable(String id, String dn, String img, String desc, String cat, float nrg) {
 		super(id, dn, img);
@@ -32,7 +45,7 @@ public abstract class Consumable extends Resource implements Comparable<Consumab
 	}
 
 	public boolean isFindables() {
-		return id.equalsIgnoreCase("Desc_HardDrive_C") || id.startsWith("Desc_Crystal"); //TODO isFindables
+		return findableIDs.contains(id);
 	}
 
 	public int compareTo(Consumable c) {

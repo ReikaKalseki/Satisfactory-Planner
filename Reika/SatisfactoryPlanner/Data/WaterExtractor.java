@@ -50,4 +50,9 @@ public class WaterExtractor implements ExtractableResource<Fluid> {
 		return ResourceSupplyType.WATER;
 	}
 
+	@Override
+	public ResourceSupply<Fluid> duplicate() {
+		return new WaterExtractor();
+	}
+
 }

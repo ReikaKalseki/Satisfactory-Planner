@@ -10,6 +10,7 @@ import Reika.SatisfactoryPlanner.Data.OilNode;
 import Reika.SatisfactoryPlanner.Data.SolidResourceNode;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
 
+import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -66,7 +67,7 @@ public class ResourceMineEntryController extends ResourceSupplyEntryController<E
 		gui.rootNode.toBack();
 		topBar.toBack();
 		ClockspeedSliderController cs = (ClockspeedSliderController)gui.controller;
-		cs.setValue((int)(res.getClockSpeed()*100));
+		Platform.runLater(() -> cs.setValue((int)(res.getClockSpeed()*100)));
 		cs.setCallback(v -> {
 			supply.setClockSpeed(v/100F);
 			this.updateStats();

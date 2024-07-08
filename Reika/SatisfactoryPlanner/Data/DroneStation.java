@@ -31,4 +31,9 @@ public class DroneStation extends LogisticSupply<Item> {
 		return ResourceSupplyType.DRONE;
 	}
 
+	@Override
+	public ResourceSupply<Item> duplicate() {
+		return new DroneStation(resource);
+	}
+
 }

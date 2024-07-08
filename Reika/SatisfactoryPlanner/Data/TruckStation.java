@@ -31,4 +31,9 @@ public class TruckStation extends LogisticSupply<Item> {
 		return ResourceSupplyType.TRUCK;
 	}
 
+	@Override
+	public ResourceSupply<Item> duplicate() {
+		return new TruckStation(resource);
+	}
+
 }

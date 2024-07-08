@@ -44,4 +44,9 @@ public class TrainStation<R extends Consumable> extends LogisticSupply<R> {
 		return ResourceSupplyType.TRAIN;
 	}
 
+	@Override
+	public ResourceSupply<R> duplicate() {
+		return new TrainStation(resource, numberBuildings);
+	}
+
 }

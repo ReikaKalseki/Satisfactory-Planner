@@ -65,10 +65,10 @@ public class GeneratorRowController extends ControllerBase {
 				HBox wrapper = new HBox();
 				wrapper.setPadding(new Insets(2));
 				GuiInstance gui = this.loadNestedFXML("ItemView", wrapper);
-				((ItemViewController)gui.controller).setItem(f.item, generator.getBurnRate(f.item)*c);
+				((ItemViewController)gui.controller).setItem(f.item, f.primaryBurnRate*c);
 				if (f.secondaryItem != null) {
 					gui = this.loadNestedFXML("ItemView", wrapper);
-					((ItemViewController)gui.controller).setItem(f.secondaryItem, f.secondaryItemRatio*c);
+					((ItemViewController)gui.controller).setItem(f.secondaryItem, f.secondaryBurnRate*c);
 				}
 				fuelCostBar.getChildren().add(wrapper);
 				wrapper.setStyle("-fx-border-width: 2; -fx-border-color: #aaa; -fx-border-radius: 3;");

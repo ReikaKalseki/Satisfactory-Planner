@@ -40,4 +40,9 @@ public class InputBelt extends LogisticSupply<Item> {
 		return ResourceSupplyType.BELT;
 	}
 
+	@Override
+	public ResourceSupply<Item> duplicate() {
+		return new InputBelt(resource, tier);
+	}
+
 }
