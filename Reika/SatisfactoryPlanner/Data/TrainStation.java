@@ -1,10 +1,13 @@
 package Reika.SatisfactoryPlanner.Data;
 
+import java.util.function.Consumer;
+
 import org.json.JSONObject;
 
 import Reika.SatisfactoryPlanner.Data.Constants.BeltTier;
 import Reika.SatisfactoryPlanner.Data.Constants.PipeTier;
 import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
+import Reika.SatisfactoryPlanner.Data.Warning.WarningSeverity;
 
 public class TrainStation<R extends Consumable> extends LogisticSupply<R> {
 
@@ -47,6 +50,19 @@ public class TrainStation<R extends Consumable> extends LogisticSupply<R> {
 	@Override
 	public ResourceSupply<R> duplicate() {
 		return new TrainStation(resource, numberBuildings);
+	}
+
+	@Override
+	public void getWarnings(Consumer<Warning> c) {
+		super.getWarnings(c);
+		if (numberBuildings > 4) {
+			c.accept(new Warning(WarningSeverity.INFO, "Long trains may bottleneck intersections and often require multiple locomotives"));
+		}
+	}
+
+	@Override
+	public String getDisplayName() {
+		return "Train Station";
 	}
 
 }

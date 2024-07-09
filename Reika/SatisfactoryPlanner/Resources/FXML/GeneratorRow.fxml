@@ -40,7 +40,7 @@
             <Font name="System Bold" size="14.0" />
          </font>
       </Label>
-      <HBox fx:id="fuelCostBar" alignment="CENTER" minWidth="8.0" prefHeight="32.0" GridPane.columnIndex="5" />
-      <HBox fx:id="byproductBar" alignment="CENTER" layoutX="260.0" layoutY="10.0" minWidth="8.0" prefHeight="32.0" GridPane.columnIndex="6" />
+      <HBox fx:id="fuelBar" alignment="CENTER" minWidth="8.0" prefHeight="32.0" GridPane.columnIndex="5" />
+      <HBox fx:id="auxInputBar" alignment="CENTER" layoutX="260.0" layoutY="10.0" minWidth="8.0" prefHeight="32.0" GridPane.columnIndex="6" />
    </children>
 </GridPane>

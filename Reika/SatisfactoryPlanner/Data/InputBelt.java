@@ -45,4 +45,9 @@ public class InputBelt extends LogisticSupply<Item> {
 		return new InputBelt(resource, tier);
 	}
 
+	@Override
+	public String getDisplayName() {
+		return this.getIcon().displayName;
+	}
+
 }

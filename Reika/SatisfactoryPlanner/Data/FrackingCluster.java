@@ -1,6 +1,7 @@
 package Reika.SatisfactoryPlanner.Data;
 
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 import org.json.JSONObject;
 
@@ -81,6 +82,16 @@ public class FrackingCluster implements ExtractableResource<Fluid> {
 	@Override
 	public ResourceSupply<Fluid> duplicate() {
 		return new FrackingCluster(resource, pureCount, normalCount, impureCount);
+	}
+
+	@Override
+	public void getWarnings(Consumer<Warning> c) {
+
+	}
+
+	@Override
+	public String getDisplayName() {
+		return "Resource Well Cluster";
 	}
 
 }

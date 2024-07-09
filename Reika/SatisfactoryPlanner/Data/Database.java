@@ -410,9 +410,9 @@ public class Database {
 		Logging.instance.log("Parsing JSON elem "+id);
 		String disp = obj.getString("mDisplayName");
 		String pwr = obj.getString("mPowerProduction");
-		String sup = obj.getString("mSupplementalToPowerRatio");
+		String sup = obj.has("mSupplementalToPowerRatio") ? obj.getString("mSupplementalToPowerRatio") : null;
 		JSONArray fuels = obj.has("mFuel") ? obj.getJSONArray("mFuel") : null;
-		float suppl = Float.parseFloat(sup);
+		float suppl = Strings.isNullOrEmpty(sup) ? 0 : Float.parseFloat(sup);
 		Generator r = new Generator(id, disp, convertIDToIcon(id), Float.parseFloat(pwr), suppl);
 		if (fuels != null) {
 			String fuelForm = obj.getString("mFuelResourceForm");

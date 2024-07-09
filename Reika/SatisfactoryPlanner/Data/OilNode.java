@@ -2,6 +2,7 @@ package Reika.SatisfactoryPlanner.Data;
 
 import org.json.JSONObject;
 
+import Reika.SatisfactoryPlanner.Data.Constants.PipeTier;
 import Reika.SatisfactoryPlanner.Data.Constants.Purity;
 import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
 
@@ -35,6 +36,11 @@ public class OilNode extends BaseResourceNode<Fluid> {
 	@Override
 	public ResourceSupply<Fluid> duplicate() {
 		return new OilNode(purityLevel);
+	}
+
+	@Override
+	public int getMaximumThroughput() {
+		return PipeTier.TWO.maxThroughput;
 	}
 
 }

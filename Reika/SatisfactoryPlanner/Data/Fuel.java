@@ -28,7 +28,10 @@ public class Fuel {
 
 	/** Per minute */
 	public float computePrimaryRate() {
-		return item.energyValue > 0 ? generator.powerGenerationMW/item.energyValue*60 : 0;
+		float ret = item.energyValue > 0 ? generator.powerGenerationMW/item.energyValue*60 : 0;
+		if (item instanceof Fluid)
+			ret /= Constants.LIQUID_SCALAR;
+		return ret;
 	}
 
 	private float computeSecondaryRate() {

@@ -1,8 +1,10 @@
 package Reika.SatisfactoryPlanner.GUI;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.function.Consumer;
 
+import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Fuel;
 import Reika.SatisfactoryPlanner.Data.Generator;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.FontModifier;
@@ -22,7 +24,7 @@ public class GeneratorRowController extends ControllerBase {
 	private Spinner<Integer> counter;
 
 	@FXML
-	private HBox fuelCostBar;
+	private HBox fuelBar;
 
 	@FXML
 	private ImageView icon;
@@ -33,6 +35,8 @@ public class GeneratorRowController extends ControllerBase {
 	private Generator generator;
 
 	private Consumer<Integer> callback;
+
+	private final HashMap<Consumable, ItemInOutViewController> fuels = new HashMap();
 
 	@Override
 	public void init(HostServices services) throws IOException {
@@ -57,21 +61,30 @@ public class GeneratorRowController extends ControllerBase {
 	}
 
 	public void setCount(int c, boolean notify) {
-		fuelCostBar.getChildren().clear();
+		fuelBar.getChildren().clear();
 		counter.getValueFactory().setValue(c);
 		powerGenText.setText(String.format("%.3fMW", generator.powerGenerationMW*c));
 		for (Fuel f : generator.getFuels()) {
-			try {
+			try {/*
 				HBox wrapper = new HBox();
 				wrapper.setPadding(new Insets(2));
-				GuiInstance gui = this.loadNestedFXML("ItemView", wrapper);
 				((ItemViewController)gui.controller).setItem(f.item, f.primaryBurnRate*c);
 				if (f.secondaryItem != null) {
 					gui = this.loadNestedFXML("ItemView", wrapper);
 					((ItemViewController)gui.controller).setItem(f.secondaryItem, f.secondaryBurnRate*c);
 				}
 				fuelCostBar.getChildren().add(wrapper);
-				wrapper.setStyle("-fx-border-width: 2; -fx-border-color: #aaa; -fx-border-radius: 3;");
+				wrapper.setStyle("-fx-border-width: 2; -fx-border-color: #aaa; -fx-border-radius: 3;");*/
+
+				//if (f.byproduct != null) {
+				GuiInstance gui = this.loadNestedFXML("ItemInOutView", fuelBar);
+				((ItemInOutViewController)gui.controller).setFuel(f);
+				((ItemInOutViewController)gui.controller).setScale(c);
+				//}
+				/*else {
+					GuiInstance gui = this.loadNestedFXML("ItemView", fuelBar);
+					((ItemViewController)gui.controller).setItem(f.item, f.primaryBurnRate*c);*//*
+				}*/
 			}
 			catch (Exception e) {
 				GuiUtil.showException(e);
@@ -79,10 +92,10 @@ public class GeneratorRowController extends ControllerBase {
 			Label lb = new Label("OR");
 			lb.setPadding(new Insets(0, 8, 0, 8));
 			lb.setStyle(GuiSystem.getFontStyle(FontModifier.SEMIBOLD)+" -fx-font-size:16;");
-			fuelCostBar.getChildren().add(lb);
+			fuelBar.getChildren().add(lb);
 		}
-		if (fuelCostBar.getChildren().size() > 1) //remove last trailing OR
-			fuelCostBar.getChildren().removeLast();
+		if (fuelBar.getChildren().size() > 1) //remove last trailing OR
+			fuelBar.getChildren().removeLast();
 		if (notify && callback != null)
 			callback.accept(c);
 	}

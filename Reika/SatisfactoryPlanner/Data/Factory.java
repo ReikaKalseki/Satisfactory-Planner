@@ -6,7 +6,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
@@ -17,7 +19,13 @@ import com.google.common.base.Charsets;
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
 import Reika.SatisfactoryPlanner.Data.Constants.ToggleableVisiblityGroup;
+import Reika.SatisfactoryPlanner.Data.Warning.ExcessResourceWarning;
+import Reika.SatisfactoryPlanner.Data.Warning.InsufficientResourceWarning;
+import Reika.SatisfactoryPlanner.Data.Warning.ResourceIconName;
+import Reika.SatisfactoryPlanner.Data.Warning.WarningSeverity;
 import Reika.SatisfactoryPlanner.GUI.ControllerBase;
+import Reika.SatisfactoryPlanner.GUI.GuiSystem;
+import Reika.SatisfactoryPlanner.GUI.MainGuiController;
 import Reika.SatisfactoryPlanner.GUI.RecipeMatrix;
 import Reika.SatisfactoryPlanner.GUI.ScaledRecipeMatrix;
 import Reika.SatisfactoryPlanner.Util.CountMap;
@@ -132,12 +140,50 @@ public class Factory {
 		}
 	}
 
-	public List<Consumable> getProducts() {
+	public List<Consumable> getDesiredProducts() {
 		return Collections.unmodifiableList(desiredProducts);
 	}
 
 	public List<Recipe> getRecipes() {
 		return Collections.unmodifiableList(recipeList);
+	}
+
+	public HashSet<Consumable> getAllIngredients() {
+		HashSet<Consumable> ret = new HashSet();
+		for (Recipe r : this.getRecipes())
+			ret.addAll(r.getIngredientsPerMinute().keySet());
+		return ret;
+	}
+
+	public HashSet<Consumable> getAllProducedItems() {
+		HashSet<Consumable> ret = new HashSet();
+		for (Recipe r : this.getRecipes())
+			ret.addAll(r.getProductsPerMinute().keySet());
+		return ret;
+	}
+
+	public float getTotalConsumption(Consumable c) {
+		int amt = 0;
+		for (Recipe r : this.getRecipes()) {
+			Float get = r.getIngredientsPerMinute().get(c);
+			if (get != null)
+				amt += get.floatValue()*this.getCount(r);
+		}
+		return amt;
+	}
+
+	public float getTotalProduction(Consumable c) {
+		int amt = 0;
+		for (Recipe r : this.getRecipes()) {
+			Float get = r.getProductsPerMinute().get(c);
+			if (get != null)
+				amt += get.floatValue()*this.getCount(r);
+		}
+		return amt;
+	}
+
+	public float getNetProduction(Consumable c) {
+		return this.getTotalAvailable(c)-this.getTotalConsumption(c);
 	}
 
 	public int getCount(Recipe r) {
@@ -200,6 +246,40 @@ public class Factory {
 
 	public boolean getToggle(ToggleableVisiblityGroup tv) {
 		return toggles.contains(tv);
+	}
+
+	public float getTotalAvailable(Consumable c) {
+		return this.getTotalProduction(c)+this.getExternalSupply(c);
+	}
+
+	public boolean isExcess(Consumable c) {
+		return !this.isDesiredFinalProduct(c) && this.getTotalAvailable(c) > this.getTotalConsumption(c);
+	}
+
+	public void getWarnings(Consumer<Warning> call) {
+		for (Consumable c : this.getAllIngredients()) {
+			float has = this.getTotalAvailable(c);
+			float need = this.getTotalConsumption(c);
+			if (has < need) {
+				call.accept(new InsufficientResourceWarning(c, need, has));
+			}
+		}
+		for (Consumable c : this.getAllProducedItems()) {
+			if (desiredProducts.contains(c))
+				continue;
+			float has = this.getTotalAvailable(c);
+			float need = this.getTotalConsumption(c);
+			if (has > need) {
+				call.accept(new ExcessResourceWarning(c, need, has));
+			}
+		}
+		for (Consumable c : desiredProducts) {
+			if (this.getTotalProduction(c) <= 0)
+				call.accept(new Warning(WarningSeverity.SEVERE, "Not producing desired product: "+c.displayName, new ResourceIconName(c)));
+		}
+		for (ResourceSupply res : resourceSources.allValues(false)) {
+			res.getWarnings(call);
+		}
 	}
 
 	public void notifyListeners() {
@@ -339,6 +419,8 @@ public class Factory {
 		currentFile = f;
 		for (FactoryListener rr : changeCallback)
 			rr.onFileChange();
+		Main.addRecentFile(f);
+		((MainGuiController)GuiSystem.MainWindow.getGUI().controller).buildRecentList();
 	}
 
 	public static Factory loadFactory(File f, FactoryListener... l) throws Exception {

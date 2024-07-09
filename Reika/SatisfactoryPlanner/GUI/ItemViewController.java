@@ -1,9 +1,6 @@
 package Reika.SatisfactoryPlanner.GUI;
 
 import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.Locale;
 import java.util.function.Consumer;
 
 import Reika.SatisfactoryPlanner.Data.Consumable;
@@ -39,7 +36,11 @@ public class ItemViewController extends ControllerBase {
 	@FXML
 	private ImageView icon;
 
+	private Consumable item;
+
 	private float baseAmount;
+
+	private String minimumWidth = "";
 
 	@Override
 	public void init(HostServices services) throws IOException {
@@ -55,6 +56,10 @@ public class ItemViewController extends ControllerBase {
 		GuiUtil.sizeToContent(minLabel);
 	}
 
+	public Consumable getItem() {
+		return item;
+	}
+
 	public void setItem(Consumable c, float amt) {
 		baseAmount = amt;
 		icon.setImage(c.createIcon());
@@ -68,11 +73,13 @@ public class ItemViewController extends ControllerBase {
 	}
 
 	private void setAmountText(float amt) {
-		DecimalFormat df = new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
-		df.setMaximumFractionDigits(4);
-		amount.setText(df.format(amt));
+		String txt = GuiUtil.formatProductionDecimal(amt);
+		amount.setText(txt);
 
-		GuiUtil.sizeToContent(amount);
+		if (GuiUtil.getWidth(txt, amount.getFont()) > GuiUtil.getWidth(minimumWidth, amount.getFont()))
+			minimumWidth = txt;
+		//GuiUtil.sizeToContent(amount);
+		amount.setMinWidth(GuiUtil.getWidth(minimumWidth, amount.getFont()));
 	}
 
 	public void setState(WarningState st) {

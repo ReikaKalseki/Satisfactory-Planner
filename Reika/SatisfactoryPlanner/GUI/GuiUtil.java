@@ -2,6 +2,9 @@ package Reika.SatisfactoryPlanner.GUI;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -34,6 +37,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Screen;
@@ -99,12 +103,12 @@ public class GuiUtil {
 		VBox.setVgrow(add, Priority.ALWAYS);
 	}
 
-	public static void addIconCount(Pane p, Resource r, int amt) {
+	public static void addIconCount(Pane p, Resource r, float amt) {
 		HBox n = new HBox();
 		n.setSpacing(4);
 		n.setAlignment(Pos.CENTER);
 		n.getChildren().add(r.createImageView());
-		n.getChildren().add(new Label("x"+amt));
+		n.getChildren().add(new Label("x"+GuiUtil.formatProductionDecimal(amt)));
 		p.getChildren().add(n);
 	}
 
@@ -117,10 +121,14 @@ public class GuiUtil {
 		p.add(n, col, row);
 	}
 
-	public static double getWidth(Labeled node) {
-		Text text = new Text(node.getText());
-		text.setFont(node.getFont());
+	public static double getWidth(String s, Font f) {
+		Text text = new Text(s);
+		text.setFont(f);
 		return text.getLayoutBounds().getWidth();
+	}
+
+	public static double getWidth(Labeled node) {
+		return getWidth(node.getText(), node.getFont());
 	}
 
 	public static void sizeToContent(Labeled node) {
@@ -252,6 +260,12 @@ public class GuiUtil {
 		public void run() throws Exception;
 		//public String getErrorBrief(Exception t);
 
+	}
+
+	public static String formatProductionDecimal(float amt) {
+		DecimalFormat df = new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+		df.setMaximumFractionDigits(4);
+		return df.format(amt);
 	}
 
 }

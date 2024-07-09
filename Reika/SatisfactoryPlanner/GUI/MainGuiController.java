@@ -3,6 +3,7 @@ package Reika.SatisfactoryPlanner.GUI;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -21,6 +22,7 @@ import Reika.SatisfactoryPlanner.Data.Item;
 import Reika.SatisfactoryPlanner.Data.LogisticSupply;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.Data.ResourceSupply;
+import Reika.SatisfactoryPlanner.Data.Warning;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.FontModifier;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
 import Reika.SatisfactoryPlanner.GUI.GuiUtil.SearchableSelector;
@@ -83,6 +85,9 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 
 	@FXML
 	private HBox buildingBar;
+
+	@FXML
+	private HBox netProductBar;
 
 	@FXML
 	private MenuItem clearMenu;
@@ -201,15 +206,13 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 	@FXML
 	private TextField factoryName;
 
-	private Factory factory = new Factory();
+	private Factory factory;
 
 	private final EnumMap<ToggleableVisiblityGroup, CheckBox> toggleFilters = new EnumMap(ToggleableVisiblityGroup.class);
 	private final HashMap<Generator, GeneratorRowController> generators = new HashMap();
 
 	@Override
 	public void init(HostServices services) throws IOException {
-		factory.addCallback(this);
-
 		GuiUtil.setupAddSelector(recipeDropdown, new SearchableSelector<Recipe>(){
 			@Override
 			public void accept(Recipe t) {
@@ -273,6 +276,7 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 		});
 
 		GuiUtil.setMenuEvent(quitMenu, () -> this.close());
+		GuiUtil.setMenuEvent(newMenu, () -> this.setFactory(new Factory()));
 		GuiUtil.setMenuEvent(saveMenu, () -> factory.save());
 		GuiUtil.setMenuEvent(saveAsMenu, () -> {
 			File f = this.openSaveAsDialog(factory.name+".factory", Main.getRelativeFile("Factories"));
@@ -288,6 +292,8 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 				Factory.loadFactory(f, this);
 			}
 		});
+
+		this.setFactory(new Factory(), false);
 	}
 
 	@Override
@@ -302,7 +308,14 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 	}
 
 	public void setFactory(Factory f) {
+		this.setFactory(f, true);
+	}
+
+	private void setFactory(Factory f, boolean update) {
 		factory = f;
+		factory.addCallback(this);
+		if (update)
+			this.updateUI();
 	}
 
 	@Override
@@ -317,7 +330,19 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 			generators.put(g, con);
 		}
 
+		this.buildRecentList();
+
 		this.updateUI();
+	}
+
+	public void buildRecentList() {
+		recentMenu.getItems().clear();
+		for (File f : Main.getRecentFiles()) {
+			String n = f.getName();
+			MenuItem mi = new MenuItem(n.substring(0, n.lastIndexOf('.')));
+			GuiUtil.setMenuEvent(mi, () -> Factory.loadFactory(f, this));
+			recentMenu.getItems().add(mi);
+		}
 	}
 
 	public boolean isItemValid(Consumable r) {
@@ -369,14 +394,16 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 			this.setFont(netGridContainer, GuiSystem.getDefaultFont());
 
 			productGrid.getChildren().removeIf(n -> n instanceof ProductButton);
-			for (Consumable c : factory.getProducts())
+			for (Consumable c : factory.getDesiredProducts())
 				productGrid.getChildren().add(new ProductButton(c));
 
 			for (Entry<Generator, GeneratorRowController> e : generators.entrySet()) {
 				e.getValue().setCount(factory.getCount(e.getKey()), false);
 			}
 
+			Platform.runLater(() -> this.updateWarnings());
 			this.updateStats();
+
 			if (this.getRootNode() != null)
 				this.getRootNode().layout();
 			Platform.runLater(() -> { //ugly hack but necessary to resize the tabpane, and later since it needs a layout pass to finish
@@ -396,12 +423,19 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 	}
 
 	private void updateWarnings() {
-		boolean any = false;
+		ArrayList<Warning> li = new ArrayList();
+		factory.getWarnings(w -> li.add(w));
+		boolean any = !li.isEmpty();
+		Collections.sort(li);
+		warningList.getChildren().clear();
+		for (Warning w : li) {
+			warningList.getChildren().add(w.createUI());
+		}
 		warningPanel.setDisable(!any);
-		if (!any)
-			warningPanel.setExpanded(false);
+		warningPanel.setExpanded(any);
 		warningPanel.setCollapsible(any);
 		warningPanel.setVisible(any);
+		warningPanel.layout();
 	}
 
 	@Override
@@ -429,12 +463,13 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 
 		costBar.getChildren().clear();
 		buildingBar.getChildren().clear();
+		netProductBar.getChildren().clear();
 
 		CountMap<Item> cost = new CountMap();
-		CountMap<FunctionalBuilding> c = factory.getBuildings();
-		for (FunctionalBuilding b : c.keySet()) {
+		CountMap<FunctionalBuilding> bc = factory.getBuildings();
+		for (FunctionalBuilding b : bc.keySet()) {
 
-			int amt = c.get(b);
+			int amt = bc.get(b);
 			GuiUtil.addIconCount(buildingBar, b, amt);
 
 			for (Entry<Item, Integer> e : b.getConstructionCost().entrySet()) {
@@ -455,6 +490,12 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 		}
 		else {
 			powerProduction.setStyle("");
+		}
+
+		for (Consumable c : factory.getAllProducedItems()) {
+			float amt = factory.getNetProduction(c);
+			if (amt > 0)
+				GuiUtil.addIconCount(netProductBar, c, amt);
 		}
 	}
 

@@ -2,6 +2,7 @@ package Reika.SatisfactoryPlanner.Data;
 
 import org.json.JSONObject;
 
+import Reika.SatisfactoryPlanner.Data.Constants.BeltTier;
 import Reika.SatisfactoryPlanner.Data.Constants.MinerTier;
 import Reika.SatisfactoryPlanner.Data.Constants.Purity;
 import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
@@ -45,6 +46,11 @@ public class SolidResourceNode extends BaseResourceNode<Item> {
 	@Override
 	public ResourceSupply<Item> duplicate() {
 		return new SolidResourceNode(resource, purityLevel, minerLevel);
+	}
+
+	@Override
+	public int getMaximumThroughput() {
+		return BeltTier.FIVE.maxThroughput;
 	}
 
 }

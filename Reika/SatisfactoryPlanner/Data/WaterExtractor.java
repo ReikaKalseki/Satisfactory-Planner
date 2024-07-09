@@ -1,5 +1,7 @@
 package Reika.SatisfactoryPlanner.Data;
 
+import java.util.function.Consumer;
+
 import org.json.JSONObject;
 
 import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
@@ -53,6 +55,16 @@ public class WaterExtractor implements ExtractableResource<Fluid> {
 	@Override
 	public ResourceSupply<Fluid> duplicate() {
 		return new WaterExtractor();
+	}
+
+	@Override
+	public String getDisplayName() {
+		return this.getBuilding().displayName;
+	}
+
+	@Override
+	public void getWarnings(Consumer<Warning> c) {
+
 	}
 
 }

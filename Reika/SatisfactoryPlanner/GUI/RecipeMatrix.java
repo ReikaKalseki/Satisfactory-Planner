@@ -15,12 +15,10 @@ import javafx.scene.layout.Region;
 
 public class RecipeMatrix extends RecipeMatrixBase {
 
-	public final Factory owner;
-
 	protected int deleteColumn;
 
 	public RecipeMatrix(Factory f) {
-		owner = f;
+		super(f);
 	}
 
 	@Override

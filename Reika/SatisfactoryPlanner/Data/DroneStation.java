@@ -36,4 +36,9 @@ public class DroneStation extends LogisticSupply<Item> {
 		return new DroneStation(resource);
 	}
 
+	@Override
+	public String getDisplayName() {
+		return "Drone Port";
+	}
+
 }

@@ -37,13 +37,14 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase implements FactoryListe
 	private boolean buildingGrid;
 
 	public ScaledRecipeMatrix(RecipeMatrix r) {
+		super(r.owner);
 		parent = r;
 		parent.owner.addCallback(this);
 	}
 
 	@Override
 	protected int getMultiplier(Recipe r) {
-		return buildingGrid ? 1 : parent.owner.getCount(r);
+		return buildingGrid ? 1 : owner.getCount(r);
 	}
 
 	@Override
@@ -109,7 +110,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase implements FactoryListe
 			Consumable c = inputs.get(i);
 			int idx = ingredientsStartColumn+inputs.indexOf(c)*2;
 			GuiInstance gui = con.loadNestedFXML("ItemView", gp, idx, sumsRow);
-			((ItemViewController)gui.controller).setItem(c, this.getTotalConsumption(c));
+			((ItemViewController)gui.controller).setItem(c, owner.getTotalConsumption(c));
 			sumEntriesIn.put(gui, c);
 			if (i < inputs.size()-1)
 				this.createDivider(gp, idx+1, sumsRow, 2);
@@ -118,7 +119,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase implements FactoryListe
 			Consumable c = outputs.get(i);
 			int idx = productsStartColumn+outputs.indexOf(c)*2;
 			GuiInstance gui = con.loadNestedFXML("ItemView", gp, idx, sumsRow);
-			((ItemViewController)gui.controller).setItem(c, this.getTotalProduction(c));
+			((ItemViewController)gui.controller).setItem(c, owner.getTotalProduction(c));
 			sumEntriesOut.put(gui, c);
 			if (i < outputs.size()-1)
 				this.createDivider(gp, idx+1, sumsRow, 2);
@@ -175,17 +176,16 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase implements FactoryListe
 			}
 			for (Entry<GuiInstance, Consumable> gui : sumEntriesIn.entrySet()) {
 				Consumable c = gui.getValue();
-				float total = this.getTotalConsumption(c);
+				float total = owner.getTotalConsumption(c);
 				ItemViewController cc = (ItemViewController)gui.getKey().controller;
 				cc.setItem(c, total);
-				cc.setState(total > this.getTotalProduction(c)+parent.owner.getExternalSupply(c) ? WarningState.INSUFFICIENT : WarningState.NONE);
+				cc.setState(total > owner.getTotalAvailable(c) ? WarningState.INSUFFICIENT : WarningState.NONE);
 			}
 			for (Entry<GuiInstance, Consumable> gui : sumEntriesOut.entrySet()) {
 				Consumable c = gui.getValue();
-				float total = this.getTotalProduction(c);
 				ItemViewController cc = (ItemViewController)gui.getKey().controller;
-				cc.setItem(c, total);
-				cc.setState(!parent.owner.isDesiredFinalProduct(c) && total > this.getTotalConsumption(c) ? WarningState.LEFTOVER : WarningState.NONE);
+				cc.setItem(c, owner.getTotalProduction(c));
+				cc.setState(owner.isExcess(c) ? WarningState.LEFTOVER : WarningState.NONE);
 			}
 		}
 	}

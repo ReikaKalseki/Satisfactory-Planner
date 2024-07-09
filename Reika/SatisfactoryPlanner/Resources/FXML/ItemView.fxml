@@ -13,7 +13,7 @@
       <ImageView fx:id="icon" cache="true" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" />
       <VBox fx:id="countContainer" alignment="CENTER" HBox.hgrow="ALWAYS">
          <children>
-            <Label fx:id="amount" text="32" textAlignment="CENTER">
+            <Label fx:id="amount" alignment="CENTER" text="32" textAlignment="CENTER">
                <font>
                   <Font size="14.0" />
                </font>
@@ -22,7 +22,7 @@
                </VBox.margin>
             </Label>
             <Line fx:id="divider" endX="20.0" stroke="#00000080" strokeLineCap="ROUND" strokeWidth="1.5" />
-            <Label fx:id="minLabel" layoutX="10.0" layoutY="10.0" text="min" textAlignment="CENTER">
+            <Label fx:id="minLabel" alignment="CENTER" layoutX="10.0" layoutY="10.0" text="min" textAlignment="CENTER">
                <font>
                   <Font size="14.0" />
                </font>

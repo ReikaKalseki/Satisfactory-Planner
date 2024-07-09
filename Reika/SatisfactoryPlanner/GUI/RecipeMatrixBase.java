@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import Reika.SatisfactoryPlanner.Data.Consumable;
+import Reika.SatisfactoryPlanner.Data.Factory;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
 import Reika.SatisfactoryPlanner.Util.MultiMap;
@@ -51,45 +52,13 @@ public abstract class RecipeMatrixBase {
 
 	protected final MultiMap<Recipe, GuiInstance> recipeEntries = new MultiMap();
 
-	protected RecipeMatrixBase() {
+	public final Factory owner;
 
+	protected RecipeMatrixBase(Factory f) {
+		owner = f;
 	}
 
 	public abstract List<Recipe> getRecipes();
-
-	public final HashSet<Consumable> getAllIngredients() {
-		HashSet<Consumable> ret = new HashSet();
-		for (Recipe r : this.getRecipes())
-			ret.addAll(r.getIngredientsPerMinute().keySet());
-		return ret;
-	}
-
-	public final HashSet<Consumable> getAllProducts() {
-		HashSet<Consumable> ret = new HashSet();
-		for (Recipe r : this.getRecipes())
-			ret.addAll(r.getProductsPerMinute().keySet());
-		return ret;
-	}
-
-	public final float getTotalConsumption(Consumable c) {
-		int amt = 0;
-		for (Recipe r : this.getRecipes()) {
-			Float get = r.getIngredientsPerMinute().get(c);
-			if (get != null)
-				amt += get.floatValue()*this.getMultiplier(r);
-		}
-		return amt;
-	}
-
-	public final float getTotalProduction(Consumable c) {
-		int amt = 0;
-		for (Recipe r : this.getRecipes()) {
-			Float get = r.getProductsPerMinute().get(c);
-			if (get != null)
-				amt += get.floatValue()*this.getMultiplier(r);
-		}
-		return amt;
-	}
 
 	protected int getMultiplier(Recipe r) {
 		return 1;
@@ -98,8 +67,8 @@ public abstract class RecipeMatrixBase {
 	public abstract GridPane createGrid(ControllerBase con) throws IOException;
 
 	protected final void computeIO() {
-		inputs = new ArrayList(this.getAllIngredients());
-		outputs = new ArrayList(this.getAllProducts());
+		inputs = new ArrayList(owner.getAllIngredients());
+		outputs = new ArrayList(owner.getAllProducedItems());
 		Collections.sort(inputs);
 		Collections.sort(outputs);
 	}

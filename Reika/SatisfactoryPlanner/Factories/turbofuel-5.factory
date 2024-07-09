@@ -45,43 +45,53 @@
             "id": "Recipe_Alternate_TurboBlendFuel_C"
         }
     ],
+    "toggles": [
+        "EQUIPMENT",
+        "BIOMASS",
+        "FICSMAS",
+        "ALTERNATE",
+        "POST10",
+        "FINDABLE",
+        "PACKAGING",
+        "UNPACKAGING"
+    ],
     "name": "turbofuel-5",
     "generators": [],
     "resources": [
-        {
-            "clock": 1,
-            "type": "WATER"
-        },
-        {
-            "clock": 1,
-            "type": "WATER"
-        },
-        {
-            "clock": 1,
-            "type": "WATER"
-        },
-        {
-            "item": "Desc_LiquidOil_C",
-            "purity": "PURE",
-            "clock": 2.5,
-            "type": "OIL"
-        },
-        {
-            "item": "Desc_LiquidOil_C",
-            "purity": "PURE",
-            "clock": 2.5,
-            "type": "OIL"
-        },
-        {
-            "clock": 1,
-            "type": "WATER"
-        },
         {
             "item": "Desc_Sulfur_C",
             "purity": "PURE",
             "clock": 1.5,
             "type": "MINER",
             "miner": "THREE"
+        },
+        {
+            "item": "Desc_LiquidOil_C",
+            "purity": "PURE",
+            "clock": 2.5,
+            "type": "OIL"
+        },
+        {
+            "clock": 1,
+            "type": "WATER"
+        },
+        {
+            "clock": 1,
+            "type": "WATER"
+        },
+        {
+            "clock": 1,
+            "type": "WATER"
+        },
+        {
+            "clock": 1,
+            "type": "WATER"
+        },
+        {
+            "item": "Desc_LiquidOil_C",
+            "purity": "PURE",
+            "clock": 2.5,
+            "type": "OIL"
         },
         {
             "clock": 1,
@@ -92,5 +102,8 @@
             "type": "WATER"
         }
     ],
-    "products": ["Desc_TurboFuel_C"]
+    "products": [
+        "Desc_TurboFuel_C",
+        "Desc_LiquidTurboFuel_C"
+    ]
 }

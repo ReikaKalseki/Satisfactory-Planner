@@ -129,6 +129,7 @@
                                         <RowConstraints minHeight="32.0" vgrow="SOMETIMES" />
                                         <RowConstraints minHeight="32.0" vgrow="SOMETIMES" />
                                         <RowConstraints minHeight="32.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="32.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                       </rowConstraints>
                                        <children>
                                           <Label layoutX="20.0" layoutY="37.0" text="Required Buildings" />
@@ -137,6 +138,8 @@
                                           <Label fx:id="powerProduction" layoutX="20.0" layoutY="100.0" text="0 MW" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                           <HBox fx:id="costBar" spacing="16.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                           <HBox fx:id="buildingBar" layoutX="199.0" layoutY="56.0" spacing="16.0" GridPane.columnIndex="1" />
+                                          <Label layoutX="20.0" layoutY="100.0" text="Net Production" GridPane.rowIndex="3" />
+                                          <HBox fx:id="netProductBar" layoutX="140.0" layoutY="20.0" spacing="16.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                                        </children>
                                     </GridPane>
                                  </content>
@@ -146,7 +149,7 @@
                               </TitledPane>
                               <TitledPane fx:id="warningPanel" text="Warnings">
                                  <content>
-                                    <VBox fx:id="warningList">
+                                    <VBox fx:id="warningList" spacing="8.0">
                                        <padding>
                                           <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
                                        </padding>

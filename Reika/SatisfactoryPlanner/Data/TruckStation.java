@@ -36,4 +36,9 @@ public class TruckStation extends LogisticSupply<Item> {
 		return new TruckStation(resource);
 	}
 
+	@Override
+	public String getDisplayName() {
+		return "Truck Route";
+	}
+
 }

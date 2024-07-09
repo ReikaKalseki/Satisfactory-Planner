@@ -1,5 +1,6 @@
 package Reika.SatisfactoryPlanner.Data;
 
+import Reika.SatisfactoryPlanner.Data.Constants.PipeTier;
 import Reika.SatisfactoryPlanner.Data.Constants.Purity;
 import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
 
@@ -28,6 +29,11 @@ public class FrackingNode extends BaseResourceNode<Fluid> {
 	@Override
 	public ResourceSupply<Fluid> duplicate() {
 		return new FrackingNode(resource, purityLevel);
+	}
+
+	@Override
+	public int getMaximumThroughput() {
+		return PipeTier.TWO.maxThroughput;
 	}
 
 }

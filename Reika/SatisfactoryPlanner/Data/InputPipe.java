@@ -45,4 +45,9 @@ public class InputPipe extends LogisticSupply<Fluid> {
 		return new InputPipe(resource, tier);
 	}
 
+	@Override
+	public String getDisplayName() {
+		return this.getIcon().displayName;
+	}
+
 }

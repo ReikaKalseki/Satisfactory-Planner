@@ -1,6 +1,10 @@
 package Reika.SatisfactoryPlanner.Data;
 
+import java.util.function.Consumer;
+
 import org.json.JSONObject;
+
+import Reika.SatisfactoryPlanner.Data.Warning.ThroughputWarning;
 
 public abstract class LogisticSupply<R extends Consumable> implements ResourceSupply<R> {
 
@@ -35,6 +39,14 @@ public abstract class LogisticSupply<R extends Consumable> implements ResourceSu
 	public void save(JSONObject block) {
 		block.put("item", resource.id);
 		block.put("amount", chosenThroughput);
+	}
+
+	@Override
+	public void getWarnings(Consumer<Warning> c) {
+		int max = this.getMaximumIO();
+		if (chosenThroughput > max) {
+			c.accept(new ThroughputWarning(this.getDescriptiveName(), chosenThroughput, max));
+		}
 	}
 
 }
