@@ -104,26 +104,10 @@ public class Warning implements Comparable<Warning> {
 
 	}
 
-	public static class ItemDeadlockWarning extends Warning {
-
-		public ItemDeadlockWarning(RecipeProductLoop p) {
-			super(WarningSeverity.MINOR, p.item.displayName+" exists in a production loop between "+p.recipe1.displayName+" and "+p.recipe2.displayName+", but is also supplied externally. This risks a deadlock if consumption of that item drops or supply exceeds expectations. Consider a smart splitter and AWESOME sink to handle excess.", new ResourceIconName(p.item));
-		}
-
-	}
-
-	public static class FluidDeadlockWarning extends Warning {
-
-		public FluidDeadlockWarning(RecipeProductLoop p) {
-			super(WarningSeverity.SEVERE, p.item.displayName+" exists in a production loop between "+p.recipe1.displayName+" and "+p.recipe2.displayName+", but is also supplied externally. This risks a deadlock if consumption of that fluid drops or supply exceeds expectations. Consider either splitting these into two isolated fluid networks, or adding another recipe to consume excess "+p.item.displayName, new ResourceIconName(p.item));
-		}
-
-	}
-
 	public static class MultipleBeltsWarning extends Warning {
 
 		public MultipleBeltsWarning(Consumable c, float amt, RateLimitedSupplyLine lim) {
-			super(WarningSeverity.INFO, String.format("Flow (%s) of %s exceeds the capacity (%d) of a single %s, multiple parallel lines (%d) will be needed, and/or production of %s must be segmented", GuiUtil.formatProductionDecimal(amt), c.displayName, lim.getMaxThroughput(), lim.getDesc(), (int)Math.ceil(amt/lim.getMaxThroughput()), c.displayName), THROUGHPUT_BOTTLENECK);
+			super(WarningSeverity.INFO, String.format("Flow (%s) of %s exceeds the capacity (%d) of a single %s. Multiple (%d) parallel lines will be needed, and/or production of %s must be segmented", GuiUtil.formatProductionDecimal(amt), c.displayName, lim.getMaxThroughput(), lim.getDesc().toLowerCase(Locale.ENGLISH), (int)Math.ceil(amt/lim.getMaxThroughput()), c.displayName), THROUGHPUT_BOTTLENECK);
 		}
 
 	}

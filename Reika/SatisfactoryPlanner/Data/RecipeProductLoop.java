@@ -1,6 +1,7 @@
 package Reika.SatisfactoryPlanner.Data;
 
 import Reika.SatisfactoryPlanner.Data.Warning.ResourceIconName;
+import Reika.SatisfactoryPlanner.Data.Warning.WarningSeverity;
 
 public class RecipeProductLoop {
 
@@ -22,12 +23,8 @@ public class RecipeProductLoop {
 	}
 
 	public Warning getDeadlockWarning() {
-		if (item1 instanceof Fluid || item2 instanceof Fluid) {
-			String msg = "A production loop exists between "+recipe1.displayName+" and "+recipe2.displayName+", but is also supplied externally. This risks a deadlock if consumption of that fluid drops or supply exceeds expectations. Consider either splitting these into two isolated fluid networks, or adding another recipe to consume excess "+p.item.displayName, new ResourceIconName(p.item);
-		}
-		else {
-
-		}
+		String msg = "A production loop exists between "+recipe1.displayName+" and "+recipe2.displayName+", but at least one of their products is also supplied externally. This risks a deadlock if consumption of that resource drops or supply exceeds expectations.";
+		return new Warning(item1 instanceof Fluid || item2 instanceof Fluid ? WarningSeverity.SEVERE : WarningSeverity.MINOR, msg, new ResourceIconName(item1));
 	}
 
 }

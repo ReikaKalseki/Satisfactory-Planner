@@ -23,9 +23,7 @@ import Reika.SatisfactoryPlanner.Data.Constants.RateLimitedSupplyLine;
 import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
 import Reika.SatisfactoryPlanner.Data.Constants.ToggleableVisiblityGroup;
 import Reika.SatisfactoryPlanner.Data.Warning.ExcessResourceWarning;
-import Reika.SatisfactoryPlanner.Data.Warning.FluidDeadlockWarning;
 import Reika.SatisfactoryPlanner.Data.Warning.InsufficientResourceWarning;
-import Reika.SatisfactoryPlanner.Data.Warning.ItemDeadlockWarning;
 import Reika.SatisfactoryPlanner.Data.Warning.MultipleBeltsWarning;
 import Reika.SatisfactoryPlanner.Data.Warning.ResourceIconName;
 import Reika.SatisfactoryPlanner.Data.Warning.WarningSeverity;
@@ -292,8 +290,11 @@ public class Factory {
 				call.accept(new MultipleBeltsWarning(c, has, lim));
 		}
 		for (RecipeProductLoop p : recipeLoops) {
-			if (this.getExternalSupply(p.item1) > 0 || this.getExternalSupply(p.item2) > 0)
-				call.accept(p.item instanceof Fluid ? new FluidDeadlockWarning(p) : new ItemDeadlockWarning(p));
+			String msg = "A production loop exists between "+p.recipe1.displayName+" and "+p.recipe2.displayName;
+			if (this.getExternalSupply(p.item1) > 0)
+				call.accept(new Warning(p.item1 instanceof Fluid ? WarningSeverity.SEVERE : WarningSeverity.MINOR, msg+", with "+p.item1.displayName+" also being supplied externally. This risks a deadlock", new ResourceIconName(p.item1)));
+			if (this.getExternalSupply(p.item2) > 0)
+				call.accept(new Warning(p.item2 instanceof Fluid ? WarningSeverity.SEVERE : WarningSeverity.MINOR, msg+", with "+p.item2.displayName+" also being supplied externally. This risks a deadlock", new ResourceIconName(p.item2)));
 		}
 		for (Consumable c : desiredProducts) {
 			if (this.getTotalProduction(c) <= 0)
