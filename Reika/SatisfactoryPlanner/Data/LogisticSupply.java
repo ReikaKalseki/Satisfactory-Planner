@@ -4,7 +4,10 @@ import java.util.function.Consumer;
 
 import org.json.JSONObject;
 
-import Reika.SatisfactoryPlanner.Data.Warning.ThroughputWarning;
+import Reika.SatisfactoryPlanner.Data.Constants.BeltTier;
+import Reika.SatisfactoryPlanner.Data.Constants.PipeTier;
+import Reika.SatisfactoryPlanner.Data.Constants.RateLimitedSupplyLine;
+import Reika.SatisfactoryPlanner.Data.Warning.PortThroughputWarning;
 
 public abstract class LogisticSupply<R extends Consumable> implements ResourceSupply<R> {
 
@@ -25,10 +28,14 @@ public abstract class LogisticSupply<R extends Consumable> implements ResourceSu
 		return chosenThroughput;
 	}
 
-	public abstract int getMaximumIO();
+	public abstract int getPortCount();
+
+	public final RateLimitedSupplyLine getMaximumPortFlow() {
+		return resource instanceof Fluid ? PipeTier.TWO : BeltTier.FIVE;
+	}
 
 	public final boolean isBottlenecked() {
-		return chosenThroughput > this.getMaximumIO();
+		return chosenThroughput > this.getPortCount()*this.getMaximumPortFlow().getMaxThroughput();
 	}
 
 	public final R getResource() {
@@ -43,9 +50,8 @@ public abstract class LogisticSupply<R extends Consumable> implements ResourceSu
 
 	@Override
 	public void getWarnings(Consumer<Warning> c) {
-		int max = this.getMaximumIO();
-		if (chosenThroughput > max) {
-			c.accept(new ThroughputWarning(this.getDescriptiveName(), chosenThroughput, max));
+		if (this.isBottlenecked()) {
+			c.accept(new PortThroughputWarning(this.getDescriptiveName(), chosenThroughput, this.getMaximumPortFlow(), this.getPortCount()));
 		}
 	}
 

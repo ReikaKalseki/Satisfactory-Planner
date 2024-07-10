@@ -2,7 +2,6 @@ package Reika.SatisfactoryPlanner.Data;
 
 import org.json.JSONObject;
 
-import Reika.SatisfactoryPlanner.Data.Constants.BeltTier;
 import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
 
 public class DroneStation extends LogisticSupply<Item> {
@@ -17,8 +16,8 @@ public class DroneStation extends LogisticSupply<Item> {
 	}
 
 	@Override
-	public int getMaximumIO() {
-		return Constants.DRONE_STOP_PORTS*BeltTier.FIVE.maxThroughput;
+	public int getPortCount() {
+		return Constants.DRONE_STOP_PORTS;
 	}
 
 	@Override

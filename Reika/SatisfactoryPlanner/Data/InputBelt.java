@@ -20,8 +20,8 @@ public class InputBelt extends LogisticSupply<Item> {
 	}
 
 	@Override
-	public int getMaximumIO() {
-		return tier.maxThroughput;
+	public int getPortCount() {
+		return 1;
 	}
 
 	@Override

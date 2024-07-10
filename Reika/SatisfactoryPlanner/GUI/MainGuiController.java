@@ -84,6 +84,9 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 	private SearchableComboBox<Consumable> addProductButton;
 
 	@FXML
+	private HBox localSupplyTotals;
+
+	@FXML
 	private HBox buildingBar;
 
 	@FXML
@@ -464,6 +467,7 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 		costBar.getChildren().clear();
 		buildingBar.getChildren().clear();
 		netProductBar.getChildren().clear();
+		localSupplyTotals.getChildren().clear();
 
 		CountMap<Item> cost = new CountMap();
 		CountMap<FunctionalBuilding> bc = factory.getBuildings();
@@ -496,6 +500,13 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 			float amt = factory.getNetProduction(c);
 			if (amt > 0)
 				GuiUtil.addIconCount(netProductBar, c, amt);
+		}
+		CountMap<Consumable> totalSupply = new CountMap();
+		for (ResourceSupply res : factory.getSupplies()) {
+			totalSupply.increment(res.getResource(), res.getYield());
+		}
+		for (Consumable c : totalSupply.keySet()) {
+			GuiUtil.addIconCount(localSupplyTotals, c, totalSupply.get(c));
 		}
 	}
 

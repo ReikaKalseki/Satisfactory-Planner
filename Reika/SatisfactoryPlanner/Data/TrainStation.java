@@ -4,8 +4,6 @@ import java.util.function.Consumer;
 
 import org.json.JSONObject;
 
-import Reika.SatisfactoryPlanner.Data.Constants.BeltTier;
-import Reika.SatisfactoryPlanner.Data.Constants.PipeTier;
 import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
 import Reika.SatisfactoryPlanner.Data.Warning.WarningSeverity;
 
@@ -27,8 +25,8 @@ public class TrainStation<R extends Consumable> extends LogisticSupply<R> {
 	}
 
 	@Override
-	public int getMaximumIO() {
-		return numberBuildings*Constants.TRUCK_STOP_PORTS*(isFluid ? PipeTier.TWO.maxThroughput : BeltTier.FIVE.maxThroughput);
+	public int getPortCount() {
+		return numberBuildings*Constants.TRAIN_STATION_PORTS;
 	}
 
 	@Override

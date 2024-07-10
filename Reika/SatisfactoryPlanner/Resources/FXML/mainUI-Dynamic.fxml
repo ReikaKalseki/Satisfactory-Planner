@@ -194,6 +194,19 @@
                                              </graphic>
                                           </Button>
                                           <TilePane fx:id="inputGrid" />
+                                          <GridPane hgap="4.0">
+                                             <columnConstraints>
+                                                <ColumnConstraints fillWidth="false" hgrow="SOMETIMES" />
+                                                <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" />
+                                             </columnConstraints>
+                                             <rowConstraints>
+                                                <RowConstraints minHeight="-Infinity" prefHeight="32.0" vgrow="SOMETIMES" />
+                                             </rowConstraints>
+                                             <children>
+                                                <HBox fx:id="localSupplyTotals" prefHeight="32.0" spacing="8.0" GridPane.columnIndex="1" />
+                                                <Label text="Total Input" />
+                                             </children>
+                                          </GridPane>
                                        </children>
                                     </VBox>
                                  </content>

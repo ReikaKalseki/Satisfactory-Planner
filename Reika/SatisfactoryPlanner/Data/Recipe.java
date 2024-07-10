@@ -70,6 +70,24 @@ public class Recipe implements Comparable<Recipe> {
 		return productionBuilding == Database.lookupBuilding("Build_Packager_C") && id.startsWith("Recipe_Unpackage");
 	}
 
+	public RecipeProductLoop loopsWith(Recipe r) {
+		Consumable c1 = null;
+		Consumable c2 = null;
+		for (Consumable c : costsPerMinute.keySet()) {
+			if (r.productPerMinute.containsKey(c)) {
+				c1 = c;
+				break;
+			}
+		}
+		for (Consumable c : r.costsPerMinute.keySet()) {
+			if (productPerMinute.containsKey(c)) {
+				c2 = c;
+				break;
+			}
+		}
+		return c1 != null && c2 != null ? new RecipeProductLoop(c1, c2, r, this) : null;
+	}
+
 	public Consumable getSoleProduct() {
 		return productPerMinute.size() == 1 ? productPerMinute.firstKey() : null;
 	}

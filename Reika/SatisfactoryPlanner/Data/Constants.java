@@ -57,7 +57,14 @@ public class Constants {
 
 	}
 
-	public static enum BeltTier implements BuildingTier {
+	public static interface RateLimitedSupplyLine {
+
+		public String getDesc();
+		public int getMaxThroughput();
+
+	}
+
+	public static enum BeltTier implements BuildingTier, RateLimitedSupplyLine {
 		ONE(60),
 		TWO(120),
 		THREE(270),
@@ -74,9 +81,19 @@ public class Constants {
 			return Database.lookupBuilding("Build_ConveyorBeltMk"+(this.ordinal()+1)+"_C");
 
 		}
+
+		@Override
+		public int getMaxThroughput() {
+			return maxThroughput;
+		}
+
+		@Override
+		public String getDesc() {
+			return "Belt";
+		}
 	}
 
-	public static enum PipeTier implements BuildingTier {
+	public static enum PipeTier implements BuildingTier, RateLimitedSupplyLine {
 		ONE(300, "Build_Pipeline_C"),
 		TWO(600, "Build_PipelineMK2_C");
 
@@ -90,7 +107,16 @@ public class Constants {
 
 		public Building getBuilding() {
 			return Database.lookupBuilding(buildingID);
+		}
 
+		@Override
+		public int getMaxThroughput() {
+			return maxThroughput;
+		}
+
+		@Override
+		public String getDesc() {
+			return "Pipe";
 		}
 	}
 

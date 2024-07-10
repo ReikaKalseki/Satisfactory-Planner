@@ -1,0 +1,162 @@
+{
+    "recipes": [
+        {
+            "count": 1,
+            "id": "Recipe_Alternate_PolyesterFabric_C"
+        },
+        {
+            "count": 0,
+            "id": "Recipe_Alternate_HeavyOilResidue_C"
+        },
+        {
+            "count": 27,
+            "id": "Recipe_Alternate_PolymerResin_C"
+        },
+        {
+            "count": 9,
+            "id": "Recipe_ResidualFuel_C"
+        },
+        {
+            "count": 36,
+            "id": "Recipe_ResidualPlastic_C"
+        },
+        {
+            "count": 33,
+            "id": "Recipe_ResidualRubber_C"
+        }
+    ],
+    "toggles": [
+        "EQUIPMENT",
+        "BIOMASS",
+        "FICSMAS",
+        "ALTERNATE",
+        "POST10",
+        "FINDABLE",
+        "PACKAGING",
+        "UNPACKAGING"
+    ],
+    "name": "oil",
+    "generators": [],
+    "resources": [
+        {
+            "clock": 1,
+            "type": "WATER"
+        },
+        {
+            "clock": 1,
+            "type": "WATER"
+        },
+        {
+            "clock": 1,
+            "type": "WATER"
+        },
+        {
+            "clock": 1,
+            "type": "WATER"
+        },
+        {
+            "clock": 1,
+            "type": "WATER"
+        },
+        {
+            "item": "Desc_LiquidOil_C",
+            "purity": "IMPURE",
+            "clock": 1,
+            "type": "OIL"
+        },
+        {
+            "clock": 1,
+            "type": "WATER"
+        },
+        {
+            "clock": 1,
+            "type": "WATER"
+        },
+        {
+            "clock": 1,
+            "type": "WATER"
+        },
+        {
+            "item": "Desc_LiquidOil_C",
+            "purity": "PURE",
+            "clock": 2.5,
+            "type": "OIL"
+        },
+        {
+            "clock": 1,
+            "type": "WATER"
+        },
+        {
+            "item": "Desc_LiquidOil_C",
+            "purity": "PURE",
+            "clock": 2.5,
+            "type": "OIL"
+        },
+        {
+            "clock": 1,
+            "type": "WATER"
+        },
+        {
+            "clock": 1,
+            "type": "WATER"
+        },
+        {
+            "clock": 1,
+            "type": "WATER"
+        },
+        {
+            "clock": 1,
+            "type": "WATER"
+        },
+        {
+            "clock": 1,
+            "type": "WATER"
+        },
+        {
+            "clock": 1,
+            "type": "WATER"
+        },
+        {
+            "clock": 1,
+            "type": "WATER"
+        },
+        {
+            "item": "Desc_LiquidOil_C",
+            "purity": "IMPURE",
+            "clock": 1,
+            "type": "OIL"
+        },
+        {
+            "item": "Desc_LiquidOil_C",
+            "purity": "NORMAL",
+            "clock": 1,
+            "type": "OIL"
+        },
+        {
+            "clock": 1,
+            "type": "WATER"
+        },
+        {
+            "clock": 1,
+            "type": "WATER"
+        },
+        {
+            "item": "Desc_LiquidOil_C",
+            "purity": "NORMAL",
+            "clock": 1,
+            "type": "OIL"
+        },
+        {
+            "item": "Desc_LiquidOil_C",
+            "purity": "IMPURE",
+            "clock": 1,
+            "type": "OIL"
+        }
+    ],
+    "products": [
+        "Desc_Rubber_C",
+        "Desc_Plastic_C",
+        "Desc_LiquidFuel_C",
+        "Desc_Fabric_C"
+    ]
+}

@@ -17,10 +17,16 @@ import org.json.JSONObject;
 import com.google.common.base.Charsets;
 
 import Reika.SatisfactoryPlanner.Main;
+import Reika.SatisfactoryPlanner.Data.Constants.BeltTier;
+import Reika.SatisfactoryPlanner.Data.Constants.PipeTier;
+import Reika.SatisfactoryPlanner.Data.Constants.RateLimitedSupplyLine;
 import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
 import Reika.SatisfactoryPlanner.Data.Constants.ToggleableVisiblityGroup;
 import Reika.SatisfactoryPlanner.Data.Warning.ExcessResourceWarning;
+import Reika.SatisfactoryPlanner.Data.Warning.FluidDeadlockWarning;
 import Reika.SatisfactoryPlanner.Data.Warning.InsufficientResourceWarning;
+import Reika.SatisfactoryPlanner.Data.Warning.ItemDeadlockWarning;
+import Reika.SatisfactoryPlanner.Data.Warning.MultipleBeltsWarning;
 import Reika.SatisfactoryPlanner.Data.Warning.ResourceIconName;
 import Reika.SatisfactoryPlanner.Data.Warning.WarningSeverity;
 import Reika.SatisfactoryPlanner.GUI.ControllerBase;
@@ -40,6 +46,7 @@ public class Factory {
 
 	private final CountMap<Recipe> recipes = new CountMap();
 	private final ArrayList<Recipe> recipeList = new ArrayList();
+	private final ArrayList<RecipeProductLoop> recipeLoops = new ArrayList();
 
 	private final CountMap<Generator> generators = new CountMap();
 
@@ -75,6 +82,11 @@ public class Factory {
 	public void addRecipe(Recipe r) {
 		if (r == null || recipeList.contains(r))
 			return;
+		for (Recipe r2 : recipeList) {
+			RecipeProductLoop c = r.loopsWith(r2);
+			if (c != null)
+				recipeLoops.add(c);
+		}
 		recipeList.add(r);
 		this.setCount(r, 0);
 		Collections.sort(recipeList);
@@ -82,6 +94,7 @@ public class Factory {
 	}
 
 	public void removeRecipe(Recipe r) {
+		recipeLoops.removeIf(p -> p.recipe1.equals(r) || p.recipe2.equals(r));
 		if (recipeList.remove(r)) {
 			recipes.remove(r);
 			this.notifyListeners();
@@ -163,7 +176,7 @@ public class Factory {
 	}
 
 	public float getTotalConsumption(Consumable c) {
-		int amt = 0;
+		float amt = 0;
 		for (Recipe r : this.getRecipes()) {
 			Float get = r.getIngredientsPerMinute().get(c);
 			if (get != null)
@@ -173,7 +186,7 @@ public class Factory {
 	}
 
 	public float getTotalProduction(Consumable c) {
-		int amt = 0;
+		float amt = 0;
 		for (Recipe r : this.getRecipes()) {
 			Float get = r.getProductsPerMinute().get(c);
 			if (get != null)
@@ -267,11 +280,20 @@ public class Factory {
 		for (Consumable c : this.getAllProducedItems()) {
 			if (desiredProducts.contains(c))
 				continue;
-			float has = this.getTotalAvailable(c);
+			float prod = this.getTotalProduction(c);
+			float sup = this.getExternalSupply(c);
+			float has = prod+sup;
 			float need = this.getTotalConsumption(c);
 			if (has > need) {
 				call.accept(new ExcessResourceWarning(c, need, has));
 			}
+			RateLimitedSupplyLine lim = c instanceof Fluid ? PipeTier.TWO : BeltTier.FIVE;
+			if (has > lim.getMaxThroughput())
+				call.accept(new MultipleBeltsWarning(c, has, lim));
+		}
+		for (RecipeProductLoop p : recipeLoops) {
+			if (this.getExternalSupply(p.item1) > 0 || this.getExternalSupply(p.item2) > 0)
+				call.accept(p.item instanceof Fluid ? new FluidDeadlockWarning(p) : new ItemDeadlockWarning(p));
 		}
 		for (Consumable c : desiredProducts) {
 			if (this.getTotalProduction(c) <= 0)
@@ -293,6 +315,7 @@ public class Factory {
 		boolean wasBulk = bulkChanging;
 		bulkChanging = true;
 		recipeList.clear();
+		recipeLoops.clear();
 		recipes.clear();
 		generators.clear();
 		resourceSources.clear();
@@ -385,8 +408,12 @@ public class Factory {
 		for (Object o : recipes) {
 			JSONObject block = (JSONObject)o;
 			Recipe r = Database.lookupRecipe(block.getString("id"));
+			/*
 			recipeList.add(r);
 			this.recipes.set(r, block.getInt("count"));
+			 */
+			this.addRecipe(r);
+			this.setCount(r, block.getInt("count"));
 		}
 		for (Object o : generators) {
 			JSONObject block = (JSONObject)o;

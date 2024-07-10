@@ -20,8 +20,8 @@ public class InputPipe extends LogisticSupply<Fluid> {
 	}
 
 	@Override
-	public int getMaximumIO() {
-		return tier.maxThroughput;
+	public int getPortCount() {
+		return 1;
 	}
 
 	@Override

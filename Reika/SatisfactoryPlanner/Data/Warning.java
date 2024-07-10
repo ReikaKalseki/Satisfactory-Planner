@@ -1,10 +1,13 @@
 package Reika.SatisfactoryPlanner.Data;
 
+import java.util.Locale;
 import java.util.function.Supplier;
 
 import Reika.SatisfactoryPlanner.Main;
+import Reika.SatisfactoryPlanner.Data.Constants.RateLimitedSupplyLine;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.FontModifier;
+import Reika.SatisfactoryPlanner.GUI.GuiUtil;
 import Reika.SatisfactoryPlanner.GUI.UIConstants;
 import Reika.SatisfactoryPlanner.Util.ColorUtil;
 
@@ -88,7 +91,7 @@ public class Warning implements Comparable<Warning> {
 	public static class InsufficientResourceWarning extends Warning {
 
 		public InsufficientResourceWarning(Consumable c, float need, float have) {
-			super(WarningSeverity.SEVERE, String.format("Consumption (%.3f) exceeds production/supply (%.3f) of %s", need, have, c.displayName), new ResourceIconName(c));
+			super(WarningSeverity.SEVERE, String.format("Consumption (%s) exceeds production/supply (%s) of %s", GuiUtil.formatProductionDecimal(need), GuiUtil.formatProductionDecimal(have), c.displayName), new ResourceIconName(c));
 		}
 
 	}
@@ -96,15 +99,39 @@ public class Warning implements Comparable<Warning> {
 	public static class ExcessResourceWarning extends Warning {
 
 		public ExcessResourceWarning(Consumable c, float need, float have) {
-			super(WarningSeverity.MINOR, String.format("Production (%.3f) exceeds requirements (%.3f) of %s", have, need, c.displayName), new ResourceIconName(c));
+			super(WarningSeverity.MINOR, String.format("Production (%s) exceeds requirements (%s) of %s", GuiUtil.formatProductionDecimal(have), GuiUtil.formatProductionDecimal(need), c.displayName), new ResourceIconName(c));
 		}
 
 	}
 
-	public static class ThroughputWarning extends Warning {
+	public static class ItemDeadlockWarning extends Warning {
 
-		public ThroughputWarning(String desc, int amt, int max) {
-			super(WarningSeverity.SEVERE, desc+": Flow rate ("+amt+") exceeds maximum throughput ("+max+")", THROUGHPUT_BOTTLENECK);
+		public ItemDeadlockWarning(RecipeProductLoop p) {
+			super(WarningSeverity.MINOR, p.item.displayName+" exists in a production loop between "+p.recipe1.displayName+" and "+p.recipe2.displayName+", but is also supplied externally. This risks a deadlock if consumption of that item drops or supply exceeds expectations. Consider a smart splitter and AWESOME sink to handle excess.", new ResourceIconName(p.item));
+		}
+
+	}
+
+	public static class FluidDeadlockWarning extends Warning {
+
+		public FluidDeadlockWarning(RecipeProductLoop p) {
+			super(WarningSeverity.SEVERE, p.item.displayName+" exists in a production loop between "+p.recipe1.displayName+" and "+p.recipe2.displayName+", but is also supplied externally. This risks a deadlock if consumption of that fluid drops or supply exceeds expectations. Consider either splitting these into two isolated fluid networks, or adding another recipe to consume excess "+p.item.displayName, new ResourceIconName(p.item));
+		}
+
+	}
+
+	public static class MultipleBeltsWarning extends Warning {
+
+		public MultipleBeltsWarning(Consumable c, float amt, RateLimitedSupplyLine lim) {
+			super(WarningSeverity.INFO, String.format("Flow (%s) of %s exceeds the capacity (%d) of a single %s, multiple parallel lines (%d) will be needed, and/or production of %s must be segmented", GuiUtil.formatProductionDecimal(amt), c.displayName, lim.getMaxThroughput(), lim.getDesc(), (int)Math.ceil(amt/lim.getMaxThroughput()), c.displayName), THROUGHPUT_BOTTLENECK);
+		}
+
+	}
+
+	public static class PortThroughputWarning extends Warning {
+
+		public PortThroughputWarning(String desc, int amt, RateLimitedSupplyLine max, int count) {
+			super(WarningSeverity.SEVERE, desc+": Flow rate ("+amt+") exceeds maximum throughput ("+max.getMaxThroughput()*count+") of possible "+max.getDesc().toLowerCase(Locale.ENGLISH)+"s ("+count+")", THROUGHPUT_BOTTLENECK);
 		}
 
 	}

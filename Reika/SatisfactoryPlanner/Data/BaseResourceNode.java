@@ -4,8 +4,10 @@ import java.util.function.Consumer;
 
 import org.json.JSONObject;
 
+import Reika.SatisfactoryPlanner.Data.Constants.BeltTier;
+import Reika.SatisfactoryPlanner.Data.Constants.PipeTier;
 import Reika.SatisfactoryPlanner.Data.Constants.Purity;
-import Reika.SatisfactoryPlanner.Data.Warning.ThroughputWarning;
+import Reika.SatisfactoryPlanner.Data.Warning.PortThroughputWarning;
 
 public abstract class BaseResourceNode<R extends Consumable> implements ExtractableResource<R> {
 
@@ -56,7 +58,7 @@ public abstract class BaseResourceNode<R extends Consumable> implements Extracta
 		int yield = this.getYield();
 		int max = this.getMaximumThroughput();
 		if (yield > max) {
-			c.accept(new ThroughputWarning(this.getDescriptiveName(), yield, max));
+			c.accept(new PortThroughputWarning(this.getDescriptiveName(), yield, resource instanceof Fluid ? PipeTier.TWO : BeltTier.FIVE, 1));
 		}
 	}
 
