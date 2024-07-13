@@ -19,6 +19,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
 
+import Reika.SatisfactoryPlanner.GUI.Setting;
 import Reika.SatisfactoryPlanner.Util.Logging;
 
 import javafx.scene.paint.Color;
@@ -45,6 +46,8 @@ public class Database {
 	private static final HashMap<String, Milestone> allMilestones = new HashMap();
 
 	private static final HashMap<String, ClassType> lookup = new HashMap();
+
+	private static boolean gameJSONFound;
 
 	static {
 		for (ClassType t : ClassType.values()) {
@@ -219,25 +222,39 @@ public class Database {
 	}
 
 	public static void parseGameJSON() throws IOException {
-		File f = new File("P:/SteamOverflow/steamapps/common/Satisfactory/CommunityResources/Docs/Docs.json");
-		String UTF8_BOM = "\uFEFF";
-		String file = FileUtils.readFileToString(f, Charsets.UTF_16LE);
-		JSONTokener tok = new JSONTokener(file);
-		tok.nextValue(); //empty leading string
-		Object value = tok.nextValue();
-		JSONArray all = (JSONArray)value;
-		for (Object o : all) {
-			JSONObject obj = (JSONObject)o;
-			String nat = obj.getString("NativeClass");
-			ClassType ct = lookup.get(nat);
-			if (ct != null) {
-				for (Object o2 : obj.getJSONArray("Classes")) {
-					JSONObject entry = (JSONObject)o2;
-					entry.put("NativeClass", nat.substring(nat.lastIndexOf('.')+1, nat.lastIndexOf('\'')));
-					ct.pendingParses.add(entry);
+		File f = getGameJSON();
+		if (f.exists() && f.isFile()) {
+			String UTF8_BOM = "\uFEFF";
+			String file = FileUtils.readFileToString(f, Charsets.UTF_16LE);
+			JSONTokener tok = new JSONTokener(file);
+			tok.nextValue(); //empty leading string
+			Object value = tok.nextValue();
+			JSONArray all = (JSONArray)value;
+			for (Object o : all) {
+				JSONObject obj = (JSONObject)o;
+				String nat = obj.getString("NativeClass");
+				ClassType ct = lookup.get(nat);
+				if (ct != null) {
+					for (Object o2 : obj.getJSONArray("Classes")) {
+						JSONObject entry = (JSONObject)o2;
+						entry.put("NativeClass", nat.substring(nat.lastIndexOf('.')+1, nat.lastIndexOf('\'')));
+						ct.pendingParses.add(entry);
+					}
 				}
 			}
+			gameJSONFound = true;
 		}
+		else {
+			gameJSONFound = false;
+		}
+	}
+
+	public static boolean wasGameJSONFound() {
+		return gameJSONFound;
+	}
+
+	private static File getGameJSON() {
+		return new File(Setting.GAMEDIR.getCurrentValue(), "CommunityResources/Docs/Docs.json");
 	}
 
 	private static void parseItemsJSON(JSONObject obj, boolean resource) {
@@ -498,7 +515,7 @@ public class Database {
 		ITEM("/Script/CoreUObject.Class'/Script/FactoryGame.FGItemDescriptor'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGItemDescriptorBiomass'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGItemDescriptorNuclearFuel'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGEquipmentDescriptor'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGConsumableDescriptor'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGAmmoTypeInstantHit'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGAmmoTypeProjectile'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGAmmoTypeSpreadshot'"),
 		RESOURCE("/Script/CoreUObject.Class'/Script/FactoryGame.FGResourceDescriptor'"),
 		RECIPE("/Script/CoreUObject.Class'/Script/FactoryGame.FGRecipe'"),
-		GENERATOR("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableGeneratorFuel'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableGeneratorNuclear'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableGeneratorGeoThermal'"),
+		GENERATOR("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableGeneratorFuel'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableGeneratorNuclear'"/*, "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableGeneratorGeoThermal'"*/),
 		CRAFTER("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableManufacturer'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableManufacturerVariablePower'"),
 		MINER("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableResourceExtractor'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableWaterPump'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableFrackingActivator'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableFrackingExtractor'"),
 		STATION("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableDockingStation'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableTrainPlatformCargo'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableDroneStation'"),
@@ -562,6 +579,22 @@ public class Database {
 					break;
 			}
 		}
+	}
+
+	public static void clear() {
+		allBuildings.clear();
+		allBuildingsSorted.clear();
+		allGeneratorsSorted.clear();
+		allItems.clear();
+		allItemsSorted.clear();
+		allAutoRecipesSorted.clear();
+		allBuildingRecipesSorted.clear();
+		allRecipes.clear();
+		allVehicles.clear();
+		allVehiclesSorted.clear();
+		mineableItems.clear();
+		frackableFluids.clear();
+		allMilestones.clear();
 	}
 
 }

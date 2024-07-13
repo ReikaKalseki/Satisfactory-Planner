@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import Reika.SatisfactoryPlanner.Main;
+import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Util.BitflagMap;
 import Reika.SatisfactoryPlanner.Util.JavaUtil;
 
@@ -12,6 +13,8 @@ import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
@@ -47,8 +50,13 @@ public class GuiSystem extends Application {
 		if (in != null)
 			icon = new Image(in);
 
-		//this.setFont(root, MainWindow.getGUI().getFont(10));
+
 		Main.isJFXActive = true;
+		if (!Database.wasGameJSONFound()) {
+			GuiUtil.raiseDialog(AlertType.WARNING, "Game Data Not Found", "The game data JSON was not found. This probably means the specified game install directory is incorrect. Correct this in the settings to get automatic inclusion of vanilla content.", ButtonType.OK);
+		}
+
+		//this.setFont(root, MainWindow.getGUI().getFont(10));
 		new MainWindow().show();
 	}
 	/*
@@ -114,6 +122,22 @@ public class GuiSystem extends Application {
 
 	}
 
+	public static class PreWindow extends WindowBase {
+
+		protected PreWindow(String title, String fxmlName) throws IOException {
+			super(title, fxmlName);
+
+			window.initModality(Modality.APPLICATION_MODAL);
+		}
+
+		@Override
+		public void show() throws IOException {
+			window.toFront();
+			super.show();
+		}
+
+	}
+
 	public static class MainWindow extends WindowBase {
 
 		private static MainWindow gui;
@@ -133,6 +157,24 @@ public class GuiSystem extends Application {
 
 		public static MainWindow getGUI() {
 			return gui;
+		}
+
+	}
+
+	public static class SettingsWindow extends WindowBase {
+
+		public SettingsWindow() throws IOException {
+			super("Application Settings", "Settings");
+		}
+
+		@Override
+		protected void onCloseButtonClicked() {
+			try {
+				Setting.applyChanges();
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 
 	}

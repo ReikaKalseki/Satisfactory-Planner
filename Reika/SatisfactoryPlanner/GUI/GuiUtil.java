@@ -11,6 +11,8 @@ import java.util.function.Consumer;
 import org.controlsfx.control.SearchableComboBox;
 
 import Reika.SatisfactoryPlanner.Data.Resource;
+import Reika.SatisfactoryPlanner.GUI.GuiSystem.MainWindow;
+import Reika.SatisfactoryPlanner.Util.Errorable;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -148,9 +150,33 @@ public class GuiUtil {
 		if (allowEdit) {
 			TextField txt = spinner.getEditor();
 			txt.textProperty().addListener((val, old, nnew) -> {
-				nnew = nnew.replaceAll("[^\\d.]", "");
+				nnew = nnew.replaceAll("[^\\d]", "");
 				if (!nnew.isEmpty() && Integer.parseInt(nnew) > max)
 					nnew = String.valueOf(max);
+				//if (nnew.length() > maxChars)
+				//	txt.setText(nnew.substring(0, maxChars));
+				txt.setText(nnew);
+			});
+		}
+		spinner.getValueFactory().setValue(init);
+	}
+
+	public static void setupCounter(Spinner<Double> spinner, double min, double max, double init, boolean allowEdit) {
+		spinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(min, max, init));
+		spinner.setEditable(allowEdit);
+
+		int maxChars = 1+(int)Math.log10(max);
+		int w = 56+8*maxChars+4;
+		spinner.setPrefWidth(w);
+		spinner.setMinWidth(Region.USE_PREF_SIZE);
+		spinner.setMaxWidth(Region.USE_PREF_SIZE);
+
+		if (allowEdit) {
+			TextField txt = spinner.getEditor();
+			txt.textProperty().addListener((val, old, nnew) -> {
+				nnew = nnew.replaceAll("[^\\d\\.]", "");
+				if (!nnew.isEmpty() && Double.parseDouble(nnew) > max)
+					nnew = String.format("%.3f", max);
 				//if (nnew.length() > maxChars)
 				//	txt.setText(nnew.substring(0, maxChars));
 				txt.setText(nnew);
@@ -198,7 +224,9 @@ public class GuiUtil {
 	public static ButtonType raiseDialog(AlertType type, String title, String text, Consumer<Alert> modifier, ButtonType... buttons) {
 		Alert a = new Alert(type, text, buttons);
 		a.setTitle(title);
-		a.initOwner(GuiSystem.MainWindow.getGUI().window);
+		MainWindow main = GuiSystem.MainWindow.getGUI();
+		if (main != null)
+			a.initOwner(main.window);
 		a.initModality(Modality.APPLICATION_MODAL);
 		if (modifier != null)
 			modifier.accept(a);
@@ -251,14 +279,6 @@ public class GuiUtil {
 		public DecoratedListCell<E> createListCell(String text, boolean button);
 		public String getEntryTypeName();
 		public String getActionName();
-
-	}
-
-	@FunctionalInterface
-	public static interface Errorable {
-
-		public void run() throws Exception;
-		//public String getErrorBrief(Exception t);
 
 	}
 

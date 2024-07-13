@@ -14,7 +14,7 @@ public class Vehicle extends HandBuildable implements Comparable<Vehicle> {
 
 	@Override
 	protected String getIconFolder() {
-		return "Vehicles";
+		return "Buildings";//"Vehicles";
 	}
 
 	@Override

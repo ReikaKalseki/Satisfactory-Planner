@@ -10,11 +10,17 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.json.JSONObject;
 
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem;
+import Reika.SatisfactoryPlanner.GUI.GuiSystem.MainWindow;
+import Reika.SatisfactoryPlanner.GUI.MainGuiController;
+import Reika.SatisfactoryPlanner.GUI.Setting;
+import Reika.SatisfactoryPlanner.GUI.Setting.SettingRef;
 import Reika.SatisfactoryPlanner.Util.FixedList;
+import Reika.SatisfactoryPlanner.Util.JSONUtil;
 import Reika.SatisfactoryPlanner.Util.Logging;
 
 import javafx.application.Application;
@@ -27,6 +33,7 @@ public class Main {
 	private static final boolean isCompiled = Main.class.getResource("Main.class").toString().startsWith("jar:");
 	public static final File executionLocation = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().getPath());
 
+	private static final File settingsFile = getRelativeFile("settings.dat");
 	private static final File recentFilesFile = getRelativeFile("recent.dat");
 
 	private static final FixedList<File> recentFiles = new FixedList(10);
@@ -40,12 +47,32 @@ public class Main {
 				recentFiles.add(new File(s));
 			}
 		}
+
+		JSONObject settings = JSONUtil.readFile(settingsFile);
+		for (SettingRef s : Setting.getSettings()) {
+			if (settings.has(s.name))
+				s.setting.parse(settings.getString(s.name));
+		}
+
 		Platform.setImplicitExit(false);
+
+		parseGameData();
+
+		Application.launch(GuiSystem.class, args);
+		for (SettingRef s : Setting.getSettings()) {
+			settings.put(s.name, s.setting.getString());
+		}
+		JSONUtil.saveFile(settingsFile, settings);
+		Platform.exit();
+	}
+
+	public static void parseGameData() throws IOException {
 		/*
 		Database.loadItems();
 		Database.loadBuildings();
 		Database.loadRecipes();
 		 */
+		Database.clear();
 		Database.parseGameJSON();
 		Database.ClassType.RESOURCE.parsePending();
 		Database.ClassType.ITEM.parsePending();
@@ -62,8 +89,10 @@ public class Main {
 		Database.sort();
 		for (Consumable c : Database.getAllItems())
 			c.createIcon(); //cache default icon size
-		Application.launch(GuiSystem.class, args);
-		Platform.exit();
+		MainWindow main = GuiSystem.MainWindow.getGUI();
+		if (main != null) {
+			((MainGuiController)main.controller).rebuildLists();
+		}
 	}
 
 	public static void addRecentFile(File f) {

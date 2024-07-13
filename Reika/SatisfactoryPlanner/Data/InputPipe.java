@@ -3,6 +3,7 @@ package Reika.SatisfactoryPlanner.Data;
 import org.json.JSONObject;
 
 import Reika.SatisfactoryPlanner.Data.Constants.PipeTier;
+import Reika.SatisfactoryPlanner.Data.Constants.RateLimitedSupplyLine;
 import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
 
 public class InputPipe extends LogisticSupply<Fluid> {
@@ -22,6 +23,11 @@ public class InputPipe extends LogisticSupply<Fluid> {
 	@Override
 	public int getPortCount() {
 		return 1;
+	}
+
+	@Override
+	public RateLimitedSupplyLine getMaximumPortFlow() {
+		return tier;
 	}
 
 	@Override

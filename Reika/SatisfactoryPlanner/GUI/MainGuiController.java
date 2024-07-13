@@ -25,6 +25,7 @@ import Reika.SatisfactoryPlanner.Data.ResourceSupply;
 import Reika.SatisfactoryPlanner.Data.Warning;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.FontModifier;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
+import Reika.SatisfactoryPlanner.GUI.GuiSystem.SettingsWindow;
 import Reika.SatisfactoryPlanner.GUI.GuiUtil.SearchableSelector;
 import Reika.SatisfactoryPlanner.Util.ColorUtil;
 import Reika.SatisfactoryPlanner.Util.CountMap;
@@ -48,7 +49,6 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.TilePane;
@@ -84,13 +84,13 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 	private SearchableComboBox<Consumable> addProductButton;
 
 	@FXML
-	private HBox localSupplyTotals;
+	private TilePane localSupplyTotals;
 
 	@FXML
-	private HBox buildingBar;
+	private TilePane buildingBar;
 
 	@FXML
-	private HBox netProductBar;
+	private TilePane netProductBar;
 
 	@FXML
 	private MenuItem clearMenu;
@@ -102,7 +102,10 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 	private Menu controlMenu;
 
 	@FXML
-	private HBox costBar;
+	private TilePane buildCostBar;
+
+	@FXML
+	private TilePane netConsumptionBar;
 
 	@FXML
 	private Tab craftingTab;
@@ -278,6 +281,7 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 			factory.name = nnew;
 		});
 
+		GuiUtil.setMenuEvent(settingsMenu, () -> this.openChildWindow(new SettingsWindow()));
 		GuiUtil.setMenuEvent(quitMenu, () -> this.close());
 		GuiUtil.setMenuEvent(newMenu, () -> this.setFactory(new Factory()));
 		GuiUtil.setMenuEvent(saveMenu, () -> factory.save());
@@ -338,6 +342,20 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 		this.updateUI();
 	}
 
+	public void rebuildLists() {
+		addProductButton.getSelectionModel().clearSelection();
+		ArrayList<Consumable> li = new ArrayList(Database.getAllItems());
+		li.removeIf(c -> !this.isItemValid(c));
+		addProductButton.setItems(FXCollections.observableArrayList(li));
+
+		recipeDropdown.getSelectionModel().clearSelection();
+		ArrayList<Recipe> li2 = new ArrayList(Database.getAllAutoRecipes());
+		li2.removeIf(r -> !this.isRecipeValid(r) || factory.getRecipes().contains(r));
+
+		recipeDropdown.setItems(FXCollections.observableList(li2));
+		recipeDropdown.setDisable(li2.isEmpty());
+	}
+
 	public void buildRecentList() {
 		recentMenu.getItems().clear();
 		for (File f : Main.getRecentFiles()) {
@@ -371,17 +389,7 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 				toggleFilters.get(tv).setSelected(factory.getToggle(tv));
 			}
 
-			addProductButton.getSelectionModel().clearSelection();
-			ArrayList<Consumable> li = new ArrayList(Database.getAllItems());
-			li.removeIf(c -> !this.isItemValid(c));
-			addProductButton.setItems(FXCollections.observableArrayList(li));
-
-			recipeDropdown.getSelectionModel().clearSelection();
-			ArrayList<Recipe> li2 = new ArrayList(Database.getAllAutoRecipes());
-			li2.removeIf(r -> !this.isRecipeValid(r));
-
-			recipeDropdown.setItems(FXCollections.observableList(li2));
-			recipeDropdown.setDisable(li2.isEmpty());
+			this.rebuildLists();
 
 			GridPane gp = factory.createRawMatrix(this);
 			gp.setMaxWidth(Double.POSITIVE_INFINITY);
@@ -464,9 +472,10 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 			}
 		}
 
-		costBar.getChildren().clear();
+		buildCostBar.getChildren().clear();
 		buildingBar.getChildren().clear();
 		netProductBar.getChildren().clear();
+		netConsumptionBar.getChildren().clear();
 		localSupplyTotals.getChildren().clear();
 
 		CountMap<Item> cost = new CountMap();
@@ -481,7 +490,7 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 			}
 		}
 		for (Item i : cost.keySet()) {
-			GuiUtil.addIconCount(costBar, i, cost.get(i));
+			GuiUtil.addIconCount(buildCostBar, i, cost.get(i));
 		}
 
 		float prod = factory.getNetPowerProduction();
@@ -496,11 +505,17 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 			powerProduction.setStyle("");
 		}
 
+		for (Consumable c : factory.getAllIngredients()) {
+			float amt = factory.getTotalConsumption(c)-factory.getTotalProduction(c);
+			if (amt > 0)
+				GuiUtil.addIconCount(netConsumptionBar, c, amt);
+		}
 		for (Consumable c : factory.getAllProducedItems()) {
 			float amt = factory.getNetProduction(c);
 			if (amt > 0)
 				GuiUtil.addIconCount(netProductBar, c, amt);
 		}
+
 		CountMap<Consumable> totalSupply = new CountMap();
 		for (ResourceSupply res : factory.getSupplies()) {
 			totalSupply.increment(res.getResource(), res.getYield());

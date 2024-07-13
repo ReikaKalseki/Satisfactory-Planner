@@ -30,7 +30,7 @@ public abstract class LogisticSupply<R extends Consumable> implements ResourceSu
 
 	public abstract int getPortCount();
 
-	public final RateLimitedSupplyLine getMaximumPortFlow() {
+	public RateLimitedSupplyLine getMaximumPortFlow() {
 		return resource instanceof Fluid ? PipeTier.TWO : BeltTier.FIVE;
 	}
 

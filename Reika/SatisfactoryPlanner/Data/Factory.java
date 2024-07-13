@@ -6,15 +6,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.function.Consumer;
 
-import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import com.google.common.base.Charsets;
 
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Data.Constants.BeltTier;
@@ -34,6 +32,7 @@ import Reika.SatisfactoryPlanner.GUI.RecipeMatrix;
 import Reika.SatisfactoryPlanner.GUI.ScaledRecipeMatrix;
 import Reika.SatisfactoryPlanner.Util.CountMap;
 import Reika.SatisfactoryPlanner.Util.FactoryListener;
+import Reika.SatisfactoryPlanner.Util.JSONUtil;
 import Reika.SatisfactoryPlanner.Util.MultiMap;
 
 import javafx.scene.layout.GridPane;
@@ -42,7 +41,8 @@ public class Factory {
 
 	public static final File saveDir = Main.getRelativeFile("Factories");
 
-	private final CountMap<Recipe> recipes = new CountMap();
+	//private final CountMap<Recipe> recipes = new CountMap();
+	private final HashMap<Recipe, Float> recipes = new HashMap();
 	private final ArrayList<Recipe> recipeList = new ArrayList();
 	private final ArrayList<RecipeProductLoop> recipeLoops = new ArrayList();
 
@@ -197,12 +197,12 @@ public class Factory {
 		return this.getTotalAvailable(c)-this.getTotalConsumption(c);
 	}
 
-	public int getCount(Recipe r) {
+	public float getCount(Recipe r) {
 		return recipes.get(r);
 	}
 
-	public void setCount(Recipe r, int amt) {
-		recipes.set(r, amt);
+	public void setCount(Recipe r, float amt) {
+		recipes.put(r, amt);
 		this.notifyListeners();
 	}
 
@@ -218,7 +218,7 @@ public class Factory {
 	public CountMap<FunctionalBuilding> getBuildings() {
 		CountMap<FunctionalBuilding> map = new CountMap();
 		for (Recipe r : recipeList)
-			map.increment(r.productionBuilding, this.getCount(r));
+			map.increment(r.productionBuilding, (int)Math.ceil(this.getCount(r)));
 		for (Generator g : generators.keySet())
 			map.increment(g, this.getCount(g));
 		for (ResourceSupply res : resourceSources.allValues(false)) {
@@ -327,6 +327,13 @@ public class Factory {
 			this.notifyListeners();
 	}
 
+	public void doBulkOperation(Runnable r) {
+		bulkChanging = true;
+		r.run();
+		bulkChanging = false;
+		this.notifyListeners();
+	}
+
 	public File getDefaultFile() {
 		return new File(saveDir, name+".factory");
 	}
@@ -353,7 +360,7 @@ public class Factory {
 		for (Recipe r : recipeList) {
 			JSONObject block = new JSONObject();
 			block.put("id", r.id);
-			block.put("count", this.recipes.get(r));
+			block.put("count", String.format("%.3f", this.recipes.get(r)));
 			recipes.put(block);
 		}
 		root.put("recipes", recipes);
@@ -384,7 +391,7 @@ public class Factory {
 		}
 		root.put("toggles", toggles);
 
-		FileUtils.write(f, root.toString(4), Charsets.UTF_8);
+		JSONUtil.saveFile(f, root);
 	}
 
 	public void reload() throws Exception {
@@ -397,8 +404,7 @@ public class Factory {
 
 		this.setCurrentFile(f);
 
-		String file = FileUtils.readFileToString(f, Charsets.UTF_8);
-		JSONObject root = new JSONObject(file);
+		JSONObject root = JSONUtil.readFile(f);
 		name = root.getString("name");
 
 		JSONArray recipes = root.getJSONArray("recipes");
@@ -414,7 +420,7 @@ public class Factory {
 			this.recipes.set(r, block.getInt("count"));
 			 */
 			this.addRecipe(r);
-			this.setCount(r, block.getInt("count"));
+			this.setCount(r, block.getFloat("count"));
 		}
 		for (Object o : generators) {
 			JSONObject block = (JSONObject)o;

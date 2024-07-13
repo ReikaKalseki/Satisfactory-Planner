@@ -43,7 +43,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase implements FactoryListe
 	}
 
 	@Override
-	protected int getMultiplier(Recipe r) {
+	protected float getMultiplier(Recipe r) {
 		return buildingGrid ? 1 : owner.getCount(r);
 	}
 
@@ -140,14 +140,14 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase implements FactoryListe
 		int rowIndex = super.addRecipeRow(con, gp, r, i);
 
 		this.createDivider(gp, countGapColumn, rowIndex, 0);
-		Spinner<Integer> counter = new Spinner();
+		Spinner<Double> counter = new Spinner();
 		GuiUtil.setupCounter(counter, 0, 9999, parent.owner.getCount(r), true);
 		counter.setPrefHeight(32);
 		counter.setMinHeight(Region.USE_PREF_SIZE);
 		counter.setMaxHeight(Region.USE_PREF_SIZE);
 		counter.valueProperty().addListener((val, old, nnew) -> {
 			if (nnew != null)
-				parent.owner.setCount(r, nnew);
+				parent.owner.setCount(r, nnew.floatValue());
 		});
 		gp.add(counter, countColumn, rowIndex);
 		return rowIndex;

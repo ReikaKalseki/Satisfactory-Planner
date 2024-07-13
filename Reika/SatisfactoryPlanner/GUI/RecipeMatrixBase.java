@@ -60,7 +60,7 @@ public abstract class RecipeMatrixBase {
 
 	public abstract List<Recipe> getRecipes();
 
-	protected int getMultiplier(Recipe r) {
+	protected float getMultiplier(Recipe r) {
 		return 1;
 	}
 

@@ -68,7 +68,7 @@ public class ItemViewController extends ControllerBase {
 		GuiUtil.setTooltip(icon, c.displayName);
 	}
 
-	public void setScale(int scale) {
+	public void setScale(float scale) {
 		this.setAmountText(baseAmount*scale);
 	}
 

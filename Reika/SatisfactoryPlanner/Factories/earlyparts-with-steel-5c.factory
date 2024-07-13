@@ -1,0 +1,105 @@
+{
+    "recipes": [
+        {
+            "count": 120,
+            "id": "Recipe_IronPlate_C"
+        },
+        {
+            "count": 120,
+            "id": "Recipe_IngotIron_C"
+        },
+        {
+            "count": 0,
+            "id": "Recipe_IronRod_C"
+        },
+        {
+            "count": 0,
+            "id": "Recipe_Screw_C"
+        },
+        {
+            "count": 2,
+            "id": "Recipe_IronPlateReinforced_C"
+        },
+        {
+            "count": 0,
+            "id": "Recipe_Alternate_Screw_C"
+        },
+        {
+            "count": 12,
+            "id": "Recipe_Alternate_BoltedFrame_C"
+        },
+        {
+            "count": 26,
+            "id": "Recipe_Alternate_ReinforcedIronPlate_1_C"
+        },
+        {
+            "count": 0,
+            "id": "Recipe_ModularFrame_C"
+        },
+        {
+            "count": 0,
+            "id": "Recipe_Alternate_SteelRod_C"
+        },
+        {
+            "count": 11,
+            "id": "Recipe_SteelBeam_C"
+        },
+        {
+            "count": 33,
+            "id": "Recipe_Alternate_Screw_2_C"
+        }
+    ],
+    "toggles": [
+        "ALTERNATE",
+        "POST10"
+    ],
+    "name": "earlyparts-with-steel-5c",
+    "generators": [],
+    "resources": [
+        {
+            "item": "Desc_OreIron_C",
+            "purity": "PURE",
+            "clock": 1.5,
+            "type": "MINER",
+            "miner": "THREE"
+        },
+        {
+            "item": "Desc_OreIron_C",
+            "purity": "PURE",
+            "clock": 1.5,
+            "type": "MINER",
+            "miner": "THREE"
+        },
+        {
+            "item": "Desc_OreIron_C",
+            "purity": "PURE",
+            "clock": 1.5,
+            "type": "MINER",
+            "miner": "THREE"
+        },
+        {
+            "item": "Desc_SteelIngot_C",
+            "amount": 660,
+            "belt": "FIVE",
+            "type": "BELT"
+        },
+        {
+            "item": "Desc_OreIron_C",
+            "purity": "PURE",
+            "clock": 1.5,
+            "type": "MINER",
+            "miner": "THREE"
+        },
+        {
+            "item": "Desc_OreIron_C",
+            "purity": "PURE",
+            "clock": 1.5,
+            "type": "MINER",
+            "miner": "THREE"
+        }
+    ],
+    "products": [
+        "Desc_ModularFrame_C",
+        "Desc_IronPlateReinforced_C"
+    ]
+}

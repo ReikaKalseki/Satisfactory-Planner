@@ -21,6 +21,7 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 
 public abstract class ControllerBase {
@@ -82,11 +83,11 @@ public abstract class ControllerBase {
 		return ret;
 	}
 
-	public final DialogWindow openFXMLDialog(String title, String fxml) throws IOException {
-		return this.openFXMLDialog(title, fxml, null);
+	public final void openFXMLDialog(String title, String fxml) throws IOException {
+		this.openFXMLDialog(title, fxml, null);
 	}
 
-	public final DialogWindow openFXMLDialog(String title, String fxml, Consumer<ControllerBase> callback) throws IOException {
+	public final void openFXMLDialog(String title, String fxml, Consumer<ControllerBase> callback) throws IOException {
 		if (container == null)
 			throw new RuntimeException("You can only load nested FXML in post-init, after the window is initialized!");
 		DialogWindow dialog = new DialogWindow(title, fxml, container);
@@ -96,13 +97,28 @@ public abstract class ControllerBase {
 		}
 		dialog.window.sizeToScene();
 		dialog.show();
+	}
 
-		return dialog;
+	public final void openChildWindow(WindowBase w) throws IOException {
+		if (container == null)
+			throw new RuntimeException("You can only load nested FXML in post-init, after the window is initialized!");
+		w.controller.owner = this;
+		w.window.sizeToScene();
+		w.show();
+	}
+
+	protected final File openDirDialog(String title, File dir) {
+		DirectoryChooser fc = new DirectoryChooser();
+		if (dir != null && dir.exists() && dir.isDirectory())
+			fc.setInitialDirectory(dir);
+		fc.setTitle("Choose "+title+" directory");
+		return fc.showDialog(container.window);
 	}
 
 	protected final File openFileDialog(String title, File dir, FileChooser.ExtensionFilter... filters) {
 		FileChooser fc = new FileChooser();
-		fc.setInitialDirectory(dir);
+		if (dir != null && dir.exists() && dir.isDirectory())
+			fc.setInitialDirectory(dir);
 		fc.setTitle("Choose "+title+" file");
 		if (filters.length > 0) {
 			for (FileChooser.ExtensionFilter extFilter : filters) {
@@ -115,7 +131,8 @@ public abstract class ControllerBase {
 
 	protected final File openSaveAsDialog(String initialName, File dir) {
 		FileChooser fc = new FileChooser();
-		fc.setInitialDirectory(dir);
+		if (dir != null && dir.exists() && dir.isDirectory())
+			fc.setInitialDirectory(dir);
 		fc.setInitialFileName(initialName);
 		fc.setTitle("Choose file");
 		return fc.showSaveDialog(container.window);

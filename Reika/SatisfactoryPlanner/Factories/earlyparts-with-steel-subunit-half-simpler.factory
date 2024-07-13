@@ -1,0 +1,96 @@
+{
+    "recipes": [
+        {
+            "count": "58.500",
+            "id": "Recipe_IronPlate_C"
+        },
+        {
+            "count": "60.000",
+            "id": "Recipe_IngotIron_C"
+        },
+        {
+            "count": "0.000",
+            "id": "Recipe_IronRod_C"
+        },
+        {
+            "count": "6.000",
+            "id": "Recipe_Screw_C"
+        },
+        {
+            "count": "4.000",
+            "id": "Recipe_IronPlateReinforced_C"
+        },
+        {
+            "count": "3.600",
+            "id": "Recipe_Alternate_Screw_C"
+        },
+        {
+            "count": "10.000",
+            "id": "Recipe_Alternate_ReinforcedIronPlate_1_C"
+        },
+        {
+            "count": "8.000",
+            "id": "Recipe_Alternate_ReinforcedIronPlate_2_C"
+        },
+        {
+            "count": "15.000",
+            "id": "Recipe_ModularFrame_C"
+        },
+        {
+            "count": "5.000",
+            "id": "Recipe_Alternate_SteelRod_C"
+        },
+        {
+            "count": "3.000",
+            "id": "Recipe_SteelBeam_C"
+        },
+        {
+            "count": "9.000",
+            "id": "Recipe_Alternate_Screw_2_C"
+        }
+    ],
+    "toggles": [
+        "ALTERNATE",
+        "POST10"
+    ],
+    "name": "earlyparts-with-steel-subunit-half-simpler",
+    "generators": [],
+    "resources": [
+        {
+            "item": "Desc_OreIron_C",
+            "purity": "PURE",
+            "clock": 1.5,
+            "type": "MINER",
+            "miner": "THREE"
+        },
+        {
+            "item": "Desc_OreIron_C",
+            "purity": "PURE",
+            "clock": 1.5,
+            "type": "MINER",
+            "miner": "THREE"
+        },
+        {
+            "item": "Desc_Wire_C",
+            "amount": 300,
+            "belt": "TWO",
+            "type": "BELT"
+        },
+        {
+            "item": "Desc_OreIron_C",
+            "amount": 360,
+            "belt": "FOUR",
+            "type": "BELT"
+        },
+        {
+            "item": "Desc_SteelIngot_C",
+            "amount": 300,
+            "belt": "FIVE",
+            "type": "BELT"
+        }
+    ],
+    "products": [
+        "Desc_ModularFrame_C",
+        "Desc_IronPlateReinforced_C"
+    ]
+}
