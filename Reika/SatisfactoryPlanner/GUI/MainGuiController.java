@@ -303,13 +303,6 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 		this.setFactory(new Factory(), false);
 	}
 
-	@Override
-	public void onFileChange() {
-		boolean dis = !factory.hasExistingFile();
-		saveMenu.setDisable(dis);
-		reloadMenu.setDisable(dis);
-	}
-
 	public Factory getFactory() {
 		return factory;
 	}
@@ -383,42 +376,31 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 	}
 
 	private void updateUI() {
-		try {
-			factoryName.setText(factory.name);
-			for (ToggleableVisiblityGroup tv : ToggleableVisiblityGroup.values()) {
-				toggleFilters.get(tv).setSelected(factory.getToggle(tv));
-			}
+		factoryName.setText(factory.name);
+		for (ToggleableVisiblityGroup tv : ToggleableVisiblityGroup.values()) {
+			toggleFilters.get(tv).setSelected(factory.getToggle(tv));
+		}
 
-			this.rebuildLists();
+		this.rebuildLists();
 
-			GridPane gp = factory.createRawMatrix(this);
-			gp.setMaxWidth(Double.POSITIVE_INFINITY);
-			gp.setMaxHeight(Double.POSITIVE_INFINITY);
-			gridContainer.setContent(gp);
+		this.setFont(gridContainer, GuiSystem.getDefaultFont());
+		this.setFont(netGridContainer, GuiSystem.getDefaultFont());
 
-			gp = factory.createNetMatrix(this);
-			gp.setMaxWidth(Double.POSITIVE_INFINITY);
-			gp.setMaxHeight(Double.POSITIVE_INFINITY);
-			netGridContainer.setContent(gp);
+		productGrid.getChildren().removeIf(n -> n instanceof ProductButton);
+		for (Consumable c : factory.getDesiredProducts())
+			productGrid.getChildren().add(new ProductButton(c));
 
-			this.setFont(gridContainer, GuiSystem.getDefaultFont());
-			this.setFont(netGridContainer, GuiSystem.getDefaultFont());
+		for (Entry<Generator, GeneratorRowController> e : generators.entrySet()) {
+			e.getValue().setCount(factory.getCount(e.getKey()), false);
+		}
 
-			productGrid.getChildren().removeIf(n -> n instanceof ProductButton);
-			for (Consumable c : factory.getDesiredProducts())
-				productGrid.getChildren().add(new ProductButton(c));
+		Platform.runLater(() -> this.updateWarnings());
+		this.updateStats();
 
-			for (Entry<Generator, GeneratorRowController> e : generators.entrySet()) {
-				e.getValue().setCount(factory.getCount(e.getKey()), false);
-			}
-
-			Platform.runLater(() -> this.updateWarnings());
-			this.updateStats();
-
-			if (this.getRootNode() != null)
-				this.getRootNode().layout();
-			Platform.runLater(() -> { //ugly hack but necessary to resize the tabpane, and later since it needs a layout pass to finish
-				tabs.requestLayout();/*
+		if (this.getRootNode() != null)
+			this.getRootNode().layout();
+		Platform.runLater(() -> { //ugly hack but necessary to resize the tabpane, and later since it needs a layout pass to finish
+			tabs.requestLayout();/*
 				container.window.sizeToScene();
 				container.window.centerOnScreen();
 				Rectangle2D monitor = Screen.getPrimary().getVisualBounds();
@@ -426,11 +408,7 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 					container.window.setWidth(monitor.getWidth());
 				if (container.window.getHeight() > monitor.getHeight()-48) //48 for title bar
 					container.window.setHeight(monitor.getHeight()-48);*/
-			});
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
+		});
 	}
 
 	private void updateWarnings() {
@@ -447,11 +425,6 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 		warningPanel.setCollapsible(any);
 		warningPanel.setVisible(any);
 		warningPanel.layout();
-	}
-
-	@Override
-	public void onContentsChange() {
-		this.updateUI();
 	}
 
 	private void updateStats() {
@@ -523,6 +496,102 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 		for (Consumable c : totalSupply.keySet()) {
 			GuiUtil.addIconCount(localSupplyTotals, c, totalSupply.get(c));
 		}
+	}
+
+	private void setRecipeGrids() throws IOException {
+		GridPane gp = factory.createRawMatrix();
+		gridContainer.setContent(gp);
+
+		gp = factory.createNetMatrix();
+		netGridContainer.setContent(gp);
+	}
+
+	@Override
+	public void onAddRecipe(Recipe r) {
+		try {
+			this.setRecipeGrids();
+		}
+		catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void onRemoveRecipe(Recipe r) {
+		try {
+			this.setRecipeGrids();
+		}
+		catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void onSetCount(Recipe r, float count) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onSetCount(Generator g, float count) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onAddProduct(Consumable c) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onRemoveProduct(Consumable c) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onAddSupply(ResourceSupply s) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onRemoveSupply(ResourceSupply s) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onSetToggle(ToggleableVisiblityGroup grp, boolean active) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onLoaded() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onCleared() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onSetFile(File f) {
+		boolean dis = !factory.hasExistingFile();
+		saveMenu.setDisable(dis);
+		reloadMenu.setDisable(dis);
+	}
+
+	@Override
+	public int getSortIndex() {
+		return Integer.MAX_VALUE;
 	}
 
 	private class ProductButton extends Button {

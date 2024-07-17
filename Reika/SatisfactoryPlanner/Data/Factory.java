@@ -74,6 +74,7 @@ public class Factory {
 
 	public Factory addCallback(FactoryListener r) {
 		changeCallback.add(r);
+		Collections.sort(changeCallback);
 		return this;
 	}
 
@@ -88,39 +89,43 @@ public class Factory {
 		recipeList.add(r);
 		this.setCount(r, 0);
 		Collections.sort(recipeList);
-		this.notifyListeners();
+		this.notifyListeners(c -> c.onAddRecipe(r));
 	}
 
 	public void removeRecipe(Recipe r) {
 		recipeLoops.removeIf(p -> p.recipe1.equals(r) || p.recipe2.equals(r));
 		if (recipeList.remove(r)) {
 			recipes.remove(r);
-			this.notifyListeners();
+			this.notifyListeners(c -> c.onRemoveRecipe(r));
 		}
 	}
 
 	public GridPane createRawMatrix(ControllerBase con) throws IOException {
+		if (recipes.isEmpty())
+			return null;
 		bulkChanging = true;
-		GridPane ret = matrix.createGrid(con);
+		matrix.createGrid(con);
 		bulkChanging = false;
-		return ret;
+		return matrix.getGrid();
 	}
 
 	public GridPane createNetMatrix(ControllerBase con) throws IOException {
+		if (recipes.isEmpty())
+			return null;
 		bulkChanging = true;
-		GridPane ret = scaleMatrix.createGrid(con);
+		matrix.createGrid(con);
 		bulkChanging = false;
-		return ret;
+		return matrix.getGrid();
 	}
 
 	public void addExternalSupply(ResourceSupply res) {
 		resourceSources.addValue(res.getResource(), res);
-		this.notifyListeners();
+		this.notifyListeners(c -> c.onAddSupply(res));
 	}
 
 	public void removeExternalSupply(ResourceSupply res) {
 		resourceSources.remove(res.getResource(), res);
-		this.notifyListeners();
+		this.notifyListeners(c -> c.onRemoveSupply(res));
 	}
 
 	public int getExternalSupply(Consumable c) {
@@ -142,12 +147,12 @@ public class Factory {
 		if (desiredProducts.contains(c))
 			return;
 		desiredProducts.add(c);
-		this.notifyListeners();
+		this.notifyListeners(l -> l.onAddProduct(c));
 	}
 
 	public void removeProduct(Consumable c) {
 		if (desiredProducts.remove(c)) {
-			this.notifyListeners();
+			this.notifyListeners(l -> l.onRemoveProduct(c));
 		}
 	}
 
@@ -203,7 +208,7 @@ public class Factory {
 
 	public void setCount(Recipe r, float amt) {
 		recipes.put(r, amt);
-		this.notifyListeners();
+		this.notifyListeners(c -> c.onSetCount(r, amt));
 	}
 
 	public int getCount(Generator g) {
@@ -212,7 +217,7 @@ public class Factory {
 
 	public void setCount(Generator g, int amt) {
 		generators.set(g, amt);
-		this.notifyListeners();
+		this.notifyListeners(c -> c.onSetCount(g, amt));
 	}
 
 	public CountMap<FunctionalBuilding> getBuildings() {
@@ -252,7 +257,7 @@ public class Factory {
 			toggles.add(tv);
 		else
 			toggles.remove(tv);
-		this.notifyListeners();
+		this.notifyListeners(c -> c.onSetToggle(tv, state));
 	}
 
 	public boolean getToggle(ToggleableVisiblityGroup tv) {
@@ -305,11 +310,11 @@ public class Factory {
 		}
 	}
 
-	public void notifyListeners() {
+	public void notifyListeners(Consumer<FactoryListener> c) {
 		if (bulkChanging)
 			return;
 		for (FactoryListener rr : changeCallback)
-			rr.onContentsChange();
+			c.accept(rr);
 	}
 
 	public void clear() {
@@ -324,14 +329,14 @@ public class Factory {
 		toggles.clear();
 		bulkChanging = wasBulk;
 		if (!bulkChanging)
-			this.notifyListeners();
+			this.notifyListeners(c -> c.onCleared());
 	}
 
-	public void doBulkOperation(Runnable r) {
+	public void doBulkOperation(Runnable r, Consumer<FactoryListener> c) {
 		bulkChanging = true;
 		r.run();
 		bulkChanging = false;
-		this.notifyListeners();
+		this.notifyListeners(c);
 	}
 
 	public File getDefaultFile() {
@@ -446,13 +451,12 @@ public class Factory {
 		}
 
 		bulkChanging = false;
-		this.notifyListeners();
+		this.notifyListeners(c -> c.onLoaded());
 	}
 
 	private void setCurrentFile(File f) {
 		currentFile = f;
-		for (FactoryListener rr : changeCallback)
-			rr.onFileChange();
+		this.notifyListeners(c -> c.onSetFile(f));
 		Main.addRecentFile(f);
 		((MainGuiController)GuiSystem.MainWindow.getGUI().controller).buildRecentList();
 	}

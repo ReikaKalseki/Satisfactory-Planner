@@ -33,11 +33,13 @@ import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -135,6 +137,30 @@ public class GuiUtil {
 
 	public static void sizeToContent(Labeled node) {
 		node.setMinWidth(getWidth(node));
+	}
+
+	public static ColumnConstraints addColumnToGridPane(GridPane gp, int at) {
+		ColumnConstraints rc = new ColumnConstraints();
+		gp.getColumnConstraints().add(at, rc);
+		for (Node n : gp.getChildren()) {
+			int idx = gp.getColumnIndex(n);
+			if (idx >= at) {
+				gp.setColumnIndex(n, idx+1);
+			}
+		}
+		return rc;
+	}
+
+	public static RowConstraints addRowToGridPane(GridPane gp, int at) {
+		RowConstraints rc = new RowConstraints();
+		gp.getRowConstraints().add(at, rc);
+		for (Node n : gp.getChildren()) {
+			int idx = gp.getRowIndex(n);
+			if (idx >= at) {
+				gp.setRowIndex(n, idx+1);
+			}
+		}
+		return rc;
 	}
 
 	public static void setupCounter(Spinner<Integer> spinner, int min, int max, int init, boolean allowEdit) {

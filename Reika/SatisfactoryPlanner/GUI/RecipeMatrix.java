@@ -10,72 +10,65 @@ import Reika.SatisfactoryPlanner.Data.Recipe;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.RowConstraints;
 
 public class RecipeMatrix extends RecipeMatrixBase {
 
-	protected int deleteColumn;
+	protected GridLine<ColumnConstraints> deleteColumn;
 
 	public RecipeMatrix(Factory f) {
 		super(f);
 	}
 
 	@Override
-	public GridPane createGrid(ControllerBase con) throws IOException {
-		GridPane gp = new GridPane();
+	public void createGrid(ControllerBase con) throws IOException {
 		this.computeIO();
 		List<Recipe> recipes = this.getRecipes();
-		titlesRow = this.addRow(gp);
-		titleGapRow = this.addRow(gp);
+		titlesRow = this.addRow();
+		titleGapRow = this.addRow();
 		minorRowGaps.clear();
 		for (int i = 0; i < recipes.size(); i++) {
-			this.addRow(gp);
+			RecipeRow rr = this.addRecipeRow(con, recipes.get(i), i);
 			if (i < recipes.size()-1)
-				minorRowGaps.add(this.addRow(gp)); //separator
+				minorRowGaps.add(rr.createGap()); //separator
 		}
-		deleteColumn = this.addColumn(gp); //delete
-		nameColumn = this.addColumn(gp); //name
-		mainGapColumn = this.addColumn(gp); //separator
+		deleteColumn = this.addColumn(); //delete
+		nameColumn = this.addColumn(); //name
+		mainGapColumn = this.addColumn(); //separator
 		minorColumnGaps.clear();
 
-		this.addInputColumns(gp);
+		this.addInputColumns();
 
-		inoutGapColumn = this.addColumn(gp); //separator
+		inoutGapColumn = this.addColumn(); //separator
 
-		this.addOutputColumns(gp);
+		this.addOutputColumns();
 
-		buildingGapColumn = this.addColumn(gp);
-		buildingColumn = this.addColumn(gp);
+		buildingGapColumn = this.addColumn();
+		buildingColumn = this.addColumn();
 
-		ingredientsStartColumn = mainGapColumn+1;
-		productsStartColumn = inoutGapColumn+1;
+		ingredientsStartColumn = mainGapColumn.index+1;
+		productsStartColumn = inoutGapColumn.index+1;
 
 		recipeEntries.clear();
 
-		for (int i = 0; i < recipes.size(); i++) {
-			this.addRecipeRow(con, gp, recipes.get(i), i);
-		}
-		this.createDivider(gp, mainGapColumn, titlesRow, 0);
-		this.createDivider(gp, inoutGapColumn, titlesRow, 1);
-		this.createDivider(gp, buildingGapColumn, titlesRow, 1);
-		this.createRowDivider(gp, titleGapRow, 0);
-		for (int row : minorRowGaps)
-			this.createRowDivider(gp, row, 2);
+		this.createDivider(mainGapColumn, titlesRow, 0);
+		this.createDivider(inoutGapColumn, titlesRow, 1);
+		this.createDivider(buildingGapColumn, titlesRow, 1);
+		this.createRowDivider(titleGapRow, 0);
+		for (GridLine<RowConstraints> row : minorRowGaps)
+			this.createRowDivider(row, 2);
 
-		this.addTitles(gp);
+		this.addTitles();
 
-		gp.getColumnConstraints().get(0).setMinWidth(32);
-
-		gp.setHgap(4);
-		gp.setVgap(4);
+		grid.getColumnConstraints().get(0).setMinWidth(32);
 		//gp.setGridLinesVisible(true);
-		return gp;
 	}
 
 	@Override
-	protected int addRecipeRow(ControllerBase con, GridPane gp, Recipe r, int i) throws IOException {
-		int rowIndex = super.addRecipeRow(con, gp, r, i);
+	protected RecipeRow addRecipeRow(ControllerBase con, Recipe r, int i) throws IOException {
+		RecipeRow rowIndex = super.addRecipeRow(con, r, i);
 		Button b = new Button();
 		b.setGraphic(new ImageView(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/delete.png"))));
 		b.setPrefWidth(32);
@@ -87,13 +80,31 @@ public class RecipeMatrix extends RecipeMatrixBase {
 		b.setOnAction(e -> {
 			owner.removeRecipe(r);
 		});
-		gp.add(b, deleteColumn, rowIndex);
+		grid.add(b, deleteColumn.index, rowIndex.getRowIndex());
 		return rowIndex;
 	}
 
 	@Override
 	public List<Recipe> getRecipes() {
 		return owner.getRecipes();
+	}
+
+	@Override
+	public void onSetCount(Recipe r, float count) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onLoaded() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onCleared() {
+		// TODO Auto-generated method stub
+
 	}
 
 }
