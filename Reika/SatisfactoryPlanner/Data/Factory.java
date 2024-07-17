@@ -25,7 +25,6 @@ import Reika.SatisfactoryPlanner.Data.Warning.InsufficientResourceWarning;
 import Reika.SatisfactoryPlanner.Data.Warning.MultipleBeltsWarning;
 import Reika.SatisfactoryPlanner.Data.Warning.ResourceIconName;
 import Reika.SatisfactoryPlanner.Data.Warning.WarningSeverity;
-import Reika.SatisfactoryPlanner.GUI.ControllerBase;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem;
 import Reika.SatisfactoryPlanner.GUI.MainGuiController;
 import Reika.SatisfactoryPlanner.GUI.RecipeMatrix;
@@ -35,7 +34,7 @@ import Reika.SatisfactoryPlanner.Util.FactoryListener;
 import Reika.SatisfactoryPlanner.Util.JSONUtil;
 import Reika.SatisfactoryPlanner.Util.MultiMap;
 
-import javafx.scene.layout.GridPane;
+import javafx.scene.Node;
 
 public class Factory {
 
@@ -63,6 +62,8 @@ public class Factory {
 	private boolean bulkChanging;
 
 	private File currentFile;
+
+	private MainGuiController gui;
 
 	static {
 		saveDir.mkdirs();
@@ -100,22 +101,22 @@ public class Factory {
 		}
 	}
 
-	public GridPane createRawMatrix(ControllerBase con) throws IOException {
+	public Node createRawMatrix() throws IOException {
 		if (recipes.isEmpty())
 			return null;
 		bulkChanging = true;
-		matrix.createGrid(con);
+		matrix.createGrid();
 		bulkChanging = false;
 		return matrix.getGrid();
 	}
 
-	public GridPane createNetMatrix(ControllerBase con) throws IOException {
+	public Node createNetMatrix() throws IOException {
 		if (recipes.isEmpty())
 			return null;
 		bulkChanging = true;
-		matrix.createGrid(con);
+		scaleMatrix.createGrid();
 		bulkChanging = false;
-		return matrix.getGrid();
+		return scaleMatrix.getGrid();
 	}
 
 	public void addExternalSupply(ResourceSupply res) {
@@ -469,6 +470,12 @@ public class Factory {
 		}
 		ret.load(f);
 		return ret;
+	}
+
+	public void setUI(MainGuiController gui) {
+		this.gui = gui;
+		matrix.setUI(gui);
+		scaleMatrix.setUI(gui);
 	}
 
 }

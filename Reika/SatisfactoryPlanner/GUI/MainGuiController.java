@@ -35,6 +35,7 @@ import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -314,6 +315,7 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 	private void setFactory(Factory f, boolean update) {
 		factory = f;
 		factory.addCallback(this);
+		factory.setUI(this);
 		if (update)
 			this.updateUI();
 	}
@@ -499,7 +501,7 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 	}
 
 	private void setRecipeGrids() throws IOException {
-		GridPane gp = factory.createRawMatrix();
+		Node gp = factory.createRawMatrix();
 		gridContainer.setContent(gp);
 
 		gp = factory.createNetMatrix();

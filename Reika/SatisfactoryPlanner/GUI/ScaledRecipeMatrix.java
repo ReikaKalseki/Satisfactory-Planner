@@ -12,10 +12,9 @@ import Reika.SatisfactoryPlanner.GUI.ItemViewController.WarningState;
 
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
-import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.control.TableColumn;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
-import javafx.scene.layout.RowConstraints;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
@@ -23,11 +22,11 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 
 	private final RecipeMatrix parent;
 
-	protected GridLine<ColumnConstraints> countGapColumn;
-	protected GridLine<ColumnConstraints> countColumn;
+	protected final GapColumn countGapColumn = new GapColumn(0);
+	protected final TableColumn countColumn = new TableColumn();
 
-	protected GridLine<RowConstraints> sumGapRow;
-	protected GridLine<RowConstraints> sumsRow;
+	protected final MatrixRow sumGapRow = new DividerRow(1);
+	protected final MatrixRow sumsRow = new FixedContentRow();
 
 	protected Label countLabel;
 
@@ -48,57 +47,27 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 	}
 
 	@Override
-	public void createGrid(ControllerBase con) throws IOException {
+	protected void addInitialRows() {
+		super.addInitialRows();
+		grid.getItems().add(sumGapRow);
+		grid.getItems().add(sumsRow);
+	}
+
+	@Override
+	protected void addInitialColumns() {
+		super.addInitialColumns();
+
+		grid.getColumns().add(countGapColumn);
+		grid.getColumns().add(countColumn);
+	}
+
+	@Override
+	public void createGrid() throws IOException {
 		buildingGrid = true;
-		List<Recipe> recipes = this.getRecipes();
-		this.computeIO();
-		titlesRow = this.addRow();
-		titleGapRow = this.addRow();
-		minorRowGaps.clear();
-		for (int i = 0; i < recipes.size(); i++) {
-			RecipeRow rr = this.addRecipeRow(con, recipes.get(i), i);
-			if (i < recipes.size()-1)
-				minorRowGaps.add(rr.createGap()); //separator
-		}
-		nameColumn = this.addColumn(); //name
-		mainGapColumn = this.addColumn(); //separator
-		minorColumnGaps.clear();
-
-		this.addInputColumns();
-
-		inoutGapColumn = this.addColumn(); //separator
-
-		this.addOutputColumns();
-
-		buildingGapColumn = this.addColumn();
-		buildingColumn = this.addColumn();
-
-		countGapColumn = this.addColumn();
-		countColumn = this.addColumn();
-
-		ingredientsStartColumn = /*2*/mainGapColumn.index+1;
-		productsStartColumn = /*2+in.size()+1*/inoutGapColumn.index+1;
-
 		recipeEntries.clear();
-
-		this.createDivider(mainGapColumn, titlesRow, 0);
-		this.createDivider(inoutGapColumn, titlesRow, 1);
-		this.createDivider(buildingGapColumn, titlesRow, 1);
-		this.createDivider(countGapColumn, titlesRow, 0);
-		sumGapRow = this.addRow();
-		sumsRow = this.addRow();
-		this.createRowDivider(titleGapRow, 0);
-		this.createRowDivider(sumGapRow, 1);
-		for (GridLine<RowConstraints> row : minorRowGaps)
-			this.createRowDivider(row, 2);
 
 		sumEntriesIn.clear();
 		sumEntriesOut.clear();
-
-		this.createDivider(mainGapColumn, sumsRow, 0);
-		this.createDivider(countGapColumn, sumsRow, 0);
-		this.createDivider(inoutGapColumn, sumsRow, 1);
-		this.createDivider(buildingGapColumn, sumsRow, 1);
 
 		buildingGrid = false;
 
@@ -126,8 +95,8 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 	}
 
 	@Override
-	protected RecipeRow addRecipeRow(ControllerBase con, Recipe r, int i) throws IOException {
-		RecipeRow rowIndex = super.addRecipeRow(con, r, i);
+	protected RecipeRow addRecipeRow(Recipe r) throws IOException {
+		RecipeRow rowIndex = super.addRecipeRow(r);
 
 		this.createDivider(countGapColumn, rowIndex.mainRow, 0);
 		Spinner<Double> counter = new Spinner();
