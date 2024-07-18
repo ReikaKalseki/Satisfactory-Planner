@@ -59,7 +59,7 @@ public class Factory {
 
 	public String name;
 
-	private boolean bulkChanging;
+	private boolean skipNotify;
 
 	private File currentFile;
 
@@ -70,7 +70,8 @@ public class Factory {
 	}
 
 	public Factory() {
-
+		matrix.buildGrid();
+		scaleMatrix.buildGrid();
 	}
 
 	public Factory addCallback(FactoryListener r) {
@@ -88,7 +89,7 @@ public class Factory {
 				recipeLoops.add(c);
 		}
 		recipeList.add(r);
-		this.setCount(r, 0);
+		recipes.put(r, 0F);
 		Collections.sort(recipeList);
 		this.notifyListeners(c -> c.onAddRecipe(r));
 	}
@@ -102,20 +103,14 @@ public class Factory {
 	}
 
 	public Node createRawMatrix() throws IOException {
-		if (recipes.isEmpty())
-			return null;
-		bulkChanging = true;
-		matrix.createGrid();
-		bulkChanging = false;
+		//if (recipes.isEmpty())
+		//	return null;
 		return matrix.getGrid();
 	}
 
 	public Node createNetMatrix() throws IOException {
-		if (recipes.isEmpty())
-			return null;
-		bulkChanging = true;
-		scaleMatrix.createGrid();
-		bulkChanging = false;
+		//if (recipes.isEmpty())
+		//	return null;
 		return scaleMatrix.getGrid();
 	}
 
@@ -312,15 +307,15 @@ public class Factory {
 	}
 
 	public void notifyListeners(Consumer<FactoryListener> c) {
-		if (bulkChanging)
+		if (skipNotify)
 			return;
 		for (FactoryListener rr : changeCallback)
 			c.accept(rr);
 	}
 
 	public void clear() {
-		boolean wasBulk = bulkChanging;
-		bulkChanging = true;
+		boolean wasBulk = skipNotify;
+		skipNotify = true;
 		recipeList.clear();
 		recipeLoops.clear();
 		recipes.clear();
@@ -328,15 +323,15 @@ public class Factory {
 		resourceSources.clear();
 		desiredProducts.clear();
 		toggles.clear();
-		bulkChanging = wasBulk;
-		if (!bulkChanging)
+		skipNotify = wasBulk;
+		if (!skipNotify)
 			this.notifyListeners(c -> c.onCleared());
 	}
 
 	public void doBulkOperation(Runnable r, Consumer<FactoryListener> c) {
-		bulkChanging = true;
+		skipNotify = true;
 		r.run();
-		bulkChanging = false;
+		skipNotify = false;
 		this.notifyListeners(c);
 	}
 
@@ -405,7 +400,7 @@ public class Factory {
 	}
 
 	private void load(File f) throws Exception {
-		bulkChanging = true;
+		skipNotify = true;
 		this.clear();
 
 		this.setCurrentFile(f);
@@ -451,7 +446,7 @@ public class Factory {
 			}
 		}
 
-		bulkChanging = false;
+		skipNotify = false;
 		this.notifyListeners(c -> c.onLoaded());
 	}
 

@@ -2,7 +2,6 @@ package Reika.SatisfactoryPlanner.GUI;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map.Entry;
 
 import Reika.SatisfactoryPlanner.Data.Consumable;
@@ -10,35 +9,31 @@ import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
 import Reika.SatisfactoryPlanner.GUI.ItemViewController.WarningState;
 
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
-import javafx.scene.control.TableColumn;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 
 public class ScaledRecipeMatrix extends RecipeMatrixBase {
 
 	private final RecipeMatrix parent;
 
 	protected final GapColumn countGapColumn = new GapColumn(0);
-	protected final TableColumn countColumn = new TableColumn();
+	protected final MatrixColumn countColumn = new MatrixColumn();
 
 	protected final MatrixRow sumGapRow = new DividerRow(1);
-	protected final MatrixRow sumsRow = new FixedContentRow();
+	protected final MatrixRow sumsRow = new SumsRow();
 
 	protected Label countLabel;
 
-	private final HashMap<GuiInstance, Consumable> sumEntriesIn = new HashMap();
-	private final HashMap<GuiInstance, Consumable> sumEntriesOut = new HashMap();
+	private final HashMap<Consumable, GuiInstance> sumEntriesIn = new HashMap();
+	private final HashMap<Consumable, GuiInstance> sumEntriesOut = new HashMap();
 
 	private boolean buildingGrid;
 
 	public ScaledRecipeMatrix(RecipeMatrix r) {
 		super(r.owner);
 		parent = r;
-		parent.owner.addCallback(this);
 	}
 
 	@Override
@@ -62,43 +57,9 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 	}
 
 	@Override
-	public void createGrid() throws IOException {
-		buildingGrid = true;
-		recipeEntries.clear();
-
-		sumEntriesIn.clear();
-		sumEntriesOut.clear();
-
-		buildingGrid = false;
-
-		for (int i = 0; i < inputs.size(); i++) {
-			Consumable c = inputs.get(i);
-			int idx = ingredientsStartColumn+inputs.indexOf(c)*2;
-			GuiInstance gui = con.loadNestedFXML("ItemView", grid, idx, sumsRow.index);
-			((ItemViewController)gui.controller).setItem(c, owner.getTotalConsumption(c));
-			sumEntriesIn.put(gui, c);
-			if (i < inputs.size()-1)
-				this.createDivider(idx+1, sumsRow.index, 2);
-		}
-		for (int i = 0; i < outputs.size(); i++) {
-			Consumable c = outputs.get(i);
-			int idx = productsStartColumn+outputs.indexOf(c)*2;
-			GuiInstance gui = con.loadNestedFXML("ItemView", grid, idx, sumsRow.index);
-			((ItemViewController)gui.controller).setItem(c, owner.getTotalProduction(c));
-			sumEntriesOut.put(gui, c);
-			if (i < outputs.size()-1)
-				this.createDivider(idx+1, sumsRow.index, 2);
-		}
-
-		this.addTitles();
-		//gp.setGridLinesVisible(true);
-	}
-
-	@Override
 	protected RecipeRow addRecipeRow(Recipe r) throws IOException {
-		RecipeRow rowIndex = super.addRecipeRow(r);
+		RecipeRow rr = super.addRecipeRow(r);
 
-		this.createDivider(countGapColumn, rowIndex.mainRow, 0);
 		Spinner<Double> counter = new Spinner();
 		GuiUtil.setupCounter(counter, 0, 9999, parent.owner.getCount(r), true);
 		counter.setPrefHeight(32);
@@ -108,38 +69,47 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 			if (nnew != null)
 				parent.owner.setCount(r, nnew.floatValue());
 		});
-		grid.add(counter, countColumn.index, rowIndex.getRowIndex());
-		return rowIndex;
+		rr.addNode(countColumn, counter);
+		return rr;
 	}
 
 	@Override
 	protected void addTitles() {
 		super.addTitles();
 
-		countLabel = new Label("Counts");
-		countLabel.setFont(Font.font(countLabel.getFont().getFamily(), FontWeight.BOLD, 16));
-		grid.add(countLabel, countColumn.index, titlesRow.index);
-		grid.setColumnSpan(countLabel, GridPane.REMAINING);
+		titlesRow.addTitle("Counts", countColumn);
 	}
 
 	@Override
-	public List<Recipe> getRecipes() {
-		return parent.getRecipes();
+	protected void onAddItem(Consumable c, boolean isInput) {
+		try {
+			GuiInstance gui = this.gui.loadNestedFXML("ItemView", p -> {});
+			((ItemViewController)gui.controller).setItem(c, isInput ? owner.getTotalConsumption(c) : owner.getTotalProduction(c));
+			(isInput ? sumEntriesIn : sumEntriesOut).put(c, gui);
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	protected void onRemoveItem(Consumable c, boolean isInput) {
+		(isInput ? sumEntriesIn : sumEntriesOut).remove(c);
 	}
 
 	@Override
 	public void onSetCount(Recipe r, float count) {
 		recipeEntries.get(r).setScale(count);
-		for (Entry<GuiInstance, Consumable> gui : sumEntriesIn.entrySet()) {
-			Consumable c = gui.getValue();
+		for (Entry<Consumable, GuiInstance> gui : sumEntriesIn.entrySet()) {
+			Consumable c = gui.getKey();
 			float total = owner.getTotalConsumption(c);
-			ItemViewController cc = (ItemViewController)gui.getKey().controller;
+			ItemViewController cc = (ItemViewController)gui.getValue().controller;
 			cc.setItem(c, total);
 			cc.setState(total > owner.getTotalAvailable(c) ? WarningState.INSUFFICIENT : WarningState.NONE);
 		}
-		for (Entry<GuiInstance, Consumable> gui : sumEntriesOut.entrySet()) {
-			Consumable c = gui.getValue();
-			ItemViewController cc = (ItemViewController)gui.getKey().controller;
+		for (Entry<Consumable, GuiInstance> gui : sumEntriesOut.entrySet()) {
+			Consumable c = gui.getKey();
+			ItemViewController cc = (ItemViewController)gui.getValue().controller;
 			cc.setItem(c, owner.getTotalProduction(c));
 			cc.setState(owner.isExcess(c) ? WarningState.LEFTOVER : WarningState.NONE);
 		}
@@ -154,6 +124,23 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 	@Override
 	public void onCleared() {
 		// TODO Auto-generated method stub
+
+	}
+
+	private class SumsRow extends MatrixRow {
+
+		@Override
+		protected Node getNode(MatrixColumn c) {
+			if (c instanceof ItemColumn) {
+				int idx = ScaledRecipeMatrix.this.grid.getColumns().indexOf(c);
+				ItemColumn ic = (ItemColumn)c;
+				boolean isOutput = !ic.isInput;
+				//Logging.instance.log("Sum fetch for column "+ic+" = "+ic.item+" ("+isOutput+"): "+(isOutput ? sumEntriesOut : sumEntriesIn).get(ic.item));
+				GuiInstance gui = (isOutput ? sumEntriesOut : sumEntriesIn).get(ic.item);
+				return gui == null ? null : gui.rootNode;
+			}
+			return null;
+		}
 
 	}
 
