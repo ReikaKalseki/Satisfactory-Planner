@@ -2,8 +2,11 @@ package Reika.SatisfactoryPlanner.GUI;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map.Entry;
 
 import Reika.SatisfactoryPlanner.Data.Constants.ToggleableVisiblityGroup;
@@ -14,18 +17,14 @@ import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.Data.ResourceSupply;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
 import Reika.SatisfactoryPlanner.Util.FactoryListener;
-import Reika.SatisfactoryPlanner.Util.Logging;
-import Reika.SatisfactoryPlanner.Util.MultiMap;
 
-import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.scene.Node;
+import javafx.collections.ObservableList;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.skin.TableColumnHeader;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.RowConstraints;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -34,132 +33,227 @@ import javafx.scene.text.FontWeight;
 
 public abstract class RecipeMatrixBase implements FactoryListener {
 
-	protected final TableView<MatrixRow> grid = new TableView();
+	protected int titlesRow;
+	protected int titleGapRow;
+	protected final HashSet<Integer> minorRowGaps = new HashSet();
 
-	protected final TitleRow titlesRow = new TitleRow();
-	protected final DividerRow titleGapRow = new DividerRow(0);
+	protected int nameColumn;
+	protected int mainGapColumn;
+	protected int buildingGapColumn;
+	protected int buildingColumn;
+	protected final HashSet<Integer> minorColumnGaps = new HashSet();
 
-	protected final MatrixColumn nameColumn = new MatrixColumn();
-	protected final GapColumn mainGapColumn = new GapColumn(0);
-	protected final GapColumn buildingGapColumn = new GapColumn(1);
-	protected final MatrixColumn buildingColumn = new MatrixColumn();
-
-	protected final GapColumn inoutGapColumn = new GapColumn(1);
+	protected int inoutGapColumn;
+	protected int ingredientsStartColumn;
+	protected int productsStartColumn;
 
 	protected Label nameLabel;
 	protected Label consumptionLabel;
 	protected Label productionLabel;
 	protected Label buildingLabel;
 
-	//protected final ArrayList<Consumable> inputsList = new ArrayList();
-	//protected final ArrayList<Consumable> outputsList = new ArrayList();
-	protected final MultiMap<Consumable, Recipe> inputs = new MultiMap();
-	protected final MultiMap<Consumable, Recipe> outputs = new MultiMap();
+	protected ArrayList<Consumable> inputs;
+	protected ArrayList<Consumable> outputs;
 
-	protected final HashMap<Consumable, ItemColumn> inputColumns = new HashMap();
-	protected final HashMap<Consumable, ItemColumn> outputColumns = new HashMap();
 	protected final HashMap<Recipe, RecipeRow> recipeEntries = new HashMap();
 
 	public final Factory owner;
+	protected final GridPane grid;
+
 	protected ControllerBase gui;
 
 	protected RecipeMatrixBase(Factory f) {
 		owner = f;
+		grid = new GridPane();
 		owner.addCallback(this);
-		grid.setMaxWidth(Double.POSITIVE_INFINITY);
+
+		grid.setHgap(4);
+		grid.setVgap(4);
 		grid.setMaxHeight(Double.POSITIVE_INFINITY);
-		grid.setPrefHeight(Region.USE_COMPUTED_SIZE);
-		grid.setPrefWidth(Region.USE_COMPUTED_SIZE);
-		grid.setMinWidth(Region.USE_COMPUTED_SIZE);
-		grid.setMinHeight(Region.USE_COMPUTED_SIZE);
-
-		grid.setEditable(false);
-		grid.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
-
-		//TableViewSkin sk = new TableViewSkin(grid);
-		//sk.
-		//grid.setSkin(sk);
-	}
-
-	public void buildGrid() {
-		this.addInitialColumns();
-		this.addInitialRows();
-		this.addTitles();
-	}
-
-	protected void addInitialRows() {
-		grid.getItems().add(titlesRow);
-		grid.getItems().add(titleGapRow);
-	}
-
-	protected void addInitialColumns() {
-		grid.getColumns().add(nameColumn);
-		grid.getColumns().add(mainGapColumn);
-
-		grid.getColumns().add(inoutGapColumn);
-
-		grid.getColumns().add(buildingGapColumn);
-		grid.getColumns().add(buildingColumn);
+		grid.setMaxWidth(Double.POSITIVE_INFINITY);
 	}
 
 	public final void setUI(ControllerBase gui) {
 		this.gui = gui;
 	}
 
-	public final Node getGrid() {
-		return grid;
-	}
-
 	protected float getMultiplier(Recipe r) {
 		return 1;
 	}
-	/*
+
+	public final GridPane getGrid() {
+		return grid;
+	}
+
+	protected final List<Recipe> getRecipes() {
+		return owner.getRecipes();
+	}
+
+	protected final void computeIO() {
+		inputs = new ArrayList(owner.getAllIngredients());
+		outputs = new ArrayList(owner.getAllProducedItems());
+		Collections.sort(inputs);
+		Collections.sort(outputs);
+	}
+
+	protected abstract void rebuildGrid() throws IOException;
+
 	protected final void addInputColumns() {
 		for (int i = 0; i < inputs.size(); i++) {
-			ItemColumn c = new ItemColumn(inputs.get(i));
-			inputColumns.put(c.item, c);
+			this.addColumn();
 			if (i < inputs.size()-1)
-				minorColumnGaps.add(new GapColumn(2)); //separator
+				minorColumnGaps.add(this.addColumn()); //separator
 		}
-		//if (inputs.isEmpty())
-		//	this.addColumn(); //space for "consuming" title
+		if (inputs.isEmpty())
+			this.addColumn(); //space for "consuming" title
+		if (inputs.size() <= 1)
+			grid.getColumnConstraints().get(grid.getColumnCount()-1).setMinWidth(96);
 	}
 
 	protected final void addOutputColumns() {
 		for (int i = 0; i < outputs.size(); i++) {
-			ItemColumn c = new ItemColumn(outputs.get(i));
-			outputColumns.put(c.item, c);
+			this.addColumn();
 			if (i < outputs.size()-1)
-				minorColumnGaps.add(new GapColumn(2)); //separator
+				minorColumnGaps.add(this.addColumn()); //separator
 		}
-		//if (outputs.isEmpty())
-		//	this.addColumn(); //space for "producing" title
-	}*/
+		if (outputs.isEmpty())
+			this.addColumn(); //space for "producing" title
+		if (outputs.size() <= 1)
+			grid.getColumnConstraints().get(grid.getColumnCount()-1).setMinWidth(96);
+	}
 
-	protected RecipeRow addRecipeRow(Recipe r) throws IOException {
-		RecipeRow row = new RecipeRow(r);
-		int idx = grid.getItems().indexOf(titleGapRow)+1+recipeEntries.size();
-		grid.getItems().add(idx, row);
+	protected RecipeRow addRecipeRow(Recipe r, int i) throws IOException {
+		Label lb = new Label(r.displayName);
+		lb.setFont(Font.font(lb.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, 14));
+		GuiUtil.sizeToContent(lb);
+		int rowIndex = titleGapRow+1+i*2;
+		RecipeRow row = new RecipeRow(r, i, rowIndex);
 		recipeEntries.put(r, row);
-		if (recipeEntries.size() > 1) {
-			DividerRow div = new DividerRow(2);
-			row.precedingGap = div;
-			grid.getItems().add(idx, div);
+		grid.add(lb, nameColumn, rowIndex);
+		for (Entry<Consumable, Float> e : r.getIngredientsPerMinute().entrySet()) {
+			Consumable c = e.getKey();
+			GuiInstance gui = this.gui.loadNestedFXML("ItemView", grid, ingredientsStartColumn+inputs.indexOf(c)*2, rowIndex);
+			((ItemViewController)gui.controller).setItem(c, e.getValue()*this.getMultiplier(r));
+			row.inputSlots.put(c, gui);
 		}
+		for (Entry<Consumable, Float> e : r.getProductsPerMinute().entrySet()) {
+			Consumable c = e.getKey();
+			GuiInstance gui = this.gui.loadNestedFXML("ItemView", grid, productsStartColumn+outputs.indexOf(c)*2, rowIndex);
+			((ItemViewController)gui.controller).setItem(c, e.getValue()*this.getMultiplier(r));
+			row.outputSlots.put(c, gui);
+		}
+		grid.add(r.productionBuilding.createImageView(), buildingColumn, rowIndex);
 
+		this.createDivider(mainGapColumn, rowIndex, 0);
+		this.createDivider(inoutGapColumn, rowIndex, 1);
+		for (int col : minorColumnGaps)
+			this.createDivider(col, rowIndex, 2);
+		this.createDivider(buildingGapColumn, rowIndex, 1);
 		return row;
 	}
 
 	protected void addTitles() {
-		titlesRow.addTitle("Item Name", nameColumn);
-		//titlesRow.addTitle("Consuming", ingredientsStartColumn);
-		//titlesRow.addTitle("Producing", productsStartColumn);
-		titlesRow.addTitle("In", buildingColumn);
+		nameLabel = new Label("Item Name");
+		nameLabel.setFont(Font.font(nameLabel.getFont().getFamily(), FontWeight.BOLD, 16));
+		grid.add(nameLabel, nameColumn, titlesRow);
+		consumptionLabel = new Label("Consuming");
+		consumptionLabel.setFont(Font.font(consumptionLabel.getFont().getFamily(), FontWeight.BOLD, 16));
+		grid.add(consumptionLabel, ingredientsStartColumn, titlesRow);
+		productionLabel = new Label("Producing");
+		productionLabel.setFont(Font.font(productionLabel.getFont().getFamily(), FontWeight.BOLD, 16));
+		grid.add(productionLabel, productsStartColumn, titlesRow);
+		buildingLabel = new Label("In");
+		buildingLabel.setFont(Font.font(productionLabel.getFont().getFamily(), FontWeight.BOLD, 16));
+		grid.add(buildingLabel, buildingColumn, titlesRow);
+		grid.setColumnSpan(consumptionLabel, productsStartColumn-ingredientsStartColumn);
+		grid.setColumnSpan(productionLabel, buildingGapColumn-productsStartColumn);
+		grid.setColumnSpan(buildingLabel, 1);
 	}
 
-	@Override
-	public final int getSortIndex() {
-		return Integer.MIN_VALUE;
+	protected final int addRow() {
+		RowConstraints cc = new RowConstraints();
+		cc.setPrefHeight(Region.USE_COMPUTED_SIZE);
+		cc.setMaxHeight(Region.USE_COMPUTED_SIZE);
+		cc.setMinHeight(Region.USE_COMPUTED_SIZE);
+		grid.getRowConstraints().add(cc);
+		return grid.getRowConstraints().size()-1;
+	}
+
+	protected final int addColumn() {
+		ColumnConstraints cs = new ColumnConstraints();
+		grid.getColumnConstraints().add(cs);
+		cs.setPrefWidth(Region.USE_COMPUTED_SIZE);
+		cs.setMaxWidth(Region.USE_COMPUTED_SIZE);
+		cs.setMinWidth(Region.USE_COMPUTED_SIZE);
+		return grid.getColumnConstraints().size()-1;
+	}
+
+	protected final void createRowDivider(int row, int tier) {
+		String c = "000000ff";
+		int w = 8;
+		switch(tier) {
+			case 0:
+				c = "7f7f7fff";
+				break;
+			case 1:
+				c = "b2b2b2ff";
+				w = 4;
+				break;
+			case 2:
+				c = "d9d9d9ff";
+				w = 1;
+				break;
+		}
+		ObservableList<ColumnConstraints> li = grid.getColumnConstraints();
+		for (int i = 0; i < li.size(); i++) {/*
+			Rectangle rect = new Rectangle();
+			rect.setFill(c);
+			li.get(i).setFillWidth(true);
+			//rect.widthProperty().bind(li.get(i).maxWidthProperty().subtract(2));
+			//rect.widthProperty().bind(gp.widthProperty().subtract(4+8+4+minorColumnGaps.size()).divide(li.size()-minorColumnGaps.size()+2));
+			rect.setHeight(w);
+			//rect.setWidth(gp.getCellBounds(i, row).getWidth());
+			gp.add(rect, i, row);/*
+			AnchorPane ap = new AnchorPane();
+			ap.getChildren().add(rect);
+			ap.setBottomAnchor(rect, 0D);
+			ap.setTopAnchor(rect, 0D);
+			ap.setLeftAnchor(rect, 0D);
+			ap.setRightAnchor(rect, 0D);
+			gp.add(ap, i, row);*/
+			HBox hb = new HBox();
+			hb.setMaxWidth(Double.POSITIVE_INFINITY);
+			hb.setMaxHeight(w);
+			//hb.setMinWidth(1);
+			hb.setMinHeight(w);
+			hb.setStyle("-fx-background-color: #"+c+";");
+			grid.add(hb, i, row);
+		}
+	}
+
+	protected final void createDivider(int col, int row, int tier) {
+		Rectangle rect = new Rectangle();
+		Color c = Color.BLACK;
+		int w = 8;
+		switch(tier) {
+			case 0:
+				c = Color.gray(0.5);
+				break;
+			case 1:
+				c = Color.gray(0.7);
+				w = 4;
+				break;
+			case 2:
+				c = Color.gray(0.85);
+				w = 1;
+				break;
+		}
+		rect.setFill(c);
+		//rect.widthProperty().bind(gp.getColumnConstraints().get(split).maxWidthProperty().subtract(2));
+		//rect.heightProperty().bind(gp.getRowConstraints().get(i).maxHeightProperty().subtract(2));
+		rect.setWidth(w);
+		rect.setHeight(32);
+		grid.add(rect, col, row);
 	}
 
 	@Override
@@ -167,73 +261,42 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 		throw new UnsupportedOperationException();
 	}
 
-	public final void onAddRecipe(Recipe r) {
+	@Override
+	public final int getSortIndex() {
+		return Integer.MIN_VALUE;
+	}
+
+	private void rebuild() {
 		try {
-			for (Consumable c : r.getDirectCost().keySet()) {
-				if (!inputs.containsKey(c)) {
-					//inputsList.add(c);
-					this.addItemColumn(c, true);
-					this.onAddItem(c, true);
-				}
-				inputs.addValue(c, r);
-			}
-			//Collections.sort(inputsList);
-			for (Consumable c : r.getProductsPerMinute().keySet()) {
-				if (!outputs.containsKey(c)) {
-					//outputsList.add(c);
-					this.addItemColumn(c, false);
-					this.onAddItem(c, false);
-				}
-				outputs.addValue(c, r);
-			}
-			//Collections.sort(outputsList);
-			this.addRecipeRow(r);
+			grid.getChildren().clear();
+			grid.getColumnConstraints().clear();
+			grid.getRowConstraints().clear();
+			recipeEntries.clear();
+			this.rebuildGrid();
 		}
 		catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
-	protected void onAddItem(Consumable c, boolean isInput) {
-
+	@Override
+	public final void onAddRecipe(Recipe r) {
+		this.rebuild();
 	}
 
-	private void addItemColumn(Consumable c, boolean isInput) {
-		ItemColumn ic = new ItemColumn(c, isInput);
-		int idx = isInput ? grid.getColumns().indexOf(mainGapColumn)+1+inputColumns.size() : grid.getColumns().indexOf(inoutGapColumn)+1+outputColumns.size();
-		grid.getColumns().add(idx, ic);
-		HashMap<Consumable, ItemColumn> map = isInput ? inputColumns : outputColumns;
-		map.put(c, ic);
-		if (map.size() > 1) {
-			GapColumn gap = new GapColumn(2);
-			ic.precedingGap = gap;
-			grid.getColumns().add(idx, gap);
-		}
-	}
-
+	@Override
 	public final void onRemoveRecipe(Recipe r) {
-		for (Consumable c : r.getDirectCost().keySet()) {
-			inputs.remove(c, r);
-			if (!inputs.containsKey(c)) {
-				//inputsList.remove(c);
-				inputColumns.get(c).removeFromGrid();
-				this.onRemoveItem(c, true);
-			}
-		}
-		for (Consumable c : r.getProductsPerMinute().keySet()) {
-			outputs.remove(c, r);
-			if (!outputs.containsKey(c)) {
-				//outputsList.remove(c);
-				outputColumns.get(c).removeFromGrid();
-				this.onRemoveItem(c, false);
-			}
-		}
-		recipeEntries.get(r).removeFromGrid();
+		this.rebuild();
 	}
 
-	protected void onRemoveItem(Consumable c, boolean isInput) {
+	@Override
+	public final void onCleared() {
+		this.rebuild();
+	}
 
+	@Override
+	public final void onLoaded() {
+		this.rebuild();
 	}
 
 	@Override
@@ -257,20 +320,21 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 	@Override
 	public final void onSetFile(File f) {}
 
-	protected class RecipeRow extends FixedContentRow {
+	protected class RecipeRow {
 
-		private final Recipe recipe;
+		public final Recipe recipe;
+		public final int recipeIndex;
+		public final int rowIndex;
 		private final HashMap<Consumable, GuiInstance> inputSlots = new HashMap();
 		private final HashMap<Consumable, GuiInstance> outputSlots = new HashMap();
 
-		private DividerRow precedingGap;
-
 		private final Label label;
 
-		private RecipeRow(Recipe r) throws IOException {
+		private RecipeRow(Recipe r, int index, int row) throws IOException {
 			super();
 			recipe = r;
-
+			rowIndex = row;
+			recipeIndex = index;
 			label = new Label(r.displayName);
 			label.setFont(Font.font(label.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, 14));
 			GuiUtil.sizeToContent(label);
@@ -296,223 +360,5 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 			for (GuiInstance gui : outputSlots.values())
 				((ItemViewController)gui.controller).setScale(scale);
 		}
-
-		public void removeFromGrid() {
-			grid.getItems().remove(this);
-			if (precedingGap != null)
-				grid.getItems().remove(precedingGap);
-		}
-
-		@Override
-		protected Node getNode(MatrixColumn c) {
-			if (c == nameColumn) {
-				return label;
-			}
-			else if (c instanceof ItemColumn) {
-				ItemColumn ic = (ItemColumn)c;
-				GuiInstance gui = (ic.isInput ? inputSlots : outputSlots).get(ic.item);
-				return gui == null ? null : gui.rootNode;
-			}
-			return super.getNode(c);
-		}
-
 	}
-
-	protected class TitleRow extends FixedContentRow {
-
-		protected TitleRow() {
-			super();
-		}
-
-		protected TitleRow addTitle(String s, MatrixColumn c) {
-			Label l = new Label(s);
-			l.setFont(Font.font(l.getFont().getFamily(), FontWeight.BOLD, 16));
-			this.addNode(c, l);
-			return this;
-		}
-
-	}
-
-	protected class FixedContentRow extends MatrixRow {
-
-		private final HashMap<MatrixColumn, Node> nodes = new HashMap();
-
-		public FixedContentRow() {
-			super();
-		}
-
-		public FixedContentRow addNode(MatrixColumn c, Node n) {
-			nodes.put(c, n);
-			return this;
-		}
-
-		@Override
-		protected Node getNode(MatrixColumn c) {
-			return nodes.get(c);
-		}
-
-	}
-
-	protected class DividerRow extends MatrixRow {
-
-		private final HBox hb = new HBox();
-
-		public DividerRow(int tier) {
-			super();
-			String c = "000000ff";
-			int w = 8;
-			switch(tier) {
-				case 0:
-					c = "7f7f7fff";
-					break;
-				case 1:
-					c = "b2b2b2ff";
-					w = 4;
-					break;
-				case 2:
-					c = "d9d9d9ff";
-					w = 1;
-					break;
-			}
-			hb.setMaxWidth(Double.POSITIVE_INFINITY);
-			hb.setMaxHeight(w);
-			//hb.setMinWidth(1);
-			hb.setMinHeight(w);
-			hb.setStyle("-fx-background-color: #"+c+";");
-		}
-
-		@Override
-		protected Node getNode(MatrixColumn c) {
-			return hb;
-		}
-
-	}
-
-	protected abstract class MatrixRow {
-
-		public MatrixRow() {
-
-		}
-
-		protected abstract Node getNode(MatrixColumn c);
-
-	}
-
-	protected class ItemColumn extends MatrixColumn {
-
-		public final Consumable item;
-		public final boolean isInput;
-
-		private GapColumn precedingGap;
-
-		public ItemColumn(Consumable c, boolean inp) {
-			super();
-			item = c;
-			isInput = inp;
-		}
-
-		public void removeFromGrid() {
-			grid.getColumns().remove(this);
-			if (precedingGap != null)
-				grid.getColumns().remove(precedingGap);
-		}
-
-	}
-
-	protected class GapColumn extends MatrixColumn {
-
-		private final Rectangle rect = new Rectangle();
-
-		public GapColumn(int tier) {
-			super();
-			Color c = Color.BLACK;
-			int w = 8;
-			switch(tier) {
-				case 0:
-					c = Color.gray(0.5);
-					break;
-				case 1:
-					c = Color.gray(0.7);
-					w = 4;
-					break;
-				case 2:
-					c = Color.gray(0.85);
-					w = 1;
-					break;
-			}
-			rect.setFill(c);
-			//rect.widthProperty().bind(gp.getColumnConstraints().get(split).maxWidthProperty().subtract(2));
-			//rect.heightProperty().bind(gp.getRowConstraints().get(i).maxHeightProperty().subtract(2));
-			rect.setWidth(w);
-			rect.setHeight(32);
-		}
-
-	}
-
-	protected class MatrixColumn extends TableColumn<MatrixRow, Node> {
-
-		protected MatrixColumn() {
-			this.setMaxWidth(Double.POSITIVE_INFINITY);
-			this.setPrefWidth(Region.USE_COMPUTED_SIZE);
-			this.setMinWidth(Region.USE_COMPUTED_SIZE);
-			this.setCellValueFactory(d -> {
-				return new ReadOnlyObjectWrapper<Node>(d.getValue().getNode((MatrixColumn)d.getTableColumn()));
-			});
-			this.setResizable(false);
-			this.setEditable(false);
-			this.setReorderable(false);
-			this.setCellFactory(tc -> new MatrixCell(this));
-		}
-
-	}
-
-	private static class MatrixCell extends TableCell<MatrixRow, Node> {
-
-		private final MatrixColumn owner;
-
-		private MatrixCell(MatrixColumn c) {
-			owner = c;
-			this.setMaxWidth(Double.POSITIVE_INFINITY);
-			this.setMaxHeight(Double.POSITIVE_INFINITY);
-			this.setPrefHeight(Region.USE_COMPUTED_SIZE);
-			this.setPrefWidth(Region.USE_COMPUTED_SIZE);
-			this.setMinWidth(Region.USE_COMPUTED_SIZE);
-			this.setMinHeight(Region.USE_COMPUTED_SIZE);
-			this.setEditable(false);
-		}
-
-		@Override
-		protected void updateItem(Node item, boolean empty) {
-			super.updateItem(item, empty);
-			this.setText(null);
-			this.setGraphic(item);
-			//this.setPrefWidth(item != null ? item.getBoundsInParent().getWidth() : 0);
-			//((ResizeableColumnSkin)owner.getStyleableNode()).fit();
-			try {
-				Method m = TableColumnHeader.class.getDeclaredMethod("resizeColumnToFitContent", int.class);
-				m.setAccessible(true);
-				Node n = owner.getStyleableNode();
-				Logging.instance.log("Column "+owner+": "+n);
-				if (n != null)
-					m.invoke(n, -1);
-			}
-			catch (Exception e) {
-				e.printStackTrace();
-			}
-			//((TableColumnHeader)owner.getStyleableNode()).fit();
-		}
-
-	}
-	/*
-	private static class ResizeableColumnSkin extends TableColumnHeader {
-
-		public ResizeableColumnSkin(TableColumnBase tc) {
-			super(tc);
-		}
-
-		public void fit() {
-			this.resizeColumnToFitContent(-1);
-		}
-
-	}*/
 }

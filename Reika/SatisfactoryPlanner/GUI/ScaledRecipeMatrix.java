@@ -2,6 +2,7 @@ package Reika.SatisfactoryPlanner.GUI;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 
 import Reika.SatisfactoryPlanner.Data.Consumable;
@@ -9,20 +10,22 @@ import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
 import Reika.SatisfactoryPlanner.GUI.ItemViewController.WarningState;
 
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 
 public class ScaledRecipeMatrix extends RecipeMatrixBase {
 
 	private final RecipeMatrix parent;
 
-	protected final GapColumn countGapColumn = new GapColumn(0);
-	protected final MatrixColumn countColumn = new MatrixColumn();
+	protected int countGapColumn;
+	protected int countColumn;
 
-	protected final MatrixRow sumGapRow = new DividerRow(1);
-	protected final MatrixRow sumsRow = new SumsRow();
+	protected int sumGapRow;
+	protected int sumsRow;
 
 	protected Label countLabel;
 
@@ -42,24 +45,91 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 	}
 
 	@Override
-	protected void addInitialRows() {
-		super.addInitialRows();
-		grid.getItems().add(sumGapRow);
-		grid.getItems().add(sumsRow);
+	public void rebuildGrid() throws IOException {
+		buildingGrid = true;
+		List<Recipe> recipes = this.getRecipes();
+		this.computeIO();
+		titlesRow = this.addRow();
+		titleGapRow = this.addRow();
+		minorRowGaps.clear();
+		for (int i = 0; i < recipes.size(); i++) {
+			this.addRow();
+			if (i < recipes.size()-1)
+				minorRowGaps.add(this.addRow()); //separator
+		}
+		nameColumn = this.addColumn(); //name
+		mainGapColumn = this.addColumn(); //separator
+		minorColumnGaps.clear();
+
+		this.addInputColumns();
+
+		inoutGapColumn = this.addColumn(); //separator
+
+		this.addOutputColumns();
+
+		buildingGapColumn = this.addColumn();
+		buildingColumn = this.addColumn();
+
+		countGapColumn = this.addColumn();
+		countColumn = this.addColumn();
+
+		ingredientsStartColumn = /*2*/mainGapColumn+1;
+		productsStartColumn = /*2+in.size()+1*/inoutGapColumn+1;
+
+		for (int i = 0; i < recipes.size(); i++) {
+			this.addRecipeRow(recipes.get(i), i);
+		}
+		this.createDivider(mainGapColumn, titlesRow, 0);
+		this.createDivider(inoutGapColumn, titlesRow, 1);
+		this.createDivider(buildingGapColumn, titlesRow, 1);
+		this.createDivider(countGapColumn, titlesRow, 0);
+		sumGapRow = this.addRow();
+		sumsRow = this.addRow();
+		this.createRowDivider(titleGapRow, 0);
+		this.createRowDivider(sumGapRow, 1);
+		for (int row : minorRowGaps)
+			this.createRowDivider(row, 2);
+
+		sumEntriesIn.clear();
+		sumEntriesOut.clear();
+
+		this.createDivider(mainGapColumn, sumsRow, 0);
+		this.createDivider(countGapColumn, sumsRow, 0);
+		this.createDivider(inoutGapColumn, sumsRow, 1);
+		this.createDivider(buildingGapColumn, sumsRow, 1);
+
+		buildingGrid = false;
+
+		for (int i = 0; i < inputs.size(); i++) {
+			Consumable c = inputs.get(i);
+			int idx = ingredientsStartColumn+inputs.indexOf(c)*2;
+			GuiInstance gui = this.gui.loadNestedFXML("ItemView", grid, idx, sumsRow);
+			((ItemViewController)gui.controller).setItem(c, owner.getTotalConsumption(c));
+			sumEntriesIn.put(c, gui);
+			if (i < inputs.size()-1)
+				this.createDivider(idx+1, sumsRow, 2);
+		}
+		for (int i = 0; i < outputs.size(); i++) {
+			Consumable c = outputs.get(i);
+			int idx = productsStartColumn+outputs.indexOf(c)*2;
+			GuiInstance gui = this.gui.loadNestedFXML("ItemView", grid, idx, sumsRow);
+			((ItemViewController)gui.controller).setItem(c, owner.getTotalProduction(c));
+			sumEntriesOut.put(c, gui);
+			if (i < outputs.size()-1)
+				this.createDivider(idx+1, sumsRow, 2);
+		}
+
+		for (Recipe r : this.getRecipes())
+			this.onSetCount(r, owner.getCount(r));
+
+		this.addTitles();
 	}
 
 	@Override
-	protected void addInitialColumns() {
-		super.addInitialColumns();
+	protected RecipeRow addRecipeRow(Recipe r, int i) throws IOException {
+		RecipeRow rowIndex = super.addRecipeRow(r, i);
 
-		grid.getColumns().add(countGapColumn);
-		grid.getColumns().add(countColumn);
-	}
-
-	@Override
-	protected RecipeRow addRecipeRow(Recipe r) throws IOException {
-		RecipeRow rr = super.addRecipeRow(r);
-
+		this.createDivider(countGapColumn, rowIndex.rowIndex, 0);
 		Spinner<Double> counter = new Spinner();
 		GuiUtil.setupCounter(counter, 0, 9999, parent.owner.getCount(r), true);
 		counter.setPrefHeight(32);
@@ -69,37 +139,23 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 			if (nnew != null)
 				parent.owner.setCount(r, nnew.floatValue());
 		});
-		rr.addNode(countColumn, counter);
-		return rr;
+		grid.add(counter, countColumn, rowIndex.rowIndex);
+		return rowIndex;
 	}
 
 	@Override
 	protected void addTitles() {
 		super.addTitles();
 
-		titlesRow.addTitle("Counts", countColumn);
+		countLabel = new Label("Counts");
+		countLabel.setFont(Font.font(countLabel.getFont().getFamily(), FontWeight.BOLD, 16));
+		grid.add(countLabel, countColumn, titlesRow);
+		grid.setColumnSpan(countLabel, GridPane.REMAINING);
 	}
 
 	@Override
-	protected void onAddItem(Consumable c, boolean isInput) {
-		try {
-			GuiInstance gui = this.gui.loadNestedFXML("ItemView", p -> {});
-			((ItemViewController)gui.controller).setItem(c, isInput ? owner.getTotalConsumption(c) : owner.getTotalProduction(c));
-			(isInput ? sumEntriesIn : sumEntriesOut).put(c, gui);
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	@Override
-	protected void onRemoveItem(Consumable c, boolean isInput) {
-		(isInput ? sumEntriesIn : sumEntriesOut).remove(c);
-	}
-
-	@Override
-	public void onSetCount(Recipe r, float count) {
-		recipeEntries.get(r).setScale(count);
+	public void onSetCount(Recipe r, float amt) {
+		recipeEntries.get(r).setScale(amt);
 		for (Entry<Consumable, GuiInstance> gui : sumEntriesIn.entrySet()) {
 			Consumable c = gui.getKey();
 			float total = owner.getTotalConsumption(c);
@@ -113,35 +169,6 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 			cc.setItem(c, owner.getTotalProduction(c));
 			cc.setState(owner.isExcess(c) ? WarningState.LEFTOVER : WarningState.NONE);
 		}
-	}
-
-	@Override
-	public void onLoaded() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void onCleared() {
-		// TODO Auto-generated method stub
-
-	}
-
-	private class SumsRow extends MatrixRow {
-
-		@Override
-		protected Node getNode(MatrixColumn c) {
-			if (c instanceof ItemColumn) {
-				int idx = ScaledRecipeMatrix.this.grid.getColumns().indexOf(c);
-				ItemColumn ic = (ItemColumn)c;
-				boolean isOutput = !ic.isInput;
-				//Logging.instance.log("Sum fetch for column "+ic+" = "+ic.item+" ("+isOutput+"): "+(isOutput ? sumEntriesOut : sumEntriesIn).get(ic.item));
-				GuiInstance gui = (isOutput ? sumEntriesOut : sumEntriesIn).get(ic.item);
-				return gui == null ? null : gui.rootNode;
-			}
-			return null;
-		}
-
 	}
 
 }

@@ -290,7 +290,7 @@ public class GuiUtil {
 	public static <E> void setupAddSelector(SearchableComboBox<E> sb, Consumer<E> onSelect) {
 		sb.getSelectionModel().selectedItemProperty().addListener((val, old, nnew) -> {
 			if (nnew != null)
-				Platform.runLater(() -> onSelect.accept(nnew)); //need to delay since this updates the selection and contents, which cannot be done inside a selection change
+				Platform.runLater(() -> {onSelect.accept(nnew); sb.getSelectionModel().clearSelection();}); //need to delay since this updates the selection and contents, which cannot be done inside a selection change
 		});
 	}
 

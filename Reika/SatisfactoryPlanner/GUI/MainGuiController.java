@@ -317,7 +317,7 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 		factory.addCallback(this);
 		factory.setUI(this);
 		if (update)
-			this.updateUI();
+			this.rebuildEntireUI();
 	}
 
 	@Override
@@ -332,23 +332,36 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 			generators.put(g, con);
 		}
 
+		Node gp = factory.createRawMatrix();
+		gridContainer.setContent(gp);
+
+		gp = factory.createNetMatrix();
+		netGridContainer.setContent(gp);
+
+		this.setFont(gridContainer, GuiSystem.getDefaultFont());
+		this.setFont(netGridContainer, GuiSystem.getDefaultFont());
+
 		this.buildRecentList();
 
-		this.updateUI();
+		this.rebuildEntireUI();
 	}
 
-	public void rebuildLists() {
-		addProductButton.getSelectionModel().clearSelection();
-		ArrayList<Consumable> li = new ArrayList(Database.getAllItems());
-		li.removeIf(c -> !this.isItemValid(c));
-		addProductButton.setItems(FXCollections.observableArrayList(li));
+	public void rebuildLists(boolean recipe, boolean products) {
+		if (products) {
+			addProductButton.getSelectionModel().clearSelection();
+			ArrayList<Consumable> li = new ArrayList(Database.getAllItems());
+			li.removeIf(c -> !this.isItemValid(c));
+			addProductButton.setItems(FXCollections.observableArrayList(li));
+		}
 
-		recipeDropdown.getSelectionModel().clearSelection();
-		ArrayList<Recipe> li2 = new ArrayList(Database.getAllAutoRecipes());
-		li2.removeIf(r -> !this.isRecipeValid(r) || factory.getRecipes().contains(r));
+		if (recipe) {
+			recipeDropdown.getSelectionModel().clearSelection();
+			ArrayList<Recipe> li2 = new ArrayList(Database.getAllAutoRecipes());
+			li2.removeIf(r -> !this.isRecipeValid(r) || factory.getRecipes().contains(r));
 
-		recipeDropdown.setItems(FXCollections.observableList(li2));
-		recipeDropdown.setDisable(li2.isEmpty());
+			recipeDropdown.setItems(FXCollections.observableList(li2));
+			recipeDropdown.setDisable(li2.isEmpty());
+		}
 	}
 
 	public void buildRecentList() {
@@ -377,16 +390,14 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 		return true;
 	}
 
-	private void updateUI() {
+	private void rebuildEntireUI() {
+
+		this.rebuildLists(true, true);
+
 		factoryName.setText(factory.name);
 		for (ToggleableVisiblityGroup tv : ToggleableVisiblityGroup.values()) {
 			toggleFilters.get(tv).setSelected(factory.getToggle(tv));
 		}
-
-		this.rebuildLists();
-
-		this.setFont(gridContainer, GuiSystem.getDefaultFont());
-		this.setFont(netGridContainer, GuiSystem.getDefaultFont());
 
 		productGrid.getChildren().removeIf(n -> n instanceof ProductButton);
 		for (Consumable c : factory.getDesiredProducts())
@@ -500,34 +511,14 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 		}
 	}
 
-	private void setRecipeGrids() throws IOException {
-		Node gp = factory.createRawMatrix();
-		gridContainer.setContent(gp);
-
-		gp = factory.createNetMatrix();
-		netGridContainer.setContent(gp);
-	}
-
 	@Override
 	public void onAddRecipe(Recipe r) {
-		try {
-			this.setRecipeGrids();
-		}
-		catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		this.rebuildLists(true, false);
 	}
 
 	@Override
 	public void onRemoveRecipe(Recipe r) {
-		try {
-			this.setRecipeGrids();
-		}
-		catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		this.rebuildLists(true, false);
 	}
 
 	@Override
@@ -538,38 +529,34 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 
 	@Override
 	public void onSetCount(Generator g, float count) {
-		// TODO Auto-generated method stub
-
+		generators.get(g).setCount(count, false);
 	}
 
 	@Override
 	public void onAddProduct(Consumable c) {
-		// TODO Auto-generated method stub
-
+		productGrid.getChildren().add(new ProductButton(c));
 	}
 
 	@Override
 	public void onRemoveProduct(Consumable c) {
-		// TODO Auto-generated method stub
-
+		productGrid.getChildren().remove(productButtons.get(c));
 	}
 
 	@Override
 	public void onAddSupply(ResourceSupply s) {
 		// TODO Auto-generated method stub
-
+		-
 	}
 
 	@Override
 	public void onRemoveSupply(ResourceSupply s) {
 		// TODO Auto-generated method stub
-
+		-
 	}
 
 	@Override
-	public void onSetToggle(ToggleableVisiblityGroup grp, boolean active) {
-		// TODO Auto-generated method stub
-
+	public void onSetToggle(ToggleableVisiblityGroup tv, boolean active) {
+		toggleFilters.get(tv).setSelected(active);
 	}
 
 	@Override
@@ -626,6 +613,7 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 			img.layoutXProperty().bind(p.widthProperty().subtract(img.getImage().getWidth()));
 			img.layoutYProperty().bind(p.heightProperty().subtract(img.getImage().getHeight()));
 			p.getChildren().add(img);
+			productButtons.put(c, this);
 			this.setGraphic(p);
 		}
 

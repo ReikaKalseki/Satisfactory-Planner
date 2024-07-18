@@ -70,8 +70,8 @@ public class Factory {
 	}
 
 	public Factory() {
-		matrix.buildGrid();
-		scaleMatrix.buildGrid();
+		//matrix.buildGrid();
+		//scaleMatrix.buildGrid();
 	}
 
 	public Factory addCallback(FactoryListener r) {

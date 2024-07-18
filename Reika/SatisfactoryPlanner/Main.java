@@ -91,7 +91,7 @@ public class Main {
 			c.createIcon(); //cache default icon size
 		MainWindow main = GuiSystem.MainWindow.getGUI();
 		if (main != null) {
-			((MainGuiController)main.controller).rebuildLists();
+			((MainGuiController)main.controller).rebuildLists(true, true);
 		}
 	}
 

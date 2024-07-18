@@ -60,7 +60,7 @@ public class GeneratorRowController extends ControllerBase {
 		this.setCount(0, false);
 	}
 
-	public void setCount(int c, boolean notify) {
+	public void setCount(float c, boolean notify) {
 		fuelBar.getChildren().clear();
 		counter.getValueFactory().setValue(c);
 		powerGenText.setText(String.format("%.3fMW", generator.powerGenerationMW*c));
