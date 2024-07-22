@@ -95,7 +95,7 @@ public class GuiSystem extends Application {
 		return service;
 	}
 
-	public static GuiInstance loadFXML(String fxml, WindowBase window) throws IOException {
+	public static <C extends ControllerBase> GuiInstance<C> loadFXML(String fxml, WindowBase window) throws IOException {
 		FXMLLoader loader = new FXMLLoader(Main.class.getResource("Resources/FXML/"+fxml+".fxml"));
 		Parent root = loader.load();
 		ControllerBase c = loader.getController();
@@ -110,12 +110,12 @@ public class GuiSystem extends Application {
 		CONDENSED,
 	}
 
-	static class GuiInstance {
+	static class GuiInstance<C extends ControllerBase> {
 
 		protected final Parent rootNode;
-		protected final ControllerBase controller;
+		protected final C controller;
 
-		private GuiInstance(Parent root, ControllerBase c) {
+		private GuiInstance(Parent root, C c) {
 			rootNode = root;
 			controller = c;
 		}

@@ -216,7 +216,9 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 	private Factory factory;
 
 	private final EnumMap<ToggleableVisiblityGroup, CheckBox> toggleFilters = new EnumMap(ToggleableVisiblityGroup.class);
-	private final HashMap<Generator, GeneratorRowController> generators = new HashMap();
+	private final HashMap<Generator, GuiInstance<GeneratorRowController>> generators = new HashMap();
+	private final HashMap<Consumable, ProductButton> productButtons = new HashMap();
+	private final HashMap<ResourceSupply, GuiInstance<? extends ResourceSupplyEntryController>> supplyEntries = new HashMap();
 
 	@Override
 	public void init(HostServices services) throws IOException {
@@ -239,6 +241,11 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 			@Override
 			public String getActionName() {
 				return "Add";
+			}
+
+			@Override
+			public boolean clearOnSelect() {
+				return true;
 			}
 		});
 
@@ -276,6 +283,11 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 			public String getActionName() {
 				return "Add";
 			}
+
+			@Override
+			public boolean clearOnSelect() {
+				return true;
+			}
 		});
 
 		factoryName.textProperty().addListener((val, old, nnew) -> {
@@ -302,6 +314,7 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 		});
 
 		this.setFactory(new Factory(), false);
+		factory.addCallback(this);
 	}
 
 	public Factory getFactory() {
@@ -314,8 +327,19 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 
 	private void setFactory(Factory f, boolean update) {
 		factory = f;
-		factory.addCallback(this);
 		factory.setUI(this);
+
+		try {
+			Node gp = factory.createRawMatrix();
+			gridContainer.setContent(gp);
+
+			gp = factory.createNetMatrix();
+			netGridContainer.setContent(gp);
+		}
+		catch (IOException ex) {
+			ex.printStackTrace();
+		}
+
 		if (update)
 			this.rebuildEntireUI();
 	}
@@ -325,18 +349,11 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 		super.postInit(w);
 
 		for (Generator g : Database.getAllGenerators()) {
-			GuiInstance gui = this.loadNestedFXML("GeneratorRow", generatorList);
-			GeneratorRowController con = (GeneratorRowController)gui.controller;
-			con.setGenerator(g);
-			con.setCallback(amt -> factory.setCount(g, amt));
-			generators.put(g, con);
+			GuiInstance<GeneratorRowController> gui = this.loadNestedFXML("GeneratorRow", generatorList);
+			gui.controller.setGenerator(g);
+			gui.controller.setCallback(amt -> factory.setCount(g, amt));
+			generators.put(g, gui);
 		}
-
-		Node gp = factory.createRawMatrix();
-		gridContainer.setContent(gp);
-
-		gp = factory.createNetMatrix();
-		netGridContainer.setContent(gp);
 
 		this.setFont(gridContainer, GuiSystem.getDefaultFont());
 		this.setFont(netGridContainer, GuiSystem.getDefaultFont());
@@ -391,7 +408,6 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 	}
 
 	private void rebuildEntireUI() {
-
 		this.rebuildLists(true, true);
 
 		factoryName.setText(factory.name);
@@ -401,14 +417,18 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 
 		productGrid.getChildren().removeIf(n -> n instanceof ProductButton);
 		for (Consumable c : factory.getDesiredProducts())
-			productGrid.getChildren().add(new ProductButton(c));
+			this.onAddProduct(c);
 
-		for (Entry<Generator, GeneratorRowController> e : generators.entrySet()) {
-			e.getValue().setCount(factory.getCount(e.getKey()), false);
+		for (Entry<Generator, GuiInstance<GeneratorRowController>> e : generators.entrySet()) {
+			e.getValue().controller.setCount(factory.getCount(e.getKey()), false);
 		}
 
-		Platform.runLater(() -> this.updateWarnings());
-		this.updateStats();
+		inputGrid.getChildren().removeIf(n -> !(n instanceof Button));
+		for (ResourceSupply res : factory.getSupplies()) {
+			this.onAddSupply(res);
+		}
+
+		this.updateStats(true);
 
 		if (this.getRootNode() != null)
 			this.getRootNode().layout();
@@ -440,118 +460,136 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 		warningPanel.layout();
 	}
 
-	private void updateStats() {
-		inputGrid.getChildren().removeIf(n -> !(n instanceof Button));
-		for (ResourceSupply res : factory.getSupplies()) {
-			try {
-				if (res instanceof ExtractableResource) {
-					GuiInstance gui = this.loadNestedFXML("ResourceMineEntry", inputGrid);
-					((ResourceMineEntryController)gui.controller).setSupply(factory, (ExtractableResource)res);
+	public void updateStats(boolean all) {
+		this.updateStats(all, all, all, all, all, all);
+	}
+
+	public void updateStats(boolean warnings, boolean buildings, boolean production, boolean consuming, boolean local, boolean power) {
+		if (warnings)
+			this.updateWarnings();
+
+		if (buildings) {
+			buildCostBar.getChildren().clear();
+			buildingBar.getChildren().clear();
+
+			CountMap<Item> cost = new CountMap();
+			CountMap<FunctionalBuilding> bc = factory.getBuildings();
+			for (FunctionalBuilding b : bc.keySet()) {
+
+				int amt = bc.get(b);
+				GuiUtil.addIconCount(buildingBar, b, amt);
+
+				for (Entry<Item, Integer> e : b.getConstructionCost().entrySet()) {
+					cost.increment(e.getKey(), e.getValue()*amt);
 				}
-				else if (res instanceof LogisticSupply) {
-					GuiInstance gui = this.loadNestedFXML("LogisticSupplyEntry", inputGrid);
-					((LogisticSupplyEntryController)gui.controller).setSupply(factory, (LogisticSupply)res);
-				}
 			}
-			catch (IOException e) {
-				e.printStackTrace();
+			for (Item i : cost.keySet()) {
+				GuiUtil.addIconCount(buildCostBar, i, cost.get(i));
 			}
 		}
 
-		buildCostBar.getChildren().clear();
-		buildingBar.getChildren().clear();
-		netProductBar.getChildren().clear();
-		netConsumptionBar.getChildren().clear();
-		localSupplyTotals.getChildren().clear();
-
-		CountMap<Item> cost = new CountMap();
-		CountMap<FunctionalBuilding> bc = factory.getBuildings();
-		for (FunctionalBuilding b : bc.keySet()) {
-
-			int amt = bc.get(b);
-			GuiUtil.addIconCount(buildingBar, b, amt);
-
-			for (Entry<Item, Integer> e : b.getConstructionCost().entrySet()) {
-				cost.increment(e.getKey(), e.getValue()*amt);
+		if (power) {
+			float prod = factory.getNetPowerProduction();
+			powerProduction.setText(String.format("%.2fMW", prod));
+			if (prod > 0) {
+				powerProduction.setStyle(GuiSystem.getFontStyle(FontModifier.BOLD)+" -fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.OKAY_COLOR)+";");
+			}
+			else if (prod < 0) {
+				powerProduction.setStyle(GuiSystem.getFontStyle(FontModifier.BOLD)+" -fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.WARN_COLOR)+";");
+			}
+			else {
+				powerProduction.setStyle("");
 			}
 		}
-		for (Item i : cost.keySet()) {
-			GuiUtil.addIconCount(buildCostBar, i, cost.get(i));
+
+		if (consuming) {
+			netConsumptionBar.getChildren().clear();
+			for (Consumable c : factory.getAllIngredients()) {
+				float amt = factory.getTotalConsumption(c)-factory.getTotalProduction(c);
+				if (amt > 0)
+					GuiUtil.addIconCount(netConsumptionBar, c, amt);
+			}
+		}
+		if (production) {
+			netProductBar.getChildren().clear();
+			for (Consumable c : factory.getAllProducedItems()) {
+				float amt = factory.getNetProduction(c);
+				if (amt > 0)
+					GuiUtil.addIconCount(netProductBar, c, amt);
+			}
 		}
 
-		float prod = factory.getNetPowerProduction();
-		powerProduction.setText(String.format("%.2fMW", prod));
-		if (prod > 0) {
-			powerProduction.setStyle(GuiSystem.getFontStyle(FontModifier.BOLD)+" -fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.OKAY_COLOR)+";");
-		}
-		else if (prod < 0) {
-			powerProduction.setStyle(GuiSystem.getFontStyle(FontModifier.BOLD)+" -fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.WARN_COLOR)+";");
-		}
-		else {
-			powerProduction.setStyle("");
-		}
-
-		for (Consumable c : factory.getAllIngredients()) {
-			float amt = factory.getTotalConsumption(c)-factory.getTotalProduction(c);
-			if (amt > 0)
-				GuiUtil.addIconCount(netConsumptionBar, c, amt);
-		}
-		for (Consumable c : factory.getAllProducedItems()) {
-			float amt = factory.getNetProduction(c);
-			if (amt > 0)
-				GuiUtil.addIconCount(netProductBar, c, amt);
-		}
-
-		CountMap<Consumable> totalSupply = new CountMap();
-		for (ResourceSupply res : factory.getSupplies()) {
-			totalSupply.increment(res.getResource(), res.getYield());
-		}
-		for (Consumable c : totalSupply.keySet()) {
-			GuiUtil.addIconCount(localSupplyTotals, c, totalSupply.get(c));
+		if (local) {
+			localSupplyTotals.getChildren().clear();
+			CountMap<Consumable> totalSupply = new CountMap();
+			for (ResourceSupply res : factory.getSupplies()) {
+				totalSupply.increment(res.getResource(), res.getYield());
+			}
+			for (Consumable c : totalSupply.keySet()) {
+				GuiUtil.addIconCount(localSupplyTotals, c, totalSupply.get(c));
+			}
 		}
 	}
 
 	@Override
 	public void onAddRecipe(Recipe r) {
 		this.rebuildLists(true, false);
+		this.updateStats(false);
 	}
 
 	@Override
 	public void onRemoveRecipe(Recipe r) {
 		this.rebuildLists(true, false);
+		this.updateStats(false);
 	}
 
 	@Override
 	public void onSetCount(Recipe r, float count) {
-		// TODO Auto-generated method stub
-
+		this.updateStats(true, true, true, true, false, true);
 	}
 
 	@Override
-	public void onSetCount(Generator g, float count) {
-		generators.get(g).setCount(count, false);
+	public void onSetCount(Generator g, int count) {
+		generators.get(g).controller.setCount(count, false);
+		this.updateStats(true, true, true, true, false, true);
 	}
 
 	@Override
 	public void onAddProduct(Consumable c) {
 		productGrid.getChildren().add(new ProductButton(c));
+		this.updateStats(true, false, false, false, false, false);
 	}
 
 	@Override
 	public void onRemoveProduct(Consumable c) {
 		productGrid.getChildren().remove(productButtons.get(c));
+		this.updateStats(true, false, false, false, false, false);
 	}
 
 	@Override
-	public void onAddSupply(ResourceSupply s) {
-		// TODO Auto-generated method stub
-		-
+	public void onAddSupply(ResourceSupply res) {
+		try {
+			if (res instanceof ExtractableResource) {
+				GuiInstance<ResourceMineEntryController> gui = this.loadNestedFXML("ResourceMineEntry", inputGrid);
+				gui.controller.setSupply(factory, (ExtractableResource)res);
+				supplyEntries.put(res, gui);
+			}
+			else if (res instanceof LogisticSupply) {
+				GuiInstance<LogisticSupplyEntryController> gui = this.loadNestedFXML("LogisticSupplyEntry", inputGrid);
+				gui.controller.setSupply(factory, (LogisticSupply)res);
+				supplyEntries.put(res, gui);
+			}
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		this.updateStats(true, false, true, false, true, true);
 	}
 
 	@Override
 	public void onRemoveSupply(ResourceSupply s) {
-		// TODO Auto-generated method stub
-		-
+		inputGrid.getChildren().remove(supplyEntries.get(s).rootNode);
+		this.updateStats(true, false, true, false, true, true);
 	}
 
 	@Override
@@ -561,14 +599,12 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 
 	@Override
 	public void onLoaded() {
-		// TODO Auto-generated method stub
-
+		this.rebuildEntireUI();
 	}
 
 	@Override
 	public void onCleared() {
-		// TODO Auto-generated method stub
-
+		this.rebuildEntireUI();
 	}
 
 	@Override

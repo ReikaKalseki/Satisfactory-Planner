@@ -3,7 +3,6 @@ package Reika.SatisfactoryPlanner.GUI;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
 
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Recipe;
@@ -29,8 +28,8 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 
 	protected Label countLabel;
 
-	private final HashMap<Consumable, GuiInstance> sumEntriesIn = new HashMap();
-	private final HashMap<Consumable, GuiInstance> sumEntriesOut = new HashMap();
+	private final HashMap<Consumable, GuiInstance<ItemViewController>> sumEntriesIn = new HashMap();
+	private final HashMap<Consumable, GuiInstance<ItemViewController>> sumEntriesOut = new HashMap();
 
 	private boolean buildingGrid;
 
@@ -103,8 +102,8 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 		for (int i = 0; i < inputs.size(); i++) {
 			Consumable c = inputs.get(i);
 			int idx = ingredientsStartColumn+inputs.indexOf(c)*2;
-			GuiInstance gui = this.gui.loadNestedFXML("ItemView", grid, idx, sumsRow);
-			((ItemViewController)gui.controller).setItem(c, owner.getTotalConsumption(c));
+			GuiInstance<ItemViewController> gui = this.gui.loadNestedFXML("ItemView", grid, idx, sumsRow);
+			gui.controller.setItem(c, owner.getTotalConsumption(c));
 			sumEntriesIn.put(c, gui);
 			if (i < inputs.size()-1)
 				this.createDivider(idx+1, sumsRow, 2);
@@ -112,8 +111,8 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 		for (int i = 0; i < outputs.size(); i++) {
 			Consumable c = outputs.get(i);
 			int idx = productsStartColumn+outputs.indexOf(c)*2;
-			GuiInstance gui = this.gui.loadNestedFXML("ItemView", grid, idx, sumsRow);
-			((ItemViewController)gui.controller).setItem(c, owner.getTotalProduction(c));
+			GuiInstance<ItemViewController> gui = this.gui.loadNestedFXML("ItemView", grid, idx, sumsRow);
+			gui.controller.setItem(c, owner.getTotalProduction(c));
 			sumEntriesOut.put(c, gui);
 			if (i < outputs.size()-1)
 				this.createDivider(idx+1, sumsRow, 2);
@@ -156,18 +155,25 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 	@Override
 	public void onSetCount(Recipe r, float amt) {
 		recipeEntries.get(r).setScale(amt);
-		for (Entry<Consumable, GuiInstance> gui : sumEntriesIn.entrySet()) {
-			Consumable c = gui.getKey();
+		for (Consumable c : r.getIngredientsPerMinute().keySet())
+			this.updateStatuses(c);
+		for (Consumable c : r.getProductsPerMinute().keySet())
+			this.updateStatuses(c);
+	}
+
+	@Override
+	public void updateStatuses(Consumable c) {
+		GuiInstance<ItemViewController> gui = sumEntriesIn.get(c);
+		if (gui != null) {
 			float total = owner.getTotalConsumption(c);
-			ItemViewController cc = (ItemViewController)gui.getValue().controller;
-			cc.setItem(c, total);
-			cc.setState(total > owner.getTotalAvailable(c) ? WarningState.INSUFFICIENT : WarningState.NONE);
+			gui.controller.setItem(c, total);
+			gui.controller.setState(total > owner.getTotalAvailable(c) ? WarningState.INSUFFICIENT : WarningState.NONE);
 		}
-		for (Entry<Consumable, GuiInstance> gui : sumEntriesOut.entrySet()) {
-			Consumable c = gui.getKey();
-			ItemViewController cc = (ItemViewController)gui.getValue().controller;
-			cc.setItem(c, owner.getTotalProduction(c));
-			cc.setState(owner.isExcess(c) ? WarningState.LEFTOVER : WarningState.NONE);
+
+		gui = sumEntriesOut.get(c);
+		if (gui != null) {
+			gui.controller.setItem(c, owner.getTotalProduction(c));
+			gui.controller.setState(owner.isExcess(c) ? WarningState.LEFTOVER : WarningState.NONE);
 		}
 	}
 

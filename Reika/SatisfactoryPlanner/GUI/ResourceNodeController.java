@@ -105,6 +105,11 @@ public class ResourceNodeController extends ControllerBase {
 			public String getActionName() {
 				return "Choose";
 			}
+
+			@Override
+			public boolean clearOnSelect() {
+				return false;
+			}
 		});
 		GuiUtil.setupAddSelector(frackingDropdown, new SearchableSelector<Fluid>(){
 			@Override
@@ -125,6 +130,11 @@ public class ResourceNodeController extends ControllerBase {
 			@Override
 			public String getActionName() {
 				return "Choose";
+			}
+
+			@Override
+			public boolean clearOnSelect() {
+				return false;
 			}
 		});
 
@@ -224,8 +234,8 @@ public class ResourceNodeController extends ControllerBase {
 	protected void postInit(WindowBase w) throws IOException {
 		super.postInit(w);
 
-		GuiInstance gui = this.loadNestedFXML("ClockspeedSlider", extraGrid, 1, 1);
-		((ClockspeedSliderController)gui.controller).setCallback(v -> {clockSpeed = v; this.updateStats();});
+		GuiInstance<ClockspeedSliderController> gui = this.loadNestedFXML("ClockspeedSlider", extraGrid, 1, 1);
+		gui.controller.setCallback(v -> {clockSpeed = v; this.updateStats();});
 		this.setFont(this.getRootNode(), GuiSystem.getDefaultFont());
 	}
 

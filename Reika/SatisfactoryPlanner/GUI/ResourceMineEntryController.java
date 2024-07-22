@@ -63,13 +63,13 @@ public class ResourceMineEntryController extends ResourceSupplyEntryController<E
 
 	@Override
 	protected void onSetSupply(Factory f, ExtractableResource res) throws IOException {
-		GuiInstance gui = this.loadNestedFXML("ClockspeedSlider", root);
+		GuiInstance<ClockspeedSliderController> gui = this.loadNestedFXML("ClockspeedSlider", root);
 		gui.rootNode.toBack();
 		topBar.toBack();
-		ClockspeedSliderController cs = (ClockspeedSliderController)gui.controller;
-		Platform.runLater(() -> cs.setValue((int)(res.getClockSpeed()*100)));
-		cs.setCallback(v -> {
+		Platform.runLater(() -> gui.controller.setValue((int)(res.getClockSpeed()*100)));
+		gui.controller.setCallback(v -> {
 			supply.setClockSpeed(v/100F);
+			f.updateMatrixStatus(supply.getResource());
 			this.updateStats();
 		});
 	}

@@ -31,8 +31,8 @@ public class ItemInOutViewController extends ControllerBase {
 	@FXML
 	private GridPane rootGrid;
 
-	private final HashMap<Consumable, ItemViewController> inputViews = new HashMap();
-	private final HashMap<Consumable, ItemViewController> outputViews = new HashMap();
+	private final HashMap<Consumable, GuiInstance<ItemViewController>> inputViews = new HashMap();
+	private final HashMap<Consumable, GuiInstance<ItemViewController>> outputViews = new HashMap();
 
 	@Override
 	public void init(HostServices services) throws IOException {
@@ -55,17 +55,15 @@ public class ItemInOutViewController extends ControllerBase {
 	}
 	 */
 	public void addInput(Consumable in, float amt) throws IOException {
-		GuiInstance gui = this.loadNestedFXML("ItemView", inputs);
-		ItemViewController c = (ItemViewController)gui.controller;
-		c.setItem(in, amt);
-		inputViews.put(in, c);
+		GuiInstance<ItemViewController> gui = this.loadNestedFXML("ItemView", inputs);
+		gui.controller.setItem(in, amt);
+		inputViews.put(in, gui);
 	}
 
 	public void addOutput(Consumable out, float amt) throws IOException {
-		GuiInstance gui = this.loadNestedFXML("ItemView", outputs);
-		ItemViewController c = (ItemViewController)gui.controller;
-		c.setItem(out, amt);
-		outputViews.put(out, c);
+		GuiInstance<ItemViewController> gui = this.loadNestedFXML("ItemView", outputs);
+		gui.controller.setItem(out, amt);
+		outputViews.put(out, gui);
 	}
 
 	public void setFuel(Fuel f) throws IOException {
@@ -89,12 +87,12 @@ public class ItemInOutViewController extends ControllerBase {
 		this.setOutputText("Byproduct");
 	}
 
-	public void setScale(int sc) {
-		for (ItemViewController v : inputViews.values()) {
-			v.setScale(sc);
+	public void setScale(float sc) {
+		for (GuiInstance<ItemViewController> v : inputViews.values()) {
+			v.controller.setScale(sc);
 		}
-		for (ItemViewController v : outputViews.values()) {
-			v.setScale(sc);
+		for (GuiInstance<ItemViewController> v : outputViews.values()) {
+			v.controller.setScale(sc);
 		}
 	}
 

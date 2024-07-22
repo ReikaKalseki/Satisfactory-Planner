@@ -115,6 +115,11 @@ public class LogisticSupplyController extends ControllerBase {
 			public String getActionName() {
 				return "Choose";
 			}
+
+			@Override
+			public boolean clearOnSelect() {
+				return false;
+			}
 		});
 
 		beltTier.setButtonCell(new TierListCell<BeltTier>("Choose Tier...", true));

@@ -58,26 +58,26 @@ public abstract class ControllerBase {
 		this.setFont(this.getRootNode(), GuiSystem.getDefaultFont());
 	}
 
-	public final GuiInstance loadNestedFXML(String fxml, Pane container) throws IOException {
+	public final <C extends ControllerBase> GuiInstance<C> loadNestedFXML(String fxml, Pane container) throws IOException {
 		return this.loadNestedFXML(fxml, inner -> container.getChildren().add(inner));
 	}
 
-	public final GuiInstance loadNestedFXML(String fxml, TabPane container) throws IOException {
+	public final <C extends ControllerBase> GuiInstance<C> loadNestedFXML(String fxml, TabPane container) throws IOException {
 		return this.loadNestedFXML(fxml, inner -> {Tab t = new Tab(); t.setContent(inner); container.getTabs().add(t);});
 	}
 
-	public final GuiInstance loadNestedFXML(String fxml, Tab container) throws IOException {
+	public final <C extends ControllerBase> GuiInstance<C> loadNestedFXML(String fxml, Tab container) throws IOException {
 		return this.loadNestedFXML(fxml, inner -> {container.setContent(inner);});
 	}
 
-	public final GuiInstance loadNestedFXML(String fxml, GridPane container, int col, int row) throws IOException {
+	public final <C extends ControllerBase> GuiInstance<C> loadNestedFXML(String fxml, GridPane container, int col, int row) throws IOException {
 		return this.loadNestedFXML(fxml, inner -> container.add(inner, col, row));
 	}
 
-	public final GuiInstance loadNestedFXML(String fxml, Consumer<Parent> acceptor) throws IOException {
+	public final <C extends ControllerBase> GuiInstance<C> loadNestedFXML(String fxml, Consumer<Parent> acceptor) throws IOException {
 		if (container == null)
 			throw new RuntimeException("You can only load nested FXML in post-init, after the window is initialized!");
-		GuiInstance ret = GuiSystem.loadFXML(fxml, container);
+		GuiInstance<C> ret = GuiSystem.loadFXML(fxml, container);
 		acceptor.accept(ret.rootNode);
 		ret.controller.owner = this;
 		return ret;

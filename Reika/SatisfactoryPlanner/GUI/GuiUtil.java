@@ -287,15 +287,19 @@ public class GuiUtil {
 		}, ButtonType.OK);
 	}
 
-	public static <E> void setupAddSelector(SearchableComboBox<E> sb, Consumer<E> onSelect) {
+	public static <E> void setupAddSelector(SearchableComboBox<E> sb, Consumer<E> onSelect, boolean clearOnSelect) {
 		sb.getSelectionModel().selectedItemProperty().addListener((val, old, nnew) -> {
 			if (nnew != null)
-				Platform.runLater(() -> {onSelect.accept(nnew); sb.getSelectionModel().clearSelection();}); //need to delay since this updates the selection and contents, which cannot be done inside a selection change
+				Platform.runLater(() -> { //need to delay since this often updates the selection and contents, which cannot be done inside a selection change
+					onSelect.accept(nnew);
+					if (clearOnSelect)
+						sb.getSelectionModel().clearSelection();
+				});
 		});
 	}
 
 	public static <E> void setupAddSelector(SearchableComboBox<E> sb, SearchableSelector<E> sel) {
-		setupAddSelector(sb, (Consumer<E>)sel);
+		setupAddSelector(sb, (Consumer<E>)sel, sel.clearOnSelect());
 		sb.setButtonCell(sel.createListCell("Click to "+sel.getActionName()+" "+sel.getEntryTypeName()+"...", true));
 		sb.setCellFactory(c -> sel.createListCell("", false));
 	}
@@ -303,6 +307,7 @@ public class GuiUtil {
 	public static interface SearchableSelector<E> extends Consumer<E> {
 
 		public DecoratedListCell<E> createListCell(String text, boolean button);
+		public boolean clearOnSelect();
 		public String getEntryTypeName();
 		public String getActionName();
 

@@ -132,14 +132,14 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 		grid.add(lb, nameColumn, rowIndex);
 		for (Entry<Consumable, Float> e : r.getIngredientsPerMinute().entrySet()) {
 			Consumable c = e.getKey();
-			GuiInstance gui = this.gui.loadNestedFXML("ItemView", grid, ingredientsStartColumn+inputs.indexOf(c)*2, rowIndex);
-			((ItemViewController)gui.controller).setItem(c, e.getValue()*this.getMultiplier(r));
+			GuiInstance<ItemViewController> gui = this.gui.loadNestedFXML("ItemView", grid, ingredientsStartColumn+inputs.indexOf(c)*2, rowIndex);
+			gui.controller.setItem(c, e.getValue()*this.getMultiplier(r));
 			row.inputSlots.put(c, gui);
 		}
 		for (Entry<Consumable, Float> e : r.getProductsPerMinute().entrySet()) {
 			Consumable c = e.getKey();
-			GuiInstance gui = this.gui.loadNestedFXML("ItemView", grid, productsStartColumn+outputs.indexOf(c)*2, rowIndex);
-			((ItemViewController)gui.controller).setItem(c, e.getValue()*this.getMultiplier(r));
+			GuiInstance<ItemViewController> gui = this.gui.loadNestedFXML("ItemView", grid, productsStartColumn+outputs.indexOf(c)*2, rowIndex);
+			gui.controller.setItem(c, e.getValue()*this.getMultiplier(r));
 			row.outputSlots.put(c, gui);
 		}
 		grid.add(r.productionBuilding.createImageView(), buildingColumn, rowIndex);
@@ -300,7 +300,7 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 	}
 
 	@Override
-	public final void onSetCount(Generator g, float count) {}
+	public final void onSetCount(Generator g, int count) {}
 
 	@Override
 	public final void onAddProduct(Consumable c) {}
@@ -320,13 +320,17 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 	@Override
 	public final void onSetFile(File f) {}
 
+	public void updateStatuses(Consumable c) {
+
+	}
+
 	protected class RecipeRow {
 
 		public final Recipe recipe;
 		public final int recipeIndex;
 		public final int rowIndex;
-		private final HashMap<Consumable, GuiInstance> inputSlots = new HashMap();
-		private final HashMap<Consumable, GuiInstance> outputSlots = new HashMap();
+		private final HashMap<Consumable, GuiInstance<ItemViewController>> inputSlots = new HashMap();
+		private final HashMap<Consumable, GuiInstance<ItemViewController>> outputSlots = new HashMap();
 
 		private final Label label;
 
@@ -342,23 +346,23 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 			ControllerBase con = gui;
 			for (Entry<Consumable, Float> e : r.getIngredientsPerMinute().entrySet()) {
 				Consumable c = e.getKey();
-				GuiInstance gui = con.loadNestedFXML("ItemView", p -> {});
-				((ItemViewController)gui.controller).setItem(c, e.getValue());
+				GuiInstance<ItemViewController> gui = con.loadNestedFXML("ItemView", p -> {});
+				gui.controller.setItem(c, e.getValue());
 				inputSlots.put(c, gui);
 			}
 			for (Entry<Consumable, Float> e : r.getProductsPerMinute().entrySet()) {
 				Consumable c = e.getKey();
-				GuiInstance gui = con.loadNestedFXML("ItemView", p -> {});
-				((ItemViewController)gui.controller).setItem(c, e.getValue()); //*this.getMultiplier(r)
+				GuiInstance<ItemViewController> gui = con.loadNestedFXML("ItemView", p -> {});
+				gui.controller.setItem(c, e.getValue()); //*this.getMultiplier(r)
 				outputSlots.put(c, gui);
 			}
 		}
 
 		public void setScale(float scale) {
-			for (GuiInstance gui : inputSlots.values())
-				((ItemViewController)gui.controller).setScale(scale);
-			for (GuiInstance gui : outputSlots.values())
-				((ItemViewController)gui.controller).setScale(scale);
+			for (GuiInstance<ItemViewController> gui : inputSlots.values())
+				gui.controller.setScale(scale);
+			for (GuiInstance<ItemViewController> gui : outputSlots.values())
+				gui.controller.setScale(scale);
 		}
 	}
 }

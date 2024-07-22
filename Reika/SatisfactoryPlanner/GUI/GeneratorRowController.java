@@ -38,6 +38,8 @@ public class GeneratorRowController extends ControllerBase {
 
 	private final HashMap<Consumable, ItemInOutViewController> fuels = new HashMap();
 
+	private boolean settingValue;
+
 	@Override
 	public void init(HostServices services) throws IOException {
 
@@ -57,10 +59,15 @@ public class GeneratorRowController extends ControllerBase {
 	public void setGenerator(Generator g) {
 		icon.setImage(g.createIcon(64));
 		generator = g;
-		this.setCount(0, false);
+		//this.setCount(0, false);
 	}
 
-	public void setCount(float c, boolean notify) {
+	public void setCount(int c, boolean notify) {
+		if (settingValue)
+			return;
+		settingValue = true;
+		//Logging.instance.log(generator.displayName+" x "+c);
+		//Thread.dumpStack();
 		fuelBar.getChildren().clear();
 		counter.getValueFactory().setValue(c);
 		powerGenText.setText(String.format("%.3fMW", generator.powerGenerationMW*c));
@@ -77,9 +84,9 @@ public class GeneratorRowController extends ControllerBase {
 				wrapper.setStyle("-fx-border-width: 2; -fx-border-color: #aaa; -fx-border-radius: 3;");*/
 
 				//if (f.byproduct != null) {
-				GuiInstance gui = this.loadNestedFXML("ItemInOutView", fuelBar);
-				((ItemInOutViewController)gui.controller).setFuel(f);
-				((ItemInOutViewController)gui.controller).setScale(c);
+				GuiInstance<ItemInOutViewController> gui = this.loadNestedFXML("ItemInOutView", fuelBar);
+				gui.controller.setFuel(f);
+				gui.controller.setScale(c);
 				//}
 				/*else {
 					GuiInstance gui = this.loadNestedFXML("ItemView", fuelBar);
@@ -98,6 +105,7 @@ public class GeneratorRowController extends ControllerBase {
 			fuelBar.getChildren().removeLast();
 		if (notify && callback != null)
 			callback.accept(c);
+		settingValue = false;
 	}
 
 	public void setCallback(Consumer<Integer> call) {

@@ -39,6 +39,7 @@ public class LogisticSupplyEntryController extends ResourceSupplyEntryController
 	@Override
 	protected void onSetSupply(Factory f, LogisticSupply res) {
 		amount.getValueFactory().setValue(res.getYield());
+		f.updateMatrixStatus(res.getResource());
 	}
 
 }

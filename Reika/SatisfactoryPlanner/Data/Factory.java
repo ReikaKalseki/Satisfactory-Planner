@@ -75,6 +75,8 @@ public class Factory {
 	}
 
 	public Factory addCallback(FactoryListener r) {
+		if (changeCallback.contains(r))
+			throw new IllegalStateException("Listener "+r+" already registered!");
 		changeCallback.add(r);
 		Collections.sort(changeCallback);
 		return this;
@@ -114,13 +116,20 @@ public class Factory {
 		return scaleMatrix.getGrid();
 	}
 
+	public void updateMatrixStatus(Consumable c) {
+		matrix.updateStatuses(c);
+		scaleMatrix.updateStatuses(c);
+	}
+
 	public void addExternalSupply(ResourceSupply res) {
 		resourceSources.addValue(res.getResource(), res);
+		this.updateMatrixStatus(res.getResource());
 		this.notifyListeners(c -> c.onAddSupply(res));
 	}
 
 	public void removeExternalSupply(ResourceSupply res) {
 		resourceSources.remove(res.getResource(), res);
+		this.updateMatrixStatus(res.getResource());
 		this.notifyListeners(c -> c.onRemoveSupply(res));
 	}
 
@@ -143,11 +152,13 @@ public class Factory {
 		if (desiredProducts.contains(c))
 			return;
 		desiredProducts.add(c);
+		this.updateMatrixStatus(c);
 		this.notifyListeners(l -> l.onAddProduct(c));
 	}
 
 	public void removeProduct(Consumable c) {
 		if (desiredProducts.remove(c)) {
+			this.updateMatrixStatus(c);
 			this.notifyListeners(l -> l.onRemoveProduct(c));
 		}
 	}
