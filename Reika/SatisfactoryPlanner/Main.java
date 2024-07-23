@@ -74,18 +74,8 @@ public class Main {
 		 */
 		Database.clear();
 		Database.parseGameJSON();
-		Database.ClassType.RESOURCE.parsePending();
-		Database.ClassType.ITEM.parsePending();
-		Database.ClassType.CRAFTER.parsePending();
-		Database.ClassType.MINER.parsePending();
-		Database.ClassType.GENERATOR.parsePending();
-		Database.ClassType.STATION.parsePending();
-		Database.ClassType.BELT.parsePending();
-		Database.ClassType.PIPE.parsePending();
-		//Database.ClassType.MISCBUILD.parsePending();
-		Database.ClassType.VEHICLE.parsePending();
-		Database.ClassType.RECIPE.parsePending();
-		Database.ClassType.MILESTONE.parsePending();
+		Database.loadVanillaData();
+		Database.loadCustomData();
 		Database.sort();
 		for (Consumable c : Database.getAllItems())
 			c.createIcon(); //cache default icon size
@@ -110,7 +100,7 @@ public class Main {
 	public static List<File> getRecentFiles() {
 		return Collections.unmodifiableList(recentFiles);
 	}
-
+	/*
 	public static File extractResourceFolder(String name) {
 		File f = getRelativeFile("Resources/"+name+"/");
 		if (f.isDirectory()) {
@@ -127,7 +117,7 @@ public class Main {
 			}
 		}
 	}
-
+	 */
 	public static File getRelativeFile(String path) {
 		return isCompiled ? new File(path) : new File("src/main/java/Reika/SatisfactoryPlanner/", path);
 	}

@@ -1,2 +1,0 @@
-name=Modular Frame
-icon=ModularFrame

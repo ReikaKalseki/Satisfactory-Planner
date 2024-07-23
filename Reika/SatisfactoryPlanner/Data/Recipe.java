@@ -27,7 +27,7 @@ public class Recipe implements Comparable<Recipe> {
 
 	private final ArrayList<Milestone> unlocks = new ArrayList();
 
-	private int minimumTier = 200;
+	private int minimumTier = 999;
 	/*
 	public Recipe(String id, String dn, Building b, float time) {
 		this(id, dn, b, false, time);

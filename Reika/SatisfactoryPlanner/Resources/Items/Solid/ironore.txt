@@ -1,3 +1,0 @@
-name=Iron Ore
-icon=OreIron
-mineable=true

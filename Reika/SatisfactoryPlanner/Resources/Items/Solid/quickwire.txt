@@ -1,2 +1,0 @@
-name=Quickwire
-icon=HighSpeedWire

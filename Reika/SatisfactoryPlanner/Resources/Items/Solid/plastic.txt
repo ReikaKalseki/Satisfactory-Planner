@@ -1,2 +1,0 @@
-name=Plastic
-icon=Plastic

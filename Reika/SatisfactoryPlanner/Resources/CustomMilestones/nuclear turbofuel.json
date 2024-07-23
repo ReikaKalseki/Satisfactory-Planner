@@ -1,0 +1,28 @@
+{
+  "$schema": "https://raw.githubusercontent.com/budak7273/ContentLib_Documentation/main/JsonSchemas/CL_Schematic.json",
+  "ID": "SchematicNuclearTurbofuel",
+  "Name": "Turbo Uranium Cell",
+  "Type": "Milestone",
+  "Tier": 8,
+  "VisualKit": "Desc_OreUranium_C",
+  "Category": "Nuclear Turbofuel",
+  "Cost": [
+    {
+      "Item": "Desc_HardDrive",
+      "Amount": 1
+    },
+    {
+      "Item": "Desc_CrystalOscillator",
+      "Amount": 100
+    },
+    {
+      "Item": "Desc_OreUranium",
+      "Amount": 50
+    },
+    {
+      "Item": "Desc_TurboFuel_C",
+      "Amount": 400
+    }
+  ],
+  "Recipes": [ "Recipe_NuclearTurbofuel"]
+}

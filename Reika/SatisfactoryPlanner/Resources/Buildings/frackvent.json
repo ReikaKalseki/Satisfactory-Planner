@@ -1,9 +1,0 @@
-{
-  "name": "Resource Well Extractor",
-  "icon": "FrackingExtractor",
-  "powerCost": "0",
-  "ingredients": {
-    "Steel Beam": "10",
-    "Plastic": "10"
-  }
-}

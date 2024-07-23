@@ -1,2 +1,0 @@
-name=Rotor
-icon=Rotor

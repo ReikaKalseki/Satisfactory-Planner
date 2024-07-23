@@ -1,2 +1,0 @@
-name=Fused Modular Frame
-icon=ModularFrameFused

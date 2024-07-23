@@ -1,2 +1,0 @@
-name=Portable Miner
-icon=ItemDescriptorPortableMiner

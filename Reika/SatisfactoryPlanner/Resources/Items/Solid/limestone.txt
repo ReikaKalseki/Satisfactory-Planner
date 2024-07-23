@@ -1,3 +1,0 @@
-name=Limestone
-icon=Stone
-mineable=true

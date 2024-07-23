@@ -1,2 +1,0 @@
-name=Turbo Motor
-icon=MotorLightweight

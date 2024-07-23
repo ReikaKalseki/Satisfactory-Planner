@@ -1,2 +1,0 @@
-name=Heavy Modular Frame
-icon=ModularFrameHeavy

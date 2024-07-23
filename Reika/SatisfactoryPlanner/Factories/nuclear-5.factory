@@ -1,67 +1,70 @@
 {
     "recipes": [
         {
-            "count": "18.000",
+            "count": "8.000",
             "id": "Recipe_Concrete_C"
-        },
-        {
-            "count": "7.000",
-            "id": "Recipe_IngotIron_C"
         },
         {
             "count": "5.000",
             "id": "Recipe_SteelBeam_C"
         },
         {
-            "count": "3.000",
+            "count": "6.000",
             "id": "Recipe_EncasedIndustrialBeam_C"
         },
         {
-            "count": "5.000",
-            "id": "Recipe_Alternate_IngotSteel_1_C"
+            "count": "2.000",
+            "id": "Recipe_Alternate_Beacon_1_C"
         },
         {
             "count": "9.000",
             "id": "Recipe_SulfuricAcid_C"
         },
         {
-            "count": "2.000",
+            "count": "9.000",
             "id": "Recipe_Plutonium_C"
         },
         {
-            "count": "1.000",
+            "count": "14.000",
             "id": "Recipe_Alternate_PlutoniumFuelUnit_C"
         },
         {
+            "count": "27.000",
+            "id": "Recipe_PlutoniumCell_C"
+        },
+        {
             "count": "15.000",
-            "id": "Recipe_NuclearFuelRod_C"
+            "id": "Recipe_Alternate_NuclearFuelRod_1_C"
         },
         {
-            "count": "0.000",
-            "id": "Recipe_PlutoniumFuelRod_C"
-        },
-        {
-            "count": "3.000",
+            "count": "9.000",
             "id": "Recipe_Alternate_FertileUranium_C"
         },
         {
-            "count": "12.000",
-            "id": "Recipe_UraniumCell_C"
+            "count": "30.000",
+            "id": "Recipe_NuclearTurbofuel"
         }
     ],
     "toggles": [
         "ALTERNATE",
         "POST10"
     ],
-    "name": "nuclear-4",
+    "name": "nuclear-5",
     "generators": [{
-        "count": 30,
+        "count": 45,
         "id": "Build_GeneratorNuclear_C"
     }],
     "resources": [
         {
+            "item": "Desc_Stone_C",
+            "purity": "NORMAL",
+            "clock": 1,
+            "type": "MINER",
+            "miner": "THREE"
+        },
+        {
             "item": "Desc_PressureConversionCube_C",
-            "amount": 4,
+            "amount": 7,
             "type": "DRONE"
         },
         {
@@ -72,10 +75,17 @@
             "miner": "THREE"
         },
         {
-            "item": "Desc_CrystalOscillator_C",
-            "amount": 30,
-            "stations": 1,
-            "type": "TRAIN"
+            "item": "Desc_OreUranium_C",
+            "purity": "NORMAL",
+            "clock": 1,
+            "type": "MINER",
+            "miner": "THREE"
+        },
+        {
+            "item": "Desc_SteelIngot_C",
+            "amount": 360,
+            "belt": "FOUR",
+            "type": "BELT"
         },
         {
             "item": "Desc_Sulfur_C",
@@ -85,51 +95,21 @@
             "miner": "THREE"
         },
         {
+            "item": "Desc_CrystalOscillator_C",
+            "amount": 40,
+            "stations": 1,
+            "type": "TRAIN"
+        },
+        {
+            "item": "Desc_LiquidTurboFuel_C",
+            "amount": 1200,
+            "stations": 1,
+            "type": "TRAIN"
+        },
+        {
             "item": "Desc_ElectromagneticControlRod_C",
             "amount": 30,
             "type": "DRONE"
-        },
-        {
-            "item": "Desc_Stone_C",
-            "purity": "NORMAL",
-            "clock": 1,
-            "type": "MINER",
-            "miner": "THREE"
-        },
-        {
-            "item": "Desc_OreIron_C",
-            "purity": "NORMAL",
-            "clock": 1,
-            "type": "MINER",
-            "miner": "THREE"
-        },
-        {
-            "item": "Desc_Coal_C",
-            "purity": "PURE",
-            "clock": 1,
-            "type": "MINER",
-            "miner": "THREE"
-        },
-        {
-            "item": "Desc_Stone_C",
-            "purity": "NORMAL",
-            "clock": 1,
-            "type": "MINER",
-            "miner": "THREE"
-        },
-        {
-            "item": "Desc_OreUranium_C",
-            "purity": "NORMAL",
-            "clock": 1,
-            "type": "MINER",
-            "miner": "TWO"
-        },
-        {
-            "item": "Desc_Stone_C",
-            "purity": "NORMAL",
-            "clock": 1.5,
-            "type": "MINER",
-            "miner": "THREE"
         }
     ],
     "products": ["Desc_PlutoniumFuelRod_C"]

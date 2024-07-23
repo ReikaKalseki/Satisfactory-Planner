@@ -1,2 +1,0 @@
-name=Fuel
-icon=LiquidFuel

@@ -1,2 +1,0 @@
-name=Polymer Resin
-icon=PolymerResin

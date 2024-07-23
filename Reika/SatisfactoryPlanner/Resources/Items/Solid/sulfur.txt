@@ -1,3 +1,0 @@
-name=Sulfur
-icon=Sulfur
-mineable=true

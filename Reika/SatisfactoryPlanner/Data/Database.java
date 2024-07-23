@@ -17,8 +17,8 @@ import org.json.JSONTokener;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
-import com.google.common.io.Files;
 
+import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.GUI.Setting;
 import Reika.SatisfactoryPlanner.Util.Logging;
 
@@ -55,83 +55,7 @@ public class Database {
 				lookup.put(s, t);
 		}
 	}
-	/*
-	public static void loadBuildings() throws IOException {
-		File f = Main.extractResourceFolder("Buildings");
-		for (File f2 : f.listFiles()) {
-			if (f2.getName().endsWith(".json") && !f2.getName().startsWith("template")) {
-				Logging.instance.log("Loading building file "+f2);
-				JSONObject data = new JSONObject(FileUtils.readFileToString(f2, Charsets.UTF_8));
-				Building r = new Building(data.getString("name"), data.getString("icon"), data.getInt("powerCost"));
-				JSONObject ing = data.getJSONObject("ingredients");
-				for (String s : ing.keySet()) {
-					r.addIngredient((Item)lookupItem(s), ing.getInt(s));
-				}
-				Logging.instance.log("Loaded building "+r);
-				allBuildings.put(r.id, r);
-				allBuildingsSorted.add(r);
-			}
-		}
-		Collections.sort(allRecipesSorted);
-	}
 
-	public static void loadRecipes() throws IOException {
-		File f = Main.extractResourceFolder("Recipes");
-		for (File f2 : f.listFiles()) {
-			if (f2.getName().endsWith(".json") && !f2.getName().startsWith("template")) {
-				/* fuck modular java
-				JsonObject data = new Gson().fromJson(new BufferedReader(new FileReader(f2)), JsonObject.class);
-				boolean alt = data.has("alternate") && data.get("alternate").getAsBoolean();
-				Recipe r = new Recipe(data.get("name").getAsString(), alt);
-				for (Entry<String, JsonElement> e : data.get("ingredients").getAsJsonObject().entrySet()) {
-					r.addIngredient(lookupItem(e.getKey()), e.getValue().getAsInt());
-				}
-				for (Entry<String, JsonElement> e : data.get("products").getAsJsonObject().entrySet()) {
-					r.addProduct(lookupItem(e.getKey()), e.getValue().getAsInt());
-				}*//*
-				Logging.instance.log("Loading recipe file "+f2);
-				JSONObject data = new JSONObject(FileUtils.readFileToString(f2, Charsets.UTF_8));
-				boolean alt = data.has("alternate") && data.getBoolean("alternate");
-				Recipe r = new Recipe(data.getString("name"), lookupBuilding(data.getString("building")), alt);
-				JSONObject ing = data.getJSONObject("ingredients");
-				for (String s : ing.keySet()) {
-					r.addIngredient(lookupItem(s), ing.getInt(s));
-				}
-				JSONObject prod = data.getJSONObject("products");
-				for (String s : prod.keySet()) {
-					r.addProduct(lookupItem(s), prod.getInt(s));
-				}
-				Logging.instance.log("Loaded recipe "+r);
-				allRecipes.put(r.name, r);
-				allRecipesSorted.add(r);
-			}
-		}
-		Collections.sort(allRecipesSorted);
-	}
-
-	public static void loadItems() throws IOException {
-		File f = Main.extractResourceFolder("Items");
-		for (File f2 : new File(f, "Solid").listFiles()) {
-			DefFile def = new DefFile(f2);
-			Item i = new Item(def.name, def.data.get("icon"));
-			allItems.put(i.id, i);
-			allItemsSorted.add(i);
-			if (Boolean.parseBoolean(def.data.get("mineable")))
-				mineableItems.add(i);
-			Logging.instance.log("Loaded item "+i);
-		}
-		for (File f2 : new File(f, "Fluid").listFiles()) {
-			DefFile def = new DefFile(f2);
-			Fluid i = new Fluid(def.name, def.data.get("icon"));
-			allItems.put(i.id, i);
-			allItemsSorted.add(i);
-			if (Boolean.parseBoolean(def.data.get("frackable")))
-				frackableFluids.add(i);
-			Logging.instance.log("Loaded fluid "+i);
-		}
-		Collections.sort(allItemsSorted);
-	}
-				 */
 	public static Milestone lookupMilestone(String name) {
 		Milestone c = allMilestones.get(name);
 		if (c == null)
@@ -193,23 +117,6 @@ public class Database {
 
 	public static List<Fluid> getFrackables() {
 		return Collections.unmodifiableList(frackableFluids);
-	}
-
-	private static class DefFile {
-
-		private final File sourceFile;
-		private final String name;
-		private final HashMap<String, String> data = new HashMap();
-
-		private DefFile(File f) throws IOException {
-			sourceFile = f;
-			for (String s : Files.readLines(f, Charsets.UTF_8)) {
-				String[] parts = s.split("=");
-				data.put(parts[0].trim(), parts[1].trim());
-			}
-			name = data.get("name");
-		}
-
 	}
 
 	public static void sort() {
@@ -363,6 +270,7 @@ public class Database {
 				}
 				Logging.instance.log("Set "+bb+" recipe: "+bb.getConstructionCost());
 			}
+			allBuildingRecipesSorted.add(r);
 		}
 		else {
 			for (String prod : out.substring(2, out.length()-2).split("\\),\\(")) {
@@ -373,13 +281,10 @@ public class Database {
 					amt /= Constants.LIQUID_SCALAR; //they store fluids in mB
 				r.addProduct(c, amt);
 			}
-			allRecipes.put(r.id, r);
-			if (r.productionBuilding == null)
-				allBuildingRecipesSorted.add(r);
-			else
-				allAutoRecipesSorted.add(r);
-			Logging.instance.log("Registered recipe type "+r);
+			allAutoRecipesSorted.add(r);
 		}
+		Logging.instance.log("Registered recipe type "+r);
+		allRecipes.put(r.id, r);
 	}
 
 	private static void parseBuildingJSON(JSONObject obj) {
@@ -471,7 +376,7 @@ public class Database {
 	private static void parseMilestoneJSON(JSONObject obj) { //also has mCost, ingredients format
 		String id = obj.getString("ClassName");
 		Logging.instance.log("Parsing JSON elem "+id);
-		boolean isAltRecipe = id.startsWith("Schematic_Alternate_");
+		//boolean isAltRecipe = id.startsWith("Schematic_Alternate_");
 		String disp = obj.getString("mDisplayName");
 		int tier = Integer.parseInt(obj.getString("mTechTier"));
 		JSONArray unlocks = obj.getJSONArray("mUnlocks");
@@ -509,6 +414,180 @@ public class Database {
 		}
 		if (flag)
 			allMilestones.put(id, m);
+	}
+
+	public static void loadVanillaData() {
+		ClassType.RESOURCE.parsePending();
+		ClassType.ITEM.parsePending();
+		ClassType.CRAFTER.parsePending();
+		ClassType.MINER.parsePending();
+		ClassType.GENERATOR.parsePending();
+		ClassType.STATION.parsePending();
+		ClassType.BELT.parsePending();
+		ClassType.PIPE.parsePending();
+		//ClassType.MISCBUILD.parsePending();
+		ClassType.VEHICLE.parsePending();
+		ClassType.RECIPE.parsePending();
+		ClassType.MILESTONE.parsePending();
+	}
+
+	public static void loadCustomData() throws IOException {
+		loadCustomItems();
+		loadCustomBuildings();
+		loadCustomRecipes();
+		loadCustomMilestones();
+	}
+
+	private static void loadCustomBuildings() throws IOException {
+		File f = Main.getRelativeFile("Resources/CustomBuildings");
+		if (!f.exists())
+			return;
+		for (File f2 : f.listFiles()) {
+			if (f2.getName().endsWith(".json") && !f2.getName().startsWith("template")) {
+				Logging.instance.log("Loading building file "+f2);
+				JSONObject data = new JSONObject(FileUtils.readFileToString(f2, Charsets.UTF_8));
+				FunctionalBuilding r = new FunctionalBuilding(data.getString("ID"), data.getString("Name"), data.getString("Icon"), data.getInt("PowerCost"));
+				JSONArray ing = data.getJSONArray("Ingredients");
+				for (Object o : ing) {
+					JSONObject inner = (JSONObject)o;
+					r.addIngredient((Item)lookupItem(inner.getString("Item")), inner.getInt("Amount"));
+				}
+				Logging.instance.log("Loaded custom building "+r);
+				allBuildings.put(r.id, r);
+				allBuildingsSorted.add(r);
+			}
+		}
+	}
+
+	private static void loadCustomMilestones() throws IOException {
+		File f = Main.getRelativeFile("Resources/CustomMilestones");
+		if (!f.exists())
+			return;
+		for (File f2 : f.listFiles()) {
+			if (f2.getName().endsWith(".json") && !f2.getName().startsWith("template")) {
+				Logging.instance.log("Loading milestone file "+f2);
+				JSONObject obj = new JSONObject(FileUtils.readFileToString(f2, Charsets.UTF_8));
+
+				Milestone m = new Milestone(obj.getInt("Tier"), obj.getString("Name"));
+				//TODO "Cost" field?
+				if (obj.has("DependsOn")) {
+					for (Object o : obj.getJSONArray("DependsOn")) {
+						String ulock = (String)o;
+						if (allMilestones.containsKey(ulock)) {
+							m.addDependency(lookupMilestone(ulock));
+						}
+					}
+				}
+				boolean flag = false;
+				for (Object o : obj.getJSONArray("Recipes")) {
+					String ulock = (String)o;
+					if (allRecipes.containsKey(ulock)) {
+						flag = true;
+						m.addRecipe(lookupRecipe(ulock));
+					}
+				}
+				if (flag)
+					allMilestones.put(obj.getString("ID"), m);
+			}
+		}
+	}
+
+	private static void loadCustomRecipes() throws IOException {
+		File f = Main.getRelativeFile("Resources/CustomRecipes");
+		if (!f.exists())
+			return;
+		for (File f2 : f.listFiles()) {
+			if (f2.getName().endsWith(".json") && !f2.getName().startsWith("template")) {
+				/* fuck modular java
+				JsonObject data = new Gson().fromJson(new BufferedReader(new FileReader(f2)), JsonObject.class);
+				boolean alt = data.has("alternate") && data.get("alternate").getAsBoolean();
+				Recipe r = new Recipe(data.get("name").getAsString(), alt);
+				for (Entry<String, JsonElement> e : data.get("ingredients").getAsJsonObject().entrySet()) {
+					r.addIngredient(lookupItem(e.getKey()), e.getValue().getAsInt());
+				}
+				for (Entry<String, JsonElement> e : data.get("products").getAsJsonObject().entrySet()) {
+					r.addProduct(lookupItem(e.getKey()), e.getValue().getAsInt());
+				}*/
+				Logging.instance.log("Loading recipe file "+f2);
+				JSONObject obj = new JSONObject(FileUtils.readFileToString(f2, Charsets.UTF_8));
+				String disp = obj.getString("Name");
+				String id = obj.getString("ID");
+				String build = obj.getJSONArray("ProducedIn").getString(0);
+				build = build+"_C";
+				Recipe r = new Recipe(id, disp, (FunctionalBuilding)lookupBuilding(build), obj.getFloat("ManufacturingDuration"), false);
+				JSONArray ing = obj.getJSONArray("Ingredients");
+				for (Object o : ing) {
+					JSONObject inner = (JSONObject)o;
+					Consumable c = lookupItem(inner.getString("Item")+"_C");
+					int amt = inner.getInt("Amount");
+					if (c instanceof Fluid)
+						amt /= Constants.LIQUID_SCALAR;
+					r.addIngredient(c, amt);
+				}
+				JSONArray prod = obj.getJSONArray("Products");
+				for (Object o : prod) {
+					JSONObject inner = (JSONObject)o;
+					Consumable c = lookupItem(inner.getString("Item")+"_C");
+					int amt = inner.getInt("Amount");
+					if (c instanceof Fluid)
+						amt /= Constants.LIQUID_SCALAR;
+					r.addProduct(c, amt);
+				}
+				allAutoRecipesSorted.add(r);
+				allRecipes.put(r.id, r);
+				Logging.instance.log("Registered custom recipe type "+r);
+			}
+		}
+	}
+
+	private static void loadCustomItems() throws IOException {
+		File f0 = Main.getRelativeFile("Resources/CustomItems");
+		if (!f0.exists())
+			return;
+		for (File f2 : f0.listFiles()) {
+			JSONObject obj = new JSONObject(FileUtils.readFileToString(f2, Charsets.UTF_8));
+			String form = obj.getString("Form");
+			boolean gas = form.equalsIgnoreCase("gas");
+			boolean fluid = form.equalsIgnoreCase("liquid") || gas;
+			String disp = obj.getString("Name");
+			String desc = obj.getString("Description");
+			String id = obj.getString("ID");
+			String icon = obj.getString("Icon");
+			String cat = obj.getString("Category");
+			float nrg = obj.getFloat("EnergyValue");
+			boolean resource = obj.has("ResourceItem");
+			if (fluid) {
+				String clr = obj.has("Color") ? obj.getString("Color") : null;
+				Fluid f = new Fluid(id, disp, icon, desc, cat, nrg, clr == null ? Color.BLACK : parseColor(clr));
+				allItems.put(f.id, f);
+				allItemsSorted.add(f);
+				if (resource)
+					frackableFluids.add(f);
+			}
+			else {
+				Item i = new Item(id, disp, icon, desc, cat, nrg);
+				allItems.put(i.id, i);
+				allItemsSorted.add(i);
+				if (resource)
+					mineableItems.add(i);
+			}
+		}
+	}
+
+	public static void clear() {
+		allBuildings.clear();
+		allBuildingsSorted.clear();
+		allGeneratorsSorted.clear();
+		allItems.clear();
+		allItemsSorted.clear();
+		allAutoRecipesSorted.clear();
+		allBuildingRecipesSorted.clear();
+		allRecipes.clear();
+		allVehicles.clear();
+		allVehiclesSorted.clear();
+		mineableItems.clear();
+		frackableFluids.clear();
+		allMilestones.clear();
 	}
 
 	public static enum ClassType {
@@ -579,22 +658,6 @@ public class Database {
 					break;
 			}
 		}
-	}
-
-	public static void clear() {
-		allBuildings.clear();
-		allBuildingsSorted.clear();
-		allGeneratorsSorted.clear();
-		allItems.clear();
-		allItemsSorted.clear();
-		allAutoRecipesSorted.clear();
-		allBuildingRecipesSorted.clear();
-		allRecipes.clear();
-		allVehicles.clear();
-		allVehiclesSorted.clear();
-		mineableItems.clear();
-		frackableFluids.clear();
-		allMilestones.clear();
 	}
 
 }

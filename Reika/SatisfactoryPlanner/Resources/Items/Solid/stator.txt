@@ -1,2 +1,0 @@
-name=Stator
-icon=Stator

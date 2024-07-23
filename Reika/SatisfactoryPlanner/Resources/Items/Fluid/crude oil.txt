@@ -1,3 +1,0 @@
-name=Crude Oil
-icon=LiquidOil
-frackable=true
