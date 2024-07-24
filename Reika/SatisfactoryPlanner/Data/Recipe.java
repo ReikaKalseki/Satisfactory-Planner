@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Predicate;
 
-public class Recipe implements Comparable<Recipe> {
+public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 
 	private static int maxIngredients;
 	private static int maxProducts;
@@ -47,6 +47,15 @@ public class Recipe implements Comparable<Recipe> {
 	@Override
 	public String toString() {
 		return displayName;
+	}
+
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	@Override
+	public FunctionalBuilding getBuilding() {
+		return productionBuilding;
 	}
 
 	public Recipe addIngredient(Consumable i, int amt) {

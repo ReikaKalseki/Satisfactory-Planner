@@ -61,6 +61,7 @@ public class ItemViewController extends ControllerBase {
 	}
 
 	public void setItem(Consumable c, float amt) {
+		item = c;
 		baseAmount = amt;
 		icon.setImage(c.createIcon());
 		this.setAmountText(amt);

@@ -571,7 +571,7 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 	}
 
 	@Override
-	public void onSetCount(Generator g, Fuel fuel, int count) {
+	public void onSetCount(Generator g, Fuel fuel, int old, int count) {
 		generators.get(g).controller.setCount(fuel, count);
 		this.updateStats(true, true, true, true, false, true);
 	}

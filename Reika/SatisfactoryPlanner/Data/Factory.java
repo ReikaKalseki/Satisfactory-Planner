@@ -258,9 +258,10 @@ public class Factory {
 	}
 
 	public void setCount(Generator g, Fuel f, int amt) {
+		int old = generators.get(g).getCount(f);
 		generators.get(g).setCount(f, amt);
 		this.rebuildFlows();
-		this.notifyListeners(c -> c.onSetCount(g, f, amt));
+		this.notifyListeners(c -> c.onSetCount(g, f, old, amt));
 	}
 
 	private void rebuildFlows() {
@@ -286,11 +287,13 @@ public class Factory {
 			//this.getOrCreateFlow(r.getResource()).externalInput += r.getYield();
 			for (Fuel f : fc.generator.getFuels()) {
 				int amt = fc.getCount(f);
+				if (amt <= 0)
+					continue;
 				consumption.add(f.item, f.primaryBurnRate*amt);
 				if (f.secondaryItem != null)
-					production.add(f.secondaryItem, f.secondaryBurnRate*amt);
+					consumption.add(f.secondaryItem, f.secondaryBurnRate*amt);
 				if (f.byproduct != null)
-					production.add(f.byproduct, f.byproductAmount*f.primaryBurnRate*amt);
+					production.add(f.byproduct, f.getByproductRate()*amt);
 			}
 		}/*
 		for (Consumable c : externalInput.getItems())

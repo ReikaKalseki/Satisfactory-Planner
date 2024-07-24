@@ -76,7 +76,7 @@ public class ItemInOutViewController extends ControllerBase {
 			this.addInput(f.secondaryItem, f.secondaryBurnRate);
 		}
 		if (f.byproduct != null) {
-			this.addOutput(f.byproduct, f.byproductAmount*f.primaryBurnRate);
+			this.addOutput(f.byproduct, f.getByproductRate());
 		}
 		else {
 			rootGrid.getRowConstraints().remove(1);

@@ -14,6 +14,7 @@ import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Factory;
 import Reika.SatisfactoryPlanner.Data.Fuel;
 import Reika.SatisfactoryPlanner.Data.Generator;
+import Reika.SatisfactoryPlanner.Data.ItemConsumerProducer;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.Data.ResourceSupply;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
@@ -32,7 +33,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 
-public abstract class RecipeMatrixBase implements FactoryListener {
+public abstract class RecipeMatrixBase<R extends ItemConsumerProducer> implements FactoryListener {
 
 	protected int titlesRow;
 	protected int titleGapRow;
@@ -56,7 +57,7 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 	protected ArrayList<Consumable> inputs;
 	protected ArrayList<Consumable> outputs;
 
-	protected final HashMap<Recipe, RecipeRow> recipeEntries = new HashMap();
+	protected final HashMap<R, RecipeRow> recipeEntries = new HashMap();
 
 	public final Factory owner;
 	protected final GridPane grid;
@@ -78,7 +79,7 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 		this.gui = gui;
 	}
 
-	protected float getMultiplier(Recipe r) {
+	protected float getMultiplier(R r) {
 		return 1;
 	}
 
@@ -123,8 +124,8 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 			grid.getColumnConstraints().get(grid.getColumnCount()-1).setMinWidth(96);
 	}
 
-	protected RecipeRow addRecipeRow(Recipe r, int i) throws IOException {
-		Label lb = new Label(r.displayName);
+	protected RecipeRow addRecipeRow(R r, int i) throws IOException {
+		Label lb = new Label(r.getDisplayName());
 		lb.setFont(Font.font(lb.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, 14));
 		GuiUtil.sizeToContent(lb);
 		int rowIndex = titleGapRow+1+i*2;
@@ -143,7 +144,7 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 			gui.controller.setItem(c, e.getValue()*this.getMultiplier(r));
 			row.outputSlots.put(c, gui);
 		}
-		grid.add(r.productionBuilding.createImageView(), buildingColumn, rowIndex);
+		grid.add(r.getBuilding().createImageView(), buildingColumn, rowIndex);
 
 		this.createDivider(mainGapColumn, rowIndex, 0);
 		this.createDivider(inoutGapColumn, rowIndex, 1);
@@ -267,7 +268,7 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 		return Integer.MIN_VALUE;
 	}
 
-	private void rebuild() {
+	protected final void rebuild() {
 		try {
 			grid.getChildren().clear();
 			grid.getColumnConstraints().clear();
@@ -301,7 +302,7 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 	}
 
 	@Override
-	public void onSetCount(Generator g, Fuel fuel, int count) {}
+	public void onSetCount(Generator g, Fuel fuel, int old, int count) {}
 
 	@Override
 	public final void onAddProduct(Consumable c) {}
@@ -327,7 +328,7 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 
 	protected class RecipeRow {
 
-		public final Recipe recipe;
+		public final R recipe;
 		public final int recipeIndex;
 		public final int rowIndex;
 		private final HashMap<Consumable, GuiInstance<ItemViewController>> inputSlots = new HashMap();
@@ -335,12 +336,12 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 
 		private final Label label;
 
-		private RecipeRow(Recipe r, int index, int row) throws IOException {
+		private RecipeRow(R r, int index, int row) throws IOException {
 			super();
 			recipe = r;
 			rowIndex = row;
 			recipeIndex = index;
-			label = new Label(r.displayName);
+			label = new Label(r.getDisplayName());
 			label.setFont(Font.font(label.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, 14));
 			GuiUtil.sizeToContent(label);
 

@@ -1,16 +1,19 @@
 package Reika.SatisfactoryPlanner.GUI;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import Reika.SatisfactoryPlanner.Data.Consumable;
+import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Data.Fuel;
 import Reika.SatisfactoryPlanner.Data.Generator;
+import Reika.SatisfactoryPlanner.Data.ItemConsumerProducer;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
 import Reika.SatisfactoryPlanner.GUI.ItemViewController.WarningState;
 
+import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.layout.GridPane;
@@ -18,7 +21,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
-public class ScaledRecipeMatrix extends RecipeMatrixBase {
+public class ScaledRecipeMatrix extends RecipeMatrixBase<ItemConsumerProducer> {
 
 	private final RecipeMatrix parent;
 
@@ -41,14 +44,29 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 	}
 
 	@Override
-	protected float getMultiplier(Recipe r) {
-		return buildingGrid ? 1 : owner.getCount(r);
+	protected float getMultiplier(ItemConsumerProducer r) {
+		if (buildingGrid)
+			return 1;
+		if (r instanceof Recipe)
+			return owner.getCount((Recipe)r);
+		if (r instanceof Fuel) {
+			Fuel f = (Fuel)r;
+			return owner.getCount(f.generator, f);
+		}
+		return 1;
 	}
 
 	@Override
 	public void rebuildGrid() throws IOException {
 		buildingGrid = true;
-		List<Recipe> recipes = this.getRecipes();
+		ArrayList<ItemConsumerProducer> recipes = new ArrayList(this.getRecipes());
+		for (Generator g : Database.getAllGenerators()) {
+			for (Fuel f : g.getFuels()) {
+				int amt = owner.getCount(g, f);
+				if (amt > 0)
+					recipes.add(f);
+			}
+		}
 		this.computeIO();
 		titlesRow = this.addRow();
 		titleGapRow = this.addRow();
@@ -80,6 +98,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 		for (int i = 0; i < recipes.size(); i++) {
 			this.addRecipeRow(recipes.get(i), i);
 		}
+
 		this.createDivider(mainGapColumn, titlesRow, 0);
 		this.createDivider(inoutGapColumn, titlesRow, 1);
 		this.createDivider(buildingGapColumn, titlesRow, 1);
@@ -127,20 +146,28 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 	}
 
 	@Override
-	protected RecipeRow addRecipeRow(Recipe r, int i) throws IOException {
+	protected RecipeRow addRecipeRow(ItemConsumerProducer r, int i) throws IOException {
 		RecipeRow rowIndex = super.addRecipeRow(r, i);
 
 		this.createDivider(countGapColumn, rowIndex.rowIndex, 0);
-		Spinner<Double> counter = new Spinner();
-		GuiUtil.setupCounter(counter, 0, 9999, parent.owner.getCount(r), true);
-		counter.setPrefHeight(32);
-		counter.setMinHeight(Region.USE_PREF_SIZE);
-		counter.setMaxHeight(Region.USE_PREF_SIZE);
-		counter.valueProperty().addListener((val, old, nnew) -> {
-			if (nnew != null)
-				parent.owner.setCount(r, nnew.floatValue());
-		});
-		grid.add(counter, countColumn, rowIndex.rowIndex);
+		if (r instanceof Recipe) {
+			Spinner<Double> counter = new Spinner();
+			GuiUtil.setupCounter(counter, 0, 9999, parent.owner.getCount((Recipe)r), true);
+			counter.setPrefHeight(32);
+			counter.setMinHeight(Region.USE_PREF_SIZE);
+			counter.setMaxHeight(Region.USE_PREF_SIZE);
+			counter.valueProperty().addListener((val, old, nnew) -> {
+				if (nnew != null)
+					parent.owner.setCount((Recipe)r, nnew.floatValue());
+			});
+			grid.add(counter, countColumn, rowIndex.rowIndex);
+		}
+		else if (r instanceof Fuel) {
+			Fuel f = (Fuel)r;
+			Label lb = new Label(String.valueOf(owner.getCount(f.generator, f)));
+			lb.setPadding(new Insets(2, 2, 2, 8));
+			grid.add(lb, countColumn, rowIndex.rowIndex);
+		}
 		return rowIndex;
 	}
 
@@ -157,14 +184,33 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 	@Override
 	public void onSetCount(Recipe r, float amt) {
 		recipeEntries.get(r).setScale(amt);
+		this.updateStatuses(r);
+	}
+
+	@Override
+	public void onSetCount(Generator g, Fuel fuel, int old, int count) {
+		if ((old <= 0 && count > 0) || (count <= 0 && old > 0)) {
+			this.rebuild();
+			for (ItemConsumerProducer i : recipeEntries.keySet()) {
+				if (i instanceof Recipe)
+					this.updateStatuses((Recipe)i);
+				if (i instanceof Fuel)
+					this.updateStatuses((Fuel)i);
+			}
+		}
+		if (count > 0)
+			recipeEntries.get(fuel).setScale(count);
+		this.updateStatuses(fuel);
+	}
+
+	private void updateStatuses(Recipe r) {
 		for (Consumable c : r.getIngredientsPerMinute().keySet())
 			this.updateStatuses(c);
 		for (Consumable c : r.getProductsPerMinute().keySet())
 			this.updateStatuses(c);
 	}
 
-	@Override
-	public void onSetCount(Generator g, Fuel fuel, int count) {
+	private void updateStatuses(Fuel fuel) {
 		this.updateStatuses(fuel.item);
 		if (fuel.secondaryItem != null)
 			this.updateStatuses(fuel.secondaryItem);

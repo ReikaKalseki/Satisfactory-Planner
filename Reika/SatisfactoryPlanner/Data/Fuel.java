@@ -1,7 +1,8 @@
 package Reika.SatisfactoryPlanner.Data;
 
+import java.util.Map;
 
-public class Fuel {
+public class Fuel implements ItemConsumerProducer {
 
 	public final Generator generator;
 	public final Consumable item;
@@ -26,8 +27,23 @@ public class Fuel {
 		byproductAmount = amt;
 	}
 
+	@Override
+	public String getDisplayName() {
+		return generator.displayName+" ("+item.displayName+")";
+	}
+
+	@Override
+	public String toString() {
+		return item+" x "+primaryBurnRate+" + "+secondaryItem+" x "+secondaryBurnRate+" > "+byproduct+" x "+this.getByproductRate()+" in "+generator;
+	}
+
+	@Override
+	public FunctionalBuilding getBuilding() {
+		return generator;
+	}
+
 	/** Per minute */
-	public float computePrimaryRate() {
+	private float computePrimaryRate() {
 		float ret = item.energyValue > 0 ? generator.powerGenerationMW/item.energyValue*60 : 0;
 		if (item instanceof Fluid)
 			ret /= Constants.LIQUID_SCALAR;
@@ -41,6 +57,20 @@ public class Fuel {
 		if (secondaryItem instanceof Fluid)
 			ret /= Constants.LIQUID_SCALAR;
 		return ret;
+	}
+
+	public float getByproductRate() {
+		return byproductAmount*primaryBurnRate;
+	}
+
+	@Override
+	public Map<Consumable, Float> getIngredientsPerMinute() {
+		return secondaryItem == null ? Map.of(item, primaryBurnRate) : Map.of(item, primaryBurnRate, secondaryItem, secondaryBurnRate);
+	}
+
+	@Override
+	public Map<Consumable, Float> getProductsPerMinute() {
+		return byproduct == null ? Map.of() : Map.of(byproduct, this.getByproductRate());
 	}
 
 }
