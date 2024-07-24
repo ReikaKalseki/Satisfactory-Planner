@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 import Reika.SatisfactoryPlanner.Data.Constants.ToggleableVisiblityGroup;
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Factory;
+import Reika.SatisfactoryPlanner.Data.Fuel;
 import Reika.SatisfactoryPlanner.Data.Generator;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.Data.ResourceSupply;
@@ -300,7 +301,7 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 	}
 
 	@Override
-	public final void onSetCount(Generator g, int count) {}
+	public void onSetCount(Generator g, Fuel fuel, int count) {}
 
 	@Override
 	public final void onAddProduct(Consumable c) {}

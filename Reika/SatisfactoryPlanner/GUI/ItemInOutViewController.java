@@ -9,9 +9,13 @@ import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
 
 import javafx.application.HostServices;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.RowConstraints;
 
 public class ItemInOutViewController extends ControllerBase {
 
@@ -80,11 +84,34 @@ public class ItemInOutViewController extends ControllerBase {
 			rootGrid.getChildren().remove(outputs);
 			rootGrid.getColumnConstraints().remove(0);
 			rootGrid.getChildren().remove(inputLabel);
+			rootGrid.setRowIndex(inputs, 0);
+			rootGrid.setColumnIndex(inputs, 0);
 		}
-
 
 		this.setInputText("Fuel");
 		this.setOutputText("Byproduct");
+	}
+
+	public int addRow() {
+		RowConstraints cc = new RowConstraints();
+		rootGrid.getRowConstraints().add(cc);
+		cc.setMinHeight(Region.USE_COMPUTED_SIZE);
+		cc.setPrefHeight(Region.USE_COMPUTED_SIZE);
+		cc.setMaxHeight(Double.MAX_VALUE);
+		return rootGrid.getRowCount()-1;
+	}
+
+	public int addColumn() {
+		ColumnConstraints cc = new ColumnConstraints();
+		rootGrid.getColumnConstraints().add(cc);
+		cc.setMinWidth(Region.USE_COMPUTED_SIZE);
+		cc.setPrefWidth(Region.USE_COMPUTED_SIZE);
+		cc.setMaxWidth(Double.MAX_VALUE);
+		return rootGrid.getColumnCount()-1;
+	}
+
+	public void addNode(Node n, int row, int col) {
+		rootGrid.add(n, col, row);
 	}
 
 	public void setScale(float sc) {

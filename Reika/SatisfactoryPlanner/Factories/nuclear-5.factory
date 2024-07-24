@@ -50,13 +50,49 @@
         "POST10"
     ],
     "name": "nuclear-5",
-    "generators": [{
-        "count": 45,
-        "id": "Build_GeneratorNuclear_C"
-    }],
+    "generators": [
+        {
+            "count_Desc_HatcherParts_C": 0,
+            "count_Desc_Leaves_C": 0,
+            "count_Desc_SpitterParts_C": 0,
+            "count_Desc_Biofuel_C": 0,
+            "count_Desc_StingerParts_C": 0,
+            "count_Desc_HogParts_C": 0,
+            "count_Desc_Mycelia_C": 0,
+            "count_Desc_FlowerPetals_C": 0,
+            "id": "Build_GeneratorBiomass_C",
+            "count_Desc_Fabric_C": 0,
+            "count_Desc_GenericBiomass_C": 0,
+            "count_Desc_PackagedBiofuel_C": 0,
+            "count_Desc_Wood_C": 0
+        },
+        {
+            "count_Desc_LiquidTurboFuel_C": 0,
+            "count_Desc_LiquidBiofuel_C": 0,
+            "count_Desc_LiquidFuel_C": 0,
+            "id": "Build_GeneratorFuel_C"
+        },
+        {
+            "count_Desc_NuclearFuelRod_C": 45,
+            "id": "Build_GeneratorNuclear_C",
+            "count_Desc_PlutoniumFuelRod_C": 0
+        },
+        {
+            "count_Desc_Coal_C": 0,
+            "count_Desc_CompactedCoal_C": 0,
+            "count_Desc_PetroleumCoke_C": 0,
+            "id": "Build_GeneratorCoal_C"
+        }
+    ],
     "resources": [
         {
-            "item": "Desc_Stone_C",
+            "item": "Desc_CrystalOscillator_C",
+            "amount": 40,
+            "stations": 1,
+            "type": "TRAIN"
+        },
+        {
+            "item": "Desc_OreUranium_C",
             "purity": "NORMAL",
             "clock": 1,
             "type": "MINER",
@@ -68,26 +104,6 @@
             "type": "DRONE"
         },
         {
-            "item": "Desc_OreUranium_C",
-            "purity": "NORMAL",
-            "clock": 1.5,
-            "type": "MINER",
-            "miner": "THREE"
-        },
-        {
-            "item": "Desc_OreUranium_C",
-            "purity": "NORMAL",
-            "clock": 1,
-            "type": "MINER",
-            "miner": "THREE"
-        },
-        {
-            "item": "Desc_SteelIngot_C",
-            "amount": 360,
-            "belt": "FOUR",
-            "type": "BELT"
-        },
-        {
             "item": "Desc_Sulfur_C",
             "purity": "NORMAL",
             "clock": 2,
@@ -95,16 +111,30 @@
             "miner": "THREE"
         },
         {
-            "item": "Desc_CrystalOscillator_C",
-            "amount": 40,
-            "stations": 1,
-            "type": "TRAIN"
+            "item": "Desc_Stone_C",
+            "purity": "NORMAL",
+            "clock": 1,
+            "type": "MINER",
+            "miner": "THREE"
+        },
+        {
+            "item": "Desc_OreUranium_C",
+            "purity": "NORMAL",
+            "clock": 1.5,
+            "type": "MINER",
+            "miner": "THREE"
         },
         {
             "item": "Desc_LiquidTurboFuel_C",
             "amount": 1200,
             "stations": 1,
             "type": "TRAIN"
+        },
+        {
+            "item": "Desc_SteelIngot_C",
+            "amount": 360,
+            "belt": "FOUR",
+            "type": "BELT"
         },
         {
             "item": "Desc_ElectromagneticControlRod_C",

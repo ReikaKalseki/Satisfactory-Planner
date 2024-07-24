@@ -16,6 +16,7 @@ import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Data.ExtractableResource;
 import Reika.SatisfactoryPlanner.Data.Factory;
+import Reika.SatisfactoryPlanner.Data.Fuel;
 import Reika.SatisfactoryPlanner.Data.FunctionalBuilding;
 import Reika.SatisfactoryPlanner.Data.Generator;
 import Reika.SatisfactoryPlanner.Data.Item;
@@ -312,9 +313,6 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 				Factory.loadFactory(f, this);
 			}
 		});
-
-		this.setFactory(new Factory(), false);
-		factory.addCallback(this);
 	}
 
 	public Factory getFactory() {
@@ -328,6 +326,10 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 	private void setFactory(Factory f, boolean update) {
 		factory = f;
 		factory.setUI(this);
+
+		for (GuiInstance<GeneratorRowController> gui : generators.values()) {
+			gui.controller.setFactory(f);
+		}
 
 		try {
 			Node gp = factory.createRawMatrix();
@@ -351,7 +353,6 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 		for (Generator g : Database.getAllGenerators()) {
 			GuiInstance<GeneratorRowController> gui = this.loadNestedFXML("GeneratorRow", generatorList);
 			gui.controller.setGenerator(g);
-			gui.controller.setCallback(amt -> factory.setCount(g, amt));
 			generators.put(g, gui);
 		}
 
@@ -359,6 +360,9 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 		this.setFont(netGridContainer, GuiSystem.getDefaultFont());
 
 		this.buildRecentList();
+
+		this.setFactory(new Factory(), false);
+		factory.addCallback(this);
 
 		this.rebuildEntireUI();
 	}
@@ -420,7 +424,10 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 			this.onAddProduct(c);
 
 		for (Entry<Generator, GuiInstance<GeneratorRowController>> e : generators.entrySet()) {
-			e.getValue().controller.setCount(factory.getCount(e.getKey()), false);
+			Generator g = e.getKey();
+			for (Fuel f : g.getFuels()) {
+				e.getValue().controller.setCount(f, factory.getCount(g, f));
+			}
 		}
 
 		inputGrid.getChildren().removeIf(n -> !(n instanceof Button));
@@ -502,6 +509,21 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 			}
 		}
 
+		/*
+		if (consuming || production) {
+			Collection<Consumable> all = factory.getAllRelevantItems();
+			if (consuming)
+				netConsumptionBar.getChildren().clear();
+			if (production)
+				netProductBar.getChildren().clear();
+			for (Consumable c : all) {
+				float amt = factory.getFlow(c).getNetYield();
+				if (amt < 0 && consuming)
+					GuiUtil.addIconCount(netConsumptionBar, c, -amt);
+				if (amt > 0 && consuming)
+					GuiUtil.addIconCount(netProductBar, c, amt);
+			}
+		}*/
 		if (consuming) {
 			netConsumptionBar.getChildren().clear();
 			for (Consumable c : factory.getAllIngredients()) {
@@ -513,7 +535,7 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 		if (production) {
 			netProductBar.getChildren().clear();
 			for (Consumable c : factory.getAllProducedItems()) {
-				float amt = factory.getNetProduction(c);
+				float amt = factory.getTotalProduction(c)-factory.getTotalConsumption(c);
 				if (amt > 0)
 					GuiUtil.addIconCount(netProductBar, c, amt);
 			}
@@ -549,8 +571,8 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 	}
 
 	@Override
-	public void onSetCount(Generator g, int count) {
-		generators.get(g).controller.setCount(count, false);
+	public void onSetCount(Generator g, Fuel fuel, int count) {
+		generators.get(g).controller.setCount(fuel, count);
 		this.updateStats(true, true, true, true, false, true);
 	}
 

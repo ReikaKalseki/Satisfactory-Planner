@@ -7,8 +7,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import org.json.JSONArray;
@@ -45,7 +46,7 @@ public class Factory {
 	private final ArrayList<Recipe> recipeList = new ArrayList();
 	private final ArrayList<RecipeProductLoop> recipeLoops = new ArrayList();
 
-	private final CountMap<Generator> generators = new CountMap();
+	private final HashMap<Generator, FuelChoices> generators = new HashMap();
 
 	private final ArrayList<FactoryListener> changeCallback = new ArrayList();
 
@@ -54,6 +55,11 @@ public class Factory {
 
 	private final MultiMap<Consumable, ResourceSupply> resourceSources = new MultiMap();
 	private final ArrayList<Consumable> desiredProducts = new ArrayList();
+
+	//private final HashMap<Consumable, ItemFlow> flow = new HashMap();
+	private final ItemAmountTracker production = new ItemAmountTracker();
+	private final ItemAmountTracker externalInput = new ItemAmountTracker();
+	private final ItemAmountTracker consumption = new ItemAmountTracker();
 
 	private final EnumSet<ToggleableVisiblityGroup> toggles = EnumSet.allOf(ToggleableVisiblityGroup.class);
 
@@ -72,6 +78,9 @@ public class Factory {
 	public Factory() {
 		//matrix.buildGrid();
 		//scaleMatrix.buildGrid();
+
+		for (Generator g : Database.getAllGenerators())
+			generators.put(g, new FuelChoices(g));
 	}
 
 	public Factory addCallback(FactoryListener r) {
@@ -93,6 +102,7 @@ public class Factory {
 		recipeList.add(r);
 		recipes.put(r, 0F);
 		Collections.sort(recipeList);
+		this.rebuildFlows();
 		this.notifyListeners(c -> c.onAddRecipe(r));
 	}
 
@@ -100,6 +110,7 @@ public class Factory {
 		recipeLoops.removeIf(p -> p.recipe1.equals(r) || p.recipe2.equals(r));
 		if (recipeList.remove(r)) {
 			recipes.remove(r);
+			this.rebuildFlows();
 			this.notifyListeners(c -> c.onRemoveRecipe(r));
 		}
 	}
@@ -123,12 +134,14 @@ public class Factory {
 
 	public void addExternalSupply(ResourceSupply res) {
 		resourceSources.addValue(res.getResource(), res);
+		this.rebuildFlows();
 		this.updateMatrixStatus(res.getResource());
 		this.notifyListeners(c -> c.onAddSupply(res));
 	}
 
 	public void removeExternalSupply(ResourceSupply res) {
 		resourceSources.remove(res.getResource(), res);
+		this.rebuildFlows();
 		this.updateMatrixStatus(res.getResource());
 		this.notifyListeners(c -> c.onRemoveSupply(res));
 	}
@@ -171,43 +184,64 @@ public class Factory {
 		return Collections.unmodifiableList(recipeList);
 	}
 
-	public HashSet<Consumable> getAllIngredients() {
+	public Set<Consumable> getAllIngredients() {/*
 		HashSet<Consumable> ret = new HashSet();
 		for (Recipe r : this.getRecipes())
 			ret.addAll(r.getIngredientsPerMinute().keySet());
-		return ret;
+		return ret;*/
+		return consumption.getItems();
 	}
 
-	public HashSet<Consumable> getAllProducedItems() {
+	public Set<Consumable> getAllProducedItems() {/*
 		HashSet<Consumable> ret = new HashSet();
 		for (Recipe r : this.getRecipes())
 			ret.addAll(r.getProductsPerMinute().keySet());
-		return ret;
+		return ret;*/
+		return production.getItems();
 	}
 
-	public float getTotalConsumption(Consumable c) {
+	public Set<Consumable> getAllSuppliedItems() {
+		return externalInput.getItems();
+	}
+
+	public float getTotalConsumption(Consumable c) {/*
 		float amt = 0;
 		for (Recipe r : this.getRecipes()) {
 			Float get = r.getIngredientsPerMinute().get(c);
 			if (get != null)
 				amt += get.floatValue()*this.getCount(r);
 		}
-		return amt;
+		return amt;*/
+		return consumption.get(c);
 	}
 
-	public float getTotalProduction(Consumable c) {
+	public float getTotalProduction(Consumable c) {/*
 		float amt = 0;
 		for (Recipe r : this.getRecipes()) {
 			Float get = r.getProductsPerMinute().get(c);
 			if (get != null)
 				amt += get.floatValue()*this.getCount(r);
 		}
-		return amt;
+		return amt;*/
+		return production.get(c);
 	}
 
+	public float getExternalInput(Consumable c) {
+		return externalInput.get(c);
+	}
+	/*
 	public float getNetProduction(Consumable c) {
 		return this.getTotalAvailable(c)-this.getTotalConsumption(c);
+	}*/
+	/*
+	public ItemFlow getFlow(Consumable c) {
+		return flow.get(c);
 	}
+
+	public Collection<Consumable> getAllRelevantItems() {
+		return Collections.unmodifiableCollection(flow.keySet());
+	}
+	 */
 
 	public float getCount(Recipe r) {
 		return recipes.get(r);
@@ -215,29 +249,82 @@ public class Factory {
 
 	public void setCount(Recipe r, float amt) {
 		recipes.put(r, amt);
+		this.rebuildFlows();
 		this.notifyListeners(c -> c.onSetCount(r, amt));
 	}
 
-	public int getCount(Generator g) {
-		return generators.get(g);
+	public int getCount(Generator g, Fuel f) {
+		return generators.get(g).getCount(f);
 	}
 
-	public void setCount(Generator g, int amt) {
-		generators.set(g, amt);
-		this.notifyListeners(c -> c.onSetCount(g, amt));
+	public void setCount(Generator g, Fuel f, int amt) {
+		generators.get(g).setCount(f, amt);
+		this.rebuildFlows();
+		this.notifyListeners(c -> c.onSetCount(g, f, amt));
 	}
 
+	private void rebuildFlows() {
+		//		flow.clear();
+		production.clear();
+		externalInput.clear();
+		consumption.clear();
+		for (Recipe r : this.getRecipes()) {
+			for (Entry<Consumable, Float> e : r.getIngredientsPerMinute().entrySet()) {
+				//this.getOrCreateFlow(e.getKey()).consumption += e.getValue();
+				consumption.add(e.getKey(), e.getValue()*recipes.get(r));
+			}
+			for (Entry<Consumable, Float> e : r.getProductsPerMinute().entrySet()) {
+				//this.getOrCreateFlow(e.getKey()).production += e.getValue();
+				production.add(e.getKey(), e.getValue()*recipes.get(r));
+			}
+		}
+		for (ResourceSupply r : this.getSupplies()) {
+			//this.getOrCreateFlow(r.getResource()).externalInput += r.getYield();
+			externalInput.add(r.getResource(), r.getYield());
+		}
+		for (FuelChoices fc : generators.values()) {
+			//this.getOrCreateFlow(r.getResource()).externalInput += r.getYield();
+			for (Fuel f : fc.generator.getFuels()) {
+				int amt = fc.getCount(f);
+				consumption.add(f.item, f.primaryBurnRate*amt);
+				if (f.secondaryItem != null)
+					production.add(f.secondaryItem, f.secondaryBurnRate*amt);
+				if (f.byproduct != null)
+					production.add(f.byproduct, f.byproductAmount*f.primaryBurnRate*amt);
+			}
+		}/*
+		for (Consumable c : externalInput.getItems())
+			this.updateMatrixStatus(c);
+		for (Consumable c : production.getItems())
+			this.updateMatrixStatus(c);
+		for (Consumable c : consumption.getItems())
+			this.updateMatrixStatus(c);*/
+	}
+	/*
+	private ItemFlow getOrCreateFlow(Consumable c) {
+		ItemFlow f = flow.get(c);
+		if (f == null) {
+			f = new ItemFlow(c);
+			flow.put(c, f);
+		}
+		return f;
+	}
+	 */
 	public CountMap<FunctionalBuilding> getBuildings() {
 		CountMap<FunctionalBuilding> map = new CountMap();
 		for (Recipe r : recipeList)
 			map.increment(r.productionBuilding, (int)Math.ceil(this.getCount(r)));
-		for (Generator g : generators.keySet())
-			map.increment(g, this.getCount(g));
+		for (FuelChoices f : generators.values())
+			map.increment(f.generator, f.getTotal());
 		for (ResourceSupply res : resourceSources.allValues(false)) {
 			if (res instanceof ExtractableResource)
 				map.increment(((ExtractableResource)res).getBuilding(), 1);
 		}
 		return map;
+	}
+
+	public int getCount(Generator g) {
+		return generators.get(g).getTotal();
 	}
 	/*
 	public CountMap<Item> getConstructionCost() {
@@ -271,17 +358,27 @@ public class Factory {
 		return toggles.contains(tv);
 	}
 
-	public float getTotalAvailable(Consumable c) {
-		return this.getTotalProduction(c)+this.getExternalSupply(c);
-	}
-
 	public boolean isExcess(Consumable c) {
-		return !this.isDesiredFinalProduct(c) && this.getTotalAvailable(c) > this.getTotalConsumption(c);
+		if (this.isDesiredFinalProduct(c))
+			return false;
+		//ItemFlow f = this.getFlow(c);
+		//return f != null && f.getTotalAvailable() > f.getConsumption();
+		return this.getTotalProduction(c)+this.getExternalSupply(c) > this.getTotalConsumption(c);
 	}
 
-	public void getWarnings(Consumer<Warning> call) {
+	public void getWarnings(Consumer<Warning> call) {/*
+		for (ItemFlow f : flow.values()) {
+			if (f.isDeficit()) {
+				call.accept(new InsufficientResourceWarning(f));
+			}
+			if (!desiredProducts.contains(f.item) && f.getTotalAvailable() > f.getConsumption())
+				call.accept(new ExcessResourceWarning(f));
+			RateLimitedSupplyLine lim = f.item instanceof Fluid ? PipeTier.TWO : BeltTier.FIVE;
+			if (f.getTotalAvailable() > lim.getMaxThroughput())
+				call.accept(new MultipleBeltsWarning(f.item, f.getTotalAvailable(), lim));
+		}*/
 		for (Consumable c : this.getAllIngredients()) {
-			float has = this.getTotalAvailable(c);
+			float has = this.getExternalInput(c)+this.getTotalProduction(c);
 			float need = this.getTotalConsumption(c);
 			if (has < need) {
 				call.accept(new InsufficientResourceWarning(c, need, has));
@@ -330,7 +427,8 @@ public class Factory {
 		recipeList.clear();
 		recipeLoops.clear();
 		recipes.clear();
-		generators.clear();
+		for (FuelChoices f : generators.values())
+			f.clear();
 		resourceSources.clear();
 		desiredProducts.clear();
 		toggles.clear();
@@ -380,7 +478,9 @@ public class Factory {
 		for (Generator g : this.generators.keySet()) {
 			JSONObject block = new JSONObject();
 			block.put("id", g.id);
-			block.put("count", this.generators.get(g));
+			for (Fuel ff : g.getFuels()) {
+				block.put("count_"+ff.item.id, this.generators.get(g).getCount(ff));
+			}
 			generators.put(block);
 		}
 		root.put("generators", generators);
@@ -437,7 +537,11 @@ public class Factory {
 		for (Object o : generators) {
 			JSONObject block = (JSONObject)o;
 			Generator r = (Generator)Database.lookupBuilding(block.getString("id"));
-			this.generators.set(r, block.getInt("count"));
+			for (Fuel ff : r.getFuels()) {
+				String key = "count_"+ff.item.id;
+				if (block.has(key))
+					this.generators.get(r).setCount(ff, block.getInt(key));
+			}
 		}
 		for (Object o : resources) {
 			JSONObject block = (JSONObject)o;

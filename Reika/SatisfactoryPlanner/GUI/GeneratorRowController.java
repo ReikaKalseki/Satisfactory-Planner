@@ -2,9 +2,9 @@ package Reika.SatisfactoryPlanner.GUI;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.function.Consumer;
+import java.util.HashSet;
 
-import Reika.SatisfactoryPlanner.Data.Consumable;
+import Reika.SatisfactoryPlanner.Data.Factory;
 import Reika.SatisfactoryPlanner.Data.Fuel;
 import Reika.SatisfactoryPlanner.Data.Generator;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.FontModifier;
@@ -16,12 +16,13 @@ import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 
 public class GeneratorRowController extends ControllerBase {
 
 	@FXML
-	private Spinner<Integer> counter;
+	private Label countSumText;
 
 	@FXML
 	private HBox fuelBar;
@@ -34,11 +35,11 @@ public class GeneratorRowController extends ControllerBase {
 
 	private Generator generator;
 
-	private Consumer<Integer> callback;
+	private Factory factory;
 
-	private final HashMap<Consumable, ItemInOutViewController> fuels = new HashMap();
+	private final HashMap<Fuel, FuelBlock> fuels = new HashMap();
 
-	private boolean settingValue;
+	private final HashSet<Fuel> settingValue = new HashSet();
 
 	@Override
 	public void init(HostServices services) throws IOException {
@@ -49,28 +50,19 @@ public class GeneratorRowController extends ControllerBase {
 	protected void postInit(WindowBase w) throws IOException {
 		super.postInit(w);
 
-		GuiUtil.setupCounter(counter, 0, 9999, 0, true);
-		counter.valueProperty().addListener((val, old, nnew) -> {
-			this.setCount(nnew, old != nnew);
-		});
 		powerGenText.setText(String.format("%.3fMW", 0F));
+	}
+
+	public void setFactory(Factory f) {
+		factory = f;
 	}
 
 	public void setGenerator(Generator g) {
 		icon.setImage(g.createIcon(64));
 		generator = g;
 		//this.setCount(0, false);
-	}
-
-	public void setCount(int c, boolean notify) {
-		if (settingValue)
-			return;
-		settingValue = true;
-		//Logging.instance.log(generator.displayName+" x "+c);
-		//Thread.dumpStack();
 		fuelBar.getChildren().clear();
-		counter.getValueFactory().setValue(c);
-		powerGenText.setText(String.format("%.3fMW", generator.powerGenerationMW*c));
+
 		for (Fuel f : generator.getFuels()) {
 			try {/*
 				HBox wrapper = new HBox();
@@ -86,7 +78,9 @@ public class GeneratorRowController extends ControllerBase {
 				//if (f.byproduct != null) {
 				GuiInstance<ItemInOutViewController> gui = this.loadNestedFXML("ItemInOutView", fuelBar);
 				gui.controller.setFuel(f);
-				gui.controller.setScale(c);
+				gui.controller.setScale(0);
+
+				fuels.put(f, new FuelBlock(gui, f));
 				//}
 				/*else {
 					GuiInstance gui = this.loadNestedFXML("ItemView", fuelBar);
@@ -103,13 +97,53 @@ public class GeneratorRowController extends ControllerBase {
 		}
 		if (fuelBar.getChildren().size() > 1) //remove last trailing OR
 			fuelBar.getChildren().removeLast();
-		if (notify && callback != null)
-			callback.accept(c);
-		settingValue = false;
 	}
 
-	public void setCallback(Consumer<Integer> call) {
-		callback = call;
+	public void reset() {
+		this.setCount(0);
+	}
+
+	public void setCount(int c) {
+		for (Fuel f : generator.getFuels())
+			this.setCount(f, c);
+	}
+
+	public void setCount(Fuel f, int c) {
+		if (settingValue.contains(f))
+			return;
+		settingValue.add(f);
+		//Logging.instance.log(generator.displayName+" x "+c);
+		//Thread.dumpStack();
+		fuels.get(f).counter.getValueFactory().setValue(c);
+		powerGenText.setText(String.format("%.3fMW", generator.powerGenerationMW*c));
+		countSumText.setText(String.valueOf(factory.getCount(generator)));
+		settingValue.remove(f);
+	}
+
+	private class FuelBlock {
+
+		private final GuiInstance<ItemInOutViewController> gui;
+		private final Fuel fuel;
+		private final Spinner<Integer> counter;
+
+		private FuelBlock(GuiInstance<ItemInOutViewController> g, Fuel f) {
+			gui = g;
+			fuel = f;
+
+			int row = gui.controller.addRow();
+			counter = new Spinner<Integer>();//new Button("Choose");
+			GuiUtil.setupCounter(counter, 0, 9999, 0, true);
+			counter.valueProperty().addListener((val, old, nnew) -> {
+				factory.setCount(generator, fuel, nnew);
+				gui.controller.setScale(nnew);
+			});
+			counter.setMaxHeight(Double.POSITIVE_INFINITY);
+			counter.setMaxWidth(Double.POSITIVE_INFINITY);
+			gui.controller.addNode(counter, row, 0);
+			GridPane.setRowSpan(counter, 1);
+			GridPane.setColumnSpan(counter, GridPane.REMAINING);
+		}
+
 	}
 
 }

@@ -2,7 +2,6 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Spinner?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -14,7 +13,7 @@
    <columnConstraints>
       <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" />
       <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" />
-      <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="96.0" />
+      <ColumnConstraints hgrow="SOMETIMES" />
       <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" />
       <ColumnConstraints hgrow="SOMETIMES" />
       <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" />
@@ -26,11 +25,7 @@
    <children>
       <ImageView fx:id="icon" fitHeight="64.0" fitWidth="64.0" pickOnBounds="true" preserveRatio="true" />
       <Label fx:id="powerGenText" text="Power Gen" GridPane.columnIndex="4" />
-      <Spinner fx:id="counter" GridPane.columnIndex="2" />
       <Label alignment="BOTTOM_RIGHT" text="x" GridPane.columnIndex="1">
-         <font>
-            <Font name="System Bold" size="14.0" />
-         </font>
          <padding>
             <Insets left="4.0" />
          </padding>
@@ -42,5 +37,6 @@
       </Label>
       <HBox fx:id="fuelBar" alignment="CENTER" minWidth="8.0" prefHeight="32.0" GridPane.columnIndex="5" />
       <HBox fx:id="auxInputBar" alignment="CENTER" layoutX="260.0" layoutY="10.0" minWidth="8.0" prefHeight="32.0" GridPane.columnIndex="6" />
+      <Label fx:id="countSumText" layoutX="200.0" layoutY="34.0" text="Power Gen" GridPane.columnIndex="2" />
    </children>
 </GridPane>

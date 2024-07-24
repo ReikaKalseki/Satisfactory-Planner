@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import Reika.SatisfactoryPlanner.Data.Consumable;
+import Reika.SatisfactoryPlanner.Data.Fuel;
+import Reika.SatisfactoryPlanner.Data.Generator;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
 import Reika.SatisfactoryPlanner.GUI.ItemViewController.WarningState;
@@ -162,12 +164,21 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 	}
 
 	@Override
+	public void onSetCount(Generator g, Fuel fuel, int count) {
+		this.updateStatuses(fuel.item);
+		if (fuel.secondaryItem != null)
+			this.updateStatuses(fuel.secondaryItem);
+		if (fuel.byproduct != null)
+			this.updateStatuses(fuel.byproduct);
+	}
+
+	@Override
 	public void updateStatuses(Consumable c) {
 		GuiInstance<ItemViewController> gui = sumEntriesIn.get(c);
 		if (gui != null) {
 			float total = owner.getTotalConsumption(c);
 			gui.controller.setItem(c, total);
-			gui.controller.setState(total > owner.getTotalAvailable(c) ? WarningState.INSUFFICIENT : WarningState.NONE);
+			gui.controller.setState(total > owner.getTotalProduction(c)+owner.getExternalInput(c) ? WarningState.INSUFFICIENT : WarningState.NONE);
 		}
 
 		gui = sumEntriesOut.get(c);
