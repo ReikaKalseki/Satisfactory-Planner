@@ -19,7 +19,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
 import javafx.util.StringConverter;
 
-public class ClockspeedSliderController extends ControllerBase {
+public class ClockspeedSliderController extends FXMLControllerBase {
 
 	@FXML
 	private Slider slider;

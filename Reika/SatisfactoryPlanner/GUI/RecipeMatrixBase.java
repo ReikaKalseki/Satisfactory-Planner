@@ -62,7 +62,7 @@ public abstract class RecipeMatrixBase<R extends ItemConsumerProducer> implement
 	public final Factory owner;
 	protected final GridPane grid;
 
-	protected ControllerBase gui;
+	protected FXMLControllerBase gui;
 
 	protected RecipeMatrixBase(Factory f) {
 		owner = f;
@@ -75,7 +75,7 @@ public abstract class RecipeMatrixBase<R extends ItemConsumerProducer> implement
 		grid.setMaxWidth(Double.POSITIVE_INFINITY);
 	}
 
-	public final void setUI(ControllerBase gui) {
+	public final void setUI(FXMLControllerBase gui) {
 		this.gui = gui;
 	}
 
@@ -134,14 +134,12 @@ public abstract class RecipeMatrixBase<R extends ItemConsumerProducer> implement
 		grid.add(lb, nameColumn, rowIndex);
 		for (Entry<Consumable, Float> e : r.getIngredientsPerMinute().entrySet()) {
 			Consumable c = e.getKey();
-			GuiInstance<ItemViewController> gui = this.gui.loadNestedFXML("ItemView", grid, ingredientsStartColumn+inputs.indexOf(c)*2, rowIndex);
-			gui.controller.setItem(c, e.getValue()*this.getMultiplier(r));
+			GuiInstance<ItemViewController> gui = GuiUtil.createItemView(c, e.getValue()*this.getMultiplier(r), grid, ingredientsStartColumn+inputs.indexOf(c)*2, rowIndex);
 			row.inputSlots.put(c, gui);
 		}
 		for (Entry<Consumable, Float> e : r.getProductsPerMinute().entrySet()) {
 			Consumable c = e.getKey();
-			GuiInstance<ItemViewController> gui = this.gui.loadNestedFXML("ItemView", grid, productsStartColumn+outputs.indexOf(c)*2, rowIndex);
-			gui.controller.setItem(c, e.getValue()*this.getMultiplier(r));
+			GuiInstance<ItemViewController> gui = GuiUtil.createItemView(c, e.getValue()*this.getMultiplier(r), grid, productsStartColumn+outputs.indexOf(c)*2, rowIndex);
 			row.outputSlots.put(c, gui);
 		}
 		grid.add(r.getBuilding().createImageView(), buildingColumn, rowIndex);
@@ -344,20 +342,6 @@ public abstract class RecipeMatrixBase<R extends ItemConsumerProducer> implement
 			label = new Label(r.getDisplayName());
 			label.setFont(Font.font(label.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, 14));
 			GuiUtil.sizeToContent(label);
-
-			ControllerBase con = gui;
-			for (Entry<Consumable, Float> e : r.getIngredientsPerMinute().entrySet()) {
-				Consumable c = e.getKey();
-				GuiInstance<ItemViewController> gui = con.loadNestedFXML("ItemView", p -> {});
-				gui.controller.setItem(c, e.getValue());
-				inputSlots.put(c, gui);
-			}
-			for (Entry<Consumable, Float> e : r.getProductsPerMinute().entrySet()) {
-				Consumable c = e.getKey();
-				GuiInstance<ItemViewController> gui = con.loadNestedFXML("ItemView", p -> {});
-				gui.controller.setItem(c, e.getValue()); //*this.getMultiplier(r)
-				outputSlots.put(c, gui);
-			}
 		}
 
 		public void setScale(float scale) {

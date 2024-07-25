@@ -14,7 +14,7 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-public abstract class ResourceSupplyEntryController<R extends ResourceSupply> extends ControllerBase {
+public abstract class ResourceSupplyEntryController<R extends ResourceSupply> extends FXMLControllerBase {
 
 	@FXML
 	protected VBox root;

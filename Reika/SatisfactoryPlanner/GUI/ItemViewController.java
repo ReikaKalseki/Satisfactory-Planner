@@ -1,72 +1,90 @@
 package Reika.SatisfactoryPlanner.GUI;
 
-import java.io.IOException;
 import java.util.function.Consumer;
 
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.FontModifier;
 import Reika.SatisfactoryPlanner.Util.ColorUtil;
 
-import javafx.application.HostServices;
-import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.StrokeLineCap;
+import javafx.scene.shape.StrokeType;
+import javafx.scene.text.TextAlignment;
 
 public class ItemViewController extends ControllerBase {
 
-	@FXML
-	private HBox mainPanel;
+	private final HBox mainPanel = new HBox();
 
-	@FXML
-	private Label amount;
+	private final Label amount = new Label();
 
-	@FXML
-	private Label minLabel;
+	private final Label minLabel = new Label();
 
-	@FXML
-	private VBox countContainer;
+	private final VBox countContainer = new VBox();
 
-	@FXML
-	private Line divider;
+	private final Line divider = new Line();
 
-	@FXML
-	private ImageView icon;
+	private final ImageView icon = new ImageView();
 
-	private Consumable item;
+	public final Consumable item;
 
 	private float baseAmount;
 
-	private String minimumWidth = "";
+	private String minimumWidth = "min";
 
-	@Override
-	public void init(HostServices services) throws IOException {
+	public ItemViewController(Consumable c, float amt) {
+		item = c;
+		baseAmount = amt;
+
+		mainPanel.setSpacing(4);
+		mainPanel.setMaxHeight(Double.MAX_VALUE);
+		mainPanel.setMaxWidth(Double.MAX_VALUE);
+
+		icon.setFitHeight(32);
+		icon.setFitWidth(32);
+		icon.setSmooth(true);
+		countContainer.setAlignment(Pos.CENTER);
+		amount.setPadding(new Insets(-2, 0, -3, 0));
+		amount.setAlignment(Pos.CENTER);
+		amount.setTextAlignment(TextAlignment.CENTER);
+		minLabel.setPadding(new Insets(-4, 0, -2, 0));
+		minLabel.setAlignment(Pos.CENTER);
+		minLabel.setTextAlignment(TextAlignment.CENTER);
+		minLabel.setText("min");
+		divider.setStroke(UIConstants.FADE_COLOR);
+		divider.setStrokeWidth(1.5);
+		divider.setStrokeType(StrokeType.CENTERED);
+		divider.setStrokeLineCap(StrokeLineCap.ROUND);
+
+		mainPanel.getChildren().add(icon);
+		mainPanel.getChildren().add(countContainer);
+		countContainer.getChildren().add(amount);
+		countContainer.getChildren().add(divider);
+		countContainer.getChildren().add(minLabel);
+
+		icon.setImage(c.createIcon());
+		this.setAmountText(amt);
+		GuiUtil.setTooltip(icon, c.displayName);
+
+		countContainer.minWidthProperty().bind(amount.minWidthProperty().add(2));
+
 		divider.endXProperty().bind(countContainer.widthProperty().subtract(divider.strokeWidthProperty()));
-	}
-
-	@Override
-	protected void postInit(WindowBase w) throws IOException {
-		super.postInit(w);
 		this.setTextStyle(GuiSystem.getFontStyle(FontModifier.SEMIBOLD));
 
 		mainPanel.minWidthProperty().bind(countContainer.widthProperty().add(mainPanel.spacingProperty()).add(icon.fitWidthProperty()));
 		GuiUtil.sizeToContent(minLabel);
 	}
 
-	public Consumable getItem() {
-		return item;
-	}
-
-	public void setItem(Consumable c, float amt) {
-		item = c;
+	public void setAmount(float amt) {
 		baseAmount = amt;
-		icon.setImage(c.createIcon());
 		this.setAmountText(amt);
-
-		GuiUtil.setTooltip(icon, c.displayName);
 	}
 
 	public void setScale(float scale) {
@@ -80,7 +98,7 @@ public class ItemViewController extends ControllerBase {
 		if (GuiUtil.getWidth(txt, amount.getFont()) > GuiUtil.getWidth(minimumWidth, amount.getFont()))
 			minimumWidth = txt;
 		//GuiUtil.sizeToContent(amount);
-		amount.setMinWidth(GuiUtil.getWidth(minimumWidth, amount.getFont()));
+		amount.setMinWidth(GuiUtil.getWidth(minimumWidth, GuiSystem.getFont(FontModifier.BOLD)));
 	}
 
 	public void setState(WarningState st) {
@@ -107,6 +125,11 @@ public class ItemViewController extends ControllerBase {
 		private WarningState(Consumer<ItemViewController> style) {
 			applyStyles = style;
 		}
+	}
+
+	@Override
+	public Parent getRootNode() {
+		return mainPanel;
 	}
 
 }

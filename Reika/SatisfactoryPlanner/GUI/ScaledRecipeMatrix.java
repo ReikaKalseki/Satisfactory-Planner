@@ -123,8 +123,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase<ItemConsumerProducer> {
 		for (int i = 0; i < inputs.size(); i++) {
 			Consumable c = inputs.get(i);
 			int idx = ingredientsStartColumn+inputs.indexOf(c)*2;
-			GuiInstance<ItemViewController> gui = this.gui.loadNestedFXML("ItemView", grid, idx, sumsRow);
-			gui.controller.setItem(c, owner.getTotalConsumption(c));
+			GuiInstance<ItemViewController> gui = GuiUtil.createItemView(c, owner.getTotalConsumption(c), grid, idx, sumsRow);
 			sumEntriesIn.put(c, gui);
 			if (i < inputs.size()-1)
 				this.createDivider(idx+1, sumsRow, 2);
@@ -132,8 +131,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase<ItemConsumerProducer> {
 		for (int i = 0; i < outputs.size(); i++) {
 			Consumable c = outputs.get(i);
 			int idx = productsStartColumn+outputs.indexOf(c)*2;
-			GuiInstance<ItemViewController> gui = this.gui.loadNestedFXML("ItemView", grid, idx, sumsRow);
-			gui.controller.setItem(c, owner.getTotalProduction(c));
+			GuiInstance<ItemViewController> gui = GuiUtil.createItemView(c, owner.getTotalProduction(c), grid, idx, sumsRow);
 			sumEntriesOut.put(c, gui);
 			if (i < outputs.size()-1)
 				this.createDivider(idx+1, sumsRow, 2);
@@ -223,13 +221,13 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase<ItemConsumerProducer> {
 		GuiInstance<ItemViewController> gui = sumEntriesIn.get(c);
 		if (gui != null) {
 			float total = owner.getTotalConsumption(c);
-			gui.controller.setItem(c, total);
+			gui.controller.setAmount(total);
 			gui.controller.setState(total > owner.getTotalProduction(c)+owner.getExternalInput(c) ? WarningState.INSUFFICIENT : WarningState.NONE);
 		}
 
 		gui = sumEntriesOut.get(c);
 		if (gui != null) {
-			gui.controller.setItem(c, owner.getTotalProduction(c));
+			gui.controller.setAmount(owner.getTotalProduction(c));
 			gui.controller.setState(owner.isExcess(c) ? WarningState.LEFTOVER : WarningState.NONE);
 		}
 	}

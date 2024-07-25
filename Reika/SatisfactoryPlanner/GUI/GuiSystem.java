@@ -95,10 +95,10 @@ public class GuiSystem extends Application {
 		return service;
 	}
 
-	public static <C extends ControllerBase> GuiInstance<C> loadFXML(String fxml, WindowBase window) throws IOException {
+	public static <C extends FXMLControllerBase> GuiInstance<C> loadFXML(String fxml, WindowBase window) throws IOException {
 		FXMLLoader loader = new FXMLLoader(Main.class.getResource("Resources/FXML/"+fxml+".fxml"));
 		Parent root = loader.load();
-		ControllerBase c = loader.getController();
+		FXMLControllerBase c = loader.getController();
 		c.postInit(window);
 		return new GuiInstance(root, c);
 	}
@@ -115,7 +115,7 @@ public class GuiSystem extends Application {
 		protected final Parent rootNode;
 		protected final C controller;
 
-		private GuiInstance(Parent root, C c) {
+		GuiInstance(Parent root, C c) {
 			rootNode = root;
 			controller = c;
 		}
@@ -138,7 +138,7 @@ public class GuiSystem extends Application {
 
 	}
 
-	public static class MainWindow extends WindowBase {
+	public static class MainWindow extends WindowBase<MainGuiController> {
 
 		private static MainWindow gui;
 
@@ -161,7 +161,7 @@ public class GuiSystem extends Application {
 
 	}
 
-	public static class SettingsWindow extends WindowBase {
+	public static class SettingsWindow extends WindowBase<SettingsController> {
 
 		public SettingsWindow() throws IOException {
 			super("Application Settings", "Settings");

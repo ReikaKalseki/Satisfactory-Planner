@@ -19,7 +19,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 
-public class GeneratorRowController extends ControllerBase {
+public class GeneratorRowController extends FXMLControllerBase {
 
 	@FXML
 	private Label countSumText;
@@ -134,7 +134,7 @@ public class GeneratorRowController extends ControllerBase {
 			counter = new Spinner<Integer>();//new Button("Choose");
 			GuiUtil.setupCounter(counter, 0, 9999, 0, true);
 			counter.valueProperty().addListener((val, old, nnew) -> {
-				factory.setCount(generator, fuel, nnew);
+				factory.setCount(generator, fuel, nnew == null ? 0 : nnew);
 				gui.controller.setScale(nnew);
 			});
 			counter.setMaxHeight(Double.POSITIVE_INFINITY);

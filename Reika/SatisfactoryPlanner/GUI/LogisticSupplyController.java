@@ -30,7 +30,7 @@ import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.GridPane;
 
-public class LogisticSupplyController extends ControllerBase {
+public class LogisticSupplyController extends FXMLControllerBase {
 
 	@FXML
 	private Button addButton;

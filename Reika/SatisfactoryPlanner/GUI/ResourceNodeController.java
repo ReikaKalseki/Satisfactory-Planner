@@ -30,7 +30,7 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 
-public class ResourceNodeController extends ControllerBase {
+public class ResourceNodeController extends FXMLControllerBase {
 
 	@FXML
 	private Button addButton;

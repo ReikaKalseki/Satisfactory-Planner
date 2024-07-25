@@ -17,7 +17,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.RowConstraints;
 
-public class ItemInOutViewController extends ControllerBase {
+public class ItemInOutViewController extends FXMLControllerBase {
 
 
 	@FXML
@@ -59,14 +59,12 @@ public class ItemInOutViewController extends ControllerBase {
 	}
 	 */
 	public void addInput(Consumable in, float amt) throws IOException {
-		GuiInstance<ItemViewController> gui = this.loadNestedFXML("ItemView", inputs);
-		gui.controller.setItem(in, amt);
+		GuiInstance<ItemViewController> gui = GuiUtil.createItemView(in, amt, inputs);
 		inputViews.put(in, gui);
 	}
 
 	public void addOutput(Consumable out, float amt) throws IOException {
-		GuiInstance<ItemViewController> gui = this.loadNestedFXML("ItemView", outputs);
-		gui.controller.setItem(out, amt);
+		GuiInstance<ItemViewController> gui = GuiUtil.createItemView(out, amt, outputs);
 		outputViews.put(out, gui);
 	}
 

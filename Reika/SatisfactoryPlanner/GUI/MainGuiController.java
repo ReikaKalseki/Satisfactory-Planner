@@ -31,6 +31,7 @@ import Reika.SatisfactoryPlanner.GUI.GuiUtil.SearchableSelector;
 import Reika.SatisfactoryPlanner.Util.ColorUtil;
 import Reika.SatisfactoryPlanner.Util.CountMap;
 import Reika.SatisfactoryPlanner.Util.FactoryListener;
+import Reika.SatisfactoryPlanner.Util.Logging;
 
 import javafx.application.HostServices;
 import javafx.application.Platform;
@@ -57,7 +58,7 @@ import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 
-public class MainGuiController extends ControllerBase implements FactoryListener {
+public class MainGuiController extends FXMLControllerBase implements FactoryListener {
 
 	private boolean hasLoaded;
 
@@ -214,6 +215,9 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 	@FXML
 	private TextField factoryName;
 
+	@FXML
+	private Button refreshButton;
+
 	private Factory factory;
 
 	private final EnumMap<ToggleableVisiblityGroup, CheckBox> toggleFilters = new EnumMap(ToggleableVisiblityGroup.class);
@@ -293,6 +297,12 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 
 		factoryName.textProperty().addListener((val, old, nnew) -> {
 			factory.name = nnew;
+		});
+
+		GuiUtil.setButtonEvent(refreshButton, () -> {
+			Logging.instance.log("Refresh @ "+System.currentTimeMillis());
+			tabs.requestLayout();
+			root.layout();
 		});
 
 		GuiUtil.setMenuEvent(settingsMenu, () -> this.openChildWindow(new SettingsWindow()));
@@ -448,6 +458,7 @@ public class MainGuiController extends ControllerBase implements FactoryListener
 					container.window.setWidth(monitor.getWidth());
 				if (container.window.getHeight() > monitor.getHeight()-48) //48 for title bar
 					container.window.setHeight(monitor.getHeight()-48);*/
+			this.getRootNode().layout();
 		});
 	}
 

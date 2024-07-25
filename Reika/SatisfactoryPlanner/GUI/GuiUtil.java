@@ -1,5 +1,6 @@
 package Reika.SatisfactoryPlanner.GUI;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.DecimalFormat;
@@ -10,7 +11,9 @@ import java.util.function.Consumer;
 
 import org.controlsfx.control.SearchableComboBox;
 
+import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Resource;
+import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.MainWindow;
 import Reika.SatisfactoryPlanner.Util.Errorable;
 
@@ -20,6 +23,7 @@ import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBase;
@@ -30,6 +34,8 @@ import javafx.scene.control.Labeled;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
@@ -317,6 +323,28 @@ public class GuiUtil {
 		DecimalFormat df = new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
 		df.setMaximumFractionDigits(4);
 		return df.format(amt);
+	}
+
+	public static final GuiInstance<ItemViewController> createItemView(Consumable c, float baseAmount, Pane container) throws IOException {
+		return createItemView(c, baseAmount, inner -> container.getChildren().add(inner));
+	}
+
+	public static final GuiInstance<ItemViewController> createItemView(Consumable c, float baseAmount, TabPane container) throws IOException {
+		return createItemView(c, baseAmount, inner -> {Tab t = new Tab(); t.setContent(inner); container.getTabs().add(t);});
+	}
+
+	public static final GuiInstance<ItemViewController> createItemView(Consumable c, float baseAmount, Tab container) throws IOException {
+		return createItemView(c, baseAmount, inner -> {container.setContent(inner);});
+	}
+
+	public static final GuiInstance<ItemViewController> createItemView(Consumable c, float baseAmount, GridPane container, int col, int row) throws IOException {
+		return createItemView(c, baseAmount, inner -> container.add(inner, col, row));
+	}
+
+	public static GuiInstance<ItemViewController> createItemView(Consumable c, float baseAmount, Consumer<Parent> acceptor) {
+		ItemViewController view = new ItemViewController(c, baseAmount);
+		acceptor.accept(view.getRootNode());
+		return new GuiInstance<ItemViewController>(view.getRootNode(), view);
 	}
 
 }

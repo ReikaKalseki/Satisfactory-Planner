@@ -12,12 +12,12 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
 
-public abstract class WindowBase {
+public abstract class WindowBase<C extends FXMLControllerBase> {
 
 	public final Stage window;
 	public final Scene display;
 	public final Parent root;
-	public final ControllerBase controller;
+	public final C controller;
 
 	protected WindowBase(String title, String fxmlName) throws IOException {
 		window = new Stage();
@@ -26,7 +26,7 @@ public abstract class WindowBase {
 		//window.setHeight(640);
 		window.setResizable(true);
 
-		GuiInstance gui = GuiSystem.loadFXML(fxmlName, this);
+		GuiInstance<C> gui = GuiSystem.loadFXML(fxmlName, this);
 		root = gui.rootNode;
 		controller = gui.controller;
 

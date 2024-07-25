@@ -19,7 +19,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 
-public class SettingsController extends ControllerBase {
+public class SettingsController extends FXMLControllerBase {
 
 
 	@FXML
