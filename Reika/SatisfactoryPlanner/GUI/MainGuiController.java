@@ -31,6 +31,7 @@ import Reika.SatisfactoryPlanner.GUI.GuiUtil.SearchableSelector;
 import Reika.SatisfactoryPlanner.Util.ColorUtil;
 import Reika.SatisfactoryPlanner.Util.CountMap;
 import Reika.SatisfactoryPlanner.Util.FactoryListener;
+import Reika.SatisfactoryPlanner.Util.Logging;
 
 import javafx.application.HostServices;
 import javafx.application.Platform;
@@ -219,6 +220,8 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 
 	private Factory factory;
 
+	private DynamicTilepane buildCostWrapper;
+
 	private final EnumMap<ToggleableVisiblityGroup, CheckBox> toggleFilters = new EnumMap(ToggleableVisiblityGroup.class);
 	private final HashMap<Generator, GuiInstance<GeneratorRowController>> generators = new HashMap();
 	private final HashMap<Consumable, ProductButton> productButtons = new HashMap();
@@ -321,6 +324,8 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 				Factory.loadFactory(f, this);
 			}
 		});
+
+		buildCostWrapper = new DynamicTilepane(buildCostBar);
 	}
 
 	public Factory getFactory() {
@@ -464,11 +469,12 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		for (Warning w : li) {
 			warningList.getChildren().add(w.createUI());
 		}
-		warningPanel.setDisable(!any);
-		warningPanel.setExpanded(any);
-		warningPanel.setCollapsible(any);
-		warningPanel.setVisible(any);
-		warningPanel.layout();
+		if (!any) {
+			Label lb = new Label("None - Your Factory Is Perfectly Efficient!");
+			lb.setFont(GuiSystem.getFont());
+			lb.setStyle("-fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.OKAY_COLOR)+";");
+			warningList.getChildren().add(lb);
+		}
 	}
 
 	public void updateStats(boolean all) {
@@ -488,14 +494,20 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 			for (FunctionalBuilding b : bc.keySet()) {
 
 				int amt = bc.get(b);
-				GuiUtil.addIconCount(buildingBar, b, amt);
+				GuiInstance<ItemCountController> added = GuiUtil.addIconCount(b, amt, buildingBar);
 
 				for (Entry<Item, Integer> e : b.getConstructionCost().entrySet()) {
 					cost.increment(e.getKey(), e.getValue()*amt);
 				}
 			}
 			for (Item i : cost.keySet()) {
-				GuiUtil.addIconCount(buildCostBar, i, cost.get(i));
+				GuiInstance<ItemCountController> added = GuiUtil.addIconCount(i, cost.get(i), buildCostBar);
+				w += added.controller.getWidth()+buildCostBar.getHgap()*2;
+				Logging.instance.log("Added "+i+" x "+cost.get(i)+" w="+added.controller.getWidth()+"+"+buildCostBar.getHgap()+", sum="+w+"/"+buildCostBar.getWidth());
+				if (w >= buildCostBar.getWidth()) {
+					rows++;
+					w = 0;
+				}
 			}
 		}
 
@@ -533,7 +545,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 			for (Consumable c : factory.getAllIngredients()) {
 				float amt = factory.getTotalConsumption(c)-factory.getTotalProduction(c);
 				if (amt > 0)
-					GuiUtil.addIconCount(netConsumptionBar, c, amt);
+					GuiUtil.addIconCount(c, amt, netConsumptionBar);
 			}
 		}
 		if (production) {
@@ -541,7 +553,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 			for (Consumable c : factory.getAllProducedItems()) {
 				float amt = factory.getTotalProduction(c)-factory.getTotalConsumption(c);
 				if (amt > 0)
-					GuiUtil.addIconCount(netProductBar, c, amt);
+					GuiUtil.addIconCount(c, amt, netProductBar);
 			}
 		}
 
@@ -552,7 +564,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 				totalSupply.increment(res.getResource(), res.getYield());
 			}
 			for (Consumable c : totalSupply.keySet()) {
-				GuiUtil.addIconCount(localSupplyTotals, c, totalSupply.get(c));
+				GuiUtil.addIconCount(c, totalSupply.get(c), localSupplyTotals);
 			}
 		}
 	}

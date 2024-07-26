@@ -1,6 +1,5 @@
 package Reika.SatisfactoryPlanner.GUI;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.DecimalFormat;
@@ -29,7 +28,6 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Control;
-import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Spinner;
@@ -111,24 +109,6 @@ public class GuiUtil {
 		add.setMaxHeight(Double.POSITIVE_INFINITY);
 		p.getChildren().add(add);
 		VBox.setVgrow(add, Priority.ALWAYS);
-	}
-
-	public static void addIconCount(Pane p, Resource r, float amt) {
-		HBox n = new HBox();
-		n.setSpacing(4);
-		n.setAlignment(Pos.CENTER);
-		n.getChildren().add(r.createImageView());
-		n.getChildren().add(new Label("x"+GuiUtil.formatProductionDecimal(amt)));
-		p.getChildren().add(n);
-	}
-
-	public static void addIconCount(GridPane p, int col, int row, Resource r, int amt) {
-		HBox n = new HBox();
-		n.setSpacing(4);
-		n.setAlignment(Pos.CENTER);
-		n.getChildren().add(r.createImageView());
-		n.getChildren().add(new Label("x"+amt));
-		p.add(n, col, row);
 	}
 
 	public static double getWidth(String s, Font f) {
@@ -325,26 +305,48 @@ public class GuiUtil {
 		return df.format(amt);
 	}
 
-	public static final GuiInstance<ItemViewController> createItemView(Consumable c, float baseAmount, Pane container) throws IOException {
+	public static final GuiInstance<ItemRateController> createItemView(Consumable c, float baseAmount, Pane container) {
 		return createItemView(c, baseAmount, inner -> container.getChildren().add(inner));
 	}
 
-	public static final GuiInstance<ItemViewController> createItemView(Consumable c, float baseAmount, TabPane container) throws IOException {
+	public static final GuiInstance<ItemRateController> createItemView(Consumable c, float baseAmount, TabPane container) {
 		return createItemView(c, baseAmount, inner -> {Tab t = new Tab(); t.setContent(inner); container.getTabs().add(t);});
 	}
 
-	public static final GuiInstance<ItemViewController> createItemView(Consumable c, float baseAmount, Tab container) throws IOException {
+	public static final GuiInstance<ItemRateController> createItemView(Consumable c, float baseAmount, Tab container) {
 		return createItemView(c, baseAmount, inner -> {container.setContent(inner);});
 	}
 
-	public static final GuiInstance<ItemViewController> createItemView(Consumable c, float baseAmount, GridPane container, int col, int row) throws IOException {
+	public static final GuiInstance<ItemRateController> createItemView(Consumable c, float baseAmount, GridPane container, int col, int row) {
 		return createItemView(c, baseAmount, inner -> container.add(inner, col, row));
 	}
 
-	public static GuiInstance<ItemViewController> createItemView(Consumable c, float baseAmount, Consumer<Parent> acceptor) {
-		ItemViewController view = new ItemViewController(c, baseAmount);
+	public static GuiInstance<ItemRateController> createItemView(Consumable c, float baseAmount, Consumer<Parent> acceptor) {
+		ItemRateController view = new ItemRateController(c, baseAmount);
 		acceptor.accept(view.getRootNode());
-		return new GuiInstance<ItemViewController>(view.getRootNode(), view);
+		return new GuiInstance<ItemRateController>(view.getRootNode(), view);
+	}
+
+	public static final GuiInstance<ItemCountController> addIconCount(Resource c, float amt, Pane container) {
+		return addIconCount(c, amt, inner -> container.getChildren().add(inner));
+	}
+
+	public static final GuiInstance<ItemCountController> addIconCount(Resource c, float amt, TabPane container) {
+		return addIconCount(c, amt, inner -> {Tab t = new Tab(); t.setContent(inner); container.getTabs().add(t);});
+	}
+
+	public static final GuiInstance<ItemCountController> addIconCount(Resource c, float amt, Tab container) {
+		return addIconCount(c, amt, inner -> {container.setContent(inner);});
+	}
+
+	public static final GuiInstance<ItemCountController> addIconCount(Resource c, float amt, GridPane container, int col, int row) {
+		return addIconCount(c, amt, inner -> container.add(inner, col, row));
+	}
+
+	public static GuiInstance<ItemCountController> addIconCount(Resource r, float amt, Consumer<Parent> acceptor) {
+		ItemCountController c = new ItemCountController(r, amt);
+		acceptor.accept(c.getRootNode());
+		return new GuiInstance<ItemCountController>(c.getRootNode(), c);
 	}
 
 }

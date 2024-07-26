@@ -35,8 +35,8 @@ public class ItemInOutViewController extends FXMLControllerBase {
 	@FXML
 	private GridPane rootGrid;
 
-	private final HashMap<Consumable, GuiInstance<ItemViewController>> inputViews = new HashMap();
-	private final HashMap<Consumable, GuiInstance<ItemViewController>> outputViews = new HashMap();
+	private final HashMap<Consumable, GuiInstance<ItemRateController>> inputViews = new HashMap();
+	private final HashMap<Consumable, GuiInstance<ItemRateController>> outputViews = new HashMap();
 
 	@Override
 	public void init(HostServices services) throws IOException {
@@ -59,12 +59,12 @@ public class ItemInOutViewController extends FXMLControllerBase {
 	}
 	 */
 	public void addInput(Consumable in, float amt) throws IOException {
-		GuiInstance<ItemViewController> gui = GuiUtil.createItemView(in, amt, inputs);
+		GuiInstance<ItemRateController> gui = GuiUtil.createItemView(in, amt, inputs);
 		inputViews.put(in, gui);
 	}
 
 	public void addOutput(Consumable out, float amt) throws IOException {
-		GuiInstance<ItemViewController> gui = GuiUtil.createItemView(out, amt, outputs);
+		GuiInstance<ItemRateController> gui = GuiUtil.createItemView(out, amt, outputs);
 		outputViews.put(out, gui);
 	}
 
@@ -113,10 +113,10 @@ public class ItemInOutViewController extends FXMLControllerBase {
 	}
 
 	public void setScale(float sc) {
-		for (GuiInstance<ItemViewController> v : inputViews.values()) {
+		for (GuiInstance<ItemRateController> v : inputViews.values()) {
 			v.controller.setScale(sc);
 		}
-		for (GuiInstance<ItemViewController> v : outputViews.values()) {
+		for (GuiInstance<ItemRateController> v : outputViews.values()) {
 			v.controller.setScale(sc);
 		}
 	}

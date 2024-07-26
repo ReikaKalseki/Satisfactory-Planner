@@ -19,7 +19,7 @@ import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.text.TextAlignment;
 
-public class ItemViewController extends ControllerBase {
+public class ItemRateController extends ControllerBase {
 
 	private final HBox mainPanel = new HBox();
 
@@ -39,7 +39,7 @@ public class ItemViewController extends ControllerBase {
 
 	private String minimumWidth = "min";
 
-	public ItemViewController(Consumable c, float amt) {
+	public ItemRateController(Consumable c, float amt) {
 		item = c;
 		baseAmount = amt;
 
@@ -120,9 +120,9 @@ public class ItemViewController extends ControllerBase {
 		LEFTOVER(v -> {v.setTextStyle("-fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.WARN_COLOR)+"; "+GuiSystem.getFontStyle(FontModifier.BOLD)); v.setLineStyle(UIConstants.WARN_COLOR, 2); v.mainPanel.setStyle("");}),
 		INSUFFICIENT(v -> {v.setTextStyle("-fx-text-fill: #fff; "+GuiSystem.getFontStyle(FontModifier.BOLD)); v.setLineStyle(Color.WHITE, 3); v.mainPanel.setStyle("-fx-background-color: "+ColorUtil.getCSSHex(UIConstants.SEVERE_COLOR)+";");});
 
-		private final Consumer<ItemViewController> applyStyles;
+		private final Consumer<ItemRateController> applyStyles;
 
-		private WarningState(Consumer<ItemViewController> style) {
+		private WarningState(Consumer<ItemRateController> style) {
 			applyStyles = style;
 		}
 	}

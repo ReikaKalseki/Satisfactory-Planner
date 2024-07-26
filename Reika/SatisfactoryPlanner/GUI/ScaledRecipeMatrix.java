@@ -11,7 +11,7 @@ import Reika.SatisfactoryPlanner.Data.Generator;
 import Reika.SatisfactoryPlanner.Data.ItemConsumerProducer;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
-import Reika.SatisfactoryPlanner.GUI.ItemViewController.WarningState;
+import Reika.SatisfactoryPlanner.GUI.ItemRateController.WarningState;
 
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
@@ -33,8 +33,8 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase<ItemConsumerProducer> {
 
 	protected Label countLabel;
 
-	private final HashMap<Consumable, GuiInstance<ItemViewController>> sumEntriesIn = new HashMap();
-	private final HashMap<Consumable, GuiInstance<ItemViewController>> sumEntriesOut = new HashMap();
+	private final HashMap<Consumable, GuiInstance<ItemRateController>> sumEntriesIn = new HashMap();
+	private final HashMap<Consumable, GuiInstance<ItemRateController>> sumEntriesOut = new HashMap();
 
 	private boolean buildingGrid;
 
@@ -123,7 +123,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase<ItemConsumerProducer> {
 		for (int i = 0; i < inputs.size(); i++) {
 			Consumable c = inputs.get(i);
 			int idx = ingredientsStartColumn+inputs.indexOf(c)*2;
-			GuiInstance<ItemViewController> gui = GuiUtil.createItemView(c, owner.getTotalConsumption(c), grid, idx, sumsRow);
+			GuiInstance<ItemRateController> gui = GuiUtil.createItemView(c, owner.getTotalConsumption(c), grid, idx, sumsRow);
 			sumEntriesIn.put(c, gui);
 			if (i < inputs.size()-1)
 				this.createDivider(idx+1, sumsRow, 2);
@@ -131,7 +131,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase<ItemConsumerProducer> {
 		for (int i = 0; i < outputs.size(); i++) {
 			Consumable c = outputs.get(i);
 			int idx = productsStartColumn+outputs.indexOf(c)*2;
-			GuiInstance<ItemViewController> gui = GuiUtil.createItemView(c, owner.getTotalProduction(c), grid, idx, sumsRow);
+			GuiInstance<ItemRateController> gui = GuiUtil.createItemView(c, owner.getTotalProduction(c), grid, idx, sumsRow);
 			sumEntriesOut.put(c, gui);
 			if (i < outputs.size()-1)
 				this.createDivider(idx+1, sumsRow, 2);
@@ -218,7 +218,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase<ItemConsumerProducer> {
 
 	@Override
 	public void updateStatuses(Consumable c) {
-		GuiInstance<ItemViewController> gui = sumEntriesIn.get(c);
+		GuiInstance<ItemRateController> gui = sumEntriesIn.get(c);
 		if (gui != null) {
 			float total = owner.getTotalConsumption(c);
 			gui.controller.setAmount(total);

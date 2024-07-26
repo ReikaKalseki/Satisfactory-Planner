@@ -48,7 +48,7 @@ public abstract class ResourceSupplyEntryController<R extends ResourceSupply> ex
 
 	protected void updateStats() {
 		yieldDisplay.getChildren().clear();
-		GuiUtil.addIconCount(yieldDisplay, supply.getResource(), supply.getYield());
+		GuiUtil.addIconCount(supply.getResource(), supply.getYield(), yieldDisplay);
 		((MainGuiController)owner).updateStats(true, false, true, false, true, true);
 	}
 

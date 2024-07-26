@@ -134,12 +134,12 @@ public abstract class RecipeMatrixBase<R extends ItemConsumerProducer> implement
 		grid.add(lb, nameColumn, rowIndex);
 		for (Entry<Consumable, Float> e : r.getIngredientsPerMinute().entrySet()) {
 			Consumable c = e.getKey();
-			GuiInstance<ItemViewController> gui = GuiUtil.createItemView(c, e.getValue()*this.getMultiplier(r), grid, ingredientsStartColumn+inputs.indexOf(c)*2, rowIndex);
+			GuiInstance<ItemRateController> gui = GuiUtil.createItemView(c, e.getValue()*this.getMultiplier(r), grid, ingredientsStartColumn+inputs.indexOf(c)*2, rowIndex);
 			row.inputSlots.put(c, gui);
 		}
 		for (Entry<Consumable, Float> e : r.getProductsPerMinute().entrySet()) {
 			Consumable c = e.getKey();
-			GuiInstance<ItemViewController> gui = GuiUtil.createItemView(c, e.getValue()*this.getMultiplier(r), grid, productsStartColumn+outputs.indexOf(c)*2, rowIndex);
+			GuiInstance<ItemRateController> gui = GuiUtil.createItemView(c, e.getValue()*this.getMultiplier(r), grid, productsStartColumn+outputs.indexOf(c)*2, rowIndex);
 			row.outputSlots.put(c, gui);
 		}
 		grid.add(r.getBuilding().createImageView(), buildingColumn, rowIndex);
@@ -344,8 +344,8 @@ public abstract class RecipeMatrixBase<R extends ItemConsumerProducer> implement
 		public final R recipe;
 		public final int recipeIndex;
 		public final int rowIndex;
-		private final HashMap<Consumable, GuiInstance<ItemViewController>> inputSlots = new HashMap();
-		private final HashMap<Consumable, GuiInstance<ItemViewController>> outputSlots = new HashMap();
+		private final HashMap<Consumable, GuiInstance<ItemRateController>> inputSlots = new HashMap();
+		private final HashMap<Consumable, GuiInstance<ItemRateController>> outputSlots = new HashMap();
 
 		private final Label label;
 
@@ -360,9 +360,9 @@ public abstract class RecipeMatrixBase<R extends ItemConsumerProducer> implement
 		}
 
 		public void setScale(float scale) {
-			for (GuiInstance<ItemViewController> gui : inputSlots.values())
+			for (GuiInstance<ItemRateController> gui : inputSlots.values())
 				gui.controller.setScale(scale);
-			for (GuiInstance<ItemViewController> gui : outputSlots.values())
+			for (GuiInstance<ItemRateController> gui : outputSlots.values())
 				gui.controller.setScale(scale);
 		}
 	}

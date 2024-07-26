@@ -208,7 +208,7 @@ public class ResourceNodeController extends FXMLControllerBase {
 		yieldDisplay.getChildren().clear();
 		if (res != null && res.getResource() != null && res.getYield() > 0) {
 			res.setClockSpeed(clockSpeed/100F);
-			GuiUtil.addIconCount(yieldDisplay, res.getResource(), res.getYield());
+			GuiUtil.addIconCount(res.getResource(), res.getYield(), yieldDisplay);
 		}
 	}
 
