@@ -151,7 +151,22 @@ public abstract class RecipeMatrixBase<R extends ItemConsumerProducer> implement
 		this.createDivider(buildingGapColumn, rowIndex, 1);
 		return row;
 	}
-
+	/*
+	public final void debugGridPositioning() {
+		for (RecipeRow r : recipeEntries.values()) {
+			int idx = r.rowIndex;
+			Logging.instance.log(r.recipe+" @ "+r.rowIndex);
+			for (GuiInstance<ItemViewController> gui : r.inputSlots.values()) {
+				GridPane.setRowIndex(gui.rootNode, idx);
+				int col = ingredientsStartColumn+inputs.indexOf(gui.controller.item)*2;
+				Logging.instance.log(gui.controller.item+" in "+GridPane.getColumnIndex(gui.rootNode)+"/"+col);
+			}
+			for (GuiInstance<ItemViewController> gui : r.outputSlots.values()) {
+				GridPane.setRowIndex(gui.rootNode, idx);
+			}
+		}
+	}
+	 */
 	protected void addTitles() {
 		nameLabel = new Label("Item Name");
 		nameLabel.setFont(Font.font(nameLabel.getFont().getFamily(), FontWeight.BOLD, 16));

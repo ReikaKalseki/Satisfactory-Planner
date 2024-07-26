@@ -238,7 +238,6 @@
                      <content>
                         <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="4.0">
                            <children>
-                              <Button fx:id="refreshButton" mnemonicParsing="false" text="Refresh" />
                               <SearchableComboBox fx:id="recipeDropdown" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="32.0" promptText="Click To Add Recipe..." />
                               <TitledPane fx:id="gridContainer" text="Item Matrix" />
                               <TitledPane fx:id="netGridContainer" collapsible="false" text="Net Matrix" />

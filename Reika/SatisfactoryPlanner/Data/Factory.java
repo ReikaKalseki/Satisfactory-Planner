@@ -115,13 +115,13 @@ public class Factory {
 		}
 	}
 
-	public Node createRawMatrix() throws IOException {
+	public Node createRawMatrix() {
 		//if (recipes.isEmpty())
 		//	return null;
 		return matrix.getGrid();
 	}
 
-	public Node createNetMatrix() throws IOException {
+	public Node createNetMatrix() {
 		//if (recipes.isEmpty())
 		//	return null;
 		return scaleMatrix.getGrid();
@@ -131,7 +131,12 @@ public class Factory {
 		matrix.updateStatuses(c);
 		scaleMatrix.updateStatuses(c);
 	}
-
+	/*
+	public void refreshMatrices() {
+		matrix.refreshGridPositioning();
+		scaleMatrix.refreshGridPositioning();
+	}
+	 */
 	public void addExternalSupply(ResourceSupply res) {
 		resourceSources.addValue(res.getResource(), res);
 		this.rebuildFlows();
@@ -435,6 +440,7 @@ public class Factory {
 		resourceSources.clear();
 		desiredProducts.clear();
 		toggles.clear();
+		this.rebuildFlows();
 		skipNotify = wasBulk;
 		if (!skipNotify)
 			this.notifyListeners(c -> c.onCleared());
@@ -564,6 +570,7 @@ public class Factory {
 			}
 		}
 
+		this.rebuildFlows();
 		skipNotify = false;
 		this.notifyListeners(c -> c.onLoaded());
 	}
@@ -572,7 +579,7 @@ public class Factory {
 		currentFile = f;
 		this.notifyListeners(c -> c.onSetFile(f));
 		Main.addRecentFile(f);
-		((MainGuiController)GuiSystem.MainWindow.getGUI().controller).buildRecentList();
+		GuiSystem.MainWindow.getGUI().controller.buildRecentList();
 	}
 
 	public static Factory loadFactory(File f, FactoryListener... l) throws Exception {

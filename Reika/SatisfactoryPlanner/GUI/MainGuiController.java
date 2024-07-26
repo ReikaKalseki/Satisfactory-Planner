@@ -31,7 +31,6 @@ import Reika.SatisfactoryPlanner.GUI.GuiUtil.SearchableSelector;
 import Reika.SatisfactoryPlanner.Util.ColorUtil;
 import Reika.SatisfactoryPlanner.Util.CountMap;
 import Reika.SatisfactoryPlanner.Util.FactoryListener;
-import Reika.SatisfactoryPlanner.Util.Logging;
 
 import javafx.application.HostServices;
 import javafx.application.Platform;
@@ -215,8 +214,8 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	@FXML
 	private TextField factoryName;
 
-	@FXML
-	private Button refreshButton;
+	//@FXML
+	//private Button refreshButton;
 
 	private Factory factory;
 
@@ -298,13 +297,12 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		factoryName.textProperty().addListener((val, old, nnew) -> {
 			factory.name = nnew;
 		});
-
+		/*
 		GuiUtil.setButtonEvent(refreshButton, () -> {
 			Logging.instance.log("Refresh @ "+System.currentTimeMillis());
-			tabs.requestLayout();
-			root.layout();
+			factory.refreshMatrices();
 		});
-
+		 */
 		GuiUtil.setMenuEvent(settingsMenu, () -> this.openChildWindow(new SettingsWindow()));
 		GuiUtil.setMenuEvent(quitMenu, () -> this.close());
 		GuiUtil.setMenuEvent(newMenu, () -> this.setFactory(new Factory()));
@@ -341,16 +339,11 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 			gui.controller.setFactory(f);
 		}
 
-		try {
-			Node gp = factory.createRawMatrix();
-			gridContainer.setContent(gp);
+		Node gp = factory.createRawMatrix();
+		gridContainer.setContent(gp);
 
-			gp = factory.createNetMatrix();
-			netGridContainer.setContent(gp);
-		}
-		catch (IOException ex) {
-			ex.printStackTrace();
-		}
+		gp = factory.createNetMatrix();
+		netGridContainer.setContent(gp);
 
 		if (update)
 			this.rebuildEntireUI();
