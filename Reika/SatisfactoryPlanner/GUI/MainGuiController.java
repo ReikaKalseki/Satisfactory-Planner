@@ -25,14 +25,16 @@ import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.Data.ResourceSupply;
 import Reika.SatisfactoryPlanner.Data.Warning;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.FontModifier;
-import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.SettingsWindow;
 import Reika.SatisfactoryPlanner.GUI.GuiUtil.SearchableSelector;
 import Reika.SatisfactoryPlanner.Util.ColorUtil;
 import Reika.SatisfactoryPlanner.Util.CountMap;
 import Reika.SatisfactoryPlanner.Util.FactoryListener;
-import Reika.SatisfactoryPlanner.Util.Logging;
 
+import fxexpansions.ExpandingTilePane;
+import fxexpansions.FXMLControllerBase;
+import fxexpansions.GuiInstance;
+import fxexpansions.WindowBase;
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -87,13 +89,13 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	private SearchableComboBox<Consumable> addProductButton;
 
 	@FXML
-	private TilePane localSupplyTotals;
+	private ExpandingTilePane<ItemCountController> localSupplyTotals;
 
 	@FXML
-	private TilePane buildingBar;
+	private ExpandingTilePane<ItemCountController> buildingBar;
 
 	@FXML
-	private TilePane netProductBar;
+	private ExpandingTilePane<ItemCountController> netProductBar;
 
 	@FXML
 	private MenuItem clearMenu;
@@ -105,10 +107,10 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	private Menu controlMenu;
 
 	@FXML
-	private TilePane buildCostBar;
+	private ExpandingTilePane<ItemCountController> buildCostBar;
 
 	@FXML
-	private TilePane netConsumptionBar;
+	private ExpandingTilePane<ItemCountController> netConsumptionBar;
 
 	@FXML
 	private Tab craftingTab;
@@ -220,8 +222,6 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 
 	private Factory factory;
 
-	private DynamicTilepane buildCostWrapper;
-
 	private final EnumMap<ToggleableVisiblityGroup, CheckBox> toggleFilters = new EnumMap(ToggleableVisiblityGroup.class);
 	private final HashMap<Generator, GuiInstance<GeneratorRowController>> generators = new HashMap();
 	private final HashMap<Consumable, ProductButton> productButtons = new HashMap();
@@ -325,7 +325,15 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 			}
 		});
 
-		buildCostWrapper = new DynamicTilepane(buildCostBar);
+		statisticsGrid.getRowConstraints().get(0).minHeightProperty().bind(buildingBar.minHeightProperty());
+		statisticsGrid.getRowConstraints().get(1).minHeightProperty().bind(buildCostBar.minHeightProperty());
+		statisticsGrid.getRowConstraints().get(2).minHeightProperty().bind(netConsumptionBar.minHeightProperty());
+		statisticsGrid.getRowConstraints().get(3).minHeightProperty().bind(netProductBar.minHeightProperty());
+
+		buildingBar.minRowHeight = 32;
+		buildCostBar.minRowHeight = 32;
+		netConsumptionBar.minRowHeight = 32;
+		netProductBar.minRowHeight = 32;
 	}
 
 	public Factory getFactory() {
@@ -494,20 +502,15 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 			for (FunctionalBuilding b : bc.keySet()) {
 
 				int amt = bc.get(b);
-				GuiInstance<ItemCountController> added = GuiUtil.addIconCount(b, amt, buildingBar);
+				GuiUtil.addIconCount(b, amt, buildingBar);
 
 				for (Entry<Item, Integer> e : b.getConstructionCost().entrySet()) {
 					cost.increment(e.getKey(), e.getValue()*amt);
 				}
 			}
+
 			for (Item i : cost.keySet()) {
-				GuiInstance<ItemCountController> added = GuiUtil.addIconCount(i, cost.get(i), buildCostBar);
-				w += added.controller.getWidth()+buildCostBar.getHgap()*2;
-				Logging.instance.log("Added "+i+" x "+cost.get(i)+" w="+added.controller.getWidth()+"+"+buildCostBar.getHgap()+", sum="+w+"/"+buildCostBar.getWidth());
-				if (w >= buildCostBar.getWidth()) {
-					rows++;
-					w = 0;
-				}
+				GuiUtil.addIconCount(i, cost.get(i), buildCostBar);
 			}
 		}
 

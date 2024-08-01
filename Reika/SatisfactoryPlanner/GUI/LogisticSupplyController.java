@@ -19,6 +19,7 @@ import Reika.SatisfactoryPlanner.Data.TrainStation;
 import Reika.SatisfactoryPlanner.Data.TruckStation;
 import Reika.SatisfactoryPlanner.GUI.GuiUtil.SearchableSelector;
 
+import fxexpansions.WindowBase;
 import javafx.application.HostServices;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -27,10 +28,9 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.Toggle;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.GridPane;
 
-public class LogisticSupplyController extends FXMLControllerBase {
+public class LogisticSupplyController extends RadioTitledPaneSection {
 
 	@FXML
 	private Button addButton;
@@ -67,8 +67,6 @@ public class LogisticSupplyController extends FXMLControllerBase {
 
 	@FXML
 	private RadioButton pipeRadio;
-
-	private ToggleGroup radioButtons = new ToggleGroup();
 
 	@Override
 	public void init(HostServices services) throws IOException {
@@ -128,16 +126,7 @@ public class LogisticSupplyController extends FXMLControllerBase {
 		pipeTier.setButtonCell(new TierListCell<PipeTier>("Choose Pipe...", true));
 		pipeTier.setCellFactory(c -> new TierListCell<PipeTier>("", false));
 
-		beltRadio.setToggleGroup(radioButtons);
-		pipeRadio.setToggleGroup(radioButtons);
-		droneRadio.setToggleGroup(radioButtons);
-		truckRadio.setToggleGroup(radioButtons);
-		trainRadio.setToggleGroup(radioButtons);
-
 		radioButtons.selectedToggleProperty().addListener((val, old, nnew) -> {
-			beltTier.setDisable(nnew != beltRadio);
-			pipeTier.setDisable(nnew != pipeRadio);
-			trainStationCount.setDisable(nnew != trainRadio);
 			itemDropdown.setDisable(nnew == null);
 
 			ArrayList<Consumable> li = new ArrayList(Database.getAllItems());

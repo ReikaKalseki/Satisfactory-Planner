@@ -8,8 +8,10 @@ import Reika.SatisfactoryPlanner.Data.Factory;
 import Reika.SatisfactoryPlanner.Data.Fuel;
 import Reika.SatisfactoryPlanner.Data.Generator;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.FontModifier;
-import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
 
+import fxexpansions.FXMLControllerBase;
+import fxexpansions.GuiInstance;
+import fxexpansions.WindowBase;
 import javafx.application.HostServices;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;

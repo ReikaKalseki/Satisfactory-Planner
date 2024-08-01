@@ -14,9 +14,10 @@ import Reika.SatisfactoryPlanner.Data.Item;
 import Reika.SatisfactoryPlanner.Data.OilNode;
 import Reika.SatisfactoryPlanner.Data.SolidResourceNode;
 import Reika.SatisfactoryPlanner.Data.WaterExtractor;
-import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
 import Reika.SatisfactoryPlanner.GUI.GuiUtil.SearchableSelector;
 
+import fxexpansions.GuiInstance;
+import fxexpansions.WindowBase;
 import javafx.application.HostServices;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -26,11 +27,10 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.Toggle;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 
-public class ResourceNodeController extends FXMLControllerBase {
+public class ResourceNodeController extends RadioTitledPaneSection {
 
 	@FXML
 	private Button addButton;
@@ -73,8 +73,6 @@ public class ResourceNodeController extends FXMLControllerBase {
 
 	@FXML
 	private RadioButton frackingRadio;
-
-	private ToggleGroup radioButtons = new ToggleGroup();
 
 	private int clockSpeed = 100;
 
@@ -143,22 +141,6 @@ public class ResourceNodeController extends FXMLControllerBase {
 		purity.setButtonCell(new PurityListCell("Choose Purity...", true));
 		purity.setCellFactory(c -> new PurityListCell("", false));
 
-		solidRadio.setToggleGroup(radioButtons);
-		waterRadio.setToggleGroup(radioButtons);
-		oilRadio.setToggleGroup(radioButtons);
-		frackingRadio.setToggleGroup(radioButtons);
-
-		radioButtons.selectedToggleProperty().addListener((val, old, nnew) -> {
-			solidDropdown.setDisable(nnew != solidRadio);
-			solidMinerTier.setDisable(nnew != solidRadio);
-			purity.setDisable(nnew == waterRadio || nnew == frackingRadio);
-			frackingImpure.setDisable(nnew != frackingRadio);
-			frackingNormal.setDisable(nnew != frackingRadio);
-			frackingPure.setDisable(nnew != frackingRadio);
-			frackingDropdown.setDisable(nnew != frackingRadio);
-			this.updateStats();
-		});
-
 		purity.getSelectionModel().selectedItemProperty().addListener((val, old, nnew) -> {
 			this.updateStats();
 		});
@@ -171,8 +153,6 @@ public class ResourceNodeController extends FXMLControllerBase {
 		frackingDropdown.getSelectionModel().selectedItemProperty().addListener((val, old, nnew) -> {
 			this.updateStats();
 		});
-
-		radioButtons.selectToggle(solidRadio);
 
 		this.setupFrackingSpinner(frackingImpure, Purity.IMPURE);
 		this.setupFrackingSpinner(frackingNormal, Purity.NORMAL);
@@ -201,6 +181,13 @@ public class ResourceNodeController extends FXMLControllerBase {
 			((MainGuiController)owner).getFactory().addExternalSupply(res);
 			this.close();
 		});
+	}
+
+	@Override
+	protected void onToggleSelected(RadioButton rb) {
+		super.onToggleSelected(rb);
+		purity.setDisable(rb == waterRadio || rb == frackingRadio);
+		this.updateStats();
 	}
 
 	private void updateStats() {

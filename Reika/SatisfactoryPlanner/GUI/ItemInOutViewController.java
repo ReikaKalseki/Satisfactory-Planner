@@ -5,8 +5,10 @@ import java.util.HashMap;
 
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Fuel;
-import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
 
+import fxexpansions.FXMLControllerBase;
+import fxexpansions.GuiInstance;
+import fxexpansions.WindowBase;
 import javafx.application.HostServices;
 import javafx.fxml.FXML;
 import javafx.scene.Node;

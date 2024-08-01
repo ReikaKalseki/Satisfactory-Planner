@@ -6,6 +6,8 @@ import java.util.function.Consumer;
 import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Util.MathUtil;
 
+import fxexpansions.FXMLControllerBase;
+import fxexpansions.WindowBase;
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.fxml.FXML;

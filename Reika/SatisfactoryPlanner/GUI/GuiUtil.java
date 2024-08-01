@@ -12,13 +12,15 @@ import org.controlsfx.control.SearchableComboBox;
 
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Resource;
-import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.MainWindow;
 import Reika.SatisfactoryPlanner.Util.Errorable;
 
+import fxexpansions.ExpandingTilePane;
+import fxexpansions.GuiInstance;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
@@ -28,6 +30,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Control;
+import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Spinner;
@@ -36,6 +39,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TitledPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -327,26 +331,48 @@ public class GuiUtil {
 		return new GuiInstance<ItemRateController>(view.getRootNode(), view);
 	}
 
+	public static final GuiInstance<ItemCountController> addIconCount(Resource c, float amt, ExpandingTilePane container) {
+		return addIconCount(c, amt, inner -> container.addEntry(inner));
+	}
+
 	public static final GuiInstance<ItemCountController> addIconCount(Resource c, float amt, Pane container) {
-		return addIconCount(c, amt, inner -> container.getChildren().add(inner));
+		return addIconCount(c, amt, inner -> container.getChildren().add(inner.rootNode));
 	}
 
 	public static final GuiInstance<ItemCountController> addIconCount(Resource c, float amt, TabPane container) {
-		return addIconCount(c, amt, inner -> {Tab t = new Tab(); t.setContent(inner); container.getTabs().add(t);});
+		return addIconCount(c, amt, inner -> {Tab t = new Tab(); t.setContent(inner.rootNode); container.getTabs().add(t);});
 	}
 
 	public static final GuiInstance<ItemCountController> addIconCount(Resource c, float amt, Tab container) {
-		return addIconCount(c, amt, inner -> {container.setContent(inner);});
+		return addIconCount(c, amt, inner -> {container.setContent(inner.rootNode);});
 	}
 
 	public static final GuiInstance<ItemCountController> addIconCount(Resource c, float amt, GridPane container, int col, int row) {
-		return addIconCount(c, amt, inner -> container.add(inner, col, row));
+		return addIconCount(c, amt, inner -> container.add(inner.rootNode, col, row));
 	}
 
-	public static GuiInstance<ItemCountController> addIconCount(Resource r, float amt, Consumer<Parent> acceptor) {
+	public static GuiInstance<ItemCountController> addIconCount(Resource r, float amt, Consumer<GuiInstance<ItemCountController>> acceptor) {
 		ItemCountController c = new ItemCountController(r, amt);
-		acceptor.accept(c.getRootNode());
-		return new GuiInstance<ItemCountController>(c.getRootNode(), c);
+		GuiInstance<ItemCountController> gui = new GuiInstance<ItemCountController>(c.getRootNode(), c);
+		acceptor.accept(gui);
+		return gui;
+	}
+
+	public static void setTitledPaneGraphicRight(TitledPane tp) {
+		Label lb = new Label(tp.getText());
+		lb.setFont(tp.getFont());
+		HBox box = new HBox();
+		box.setAlignment(Pos.CENTER);
+		box.setMaxWidth(Double.MAX_VALUE);
+		box.getChildren().add(lb);
+		addSpacer(box);
+		box.getChildren().add(tp.getGraphic());
+		tp.setText(null);
+		tp.setGraphic(box);
+		Insets pad = tp.getLabelPadding();
+		box.setPadding(new Insets(0, 14, 0, tp.isCollapsible() ? 14 : 4));
+		box.minWidthProperty().bind(tp.widthProperty().subtract(pad.getLeft()).subtract(pad.getRight()));
+		box.maxWidthProperty().bind(box.minWidthProperty());
 	}
 
 }

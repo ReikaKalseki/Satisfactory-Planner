@@ -7,6 +7,8 @@ import Reika.SatisfactoryPlanner.Data.LogisticSupply;
 import Reika.SatisfactoryPlanner.Data.OverclockableResource;
 import Reika.SatisfactoryPlanner.Data.ResourceSupply;
 
+import fxexpansions.FXMLControllerBase;
+import fxexpansions.WindowBase;
 import javafx.application.HostServices;
 import javafx.fxml.FXML;
 import javafx.scene.Node;

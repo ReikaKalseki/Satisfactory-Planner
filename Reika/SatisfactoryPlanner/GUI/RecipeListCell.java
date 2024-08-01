@@ -1,8 +1,8 @@
 package Reika.SatisfactoryPlanner.GUI;
 
 import Reika.SatisfactoryPlanner.Main;
-import Reika.SatisfactoryPlanner.Data.FunctionalBuilding;
 import Reika.SatisfactoryPlanner.Data.Consumable;
+import Reika.SatisfactoryPlanner.Data.FunctionalBuilding;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 
 import javafx.geometry.Insets;

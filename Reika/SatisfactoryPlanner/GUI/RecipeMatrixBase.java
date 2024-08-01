@@ -9,19 +9,26 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 
+import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Data.Constants.ToggleableVisiblityGroup;
 import Reika.SatisfactoryPlanner.Data.Consumable;
+import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Data.Factory;
 import Reika.SatisfactoryPlanner.Data.Fuel;
 import Reika.SatisfactoryPlanner.Data.Generator;
 import Reika.SatisfactoryPlanner.Data.ItemConsumerProducer;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.Data.ResourceSupply;
-import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
 import Reika.SatisfactoryPlanner.Util.FactoryListener;
 
+import fxexpansions.FXMLControllerBase;
+import fxexpansions.GuiInstance;
 import javafx.collections.ObservableList;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -33,12 +40,13 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 
-public abstract class RecipeMatrixBase<R extends ItemConsumerProducer> implements FactoryListener {
+public abstract class RecipeMatrixBase implements FactoryListener {
 
 	protected int titlesRow;
 	protected int titleGapRow;
 	protected final HashSet<Integer> minorRowGaps = new HashSet();
 
+	protected int buttonColumn;
 	protected int nameColumn;
 	protected int mainGapColumn;
 	protected int buildingGapColumn;
@@ -57,7 +65,7 @@ public abstract class RecipeMatrixBase<R extends ItemConsumerProducer> implement
 	protected ArrayList<Consumable> inputs;
 	protected ArrayList<Consumable> outputs;
 
-	protected final HashMap<R, RecipeRow> recipeEntries = new HashMap();
+	protected final HashMap<ItemConsumerProducer, RecipeRow> recipeEntries = new HashMap();
 
 	public final Factory owner;
 	protected final GridPane grid;
@@ -79,7 +87,7 @@ public abstract class RecipeMatrixBase<R extends ItemConsumerProducer> implement
 		this.gui = gui;
 	}
 
-	protected float getMultiplier(R r) {
+	protected float getMultiplier(ItemConsumerProducer r) {
 		return 1;
 	}
 
@@ -87,8 +95,17 @@ public abstract class RecipeMatrixBase<R extends ItemConsumerProducer> implement
 		return grid;
 	}
 
-	protected final List<Recipe> getRecipes() {
-		return owner.getRecipes();
+	protected final List<ItemConsumerProducer> getRecipes() {
+		List<ItemConsumerProducer> ret = new ArrayList();
+		ret.addAll(owner.getRecipes());
+		for (Generator g : Database.getAllGenerators()) {
+			for (Fuel f : g.getFuels()) {
+				int amt = owner.getCount(g, f);
+				if (amt > 0)
+					ret.add(f);
+			}
+		}
+		return ret;
 	}
 
 	protected final void computeIO() {
@@ -124,7 +141,7 @@ public abstract class RecipeMatrixBase<R extends ItemConsumerProducer> implement
 			grid.getColumnConstraints().get(grid.getColumnCount()-1).setMinWidth(96);
 	}
 
-	protected RecipeRow addRecipeRow(R r, int i) throws IOException {
+	protected RecipeRow addRecipeRow(ItemConsumerProducer r, int i) throws IOException {
 		Label lb = new Label(r.getDisplayName());
 		lb.setFont(Font.font(lb.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, 14));
 		GuiUtil.sizeToContent(lb);
@@ -144,6 +161,22 @@ public abstract class RecipeMatrixBase<R extends ItemConsumerProducer> implement
 		}
 		grid.add(r.getBuilding().createImageView(), buildingColumn, rowIndex);
 
+		if (r instanceof Recipe) {
+			Button b = new Button();
+			b.setGraphic(new ImageView(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/"+this.getPrefixButtonIcon()+".png"))));
+			b.setPrefWidth(32);
+			b.setPrefHeight(32);
+			b.setMinHeight(Region.USE_PREF_SIZE);
+			b.setMaxHeight(Region.USE_PREF_SIZE);
+			b.setMinWidth(Region.USE_PREF_SIZE);
+			b.setMaxWidth(Region.USE_PREF_SIZE);
+			b.setOnAction(e -> {
+				this.onClickPrefixButton((Recipe)r);
+			});
+			grid.add(b, buttonColumn, row.rowIndex);
+			row.button = b;
+		}
+
 		this.createDivider(mainGapColumn, rowIndex, 0);
 		this.createDivider(inoutGapColumn, rowIndex, 1);
 		for (int col : minorColumnGaps)
@@ -151,6 +184,10 @@ public abstract class RecipeMatrixBase<R extends ItemConsumerProducer> implement
 		this.createDivider(buildingGapColumn, rowIndex, 1);
 		return row;
 	}
+
+	protected abstract void onClickPrefixButton(Recipe r);
+
+	protected abstract String getPrefixButtonIcon();
 	/*
 	public final void debugGridPositioning() {
 		for (RecipeRow r : recipeEntries.values()) {
@@ -341,7 +378,7 @@ public abstract class RecipeMatrixBase<R extends ItemConsumerProducer> implement
 
 	protected class RecipeRow {
 
-		public final R recipe;
+		public final ItemConsumerProducer recipe;
 		public final int recipeIndex;
 		public final int rowIndex;
 		private final HashMap<Consumable, GuiInstance<ItemRateController>> inputSlots = new HashMap();
@@ -349,7 +386,11 @@ public abstract class RecipeMatrixBase<R extends ItemConsumerProducer> implement
 
 		private final Label label;
 
-		private RecipeRow(R r, int index, int row) throws IOException {
+		private Button button;
+
+		private final HashMap<String, Node> auxNodes = new HashMap();
+
+		private RecipeRow(ItemConsumerProducer r, int index, int row) throws IOException {
 			super();
 			recipe = r;
 			rowIndex = row;
@@ -357,6 +398,18 @@ public abstract class RecipeMatrixBase<R extends ItemConsumerProducer> implement
 			label = new Label(r.getDisplayName());
 			label.setFont(Font.font(label.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, 14));
 			GuiUtil.sizeToContent(label);
+		}
+
+		public Button getButton() {
+			return button;
+		}
+
+		public void addChildNode(Node n, String id) {
+			auxNodes.put(id, n);
+		}
+
+		public Node getChildNode(String id) {
+			return auxNodes.get(id);
 		}
 
 		public void setScale(float scale) {

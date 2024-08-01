@@ -11,11 +11,11 @@
 
 <GridPane hgap="2.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.GeneratorRowController">
    <columnConstraints>
-      <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" />
-      <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" />
-      <ColumnConstraints hgrow="SOMETIMES" />
-      <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" />
-      <ColumnConstraints hgrow="SOMETIMES" />
+      <ColumnConstraints fillWidth="false" hgrow="NEVER" maxWidth="-Infinity" minWidth="-Infinity" />
+      <ColumnConstraints fillWidth="false" hgrow="NEVER" maxWidth="-Infinity" />
+      <ColumnConstraints fillWidth="false" hgrow="NEVER" />
+      <ColumnConstraints fillWidth="false" hgrow="NEVER" maxWidth="-Infinity" />
+      <ColumnConstraints fillWidth="false" hgrow="NEVER" />
       <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" />
       <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" />
    </columnConstraints>

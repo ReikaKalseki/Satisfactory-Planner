@@ -1,18 +1,17 @@
 package Reika.SatisfactoryPlanner.GUI;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import Reika.SatisfactoryPlanner.Data.Consumable;
-import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Data.Fuel;
 import Reika.SatisfactoryPlanner.Data.Generator;
 import Reika.SatisfactoryPlanner.Data.ItemConsumerProducer;
 import Reika.SatisfactoryPlanner.Data.Recipe;
-import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
 import Reika.SatisfactoryPlanner.GUI.ItemRateController.WarningState;
 
+import fxexpansions.GuiInstance;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
@@ -21,7 +20,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
-public class ScaledRecipeMatrix extends RecipeMatrixBase<ItemConsumerProducer> {
+public class ScaledRecipeMatrix extends RecipeMatrixBase {
 
 	private final RecipeMatrix parent;
 
@@ -59,14 +58,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase<ItemConsumerProducer> {
 	@Override
 	public void rebuildGrid() throws IOException {
 		buildingGrid = true;
-		ArrayList<ItemConsumerProducer> recipes = new ArrayList(this.getRecipes());
-		for (Generator g : Database.getAllGenerators()) {
-			for (Fuel f : g.getFuels()) {
-				int amt = owner.getCount(g, f);
-				if (amt > 0)
-					recipes.add(f);
-			}
-		}
+		List<ItemConsumerProducer> recipes = this.getRecipes();
 		this.computeIO();
 		titlesRow = this.addRow();
 		titleGapRow = this.addRow();
@@ -76,6 +68,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase<ItemConsumerProducer> {
 			if (i < recipes.size()-1)
 				minorRowGaps.add(this.addRow()); //separator
 		}
+		buttonColumn = this.addColumn(); //reset
 		nameColumn = this.addColumn(); //name
 		mainGapColumn = this.addColumn(); //separator
 		minorColumnGaps.clear();
@@ -137,8 +130,9 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase<ItemConsumerProducer> {
 				this.createDivider(idx+1, sumsRow, 2);
 		}
 
-		for (Recipe r : this.getRecipes())
-			this.onSetCount(r, owner.getCount(r));
+		for (ItemConsumerProducer r : this.getRecipes())
+			if (r instanceof Recipe)
+				this.onSetCount((Recipe)r, owner.getCount((Recipe)r));
 
 		this.addTitles();
 	}
@@ -159,6 +153,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase<ItemConsumerProducer> {
 					parent.owner.setCount((Recipe)r, nnew.floatValue());
 			});
 			grid.add(counter, countColumn, rowIndex.rowIndex);
+			recipeEntries.get(r).addChildNode(counter, "counter");
 		}
 		else if (r instanceof Fuel) {
 			Fuel f = (Fuel)r;
@@ -167,6 +162,17 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase<ItemConsumerProducer> {
 			grid.add(lb, countColumn, rowIndex.rowIndex);
 		}
 		return rowIndex;
+	}
+
+	@Override
+	protected void onClickPrefixButton(Recipe r) {
+		//owner.setCount(r, 0);
+		((Spinner<Double>)recipeEntries.get(r).getChildNode("counter")).getValueFactory().setValue(0D); //will trigger the listener above to update
+	}
+
+	@Override
+	protected String getPrefixButtonIcon() {
+		return "reset";
 	}
 
 	@Override

@@ -9,6 +9,8 @@ import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.GUI.Setting.SettingRef;
 import Reika.SatisfactoryPlanner.Util.StringUtil;
 
+import fxexpansions.FXMLControllerBase;
+import fxexpansions.WindowBase;
 import javafx.application.HostServices;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;

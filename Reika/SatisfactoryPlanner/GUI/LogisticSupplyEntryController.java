@@ -5,6 +5,7 @@ import java.io.IOException;
 import Reika.SatisfactoryPlanner.Data.Factory;
 import Reika.SatisfactoryPlanner.Data.LogisticSupply;
 
+import fxexpansions.WindowBase;
 import javafx.fxml.FXML;
 import javafx.scene.control.Spinner;
 import javafx.scene.image.ImageView;

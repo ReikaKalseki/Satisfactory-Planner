@@ -1,18 +1,15 @@
 package Reika.SatisfactoryPlanner.GUI;
 
-import Reika.SatisfactoryPlanner.Data.Item;
-import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
-import Reika.SatisfactoryPlanner.Util.Logging;
-
 import javafx.scene.layout.TilePane;
 
+@Deprecated
 public class DynamicTilepane {
 
 	public final TilePane pane;
 
 	public DynamicTilepane(TilePane p) {
 		pane = p;
-
+		/*
 		p.widthProperty().addListener((val, old, nnew) -> {
 			int rows = 1;
 			double w = 0;
@@ -31,7 +28,7 @@ public class DynamicTilepane {
 			//int rows = (int)Math.ceil(cost.size()/cols);
 			buildCostBar.setMinHeight(rows*buildCostBar.getTileHeight()+(rows-1)*buildCostBar.getVgap());
 			statisticsGrid.getRowConstraints().get(1).setMinHeight(buildCostBar.getMinHeight());
-		});
+		});*/
 	}
 
 }

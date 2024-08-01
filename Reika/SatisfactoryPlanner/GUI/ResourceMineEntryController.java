@@ -8,8 +8,9 @@ import Reika.SatisfactoryPlanner.Data.Factory;
 import Reika.SatisfactoryPlanner.Data.FrackingCluster;
 import Reika.SatisfactoryPlanner.Data.OilNode;
 import Reika.SatisfactoryPlanner.Data.SolidResourceNode;
-import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
 
+import fxexpansions.GuiInstance;
+import fxexpansions.WindowBase;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.image.ImageView;

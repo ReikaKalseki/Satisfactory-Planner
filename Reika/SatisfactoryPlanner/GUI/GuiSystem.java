@@ -8,11 +8,10 @@ import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Util.BitflagMap;
 import Reika.SatisfactoryPlanner.Util.JavaUtil;
 
+import fxexpansions.WindowBase;
 import javafx.application.Application;
 import javafx.application.HostServices;
 import javafx.application.Platform;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
@@ -95,14 +94,6 @@ public class GuiSystem extends Application {
 		return service;
 	}
 
-	public static <C extends FXMLControllerBase> GuiInstance<C> loadFXML(String fxml, WindowBase window) throws IOException {
-		FXMLLoader loader = new FXMLLoader(Main.class.getResource("Resources/FXML/"+fxml+".fxml"));
-		Parent root = loader.load();
-		FXMLControllerBase c = loader.getController();
-		c.postInit(window);
-		return new GuiInstance(root, c);
-	}
-
 	public static enum FontModifier {
 		SEMIBOLD,
 		BOLD,
@@ -110,22 +101,10 @@ public class GuiSystem extends Application {
 		CONDENSED,
 	}
 
-	static class GuiInstance<C extends ControllerBase> {
-
-		protected final Parent rootNode;
-		protected final C controller;
-
-		GuiInstance(Parent root, C c) {
-			rootNode = root;
-			controller = c;
-		}
-
-	}
-
 	public static class PreWindow extends WindowBase {
 
 		protected PreWindow(String title, String fxmlName) throws IOException {
-			super(title, fxmlName);
+			super(title, fxmlName, getIcon());
 
 			window.initModality(Modality.APPLICATION_MODAL);
 		}
@@ -143,7 +122,7 @@ public class GuiSystem extends Application {
 		private static MainWindow gui;
 
 		public MainWindow() throws IOException {
-			super("Satisfactory Planner", "mainUI-Dynamic");
+			super("Satisfactory Planner", "mainUI-Dynamic", getIcon());
 			gui = this;
 
 			//window.setWidth(1200);
@@ -164,7 +143,7 @@ public class GuiSystem extends Application {
 	public static class SettingsWindow extends WindowBase<SettingsController> {
 
 		public SettingsWindow() throws IOException {
-			super("Application Settings", "Settings");
+			super("Application Settings", "Settings", getIcon());
 		}
 
 		@Override
@@ -175,23 +154,6 @@ public class GuiSystem extends Application {
 			catch (Exception e) {
 				e.printStackTrace();
 			}
-		}
-
-	}
-
-	public static class DialogWindow extends WindowBase {
-
-		protected DialogWindow(String title, String fxmlName, WindowBase from) throws IOException {
-			super(title, fxmlName);
-
-			window.initModality(Modality.APPLICATION_MODAL);
-			window.initOwner(from.window);
-		}
-
-		@Override
-		public void show() throws IOException {
-			window.toFront();
-			super.show();
 		}
 
 	}

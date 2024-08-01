@@ -1,12 +1,10 @@
-package Reika.SatisfactoryPlanner.GUI;
+package fxexpansions;
 
 import java.io.IOException;
 
-import Reika.SatisfactoryPlanner.GUI.GuiSystem.GuiInstance;
-
 import javafx.event.EventHandler;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -16,21 +14,23 @@ public abstract class WindowBase<C extends FXMLControllerBase> {
 
 	public final Stage window;
 	public final Scene display;
-	public final Parent root;
 	public final C controller;
 
-	protected WindowBase(String title, String fxmlName) throws IOException {
+	public final Image icon;
+
+	protected WindowBase(String title, String fxmlName, Image icon) throws IOException {
 		window = new Stage();
-		if (GuiSystem.getIcon() != null)
-			window.getIcons().add(GuiSystem.getIcon());
+		if (icon != null)
+			window.getIcons().add(icon);
 		//window.setHeight(640);
 		window.setResizable(true);
 
-		GuiInstance<C> gui = GuiSystem.loadFXML(fxmlName, this);
-		root = gui.rootNode;
+		this.icon = icon;
+
+		GuiInstance<C> gui = GuiInstance.loadFXML(fxmlName, this);
 		controller = gui.controller;
 
-		display = new Scene(root);
+		display = new Scene(gui.rootNode);
 
 		display.setFill(Color.rgb(0x22, 0xaa, 0xff));
 
