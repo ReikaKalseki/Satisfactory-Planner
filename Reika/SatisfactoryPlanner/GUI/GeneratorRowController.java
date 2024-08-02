@@ -8,6 +8,7 @@ import Reika.SatisfactoryPlanner.Data.Factory;
 import Reika.SatisfactoryPlanner.Data.Fuel;
 import Reika.SatisfactoryPlanner.Data.Generator;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.FontModifier;
+import Reika.SatisfactoryPlanner.Util.Logging;
 
 import fxexpansions.FXMLControllerBase;
 import fxexpansions.GuiInstance;
@@ -52,7 +53,7 @@ public class GeneratorRowController extends FXMLControllerBase {
 	protected void postInit(WindowBase w) throws IOException {
 		super.postInit(w);
 
-		powerGenText.setText(String.format("%.3fMW", 0F));
+		powerGenText.setText(String.format("%.0fMW", 0F));
 	}
 
 	public void setFactory(Factory f) {
@@ -117,11 +118,27 @@ public class GeneratorRowController extends FXMLControllerBase {
 		//Logging.instance.log(generator.displayName+" x "+c);
 		//Thread.dumpStack();
 		fuels.get(f).counter.getValueFactory().setValue(c);
-		powerGenText.setText(String.format("%.3fMW", generator.powerGenerationMW*c));
+		powerGenText.setText(String.format("%.0fMW", generator.powerGenerationMW*c));
+		Logging.instance.log(generator.displayName+" x "+c+" > "+powerGenText.getText());
+		if (generator.displayName.contains("clear"))
+			Thread.dumpStack();
 		countSumText.setText(String.valueOf(factory.getCount(generator)));
 		settingValue.remove(f);
 	}
+	/*
+	public void setWidths(double countW, double powerW) {
+		countSumText.setMinWidth(countW);
+		powerGenText.setMinWidth(powerW);
+	}
 
+	public double getCountWidth() {
+		return GuiUtil.getWidth(countSumText);
+	}
+
+	public double getPowerWidth() {
+		return GuiUtil.getWidth(powerGenText);
+	}
+	 */
 	private class FuelBlock {
 
 		private final GuiInstance<ItemInOutViewController> gui;

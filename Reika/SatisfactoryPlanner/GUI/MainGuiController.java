@@ -591,7 +591,19 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 
 	@Override
 	public void onSetCount(Generator g, Fuel fuel, int old, int count) {
-		generators.get(g).controller.setCount(fuel, count);
+		generators.get(g).controller.setCount(fuel, count);/*
+		double maxCountW = -1;
+		double maxPowerW = -1;/*
+		for (Entry<Generator, GuiInstance<GeneratorRowController>> e : this.generators.entrySet()) {
+			e.getValue().controller.setWidths(count, count);
+		}*//*
+		for (GuiInstance<GeneratorRowController> gui : generators.values()) {
+			maxCountW = Math.max(maxCountW, gui.controller.getCountWidth());
+			maxPowerW = Math.max(maxPowerW, gui.controller.getPowerWidth());
+		}
+		for (GuiInstance<GeneratorRowController> gui : generators.values()) {
+			gui.controller.setWidths(count, count);
+		}*/
 		this.updateStats(true, true, true, true, false, true);
 	}
 

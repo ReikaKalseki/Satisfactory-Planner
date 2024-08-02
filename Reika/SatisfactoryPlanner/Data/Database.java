@@ -191,7 +191,7 @@ public class Database {
 	}
 
 	private static String convertIDToIcon(String id) {
-		return id.substring(id.indexOf('_')+1, id.length()-2);// strip Desc_ and _C //obj.getString("mPersistentBigIcon");
+		return id.replace("Build_", "Desc_");//id.substring(id.indexOf('_')+1, id.length()-2);// strip Desc_ and _C //obj.getString("mPersistentBigIcon");
 	}
 
 	private static Color parseColor(String clr) {

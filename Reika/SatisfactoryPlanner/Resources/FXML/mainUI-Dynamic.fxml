@@ -203,7 +203,10 @@
                               </TitledPane>
                               <TitledPane fx:id="outputPanel1" collapsible="false" layoutX="10.0" layoutY="212.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Total Input">
                                  <content>
-                                    <ExpandingTilePane fx:id="localSupplyTotals" hgap="16.0" vgap="8.0" />
+                                    <ExpandingTilePane fx:id="localSupplyTotals" hgap="16.0" vgap="8.0">
+                                       <padding>
+                                          <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                                       </padding></ExpandingTilePane>
                                  </content>
                               </TitledPane>
                               <TitledPane fx:id="outputPanel" collapsible="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Desired Outputs" VBox.vgrow="ALWAYS">

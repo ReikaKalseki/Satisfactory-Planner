@@ -19,7 +19,7 @@
          <content>
             <VBox spacing="4.0">
                <children>
-                  <ComboBox fx:id="beltTier" disable="true" layoutX="14.0" layoutY="14.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="32.0" promptText="Choose Tier..." />
+                  <ComboBox fx:id="beltTier" layoutX="14.0" layoutY="14.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="32.0" promptText="Choose Tier..." />
                </children>
                <padding>
                   <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
@@ -34,7 +34,7 @@
          <content>
             <VBox spacing="4.0">
                <children>
-                  <ComboBox fx:id="pipeTier" disable="true" layoutX="14.0" layoutY="14.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="32.0" promptText="Choose Tier..." />
+                  <ComboBox fx:id="pipeTier" layoutX="14.0" layoutY="14.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="32.0" promptText="Choose Tier..." />
                </children>
                <padding>
                   <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
@@ -69,7 +69,7 @@
                     </rowConstraints>
                      <children>
                         <Label text="Station Count" />
-                        <Spinner fx:id="trainStationCount" disable="true" layoutX="120.0" layoutY="10.0" GridPane.columnIndex="1" />
+                        <Spinner fx:id="trainStationCount" layoutX="120.0" layoutY="10.0" GridPane.columnIndex="1" />
                      </children>
                   </GridPane>
                </children>
@@ -94,8 +94,8 @@
          <children>
             <Label text="Resource" />
             <Label layoutX="10.0" layoutY="59.0" text="Amount" GridPane.rowIndex="1" />
-            <Spinner fx:id="itemAmount" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <SearchableComboBox fx:id="itemDropdown" disable="true" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="32.0" promptText="Choose Item..." GridPane.columnIndex="1" />
+            <Spinner fx:id="itemAmount" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <SearchableComboBox fx:id="itemDropdown" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="32.0" promptText="Choose Item..." GridPane.columnIndex="1" />
          </children>
          <VBox.margin>
             <Insets left="5.0" right="5.0" />

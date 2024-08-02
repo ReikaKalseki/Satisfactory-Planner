@@ -126,20 +126,6 @@ public class LogisticSupplyController extends RadioTitledPaneSection {
 		pipeTier.setButtonCell(new TierListCell<PipeTier>("Choose Pipe...", true));
 		pipeTier.setCellFactory(c -> new TierListCell<PipeTier>("", false));
 
-		radioButtons.selectedToggleProperty().addListener((val, old, nnew) -> {
-			itemDropdown.setDisable(nnew == null);
-
-			ArrayList<Consumable> li = new ArrayList(Database.getAllItems());
-			Toggle b = radioButtons.getSelectedToggle();
-			if (b == pipeRadio)
-				li.removeIf(c -> c instanceof Item);
-			if (b == beltRadio || b == truckRadio || b == droneRadio)
-				li.removeIf(c -> c instanceof Fluid);
-			MainGuiController main = (MainGuiController)owner;
-			li.removeIf(c -> !main.isItemValid(c));
-			itemDropdown.setItems(FXCollections.observableArrayList(li)); //automatically clears if the old selection is no longer valid
-		});
-
 		itemDropdown.getSelectionModel().selectedItemProperty().addListener((val, old, nnew) -> {
 			itemAmount.setDisable(nnew == null);
 		});
@@ -179,6 +165,28 @@ public class LogisticSupplyController extends RadioTitledPaneSection {
 		});
 
 		this.setFont(this.getRootNode(), GuiSystem.getDefaultFont());
+	}
+
+	@Override
+	protected void onToggleSelected(RadioButton rb) {
+		super.onToggleSelected(rb);
+		itemDropdown.setDisable(rb == null);
+		itemAmount.setDisable(rb == null);
+
+		if (rb == null) {
+			itemDropdown.getItems().clear();
+		}
+		else {
+			ArrayList<Consumable> li = new ArrayList(Database.getAllItems());
+			Toggle b = radioButtons.getSelectedToggle();
+			if (b == pipeRadio)
+				li.removeIf(c -> c instanceof Item);
+			if (b == beltRadio || b == truckRadio || b == droneRadio)
+				li.removeIf(c -> c instanceof Fluid);
+			MainGuiController main = (MainGuiController)owner;
+			li.removeIf(c -> !main.isItemValid(c));
+			itemDropdown.setItems(FXCollections.observableArrayList(li)); //automatically clears if the old selection is no longer valid
+		}
 	}
 
 }

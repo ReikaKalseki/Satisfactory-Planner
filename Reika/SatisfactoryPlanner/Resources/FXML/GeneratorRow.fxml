@@ -11,12 +11,11 @@
 
 <GridPane hgap="2.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.GeneratorRowController">
    <columnConstraints>
-      <ColumnConstraints fillWidth="false" hgrow="NEVER" maxWidth="-Infinity" minWidth="-Infinity" />
-      <ColumnConstraints fillWidth="false" hgrow="NEVER" maxWidth="-Infinity" />
       <ColumnConstraints fillWidth="false" hgrow="NEVER" />
-      <ColumnConstraints fillWidth="false" hgrow="NEVER" maxWidth="-Infinity" />
       <ColumnConstraints fillWidth="false" hgrow="NEVER" />
-      <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" />
+      <ColumnConstraints fillWidth="false" hgrow="NEVER" minWidth="27.0" />
+      <ColumnConstraints fillWidth="false" hgrow="NEVER" />
+      <ColumnConstraints fillWidth="false" hgrow="NEVER" minWidth="64.0" />
       <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" />
    </columnConstraints>
    <rowConstraints>
@@ -24,7 +23,7 @@
    </rowConstraints>
    <children>
       <ImageView fx:id="icon" fitHeight="64.0" fitWidth="64.0" pickOnBounds="true" preserveRatio="true" />
-      <Label fx:id="powerGenText" text="Power Gen" GridPane.columnIndex="4" />
+      <Label fx:id="powerGenText" text="power" GridPane.columnIndex="4" />
       <Label alignment="BOTTOM_RIGHT" text="x" GridPane.columnIndex="1">
          <padding>
             <Insets left="4.0" />
@@ -35,8 +34,10 @@
             <Font name="System Bold" size="14.0" />
          </font>
       </Label>
-      <HBox fx:id="fuelBar" alignment="CENTER" minWidth="8.0" prefHeight="32.0" GridPane.columnIndex="5" />
-      <HBox fx:id="auxInputBar" alignment="CENTER" layoutX="260.0" layoutY="10.0" minWidth="8.0" prefHeight="32.0" GridPane.columnIndex="6" />
-      <Label fx:id="countSumText" layoutX="200.0" layoutY="34.0" text="Power Gen" GridPane.columnIndex="2" />
+      <HBox fx:id="fuelBar" alignment="CENTER_LEFT" minWidth="8.0" prefHeight="32.0" GridPane.columnIndex="5">
+         <GridPane.margin>
+            <Insets left="8.0" />
+         </GridPane.margin></HBox>
+      <Label fx:id="countSumText" layoutX="200.0" layoutY="34.0" text="sum" GridPane.columnIndex="2" />
    </children>
 </GridPane>

@@ -208,6 +208,8 @@ public class ResourceNodeController extends RadioTitledPaneSection {
 	}
 
 	private ExtractableResource createResource() {
+		if (radioButtons.getSelectedToggle() == null)
+			return null;
 		return switch (radioButtons.getSelectedToggle()) {
 			case Toggle t when t == solidRadio -> new SolidResourceNode(solidDropdown.getSelectionModel().getSelectedItem(), purity.getSelectionModel().getSelectedItem(), solidMinerTier.getSelectionModel().getSelectedItem());
 			case Toggle t when t == waterRadio -> new WaterExtractor();

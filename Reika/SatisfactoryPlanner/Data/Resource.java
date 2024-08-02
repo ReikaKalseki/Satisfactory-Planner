@@ -1,10 +1,14 @@
 package Reika.SatisfactoryPlanner.Data;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.HashMap;
 
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.GUI.GuiUtil;
+import Reika.SatisfactoryPlanner.GUI.Setting;
 import Reika.SatisfactoryPlanner.Util.Logging;
 
 import javafx.scene.image.Image;
@@ -30,7 +34,14 @@ public abstract class Resource {
 	}
 
 	private InputStream getIcon() {
-		return Main.class.getResourceAsStream("Resources/Graphics/Icons/"+this.getIconFolder()+"/"+iconName+".png");
+		//return Main.class.getResourceAsStream("Resources/Graphics/Icons/"+this.getIconFolder()+"/"+iconName+".png");
+		try {
+			//TODO add a way to autoinstall the mod?
+			return new FileInputStream(new File(Setting.GAMEDIR.getCurrentValue(), "FactoryGame/Icons/"+iconName+".png")); //from the icon dump mod
+		}
+		catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public final Image createIcon() {
