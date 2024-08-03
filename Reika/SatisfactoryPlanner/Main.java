@@ -16,11 +16,11 @@ import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.MainWindow;
-import Reika.SatisfactoryPlanner.GUI.MainGuiController;
 import Reika.SatisfactoryPlanner.GUI.Setting;
 import Reika.SatisfactoryPlanner.GUI.Setting.SettingRef;
 import Reika.SatisfactoryPlanner.Util.FixedList;
 import Reika.SatisfactoryPlanner.Util.JSONUtil;
+import Reika.SatisfactoryPlanner.Util.JavaUtil;
 import Reika.SatisfactoryPlanner.Util.Logging;
 
 import javafx.application.Application;
@@ -63,6 +63,8 @@ public class Main {
 			settings.put(s.name, s.setting.getString());
 		}
 		JSONUtil.saveFile(settingsFile, settings);
+		//FactoryManagementThread.instance.shutdown();
+		JavaUtil.stopThreads();
 		Platform.exit();
 	}
 
@@ -81,7 +83,7 @@ public class Main {
 			c.createIcon(); //cache default icon size
 		MainWindow main = GuiSystem.MainWindow.getGUI();
 		if (main != null) {
-			((MainGuiController)main.controller).rebuildLists(true, true);
+			main.controller.rebuildLists(true, true);
 		}
 	}
 

@@ -14,6 +14,7 @@ import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Resource;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.MainWindow;
 import Reika.SatisfactoryPlanner.Util.Errorable;
+import Reika.SatisfactoryPlanner.Util.JavaUtil;
 
 import fxexpansions.ExpandingTilePane;
 import fxexpansions.GuiInstance;
@@ -25,6 +26,7 @@ import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBase;
@@ -33,6 +35,7 @@ import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.Tab;
@@ -53,6 +56,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Screen;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 public class GuiUtil {
@@ -238,20 +242,25 @@ public class GuiUtil {
 	}
 
 	public static ButtonType raiseDialog(AlertType type, String title, String text, Consumer<Alert> modifier, ButtonType... buttons) {
+		Alert a = createDialog(type, title, text, buttons);
+		if (modifier != null)
+			modifier.accept(a);
+		Optional<ButtonType> b = a.showAndWait();
+		return b.isPresent() ? b.get() : null;
+	}
+
+	private static Alert createDialog(AlertType type, String title, String text, ButtonType... buttons) {
 		Alert a = new Alert(type, text, buttons);
 		a.setTitle(title);
 		MainWindow main = GuiSystem.MainWindow.getGUI();
 		if (main != null)
 			a.initOwner(main.window);
 		a.initModality(Modality.APPLICATION_MODAL);
-		if (modifier != null)
-			modifier.accept(a);
 		Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
 		a.getDialogPane().setMaxHeight(bounds.getHeight()*0.8);
 		a.setX((bounds.getWidth()-a.getWidth())/2);
 		a.setX((bounds.getHeight()-a.getHeight())/2);
-		Optional<ButtonType> b = a.showAndWait();
-		return b.isPresent() ? b.get() : null;
+		return a;
 	}
 
 	public static void showException(Throwable t) {
@@ -373,6 +382,49 @@ public class GuiUtil {
 		box.setPadding(new Insets(0, 14, 0, tp.isCollapsible() ? 14 : 4));
 		box.minWidthProperty().bind(tp.widthProperty().subtract(pad.getLeft()).subtract(pad.getRight()));
 		box.maxWidthProperty().bind(box.minWidthProperty());
+	}
+
+	public static void queueIfNecessary(Errorable r) {
+		if (Platform.isFxApplicationThread()) {
+			tryWithErrorHandling(r);
+		}
+		else {
+			Platform.runLater(() -> tryWithErrorHandling(r));
+		}
+	}
+
+	public static void queueTask(Errorable e) {
+		VBox box = new VBox();
+		box.setSpacing(12);
+		box.setPadding(new Insets(8, 8, 8, 8));
+		Label lb = new Label("The selected operation is underway.");
+		lb.setFont(Font.font(GuiSystem.getDefaultFont().getFamily(), 14));
+		box.getChildren().add(lb);
+		box.getChildren().add(new ProgressBar());
+		for (Node n : box.getChildren()) {
+			if (n instanceof Region) {
+				Region r = (Region)n;
+				box.setVgrow(r, Priority.ALWAYS);
+				r.setMaxWidth(Double.MAX_VALUE);
+			}
+		}
+
+		Stage s = new Stage();
+		s.setTitle("Loading");
+		s.setScene(new Scene(box, 300, 65));
+		box.layout();
+		s.show();
+		JavaUtil.queueTask(() -> {
+			try {
+				//Thread.sleep(1000);
+				e.run();
+				Platform.runLater(() -> s.close());
+			}
+			catch (Exception ex) {
+				ex.printStackTrace();
+				Platform.runLater(() -> showException(ex));
+			}
+		});
 	}
 
 }

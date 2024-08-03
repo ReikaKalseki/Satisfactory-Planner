@@ -343,12 +343,12 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 
 	@Override
 	public final void onCleared() {
-		this.rebuild();
+		GuiUtil.queueIfNecessary(() -> this.rebuild());
 	}
 
 	@Override
 	public final void onLoaded() {
-		this.rebuild();
+		GuiUtil.queueIfNecessary(() -> this.rebuild());
 	}
 
 	@Override

@@ -260,7 +260,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		GuiUtil.setButtonEvent(addInputButton, () -> this.openFXMLDialog("Add Logistic Supply", "LogisticSupplyDialog"));
 
 		for (ToggleableVisiblityGroup tv : ToggleableVisiblityGroup.values()) {
-			CheckBox cb = new CheckBox(tv.name());
+			CheckBox cb = new CheckBox(tv.displayName);
 			cb.setSelected(true);
 			cb.selectedProperty().addListener((val, old, nnew) -> {
 				if (old != nnew)
@@ -308,7 +308,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		 */
 		GuiUtil.setMenuEvent(settingsMenu, () -> this.openChildWindow(new SettingsWindow()));
 		GuiUtil.setMenuEvent(quitMenu, () -> this.close());
-		GuiUtil.setMenuEvent(newMenu, () -> this.setFactory(new Factory()));
+		GuiUtil.setMenuEvent(newMenu, () -> {this.setFactory(new Factory()); this.rebuildEntireUI();});
 		GuiUtil.setMenuEvent(saveMenu, () -> factory.save());
 		GuiUtil.setMenuEvent(saveAsMenu, () -> {
 			File f = this.openSaveAsDialog(factory.name+".factory", Main.getRelativeFile("Factories"));
@@ -341,25 +341,19 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	}
 
 	public void setFactory(Factory f) {
-		this.setFactory(f, true);
-	}
-
-	private void setFactory(Factory f, boolean update) {
 		factory = f;
 		factory.setUI(this);
 
 		for (GuiInstance<GeneratorRowController> gui : generators.values()) {
 			gui.controller.setFactory(f);
 		}
+		GuiUtil.queueIfNecessary(() -> {
+			Node gp = factory.createRawMatrix();
+			gridContainer.setContent(gp);
 
-		Node gp = factory.createRawMatrix();
-		gridContainer.setContent(gp);
-
-		gp = factory.createNetMatrix();
-		netGridContainer.setContent(gp);
-
-		if (update)
-			this.rebuildEntireUI();
+			gp = factory.createNetMatrix();
+			netGridContainer.setContent(gp);
+		});
 	}
 
 	@Override
@@ -377,7 +371,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 
 		this.buildRecentList();
 
-		this.setFactory(new Factory(), false);
+		this.setFactory(new Factory());
 		factory.addCallback(this);
 
 		this.rebuildEntireUI();
@@ -652,12 +646,12 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 
 	@Override
 	public void onLoaded() {
-		this.rebuildEntireUI();
+		GuiUtil.queueIfNecessary(() -> this.rebuildEntireUI());
 	}
 
 	@Override
 	public void onCleared() {
-		this.rebuildEntireUI();
+		GuiUtil.queueIfNecessary(() -> this.rebuildEntireUI());
 	}
 
 	@Override

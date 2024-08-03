@@ -8,7 +8,6 @@ import Reika.SatisfactoryPlanner.Data.Factory;
 import Reika.SatisfactoryPlanner.Data.Fuel;
 import Reika.SatisfactoryPlanner.Data.Generator;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.FontModifier;
-import Reika.SatisfactoryPlanner.Util.Logging;
 
 import fxexpansions.FXMLControllerBase;
 import fxexpansions.GuiInstance;
@@ -118,11 +117,10 @@ public class GeneratorRowController extends FXMLControllerBase {
 		//Logging.instance.log(generator.displayName+" x "+c);
 		//Thread.dumpStack();
 		fuels.get(f).counter.getValueFactory().setValue(c);
-		powerGenText.setText(String.format("%.0fMW", generator.powerGenerationMW*c));
-		Logging.instance.log(generator.displayName+" x "+c+" > "+powerGenText.getText());
-		if (generator.displayName.contains("clear"))
-			Thread.dumpStack();
-		countSumText.setText(String.valueOf(factory.getCount(generator)));
+		//Logging.instance.log(generator.displayName+" x "+c+" > "+powerGenText.getText());
+		int sum = factory.getCount(generator);
+		powerGenText.setText(String.format("%.0fMW", generator.powerGenerationMW*sum));
+		countSumText.setText(String.valueOf(sum));
 		settingValue.remove(f);
 	}
 	/*

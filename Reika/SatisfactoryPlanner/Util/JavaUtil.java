@@ -19,8 +19,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 public final class JavaUtil {
+
+	private static final ExecutorService threader = Executors.newFixedThreadPool(2);
 
 	public static final Comparator<Comparable> reverseComparator = new Comparator<Comparable>() {
 
@@ -205,5 +210,24 @@ public final class JavaUtil {
 		for (int i = from; i <= to; i++)
 			n[i-from] = i;
 		return n;
+	}
+
+	public static void queueTask(Runnable r) {
+		threader.submit(r);
+	}
+
+	public static void queueTask(Errorable e, Consumer<Exception> errorHandler) {
+		queueTask(() -> {
+			try {
+				e.run();
+			}
+			catch (Exception ex) {
+				errorHandler.accept(ex);
+			}
+		});
+	}
+
+	public static void stopThreads() {
+		threader.shutdown();
 	}
 }

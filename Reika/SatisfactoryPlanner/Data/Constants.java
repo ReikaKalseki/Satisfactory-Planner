@@ -162,22 +162,24 @@ public class Constants {
 	}
 
 	public static enum ToggleableVisiblityGroup {
-		EQUIPMENT(i -> i.isEquipment, r -> r.isSoleProduct(i -> i.isEquipment)),
-		BIOMASS(i -> i.isBiomass, r -> r.isSoleProduct(i -> i.isBiomass)),
-		FICSMAS(i -> i.isFicsmas, r -> r.isFicsmas),
-		ALTERNATE(i -> false, r -> r.isAlternate),
-		POST10(i -> false, r -> false), //TODO POST10
-		FINDABLE(i -> i.isFindables(), r -> r.isFindables()),
-		PACKAGING(i -> false, r -> r.isPackaging()),
-		UNPACKAGING(i -> false, r -> r.isUnpackaging()),
+		EQUIPMENT("Equipment", i -> i.isEquipment, r -> r.isSoleProduct(i -> i.isEquipment)),
+		BIOMASS("Biomass", i -> i.isBiomass, r -> r.isSoleProduct(i -> i.isBiomass)),
+		FICSMAS("Ficsmas", i -> i.isFicsmas, r -> r.isFicsmas),
+		ALTERNATE("Alternates", i -> false, r -> r.isAlternate),
+		POST10("Post 1.0", i -> false, r -> false), //TODO POST10
+		FINDABLE("Findable-Only", i -> i.isFindables(), r -> r.isFindables()),
+		PACKAGING("Packaging", i -> false, r -> r.isPackaging()),
+		UNPACKAGING("Unpackaging", i -> false, r -> r.isUnpackaging()),
 		;
 
 		public final int bitflag;
 
+		public final String displayName;
 		public final Predicate<Consumable> isItemInGroup;
 		public final Predicate<Recipe> isRecipeInGroup;
 
-		private ToggleableVisiblityGroup(Predicate<Consumable> pi, Predicate<Recipe> pr) {
+		private ToggleableVisiblityGroup(String n, Predicate<Consumable> pi, Predicate<Recipe> pr) {
+			displayName = n;
 			isItemInGroup = pi;
 			isRecipeInGroup = pr;
 

@@ -27,12 +27,14 @@ import Reika.SatisfactoryPlanner.Data.Warning.MultipleBeltsWarning;
 import Reika.SatisfactoryPlanner.Data.Warning.ResourceIconName;
 import Reika.SatisfactoryPlanner.Data.Warning.WarningSeverity;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem;
+import Reika.SatisfactoryPlanner.GUI.GuiUtil;
 import Reika.SatisfactoryPlanner.GUI.MainGuiController;
 import Reika.SatisfactoryPlanner.GUI.RecipeMatrix;
 import Reika.SatisfactoryPlanner.GUI.ScaledRecipeMatrix;
 import Reika.SatisfactoryPlanner.Util.CountMap;
 import Reika.SatisfactoryPlanner.Util.FactoryListener;
 import Reika.SatisfactoryPlanner.Util.JSONUtil;
+import Reika.SatisfactoryPlanner.Util.Logging;
 import Reika.SatisfactoryPlanner.Util.MultiMap;
 
 import javafx.scene.Node;
@@ -461,9 +463,9 @@ public class Factory {
 		return currentFile != null && currentFile.exists();
 	}
 
-	public void save() throws IOException {
+	public void save() {
 		if (currentFile != null)
-			this.save(currentFile);
+			GuiUtil.queueTask(() -> this.save(currentFile));
 	}
 
 	public void save(File f) throws IOException {
@@ -515,8 +517,8 @@ public class Factory {
 		JSONUtil.saveFile(f, root);
 	}
 
-	public void reload() throws Exception {
-		this.load(currentFile);
+	public void reload() {
+		GuiUtil.queueTask(() -> this.load(currentFile));
 	}
 
 	private void load(File f) throws Exception {
@@ -582,14 +584,16 @@ public class Factory {
 		GuiSystem.MainWindow.getGUI().controller.buildRecentList();
 	}
 
-	public static Factory loadFactory(File f, FactoryListener... l) throws Exception {
-		Factory ret = new Factory();
-		for (FactoryListener fl : l) {
-			ret.addCallback(fl);
-			fl.setFactory(ret);
-		}
-		ret.load(f);
-		return ret;
+	public static void loadFactory(File f, FactoryListener... l) {
+		Logging.instance.log("Loading factory from "+f.getAbsolutePath());
+		GuiUtil.queueTask(() -> {
+			Factory ret = new Factory();
+			for (FactoryListener fl : l) {
+				ret.addCallback(fl);
+				fl.setFactory(ret);
+			}
+			ret.load(f);
+		});
 	}
 
 	public void setUI(MainGuiController gui) {
