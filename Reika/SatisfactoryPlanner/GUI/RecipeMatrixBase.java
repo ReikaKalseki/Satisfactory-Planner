@@ -9,6 +9,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 
+import com.google.common.base.Strings;
+
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Data.Constants.ToggleableVisiblityGroup;
 import Reika.SatisfactoryPlanner.Data.Consumable;
@@ -19,6 +21,7 @@ import Reika.SatisfactoryPlanner.Data.Generator;
 import Reika.SatisfactoryPlanner.Data.ItemConsumerProducer;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.Data.ResourceSupply;
+import Reika.SatisfactoryPlanner.Util.ColorUtil;
 import Reika.SatisfactoryPlanner.Util.FactoryListener;
 
 import fxexpansions.FXMLControllerBase;
@@ -142,13 +145,10 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 	}
 
 	protected RecipeRow addRecipeRow(ItemConsumerProducer r, int i) throws IOException {
-		Label lb = new Label(r.getDisplayName());
-		lb.setFont(Font.font(lb.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, 14));
-		GuiUtil.sizeToContent(lb);
 		int rowIndex = titleGapRow+1+i*2;
 		RecipeRow row = new RecipeRow(r, i, rowIndex);
 		recipeEntries.put(r, row);
-		grid.add(lb, nameColumn, rowIndex);
+		grid.add(row.label, nameColumn, rowIndex);
 		for (Entry<Consumable, Float> e : r.getIngredientsPerMinute().entrySet()) {
 			Consumable c = e.getKey();
 			GuiInstance<ItemRateController> gui = GuiUtil.createItemView(c, e.getValue()*this.getMultiplier(r), grid, ingredientsStartColumn+inputs.indexOf(c)*2, rowIndex);
@@ -397,6 +397,14 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 			recipeIndex = index;
 			label = new Label(r.getDisplayName());
 			label.setFont(Font.font(label.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, 14));
+			String mod = r instanceof Recipe ? ((Recipe)r).getMod() : null;
+			if (!Strings.isNullOrEmpty(mod)) {
+				label.setStyle("-fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.HIGHLIGHT_COLOR)+";");
+				label.setText(label.getText()+" ("+mod+")");
+			}
+			else if (r instanceof Fuel) {
+				label.setStyle("-fx-text-fill: #ea5;");
+			}
 			GuiUtil.sizeToContent(label);
 		}
 

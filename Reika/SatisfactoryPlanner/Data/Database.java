@@ -417,6 +417,7 @@ public class Database {
 	}
 
 	public static void loadVanillaData() {
+		Logging.instance.log("Loading vanilla data");
 		ClassType.RESOURCE.parsePending();
 		ClassType.ITEM.parsePending();
 		ClassType.CRAFTER.parsePending();
@@ -432,16 +433,37 @@ public class Database {
 	}
 
 	public static void loadCustomData() throws IOException {
-		loadCustomItems();
-		loadCustomBuildings();
-		loadCustomRecipes();
-		loadCustomMilestones();
+		Logging.instance.log("Loading direct custom data");
+		loadCustomItemFolder(Main.getRelativeFile("Resources/CustomItems"), "Custom");
+		loadCustomBuildingFolder(Main.getRelativeFile("Resources/CustomBuildings"), "Custom");
+		loadCustomRecipeFolder(Main.getRelativeFile("Resources/CustomRecipes"), "Custom");
+		loadCustomMilestoneFolder(Main.getRelativeFile("Resources/CustomMilestones"), "Custom");
 	}
 
-	private static void loadCustomBuildings() throws IOException {
-		File f = Main.getRelativeFile("Resources/CustomBuildings");
+	public static void loadModdedData() throws IOException {
+		if (!Main.getModsFolder().exists())
+			return;
+		Logging.instance.log("Loading mod data");
+		for (File mod : Main.getModsFolder().listFiles()) {
+			String name = mod.getName();
+			Logging.instance.log("Checking mod "+name);
+			File f = new File(mod, "ContentLib");
+			if (f.exists()) {
+				loadCustomItemFolder(new File(f, "Items"), name);
+				//loadCustomBuildingFolder(new File(f, "CustomBuildings"), name);
+				loadCustomRecipeFolder(new File(f, "Recipes"), name);
+				loadCustomMilestoneFolder(new File(f, "Schematics"), name);
+			}
+			else {
+				Logging.instance.log("No ContentLib. Skipping.");
+			}
+		}
+	}
+
+	private static void loadCustomBuildingFolder(File f, String mod) throws IOException {
 		if (!f.exists())
 			return;
+		Logging.instance.log("Loading buildings from "+f.getCanonicalPath());
 		for (File f2 : f.listFiles()) {
 			if (f2.getName().endsWith(".json") && !f2.getName().startsWith("template")) {
 				Logging.instance.log("Loading building file "+f2);
@@ -459,10 +481,10 @@ public class Database {
 		}
 	}
 
-	private static void loadCustomMilestones() throws IOException {
-		File f = Main.getRelativeFile("Resources/CustomMilestones");
+	private static void loadCustomMilestoneFolder(File f, String mod) throws IOException {
 		if (!f.exists())
 			return;
+		Logging.instance.log("Loading milestones from "+f.getCanonicalPath());
 		for (File f2 : f.listFiles()) {
 			if (f2.getName().endsWith(".json") && !f2.getName().startsWith("template")) {
 				Logging.instance.log("Loading milestone file "+f2);
@@ -492,10 +514,10 @@ public class Database {
 		}
 	}
 
-	private static void loadCustomRecipes() throws IOException {
-		File f = Main.getRelativeFile("Resources/CustomRecipes");
+	private static void loadCustomRecipeFolder(File f, String mod) throws IOException {
 		if (!f.exists())
 			return;
+		Logging.instance.log("Loading recipes from "+f.getCanonicalPath());
 		for (File f2 : f.listFiles()) {
 			if (f2.getName().endsWith(".json") && !f2.getName().startsWith("template")) {
 				/* fuck modular java
@@ -511,10 +533,11 @@ public class Database {
 				Logging.instance.log("Loading recipe file "+f2);
 				JSONObject obj = new JSONObject(FileUtils.readFileToString(f2, Charsets.UTF_8));
 				String disp = obj.getString("Name");
-				String id = obj.getString("ID");
+				String id = obj.has("ID") ? obj.getString("ID") : f2.getName().replace("Recipe_", "");
 				String build = obj.getJSONArray("ProducedIn").getString(0);
 				build = build+"_C";
 				Recipe r = new Recipe(id, disp, (FunctionalBuilding)lookupBuilding(build), obj.getFloat("ManufacturingDuration"), false);
+				r.markModded(mod);
 				JSONArray ing = obj.getJSONArray("Ingredients");
 				for (Object o : ing) {
 					JSONObject inner = (JSONObject)o;
@@ -540,10 +563,10 @@ public class Database {
 		}
 	}
 
-	private static void loadCustomItems() throws IOException {
-		File f0 = Main.getRelativeFile("Resources/CustomItems");
+	private static void loadCustomItemFolder(File f0, String mod) throws IOException {
 		if (!f0.exists())
 			return;
+		Logging.instance.log("Loading items from "+f0.getCanonicalPath());
 		for (File f2 : f0.listFiles()) {
 			JSONObject obj = new JSONObject(FileUtils.readFileToString(f2, Charsets.UTF_8));
 			String form = obj.getString("Form");
@@ -551,7 +574,7 @@ public class Database {
 			boolean fluid = form.equalsIgnoreCase("liquid") || gas;
 			String disp = obj.getString("Name");
 			String desc = obj.getString("Description");
-			String id = obj.getString("ID");
+			String id = obj.has("ID") ? obj.getString("ID") : f2.getName().replace("Recipe_", "");
 			String icon = obj.getString("Icon");
 			String cat = obj.getString("Category");
 			float nrg = obj.getFloat("EnergyValue");
@@ -559,6 +582,7 @@ public class Database {
 			if (fluid) {
 				String clr = obj.has("Color") ? obj.getString("Color") : null;
 				Fluid f = new Fluid(id, disp, icon, desc, cat, nrg, clr == null ? Color.BLACK : parseColor(clr));
+				f.markModded(mod);
 				allItems.put(f.id, f);
 				allItemsSorted.add(f);
 				if (resource)
@@ -566,6 +590,7 @@ public class Database {
 			}
 			else {
 				Item i = new Item(id, disp, icon, desc, cat, nrg);
+				i.markModded(mod);
 				allItems.put(i.id, i);
 				allItemsSorted.add(i);
 				if (resource)

@@ -77,6 +77,7 @@ public class Main {
 		Database.clear();
 		Database.parseGameJSON();
 		Database.loadVanillaData();
+		Database.loadModdedData();
 		Database.loadCustomData();
 		Database.sort();
 		for (Consumable c : Database.getAllItems())
@@ -126,5 +127,9 @@ public class Main {
 
 	public static InputStream getResourceStream(String path) throws FileNotFoundException {
 		return isCompiled ? Main.class.getResourceAsStream(path) : new FileInputStream(new File(path));
+	}
+
+	public static File getModsFolder() {
+		return new File(Setting.GAMEDIR.getCurrentValue(), "FactoryGame/Mods");
 	}
 }

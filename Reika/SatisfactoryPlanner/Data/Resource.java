@@ -20,6 +20,8 @@ public abstract class Resource {
 	public final String displayName;
 	public final String iconName;
 
+	private String sourceMod;
+
 	private final HashMap<Integer, Image> iconCache = new HashMap();
 
 	protected Resource(String id, String dn, String img) {
@@ -29,8 +31,17 @@ public abstract class Resource {
 	}
 
 	@Override
-	public String toString() {
+	public final String toString() {
 		return displayName+" ["+this.getClass().getName()+"]";
+	}
+
+	public final Resource markModded(String mod) {
+		sourceMod = mod;
+		return this;
+	}
+
+	public final String getMod() {
+		return sourceMod;
 	}
 
 	private InputStream getIcon() {

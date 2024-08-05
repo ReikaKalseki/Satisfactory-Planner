@@ -28,6 +28,8 @@ public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 	private final ArrayList<Milestone> unlocks = new ArrayList();
 
 	private int minimumTier = 999;
+
+	private String sourceMod;
 	/*
 	public Recipe(String id, String dn, Building b, float time) {
 		this(id, dn, b, false, time);
@@ -42,6 +44,15 @@ public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 		timeCoefficient = 60F/craftingTime;
 
 		isFicsmas = ficsmas;
+	}
+
+	public Recipe markModded(String mod) {
+		sourceMod = mod;
+		return this;
+	}
+
+	public String getMod() {
+		return sourceMod;
 	}
 
 	@Override
