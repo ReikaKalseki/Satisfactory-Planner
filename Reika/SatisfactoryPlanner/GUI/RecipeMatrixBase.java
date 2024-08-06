@@ -352,7 +352,12 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 	}
 
 	@Override
-	public void onSetCount(Generator g, Fuel fuel, int old, int count) {}
+	public void onSetCount(Generator g, Fuel fuel, int old, int count) {
+		if ((old <= 0 && count > 0) || (count <= 0 && old > 0)) {
+			this.rebuild();
+			this.onUpdateIO();
+		}
+	}
 
 	@Override
 	public final void onAddProduct(Consumable c) {}

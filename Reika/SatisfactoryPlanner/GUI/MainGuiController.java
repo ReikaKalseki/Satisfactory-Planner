@@ -23,7 +23,9 @@ import Reika.SatisfactoryPlanner.Data.Item;
 import Reika.SatisfactoryPlanner.Data.LogisticSupply;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.Data.ResourceSupply;
+import Reika.SatisfactoryPlanner.Data.SolidResourceNode;
 import Reika.SatisfactoryPlanner.Data.Warning;
+import Reika.SatisfactoryPlanner.Data.WaterExtractor;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.FontModifier;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.SettingsWindow;
 import Reika.SatisfactoryPlanner.GUI.GuiUtil.SearchableSelector;
@@ -334,6 +336,14 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		buildCostBar.minRowHeight = 32;
 		netConsumptionBar.minRowHeight = 32;
 		netProductBar.minRowHeight = 32;
+
+		for (Tab t : tabs.getTabs()) {
+			ScrollPane p = (ScrollPane)t.getContent();
+			//p.prefHeightProperty().bind(tabs.heightProperty().subtract(32*0));
+			//p.setMinHeight(Region.USE_PREF_SIZE);
+			//p.minHeightProperty().bind(p.prefHeightProperty());
+			//p.maxHeightProperty().bind(p.prefHeightProperty());
+		}
 	}
 
 	public Factory getFactory() {
@@ -564,6 +574,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 				GuiUtil.addIconCount(c, totalSupply.get(c), localSupplyTotals);
 			}
 		}
+		root.layout();
 	}
 
 	@Override
@@ -616,9 +627,19 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	@Override
 	public void onAddSupply(ResourceSupply res) {
 		try {
-			if (res instanceof ExtractableResource) {
+			if (res instanceof WaterExtractor) {
+				GuiInstance<WaterEntryController> gui = this.loadNestedFXML("WaterEntry", inputGrid);
+				gui.controller.setSupply(factory, (WaterExtractor)res);
+				supplyEntries.put(res, gui);
+			}
+			else if (res instanceof SolidResourceNode) {
+				GuiInstance<MinerEntryController> gui = this.loadNestedFXML("MinerEntry", inputGrid);
+				gui.controller.setSupply(factory, (SolidResourceNode)res);
+				supplyEntries.put(res, gui);
+			}
+			else if (res instanceof ExtractableResource) {
 				GuiInstance<ResourceMineEntryController> gui = this.loadNestedFXML("ResourceMineEntry", inputGrid);
-				gui.controller.setSupply(factory, (ExtractableResource)res);
+				gui.controller.setSupply(factory, res);
 				supplyEntries.put(res, gui);
 			}
 			else if (res instanceof LogisticSupply) {
@@ -645,7 +666,13 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	}
 
 	@Override
+	public void onUpdateIO() {
+		this.updateStats(true, false, true, false, true, true);
+	}
+
+	@Override
 	public void onLoaded() {
+		this.onSetFile(factory.getFile());
 		GuiUtil.queueIfNecessary(() -> this.rebuildEntireUI());
 	}
 

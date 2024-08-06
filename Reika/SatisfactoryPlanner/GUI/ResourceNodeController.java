@@ -51,6 +51,9 @@ public class ResourceNodeController extends RadioTitledPaneSection {
 	private Spinner<Integer> frackingPure;
 
 	@FXML
+	private Spinner<Integer> waterCount;
+
+	@FXML
 	private ComboBox<Purity> purity;
 
 	@FXML
@@ -157,6 +160,7 @@ public class ResourceNodeController extends RadioTitledPaneSection {
 		this.setupFrackingSpinner(frackingImpure, Purity.IMPURE);
 		this.setupFrackingSpinner(frackingNormal, Purity.NORMAL);
 		this.setupFrackingSpinner(frackingPure, Purity.PURE);
+		this.setupCountSpinner(waterCount, 9999);
 
 		addButton.setOnAction(e -> {
 			Toggle b = radioButtons.getSelectedToggle();
@@ -200,8 +204,12 @@ public class ResourceNodeController extends RadioTitledPaneSection {
 	}
 
 	private void setupFrackingSpinner(Spinner<Integer> counter, Purity p) {
-		counter.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 99, 0));
-		GuiUtil.setupCounter(counter, 0, 99, 0, false);
+		this.setupCountSpinner(counter, 99);
+	}
+
+	private void setupCountSpinner(Spinner<Integer> counter, int max) {
+		counter.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, max, 0));
+		GuiUtil.setupCounter(counter, 0, max, 0, true);
 		counter.valueProperty().addListener((val, old, nnew) -> {
 			this.updateStats();
 		});
@@ -212,7 +220,7 @@ public class ResourceNodeController extends RadioTitledPaneSection {
 			return null;
 		return switch (radioButtons.getSelectedToggle()) {
 			case Toggle t when t == solidRadio -> new SolidResourceNode(solidDropdown.getSelectionModel().getSelectedItem(), purity.getSelectionModel().getSelectedItem(), solidMinerTier.getSelectionModel().getSelectedItem());
-			case Toggle t when t == waterRadio -> new WaterExtractor();
+			case Toggle t when t == waterRadio -> new WaterExtractor(waterCount.getValue());
 			case Toggle t when t == oilRadio -> new OilNode(purity.getSelectionModel().getSelectedItem());
 			case Toggle t when t == frackingRadio -> new FrackingCluster(frackingDropdown.getSelectionModel().getSelectedItem(), frackingPure.getValue(), frackingNormal.getValue(), frackingImpure.getValue());
 			default -> null;

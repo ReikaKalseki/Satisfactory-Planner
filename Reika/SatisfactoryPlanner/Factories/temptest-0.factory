@@ -1,0 +1,109 @@
+{
+    "recipes": [
+        {
+            "count": "1.000",
+            "id": "Recipe_Cable_C"
+        },
+        {
+            "count": "3.000",
+            "id": "Recipe_Alternate_Wire_2_C"
+        },
+        {
+            "count": "12.000",
+            "id": "Recipe_QuartzCrystal_C"
+        },
+        {
+            "count": "11.000",
+            "id": "Recipe_Alternate_Quickwire_C"
+        },
+        {
+            "count": "2.000",
+            "id": "Recipe_PackagedBiofuel_C"
+        },
+        {
+            "count": "9.000",
+            "id": "Recipe_ResidualRubber_C"
+        },
+        {
+            "count": "4.000",
+            "id": "Recipe_Alternate_InstantPlutoniumCell_C"
+        }
+    ],
+    "toggles": [
+        "EQUIPMENT",
+        "BIOMASS",
+        "FICSMAS",
+        "ALTERNATE",
+        "POST10",
+        "FINDABLE",
+        "PACKAGING",
+        "UNPACKAGING"
+    ],
+    "name": "temptest",
+    "generators": [
+        {
+            "count_Desc_NuclearFuelRod_C": 4,
+            "id": "Build_GeneratorNuclear_C",
+            "count_Desc_PlutoniumFuelRod_C": 0
+        },
+        {
+            "count_Desc_Coal_C": 16,
+            "count_Desc_CompactedCoal_C": 0,
+            "count_Desc_PetroleumCoke_C": 0,
+            "id": "Build_GeneratorCoal_C"
+        },
+        {
+            "count_Desc_LiquidTurboFuel_C": 0,
+            "count_Desc_LiquidBiofuel_C": 0,
+            "count_Desc_LiquidFuel_C": 2,
+            "id": "Build_GeneratorFuel_C"
+        },
+        {
+            "count_Desc_HatcherParts_C": 0,
+            "count_Desc_Leaves_C": 0,
+            "count_Desc_SpitterParts_C": 0,
+            "count_Desc_Biofuel_C": 0,
+            "count_Desc_StingerParts_C": 0,
+            "count_Desc_HogParts_C": 0,
+            "count_Desc_Mycelia_C": 0,
+            "count_Desc_FlowerPetals_C": 0,
+            "id": "Build_GeneratorBiomass_C",
+            "count_Desc_Fabric_C": 0,
+            "count_Desc_GenericBiomass_C": 0,
+            "count_Desc_PackagedBiofuel_C": 0,
+            "count_Desc_Wood_C": 0
+        }
+    ],
+    "resources": [
+        {
+            "item": "Desc_Berry_C",
+            "amount": 2330,
+            "belt": "THREE",
+            "type": "BELT"
+        },
+        {
+            "count": 32,
+            "clock": 1.5,
+            "type": "WATER"
+        },
+        {
+            "item": "Desc_LiquidOil_C",
+            "purity": "PURE",
+            "clock": 1,
+            "type": "OIL"
+        },
+        {
+            "item": "Desc_Coal_C",
+            "purity": "PURE",
+            "clock": 2.5,
+            "type": "MINER",
+            "miner": "THREE"
+        },
+        {
+            "item": "BP_EquipmentDescriptorCandyCane_C",
+            "amount": 3,
+            "type": "DRONE"
+        }
+    ],
+    "products": ["Desc_CartridgeStandard_C"]
+}

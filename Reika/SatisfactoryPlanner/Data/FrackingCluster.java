@@ -62,7 +62,7 @@ public class FrackingCluster implements ExtractableResource<Fluid> {
 
 	@Override
 	public FunctionalBuilding getBuilding() {
-		return (FunctionalBuilding)Database.lookupBuilding("Desc_FrackingSmasher_C");
+		return (FunctionalBuilding)Database.lookupBuilding("Build_FrackingSmasher_C");
 	}
 
 	@Override

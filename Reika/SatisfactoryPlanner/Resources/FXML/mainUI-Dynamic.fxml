@@ -228,6 +228,17 @@
                      </content>
                   </ScrollPane>
                </content></Tab>
+            <Tab fx:id="powerTab" closable="false" text="Onsite Power Generation">
+               <content>
+                  <ScrollPane fx:id="powerScroll" fitToHeight="true" fitToWidth="true" hbarPolicy="ALWAYS" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vbarPolicy="ALWAYS">
+                     <content>
+                        <VBox fx:id="generatorList" spacing="12.0">
+                           <padding>
+                              <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                           </padding></VBox>
+                     </content>
+                  </ScrollPane>
+               </content></Tab>
           <Tab fx:id="craftingTab" closable="false" text="Recipes And Crafting">
                <content>
                   <ScrollPane fx:id="craftingScroll" fitToHeight="true" fitToWidth="true" hbarPolicy="ALWAYS" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" pannable="true" vbarPolicy="ALWAYS">
@@ -242,17 +253,6 @@
                               <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
                            </padding>
                         </VBox>
-                     </content>
-                  </ScrollPane>
-               </content></Tab>
-            <Tab fx:id="powerTab" closable="false" text="Onsite Power Generation">
-               <content>
-                  <ScrollPane fx:id="powerScroll" fitToHeight="true" fitToWidth="true" hbarPolicy="ALWAYS" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vbarPolicy="ALWAYS">
-                     <content>
-                        <VBox fx:id="generatorList" spacing="12.0">
-                           <padding>
-                              <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-                           </padding></VBox>
                      </content>
                   </ScrollPane>
                </content></Tab>

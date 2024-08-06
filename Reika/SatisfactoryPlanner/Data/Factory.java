@@ -1,7 +1,6 @@
 package Reika.SatisfactoryPlanner.Data;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -271,6 +270,11 @@ public class Factory {
 		this.notifyListeners(c -> c.onSetCount(g, f, old, amt));
 	}
 
+	public void updateIO() {
+		this.rebuildFlows();
+		this.notifyListeners(c -> c.onUpdateIO());
+	}
+
 	private void rebuildFlows() {
 		//		flow.clear();
 		production.clear();
@@ -463,58 +467,64 @@ public class Factory {
 		return currentFile != null && currentFile.exists();
 	}
 
+	public File getFile() {
+		return currentFile;
+	}
+
 	public void save() {
 		if (currentFile != null)
 			GuiUtil.queueTask(() -> this.save(currentFile));
 	}
 
-	public void save(File f) throws IOException {
-		this.setCurrentFile(f);
-		JSONObject root = new JSONObject();
-		JSONArray recipes = new JSONArray();
-		JSONArray generators = new JSONArray();
-		JSONArray resources = new JSONArray();
-		JSONArray products = new JSONArray();
-		JSONArray toggles = new JSONArray();
-		root.put("name", name);
+	public void save(File f) {
+		GuiUtil.queueTask(() -> {
+			JSONObject root = new JSONObject();
+			JSONArray recipes = new JSONArray();
+			JSONArray generators = new JSONArray();
+			JSONArray resources = new JSONArray();
+			JSONArray products = new JSONArray();
+			JSONArray toggles = new JSONArray();
+			root.put("name", name);
 
-		for (Recipe r : recipeList) {
-			JSONObject block = new JSONObject();
-			block.put("id", r.id);
-			block.put("count", String.format("%.3f", this.recipes.get(r)));
-			recipes.put(block);
-		}
-		root.put("recipes", recipes);
-
-		for (Generator g : this.generators.keySet()) {
-			JSONObject block = new JSONObject();
-			block.put("id", g.id);
-			for (Fuel ff : g.getFuels()) {
-				block.put("count_"+ff.item.id, this.generators.get(g).getCount(ff));
+			for (Recipe r : recipeList) {
+				JSONObject block = new JSONObject();
+				block.put("id", r.id);
+				block.put("count", String.format("%.3f", this.recipes.get(r)));
+				recipes.put(block);
 			}
-			generators.put(block);
-		}
-		root.put("generators", generators);
+			root.put("recipes", recipes);
 
-		for (ResourceSupply r : resourceSources.allValues(false)) {
-			JSONObject block = new JSONObject();
-			block.put("type", r.getType().name());
-			r.save(block);
-			resources.put(block);
-		}
-		root.put("resources", resources);
+			for (Generator g : this.generators.keySet()) {
+				JSONObject block = new JSONObject();
+				block.put("id", g.id);
+				for (Fuel ff : g.getFuels()) {
+					block.put("count_"+ff.item.id, this.generators.get(g).getCount(ff));
+				}
+				generators.put(block);
+			}
+			root.put("generators", generators);
 
-		for (Consumable c : desiredProducts) {
-			products.put(c.id);
-		}
-		root.put("products", products);
+			for (ResourceSupply r : resourceSources.allValues(false)) {
+				JSONObject block = new JSONObject();
+				block.put("type", r.getType().name());
+				r.save(block);
+				resources.put(block);
+			}
+			root.put("resources", resources);
 
-		for (ToggleableVisiblityGroup c : this.toggles) {
-			toggles.put(c.name());
-		}
-		root.put("toggles", toggles);
+			for (Consumable c : desiredProducts) {
+				products.put(c.id);
+			}
+			root.put("products", products);
 
-		JSONUtil.saveFile(f, root);
+			for (ToggleableVisiblityGroup c : this.toggles) {
+				toggles.put(c.name());
+			}
+			root.put("toggles", toggles);
+
+			JSONUtil.saveFile(f, root);
+			this.setCurrentFile(f);
+		});
 	}
 
 	public void reload() {

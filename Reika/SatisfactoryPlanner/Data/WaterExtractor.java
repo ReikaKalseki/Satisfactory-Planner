@@ -8,19 +8,26 @@ import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
 
 public class WaterExtractor implements ExtractableResource<Fluid> {
 
+	public int numberExtractors = 1;
+
 	private float clockSpeed = 1;
 
 	public WaterExtractor() {
 
 	}
 
+	public WaterExtractor(int n) {
+		numberExtractors = n;
+	}
+
 	private WaterExtractor(JSONObject obj) {
+		numberExtractors = obj.has("count") ? obj.getInt("count") : 1;
 		clockSpeed = obj.getFloat("clock");
 	}
 
 	@Override
 	public int getYield() {
-		return (int)(Constants.WATER_PUMP_PRODUCTION*clockSpeed);
+		return (int)(Constants.WATER_PUMP_PRODUCTION*clockSpeed)*numberExtractors;
 	}
 
 	@Override
@@ -44,6 +51,7 @@ public class WaterExtractor implements ExtractableResource<Fluid> {
 
 	@Override
 	public void save(JSONObject block) {
+		block.put("count", numberExtractors);
 		block.put("clock", clockSpeed);
 	}
 
@@ -54,7 +62,9 @@ public class WaterExtractor implements ExtractableResource<Fluid> {
 
 	@Override
 	public ResourceSupply<Fluid> duplicate() {
-		return new WaterExtractor();
+		WaterExtractor w = new WaterExtractor();
+		w.numberExtractors = numberExtractors;
+		return w;
 	}
 
 	@Override

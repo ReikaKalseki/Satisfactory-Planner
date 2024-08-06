@@ -193,18 +193,19 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 
 	@Override
 	public void onSetCount(Generator g, Fuel fuel, int old, int count) {
-		if ((old <= 0 && count > 0) || (count <= 0 && old > 0)) {
-			this.rebuild();
-			for (ItemConsumerProducer i : recipeEntries.keySet()) {
-				if (i instanceof Recipe)
-					this.updateStatuses((Recipe)i);
-				if (i instanceof Fuel)
-					this.updateStatuses((Fuel)i);
-			}
-		}
+		super.onSetCount(g, fuel, old, count);
 		if (count > 0)
 			recipeEntries.get(fuel).setScale(count);
 		this.updateStatuses(fuel);
+	}
+
+	public void onUpdateIO() {
+		for (ItemConsumerProducer i : recipeEntries.keySet()) {
+			if (i instanceof Recipe)
+				this.updateStatuses((Recipe)i);
+			if (i instanceof Fuel)
+				this.updateStatuses((Fuel)i);
+		}
 	}
 
 	private void updateStatuses(Recipe r) {

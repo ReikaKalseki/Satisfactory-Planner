@@ -10,7 +10,11 @@ import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
 
 public class SolidResourceNode extends BaseResourceNode<Item> {
 
-	public final MinerTier minerLevel;
+	public MinerTier minerLevel;
+
+	public SolidResourceNode(Item c, Purity p) {
+		this(c, p, MinerTier.ONE);
+	}
 
 	public SolidResourceNode(Item c, Purity p, MinerTier m) {
 		super(c, p);
@@ -18,7 +22,9 @@ public class SolidResourceNode extends BaseResourceNode<Item> {
 	}
 
 	private SolidResourceNode(JSONObject obj) {
-		this((Item)Database.lookupItem(obj.getString("item")), Purity.valueOf(obj.getString("purity")), MinerTier.valueOf(obj.getString("miner")));
+		this((Item)Database.lookupItem(obj.getString("item")), Purity.valueOf(obj.getString("purity")));
+		if (obj.has("miner"))
+			minerLevel = MinerTier.valueOf(obj.getString("miner"));
 		this.setClockSpeed(obj.getFloat("clock"));
 	}
 
@@ -45,7 +51,9 @@ public class SolidResourceNode extends BaseResourceNode<Item> {
 
 	@Override
 	public ResourceSupply<Item> duplicate() {
-		return new SolidResourceNode(resource, purityLevel, minerLevel);
+		SolidResourceNode ret = new SolidResourceNode(resource, purityLevel);
+		ret.minerLevel = minerLevel;
+		return ret;
 	}
 
 	@Override

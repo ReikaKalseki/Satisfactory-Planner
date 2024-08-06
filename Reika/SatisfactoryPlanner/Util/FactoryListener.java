@@ -24,6 +24,7 @@ public interface FactoryListener extends Comparable<FactoryListener> {
 	public void onAddSupply(ResourceSupply s);
 	public void onRemoveSupply(ResourceSupply s);
 	public void onSetToggle(ToggleableVisiblityGroup grp, boolean active);
+	public void onUpdateIO();
 	public void onLoaded();
 	public void onCleared();
 	public void onSetFile(File f);

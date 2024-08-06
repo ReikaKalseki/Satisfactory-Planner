@@ -17,7 +17,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-public class ResourceMineEntryController extends ResourceSupplyEntryController<ExtractableResource> {
+public class ResourceMineEntryController<R extends ExtractableResource> extends ResourceSupplyEntryController<R> {
 
 	@Override
 	protected void postInit(WindowBase w) throws IOException {
@@ -63,7 +63,7 @@ public class ResourceMineEntryController extends ResourceSupplyEntryController<E
 	}
 
 	@Override
-	protected void onSetSupply(Factory f, ExtractableResource res) throws IOException {
+	protected void onSetSupply(Factory f, R res) throws IOException {
 		GuiInstance<ClockspeedSliderController> gui = this.loadNestedFXML("ClockspeedSlider", root);
 		gui.rootNode.toBack();
 		topBar.toBack();

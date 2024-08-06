@@ -70,4 +70,8 @@ public class RecipeMatrix extends RecipeMatrixBase {
 
 	}
 
+	public void onUpdateIO() {
+
+	}
+
 }
