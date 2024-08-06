@@ -17,7 +17,6 @@ import Reika.SatisfactoryPlanner.Data.WaterExtractor;
 import Reika.SatisfactoryPlanner.GUI.GuiUtil.SearchableSelector;
 
 import fxexpansions.GuiInstance;
-import fxexpansions.WindowBase;
 import javafx.application.HostServices;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -29,6 +28,7 @@ import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.Toggle;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
 
 public class ResourceNodeController extends RadioTitledPaneSection {
 
@@ -228,7 +228,7 @@ public class ResourceNodeController extends RadioTitledPaneSection {
 	}
 
 	@Override
-	protected void postInit(WindowBase w) throws IOException {
+	protected void postInit(Stage w) throws IOException {
 		super.postInit(w);
 
 		GuiInstance<ClockspeedSliderController> gui = this.loadNestedFXML("ClockspeedSlider", extraGrid, 1, 1);

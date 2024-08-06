@@ -10,17 +10,17 @@ import Reika.SatisfactoryPlanner.Data.OilNode;
 import Reika.SatisfactoryPlanner.Data.SolidResourceNode;
 
 import fxexpansions.GuiInstance;
-import fxexpansions.WindowBase;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 public class ResourceMineEntryController<R extends ExtractableResource> extends ResourceSupplyEntryController<R> {
 
 	@Override
-	protected void postInit(WindowBase w) throws IOException {
+	protected void postInit(Stage w) throws IOException {
 		super.postInit(w);
 
 		this.setFont(this.getRootNode(), GuiSystem.getDefaultFont());

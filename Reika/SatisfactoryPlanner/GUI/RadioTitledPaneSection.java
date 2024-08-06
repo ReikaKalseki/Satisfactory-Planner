@@ -5,12 +5,12 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import fxexpansions.FXMLControllerBase;
-import fxexpansions.WindowBase;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.ToggleGroup;
+import javafx.stage.Stage;
 
 
 public abstract class RadioTitledPaneSection extends FXMLControllerBase {
@@ -20,7 +20,7 @@ public abstract class RadioTitledPaneSection extends FXMLControllerBase {
 	protected ToggleGroup radioButtons = new ToggleGroup();
 
 	@Override
-	protected void postInit(WindowBase w) throws IOException {
+	protected void postInit(Stage w) throws IOException {
 		super.postInit(w);
 
 		radioButtons.selectedToggleProperty().addListener((val, old, nnew) -> this.onToggleSelected((RadioButton)nnew));

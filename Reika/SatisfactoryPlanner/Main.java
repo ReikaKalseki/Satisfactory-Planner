@@ -15,7 +15,7 @@ import org.json.JSONObject;
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem;
-import Reika.SatisfactoryPlanner.GUI.GuiSystem.MainWindow;
+import Reika.SatisfactoryPlanner.GUI.MainGuiController;
 import Reika.SatisfactoryPlanner.GUI.Setting;
 import Reika.SatisfactoryPlanner.GUI.Setting.SettingRef;
 import Reika.SatisfactoryPlanner.Util.FixedList;
@@ -23,6 +23,7 @@ import Reika.SatisfactoryPlanner.Util.JSONUtil;
 import Reika.SatisfactoryPlanner.Util.JavaUtil;
 import Reika.SatisfactoryPlanner.Util.Logging;
 
+import fxexpansions.GuiInstance;
 import javafx.application.Application;
 import javafx.application.Platform;
 
@@ -82,7 +83,7 @@ public class Main {
 		Database.sort();
 		for (Consumable c : Database.getAllItems())
 			c.createIcon(); //cache default icon size
-		MainWindow main = GuiSystem.MainWindow.getGUI();
+		GuiInstance<MainGuiController> main = GuiSystem.getMainGUI();
 		if (main != null) {
 			main.controller.rebuildLists(true, true);
 		}

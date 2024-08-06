@@ -7,7 +7,6 @@ import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Util.MathUtil;
 
 import fxexpansions.FXMLControllerBase;
-import fxexpansions.WindowBase;
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -19,6 +18,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
 public class ClockspeedSliderController extends FXMLControllerBase {
@@ -140,7 +140,7 @@ public class ClockspeedSliderController extends FXMLControllerBase {
 	}
 
 	@Override
-	protected void postInit(WindowBase w) throws IOException {
+	protected void postInit(Stage w) throws IOException {
 		super.postInit(w);
 	}
 

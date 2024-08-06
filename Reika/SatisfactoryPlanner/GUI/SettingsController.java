@@ -10,7 +10,6 @@ import Reika.SatisfactoryPlanner.GUI.Setting.SettingRef;
 import Reika.SatisfactoryPlanner.Util.StringUtil;
 
 import fxexpansions.FXMLControllerBase;
-import fxexpansions.WindowBase;
 import javafx.application.HostServices;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -20,6 +19,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 public class SettingsController extends FXMLControllerBase {
 
@@ -57,7 +57,7 @@ public class SettingsController extends FXMLControllerBase {
 	}
 
 	@Override
-	protected void postInit(WindowBase w) throws IOException {
+	protected void postInit(Stage w) throws IOException {
 		super.postInit(w);
 		GuiUtil.setButtonEvent(chooseGameDir, () -> {
 			File f = this.openDirDialog("Satisfactory Install", Setting.GAMEDIR.getCurrentValue());

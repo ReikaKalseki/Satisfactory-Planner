@@ -8,7 +8,6 @@ import Reika.SatisfactoryPlanner.Data.Fuel;
 
 import fxexpansions.FXMLControllerBase;
 import fxexpansions.GuiInstance;
-import fxexpansions.WindowBase;
 import javafx.application.HostServices;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -18,6 +17,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.RowConstraints;
+import javafx.stage.Stage;
 
 public class ItemInOutViewController extends FXMLControllerBase {
 
@@ -46,7 +46,7 @@ public class ItemInOutViewController extends FXMLControllerBase {
 	}
 
 	@Override
-	protected void postInit(WindowBase w) throws IOException {
+	protected void postInit(Stage w) throws IOException {
 		super.postInit(w);
 
 	}

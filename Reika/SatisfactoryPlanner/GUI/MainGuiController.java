@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 
 import org.controlsfx.control.SearchableComboBox;
 
+import Reika.SatisfactoryPlanner.FactoryListener;
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Data.Constants.ToggleableVisiblityGroup;
 import Reika.SatisfactoryPlanner.Data.Consumable;
@@ -27,16 +28,13 @@ import Reika.SatisfactoryPlanner.Data.SolidResourceNode;
 import Reika.SatisfactoryPlanner.Data.Warning;
 import Reika.SatisfactoryPlanner.Data.WaterExtractor;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.FontModifier;
-import Reika.SatisfactoryPlanner.GUI.GuiSystem.SettingsWindow;
 import Reika.SatisfactoryPlanner.GUI.GuiUtil.SearchableSelector;
 import Reika.SatisfactoryPlanner.Util.ColorUtil;
 import Reika.SatisfactoryPlanner.Util.CountMap;
-import Reika.SatisfactoryPlanner.Util.FactoryListener;
 
 import fxexpansions.ExpandingTilePane;
 import fxexpansions.FXMLControllerBase;
 import fxexpansions.GuiInstance;
-import fxexpansions.WindowBase;
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -61,6 +59,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 public class MainGuiController extends FXMLControllerBase implements FactoryListener {
 
@@ -258,8 +257,8 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 			}
 		});
 
-		GuiUtil.setButtonEvent(addMineButton, () -> this.openFXMLDialog("Add Resource Node", "ResourceNodeDialog"));
-		GuiUtil.setButtonEvent(addInputButton, () -> this.openFXMLDialog("Add Logistic Supply", "LogisticSupplyDialog"));
+		GuiUtil.setButtonEvent(addMineButton, () -> this.openChildWindow("Add Resource Node", "ResourceNodeDialog"));
+		GuiUtil.setButtonEvent(addInputButton, () -> this.openChildWindow("Add Logistic Supply", "LogisticSupplyDialog"));
 
 		for (ToggleableVisiblityGroup tv : ToggleableVisiblityGroup.values()) {
 			CheckBox cb = new CheckBox(tv.displayName);
@@ -308,7 +307,16 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 			factory.refreshMatrices();
 		});
 		 */
-		GuiUtil.setMenuEvent(settingsMenu, () -> this.openChildWindow(new SettingsWindow()));
+		GuiUtil.setMenuEvent(settingsMenu, () -> this.openChildWindow("Application Settings", "Settings", g -> {
+			g.controller.getWindow().setOnCloseRequest(e -> {
+				try {
+					Setting.applyChanges();
+				}
+				catch (Exception ex) {
+					ex.printStackTrace();
+				}
+			});
+		}));
 		GuiUtil.setMenuEvent(quitMenu, () -> this.close());
 		GuiUtil.setMenuEvent(newMenu, () -> {this.setFactory(new Factory()); this.rebuildEntireUI();});
 		GuiUtil.setMenuEvent(saveMenu, () -> factory.save());
@@ -367,7 +375,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	}
 
 	@Override
-	protected void postInit(WindowBase w) throws IOException {
+	protected void postInit(Stage w) throws IOException {
 		super.postInit(w);
 
 		for (Generator g : Database.getAllGenerators()) {

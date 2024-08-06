@@ -12,7 +12,6 @@ import org.controlsfx.control.SearchableComboBox;
 
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Resource;
-import Reika.SatisfactoryPlanner.GUI.GuiSystem.MainWindow;
 import Reika.SatisfactoryPlanner.Util.Errorable;
 import Reika.SatisfactoryPlanner.Util.JavaUtil;
 
@@ -252,9 +251,9 @@ public class GuiUtil {
 	private static Alert createDialog(AlertType type, String title, String text, ButtonType... buttons) {
 		Alert a = new Alert(type, text, buttons);
 		a.setTitle(title);
-		MainWindow main = GuiSystem.MainWindow.getGUI();
+		GuiInstance<MainGuiController> main = GuiSystem.getMainGUI();
 		if (main != null)
-			a.initOwner(main.window);
+			a.initOwner(main.controller.getWindow());
 		a.initModality(Modality.APPLICATION_MODAL);
 		Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
 		a.getDialogPane().setMaxHeight(bounds.getHeight()*0.8);

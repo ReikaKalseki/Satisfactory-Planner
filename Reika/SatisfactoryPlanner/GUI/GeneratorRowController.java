@@ -11,7 +11,6 @@ import Reika.SatisfactoryPlanner.GUI.GuiSystem.FontModifier;
 
 import fxexpansions.FXMLControllerBase;
 import fxexpansions.GuiInstance;
-import fxexpansions.WindowBase;
 import javafx.application.HostServices;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -20,6 +19,7 @@ import javafx.scene.control.Spinner;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
 
 public class GeneratorRowController extends FXMLControllerBase {
 
@@ -49,7 +49,7 @@ public class GeneratorRowController extends FXMLControllerBase {
 	}
 
 	@Override
-	protected void postInit(WindowBase w) throws IOException {
+	protected void postInit(Stage w) throws IOException {
 		super.postInit(w);
 
 		powerGenText.setText(String.format("%.0fMW", 0F));

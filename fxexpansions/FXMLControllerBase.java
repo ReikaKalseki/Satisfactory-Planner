@@ -16,12 +16,13 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 public abstract class FXMLControllerBase extends ControllerBase  {
 
 	protected FXMLControllerBase owner;
 
-	protected WindowBase container;
+	private Stage container;
 	private Parent rootNode;
 
 	@FXML
@@ -39,8 +40,12 @@ public abstract class FXMLControllerBase extends ControllerBase  {
 		return rootNode;
 	}
 
+	public Stage getWindow() {
+		return container;
+	}
+
 	protected final void close() {
-		container.window.close();
+		container.close();
 	}
 
 	final void setRoot(Parent root) {
@@ -49,10 +54,10 @@ public abstract class FXMLControllerBase extends ControllerBase  {
 
 	public abstract void init(HostServices services) throws IOException;
 
-	protected void postInit(WindowBase w) throws IOException {
+	protected void postInit(Stage w) throws IOException {
 		container = w;
-		container.window.widthProperty().addListener((v, o, n) -> {this.onWindowResize();});
-		container.window.heightProperty().addListener((v, o, n) -> {this.onWindowResize();});
+		container.widthProperty().addListener((v, o, n) -> {this.onWindowResize();});
+		container.heightProperty().addListener((v, o, n) -> {this.onWindowResize();});
 
 		this.setFont(this.getRootNode(), GuiSystem.getDefaultFont());
 	}
@@ -82,28 +87,21 @@ public abstract class FXMLControllerBase extends ControllerBase  {
 		return ret;
 	}
 
-	public final void openFXMLDialog(String title, String fxml) throws IOException {
-		this.openFXMLDialog(title, fxml, null);
+	public final void openChildWindow(String title, String fxml) throws IOException {
+		this.openChildWindow(title, fxml, null);
 	}
 
-	public final void openFXMLDialog(String title, String fxml, Consumer<FXMLControllerBase> callback) throws IOException {
+	public final void openChildWindow(String title, String fxml, Consumer<GuiInstance<FXMLControllerBase>> callback) throws IOException {
 		if (container == null)
 			throw new RuntimeException("You can only load nested FXML in post-init, after the window is initialized!");
-		DialogWindow dialog = new DialogWindow(title, fxml, container);
-		dialog.controller.owner = this;
+		Stage put = new Stage();
+		GuiInstance<FXMLControllerBase> gui = GuiInstance.loadFXMLWindow(fxml, put, container, title);
+		gui.controller.owner = this;
 		if (callback != null) {
-			callback.accept(dialog.controller);
+			callback.accept(gui);
 		}
-		dialog.window.sizeToScene();
-		dialog.show();
-	}
-
-	public final void openChildWindow(WindowBase w) throws IOException {
-		if (container == null)
-			throw new RuntimeException("You can only load nested FXML in post-init, after the window is initialized!");
-		w.controller.owner = this;
-		w.window.sizeToScene();
-		w.show();
+		put.sizeToScene();
+		put.show();
 	}
 
 	protected final File openDirDialog(String title, File dir) {
@@ -111,7 +109,7 @@ public abstract class FXMLControllerBase extends ControllerBase  {
 		if (dir != null && dir.exists() && dir.isDirectory())
 			fc.setInitialDirectory(dir);
 		fc.setTitle("Choose "+title+" directory");
-		return fc.showDialog(container.window);
+		return fc.showDialog(container);
 	}
 
 	protected final File openFileDialog(String title, File dir, FileChooser.ExtensionFilter... filters) {
@@ -125,7 +123,7 @@ public abstract class FXMLControllerBase extends ControllerBase  {
 			}
 			fc.setSelectedExtensionFilter(filters[0]);
 		}
-		return fc.showOpenDialog(container.window);
+		return fc.showOpenDialog(container);
 	}
 
 	protected final File openSaveAsDialog(String initialName, File dir) {
@@ -134,7 +132,7 @@ public abstract class FXMLControllerBase extends ControllerBase  {
 			fc.setInitialDirectory(dir);
 		fc.setInitialFileName(initialName);
 		fc.setTitle("Choose file");
-		return fc.showSaveDialog(container.window);
+		return fc.showSaveDialog(container);
 	}
 
 	protected final void setVisible(Node n, boolean visible) {

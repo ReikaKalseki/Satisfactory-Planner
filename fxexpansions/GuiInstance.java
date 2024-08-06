@@ -4,9 +4,13 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 import Reika.SatisfactoryPlanner.Main;
+import Reika.SatisfactoryPlanner.GUI.GuiSystem;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class GuiInstance<C extends ControllerBase> {
 
@@ -18,20 +22,35 @@ public class GuiInstance<C extends ControllerBase> {
 		controller = c;
 	}
 
-	public static <C extends FXMLControllerBase> GuiInstance<C> loadFXML(String fxml, WindowBase window) throws IOException {
+	public static <C extends FXMLControllerBase> GuiInstance<C> loadFXML(String fxml, Stage window) throws IOException {
 		return loadFXML(fxml, window, null);
 	}
 
-	public static <C extends FXMLControllerBase> GuiInstance<C> loadFXML(String fxml, WindowBase window, Consumer<Parent> rootHandler) throws IOException {
+	public static <C extends FXMLControllerBase> GuiInstance<C> loadFXML(String fxml, Stage window, Consumer<Parent> rootHandler) throws IOException {
 		FXMLLoader loader = new FXMLLoader(Main.class.getResource("Resources/FXML/"+fxml+".fxml"));
 		//loader.setControllerFactory(c -> c.getConstructor(HostServices.class).newInstance(null));
 		Parent root = loader.load();
 		if (rootHandler != null)
 			rootHandler.accept(root);
+
 		FXMLControllerBase c = loader.getController();
 		c.setRoot(root);
 		c.postInit(window);
 		return new GuiInstance(root, c);
+	}
+
+	public static <C extends FXMLControllerBase> GuiInstance<C> loadFXMLWindow(String fxml, Stage window, Stage owner, String title) throws IOException {
+		Consumer<Parent> callback = (p) -> {
+			window.setResizable(true);
+			window.setTitle(title);
+			window.setScene(new Scene(p));
+			window.initStyle(StageStyle.DECORATED);
+			if (owner != null)
+				window.initOwner(owner);
+			if (GuiSystem.getIcon() != null)
+				window.getIcons().add(GuiSystem.getIcon());
+		};
+		return loadFXML(fxml, window, callback);
 	}
 
 	@Override

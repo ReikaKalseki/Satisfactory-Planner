@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 
 import com.google.common.base.Strings;
 
+import Reika.SatisfactoryPlanner.FactoryListener;
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Data.Constants.ToggleableVisiblityGroup;
 import Reika.SatisfactoryPlanner.Data.Consumable;
@@ -22,7 +23,6 @@ import Reika.SatisfactoryPlanner.Data.ItemConsumerProducer;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.Data.ResourceSupply;
 import Reika.SatisfactoryPlanner.Util.ColorUtil;
-import Reika.SatisfactoryPlanner.Util.FactoryListener;
 
 import fxexpansions.FXMLControllerBase;
 import fxexpansions.GuiInstance;

@@ -5,10 +5,10 @@ import java.io.IOException;
 import Reika.SatisfactoryPlanner.Data.Factory;
 import Reika.SatisfactoryPlanner.Data.LogisticSupply;
 
-import fxexpansions.WindowBase;
 import javafx.fxml.FXML;
 import javafx.scene.control.Spinner;
 import javafx.scene.image.ImageView;
+import javafx.stage.Stage;
 
 public class LogisticSupplyEntryController extends ResourceSupplyEntryController<LogisticSupply> {
 
@@ -19,7 +19,7 @@ public class LogisticSupplyEntryController extends ResourceSupplyEntryController
 	private ImageView icon;
 
 	@Override
-	protected void postInit(WindowBase w) throws IOException {
+	protected void postInit(Stage w) throws IOException {
 		super.postInit(w);
 
 		GuiUtil.setupCounter(amount, 0, 9999, 0, true);

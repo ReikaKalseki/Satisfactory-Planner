@@ -14,6 +14,7 @@ import java.util.function.Consumer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import Reika.SatisfactoryPlanner.FactoryListener;
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Data.Constants.BeltTier;
 import Reika.SatisfactoryPlanner.Data.Constants.PipeTier;
@@ -31,7 +32,6 @@ import Reika.SatisfactoryPlanner.GUI.MainGuiController;
 import Reika.SatisfactoryPlanner.GUI.RecipeMatrix;
 import Reika.SatisfactoryPlanner.GUI.ScaledRecipeMatrix;
 import Reika.SatisfactoryPlanner.Util.CountMap;
-import Reika.SatisfactoryPlanner.Util.FactoryListener;
 import Reika.SatisfactoryPlanner.Util.JSONUtil;
 import Reika.SatisfactoryPlanner.Util.Logging;
 import Reika.SatisfactoryPlanner.Util.MultiMap;
@@ -591,7 +591,7 @@ public class Factory {
 		currentFile = f;
 		this.notifyListeners(c -> c.onSetFile(f));
 		Main.addRecentFile(f);
-		GuiSystem.MainWindow.getGUI().controller.buildRecentList();
+		GuiSystem.getMainGUI().controller.buildRecentList();
 	}
 
 	public static void loadFactory(File f, FactoryListener... l) {

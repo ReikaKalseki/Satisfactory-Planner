@@ -19,7 +19,6 @@ import Reika.SatisfactoryPlanner.Data.TrainStation;
 import Reika.SatisfactoryPlanner.Data.TruckStation;
 import Reika.SatisfactoryPlanner.GUI.GuiUtil.SearchableSelector;
 
-import fxexpansions.WindowBase;
 import javafx.application.HostServices;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -29,6 +28,7 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.Toggle;
 import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
 
 public class LogisticSupplyController extends RadioTitledPaneSection {
 
@@ -86,7 +86,7 @@ public class LogisticSupplyController extends RadioTitledPaneSection {
 	}
 
 	@Override
-	protected void postInit(WindowBase w) throws IOException {
+	protected void postInit(Stage w) throws IOException {
 		super.postInit(w);
 
 		itemDropdown.setItems(FXCollections.observableArrayList(Database.getAllItems()));

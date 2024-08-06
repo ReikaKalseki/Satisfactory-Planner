@@ -8,13 +8,13 @@ import Reika.SatisfactoryPlanner.Data.OverclockableResource;
 import Reika.SatisfactoryPlanner.Data.ResourceSupply;
 
 import fxexpansions.FXMLControllerBase;
-import fxexpansions.WindowBase;
 import javafx.application.HostServices;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 public abstract class ResourceSupplyEntryController<R extends ResourceSupply> extends FXMLControllerBase {
 
@@ -42,7 +42,7 @@ public abstract class ResourceSupplyEntryController<R extends ResourceSupply> ex
 	}
 
 	@Override
-	protected void postInit(WindowBase w) throws IOException {
+	protected void postInit(Stage w) throws IOException {
 		super.postInit(w);
 
 		this.setFont(this.getRootNode(), GuiSystem.getDefaultFont());

@@ -1,6 +1,5 @@
 package Reika.SatisfactoryPlanner.GUI;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 import Reika.SatisfactoryPlanner.Main;
@@ -8,15 +7,16 @@ import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Util.BitflagMap;
 import Reika.SatisfactoryPlanner.Util.JavaUtil;
 
-import fxexpansions.WindowBase;
+import fxexpansions.GuiInstance;
 import javafx.application.Application;
 import javafx.application.HostServices;
 import javafx.application.Platform;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.text.Font;
-import javafx.stage.Modality;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 public class GuiSystem extends Application {
@@ -25,11 +25,10 @@ public class GuiSystem extends Application {
 
 	private static Image icon;
 	private static HostServices service;
+	private static GuiInstance<MainGuiController> mainGui;
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		primaryStage.hide();
-
 		service = this.getHostServices();
 
 		fontMap.put(Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans-Regular.ttf"), 12));
@@ -55,8 +54,15 @@ public class GuiSystem extends Application {
 			GuiUtil.raiseDialog(AlertType.WARNING, "Game Data Not Found", "The game data JSON was not found. This probably means the specified game install directory is incorrect. Correct this in the settings to get automatic inclusion of vanilla content.", ButtonType.OK);
 		}
 
+		Screen screen = Screen.getPrimary();
+		Rectangle2D bounds = screen.getVisualBounds();
+		primaryStage.setWidth(bounds.getWidth());
+		primaryStage.setHeight(bounds.getHeight());
+		mainGui = GuiInstance.loadFXMLWindow("mainUI-Dynamic", primaryStage, null, "Satisfactory Planner");
 		//this.setFont(root, MainWindow.getGUI().getFont(10));
-		new MainWindow().show();
+		primaryStage.setMaximized(true);
+		primaryStage.setOnCloseRequest(e -> Platform.exit());
+		primaryStage.show();
 	}
 	/*
 	public static Font getFont(double size) {
@@ -101,60 +107,7 @@ public class GuiSystem extends Application {
 		CONDENSED,
 	}
 
-	public static class PreWindow extends WindowBase {
-
-		protected PreWindow(String title, String fxmlName) throws IOException {
-			super(title, fxmlName, getIcon());
-
-			window.initModality(Modality.APPLICATION_MODAL);
-		}
-
-		@Override
-		public void show() throws IOException {
-			window.toFront();
-			super.show();
-		}
-
-	}
-
-	public static class MainWindow extends WindowBase<MainGuiController> {
-
-		private static MainWindow gui;
-
-		public MainWindow() throws IOException {
-			super("Satisfactory Planner", "mainUI-Dynamic", getIcon());
-			gui = this;
-
-			//window.setWidth(1200);
-			//window.setHeight(900);
-		}
-
-		@Override
-		protected void onCloseButtonClicked() {
-			Platform.exit();
-		}
-
-		public static MainWindow getGUI() {
-			return gui;
-		}
-
-	}
-
-	public static class SettingsWindow extends WindowBase<SettingsController> {
-
-		public SettingsWindow() throws IOException {
-			super("Application Settings", "Settings", getIcon());
-		}
-
-		@Override
-		protected void onCloseButtonClicked() {
-			try {
-				Setting.applyChanges();
-			}
-			catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-
+	public static GuiInstance<MainGuiController> getMainGUI() {
+		return mainGui;
 	}
 }
