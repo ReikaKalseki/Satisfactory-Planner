@@ -15,6 +15,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import Reika.SatisfactoryPlanner.FactoryListener;
+import Reika.SatisfactoryPlanner.InclusionPattern;
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Data.Constants.BeltTier;
 import Reika.SatisfactoryPlanner.Data.Constants.PipeTier;
@@ -72,6 +73,9 @@ public class Factory {
 
 	private MainGuiController gui;
 
+	public InclusionPattern generatorMatrixRule = InclusionPattern.INDIVIDUAL;
+	public InclusionPattern resourceMatrixRule = InclusionPattern.MERGE;
+
 	static {
 		saveDir.mkdirs();
 	}
@@ -126,6 +130,11 @@ public class Factory {
 		//if (recipes.isEmpty())
 		//	return null;
 		return scaleMatrix.getGrid();
+	}
+
+	public void rebuildMatrices() {
+		matrix.rebuild();
+		scaleMatrix.rebuild();
 	}
 
 	public void updateMatrixStatus(Consumable c) {
@@ -263,6 +272,13 @@ public class Factory {
 		return generators.get(g).getCount(f);
 	}
 
+	public int getTotalGeneratorCount() {
+		int ret = 0;
+		for (FuelChoices fc : generators.values())
+			ret += fc.getTotal();
+		return ret;
+	}
+
 	public void setCount(Generator g, Fuel f, int amt) {
 		int old = generators.get(g).getCount(f);
 		generators.get(g).setCount(f, amt);
@@ -294,17 +310,19 @@ public class Factory {
 			//this.getOrCreateFlow(r.getResource()).externalInput += r.getYield();
 			externalInput.add(r.getResource(), r.getYield());
 		}
-		for (FuelChoices fc : generators.values()) {
-			//this.getOrCreateFlow(r.getResource()).externalInput += r.getYield();
-			for (Fuel f : fc.generator.getFuels()) {
-				int amt = fc.getCount(f);
-				if (amt <= 0)
-					continue;
-				consumption.add(f.item, f.primaryBurnRate*amt);
-				if (f.secondaryItem != null)
-					consumption.add(f.secondaryItem, f.secondaryBurnRate*amt);
-				if (f.byproduct != null)
-					production.add(f.byproduct, f.getByproductRate()*amt);
+		if (generatorMatrixRule != InclusionPattern.EXCLUDE) {
+			for (FuelChoices fc : generators.values()) {
+				//this.getOrCreateFlow(r.getResource()).externalInput += r.getYield();
+				for (Fuel f : fc.generator.getFuels()) {
+					int amt = fc.getCount(f);
+					if (amt <= 0)
+						continue;
+					consumption.add(f.item, f.primaryBurnRate*amt);
+					if (f.secondaryItem != null)
+						consumption.add(f.secondaryItem, f.secondaryBurnRate*amt);
+					if (f.byproduct != null)
+						production.add(f.byproduct, f.getByproductRate()*amt);
+				}
 			}
 		}/*
 		for (Consumable c : externalInput.getItems())

@@ -31,7 +31,7 @@ public class InputPipe extends LogisticSupply<Fluid> {
 	}
 
 	@Override
-	public Resource getIcon() {
+	public Resource getLocationIcon() {
 		return tier.getBuilding();
 	}
 
@@ -53,7 +53,7 @@ public class InputPipe extends LogisticSupply<Fluid> {
 
 	@Override
 	public String getDisplayName() {
-		return this.getIcon().displayName;
+		return this.getLocationIcon().displayName;
 	}
 
 }

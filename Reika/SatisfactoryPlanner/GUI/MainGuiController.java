@@ -6,11 +6,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.SearchableComboBox;
 
 import Reika.SatisfactoryPlanner.FactoryListener;
+import Reika.SatisfactoryPlanner.InclusionPattern;
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Data.Constants.ToggleableVisiblityGroup;
 import Reika.SatisfactoryPlanner.Data.Consumable;
@@ -42,6 +45,7 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -53,6 +57,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
@@ -60,6 +67,7 @@ import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.StringConverter;
 
 public class MainGuiController extends FXMLControllerBase implements FactoryListener {
 
@@ -218,6 +226,15 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	@FXML
 	private TextField factoryName;
 
+	@FXML
+	private GridPane matrixOptionGrid;
+
+	@FXML
+	private ChoiceBox<InclusionPattern> generatorMatrixOptions;
+
+	@FXML
+	private ChoiceBox<InclusionPattern> resourceMatrixOptions;
+
 	//@FXML
 	//private Button refreshButton;
 
@@ -340,18 +357,38 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		statisticsGrid.getRowConstraints().get(2).minHeightProperty().bind(netConsumptionBar.minHeightProperty());
 		statisticsGrid.getRowConstraints().get(3).minHeightProperty().bind(netProductBar.minHeightProperty());
 
+		generatorMatrixOptions.setItems(FXCollections.observableArrayList(InclusionPattern.values()));
+		resourceMatrixOptions.setItems(FXCollections.observableArrayList(InclusionPattern.values()));
+
+		StringConverter<InclusionPattern> conv = new StringConverter<InclusionPattern>() {
+			@Override
+			public String toString(InclusionPattern p) {
+				return StringUtils.capitalize(p.name().toLowerCase(Locale.ENGLISH));
+			}
+
+			@Override
+			public InclusionPattern fromString(String s) {
+				return InclusionPattern.valueOf(s.toUpperCase(Locale.ENGLISH));
+			}
+		};
+		resourceMatrixOptions.setConverter(conv);
+		generatorMatrixOptions.setConverter(conv);
+
+		generatorMatrixOptions.getSelectionModel().selectedItemProperty().addListener((val, old, nnew) -> {
+			factory.generatorMatrixRule = nnew;
+			factory.updateIO();
+			factory.rebuildMatrices();
+		});
+		resourceMatrixOptions.getSelectionModel().selectedItemProperty().addListener((val, old, nnew) -> {
+			factory.resourceMatrixRule = nnew;
+			factory.updateIO();
+			factory.rebuildMatrices();
+		});
+
 		buildingBar.minRowHeight = 32;
 		buildCostBar.minRowHeight = 32;
 		netConsumptionBar.minRowHeight = 32;
 		netProductBar.minRowHeight = 32;
-
-		for (Tab t : tabs.getTabs()) {
-			ScrollPane p = (ScrollPane)t.getContent();
-			//p.prefHeightProperty().bind(tabs.heightProperty().subtract(32*0));
-			//p.setMinHeight(Region.USE_PREF_SIZE);
-			//p.minHeightProperty().bind(p.prefHeightProperty());
-			//p.maxHeightProperty().bind(p.prefHeightProperty());
-		}
 	}
 
 	public Factory getFactory() {
@@ -361,6 +398,9 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	public void setFactory(Factory f) {
 		factory = f;
 		factory.setUI(this);
+
+		generatorMatrixOptions.getSelectionModel().select(factory.generatorMatrixRule);
+		resourceMatrixOptions.getSelectionModel().select(factory.resourceMatrixRule);
 
 		for (GuiInstance<GeneratorRowController> gui : generators.values()) {
 			gui.controller.setFactory(f);
@@ -377,6 +417,20 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	@Override
 	protected void postInit(Stage w) throws IOException {
 		super.postInit(w);
+
+		for (Tab t : tabs.getTabs()) {
+			ScrollPane p = (ScrollPane)t.getContent();
+			//p.prefHeightProperty().bind(tabs.heightProperty().subtract(32*0));
+			//p.setMinHeight(Region.USE_PREF_SIZE);
+			//p.minHeightProperty().bind(p.prefHeightProperty());
+			//p.maxHeightProperty().bind(p.prefHeightProperty());
+			p.prefWidthProperty().bind(this.getWindow().widthProperty().subtract(32));
+			p.setMaxWidth(Region.USE_PREF_SIZE);
+			p.setFitToHeight(true);
+			p.setFitToWidth(true);
+		}
+
+		this.getWindow().getScene().getAccelerators().put(new KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN), () -> {root.layout(); tabs.requestLayout();});
 
 		for (Generator g : Database.getAllGenerators()) {
 			GuiInstance<GeneratorRowController> gui = this.loadNestedFXML("GeneratorRow", generatorList);

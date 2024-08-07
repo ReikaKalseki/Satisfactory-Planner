@@ -73,7 +73,7 @@ public abstract class ResourceSupplyEntryController<R extends ResourceSupply> ex
 	public final void setSupply(Factory f, R res) throws IOException {
 		supply = res;
 		factory = f;
-		Node n = this.getTopBarContent(GuiUtil.createSpacedHBox(res.getResource().createImageView(), res.getIcon().createImageView(), this.getTopBarRightContent()));
+		Node n = this.getTopBarContent(GuiUtil.createSpacedHBox(res.getResource().createImageView(), res.getLocationIcon().createImageView(), this.getTopBarRightContent()));
 		if (n != null)
 			topBar.getChildren().add(n);
 		this.updateStats();

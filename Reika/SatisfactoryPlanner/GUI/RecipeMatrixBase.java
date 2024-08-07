@@ -3,16 +3,22 @@ package Reika.SatisfactoryPlanner.GUI;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Function;
 
 import com.google.common.base.Strings;
 
 import Reika.SatisfactoryPlanner.FactoryListener;
+import Reika.SatisfactoryPlanner.InclusionPattern;
+import Reika.SatisfactoryPlanner.InternalIcons;
 import Reika.SatisfactoryPlanner.Main;
+import Reika.SatisfactoryPlanner.NamedIcon;
 import Reika.SatisfactoryPlanner.Data.Constants.ToggleableVisiblityGroup;
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Database;
@@ -23,6 +29,7 @@ import Reika.SatisfactoryPlanner.Data.ItemConsumerProducer;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.Data.ResourceSupply;
 import Reika.SatisfactoryPlanner.Util.ColorUtil;
+import Reika.SatisfactoryPlanner.Util.CountMap;
 
 import fxexpansions.FXMLControllerBase;
 import fxexpansions.GuiInstance;
@@ -84,6 +91,8 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 		grid.setVgap(4);
 		grid.setMaxHeight(Double.POSITIVE_INFINITY);
 		grid.setMaxWidth(Double.POSITIVE_INFINITY);
+		grid.setPrefHeight(Region.USE_COMPUTED_SIZE);
+		grid.setPrefWidth(Region.USE_COMPUTED_SIZE);
 	}
 
 	public final void setUI(FXMLControllerBase gui) {
@@ -100,13 +109,34 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 
 	protected final List<ItemConsumerProducer> getRecipes() {
 		List<ItemConsumerProducer> ret = new ArrayList();
+		switch(owner.resourceMatrixRule) {
+			case EXCLUDE:
+				break;
+			case MERGE:
+				if (owner.getSupplies().size() > 0)
+					ret.add(new GroupedProducer<ResourceSupply>("External Supplies", InternalIcons.SUPPLY, owner.getSupplies(), r -> 1F));
+				break;
+			case INDIVIDUAL:
+				ret.addAll(owner.getSupplies());
+				break;
+		}
 		ret.addAll(owner.getRecipes());
-		for (Generator g : Database.getAllGenerators()) {
-			for (Fuel f : g.getFuels()) {
-				int amt = owner.getCount(g, f);
-				if (amt > 0)
-					ret.add(f);
-			}
+		switch(owner.generatorMatrixRule) {
+			case EXCLUDE:
+				break;
+			case MERGE:
+				if (owner.getTotalGeneratorCount() > 0)
+					ret.add(new GroupedProducer<Fuel>("Generators", InternalIcons.POWER, Fuel.getFuels(), f -> (float)owner.getCount(f.generator, f)));
+				break;
+			case INDIVIDUAL:
+				for (Generator g : Database.getAllGenerators()) {
+					for (Fuel f : g.getFuels()) {
+						int amt = owner.getCount(g, f);
+						if (amt > 0)
+							ret.add(f);
+					}
+				}
+				break;
 		}
 		return ret;
 	}
@@ -114,6 +144,8 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 	protected final void computeIO() {
 		inputs = new ArrayList(owner.getAllIngredients());
 		outputs = new ArrayList(owner.getAllProducedItems());
+		if (owner.resourceMatrixRule != InclusionPattern.EXCLUDE)
+			outputs.addAll(owner.getAllSuppliedItems());
 		Collections.sort(inputs);
 		Collections.sort(outputs);
 	}
@@ -159,7 +191,9 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 			GuiInstance<ItemRateController> gui = GuiUtil.createItemView(c, e.getValue()*this.getMultiplier(r), grid, productsStartColumn+outputs.indexOf(c)*2, rowIndex);
 			row.outputSlots.put(c, gui);
 		}
-		grid.add(r.getBuilding().createImageView(), buildingColumn, rowIndex);
+		NamedIcon loc = r.getLocationIcon();
+		if (loc != null)
+			grid.add(loc.createImageView(), buildingColumn, rowIndex);
 
 		if (r instanceof Recipe) {
 			Button b = new Button();
@@ -304,6 +338,7 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 		//rect.widthProperty().bind(gp.getColumnConstraints().get(split).maxWidthProperty().subtract(2));
 		//rect.heightProperty().bind(gp.getRowConstraints().get(i).maxHeightProperty().subtract(2));
 		rect.setWidth(w);
+		grid.getColumnConstraints().get(col).setMinWidth(w);
 		rect.setHeight(32);
 		grid.add(rect, col, row);
 	}
@@ -318,13 +353,31 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 		return Integer.MIN_VALUE;
 	}
 
-	protected final void rebuild() {
+	public final void rebuild() {
 		try {
 			grid.getChildren().clear();
 			grid.getColumnConstraints().clear();
 			grid.getRowConstraints().clear();
 			recipeEntries.clear();
 			this.rebuildGrid();
+			grid.getColumnConstraints().get(buttonColumn).setMinWidth(32);
+			grid.getColumnConstraints().get(buildingColumn).setMinWidth(32);
+			grid.layout();
+			double[] w = new double[grid.getColumnCount()];
+			for (Node n : grid.getChildren()) {
+				if (n instanceof Region) {
+					int col = grid.getColumnIndex(n);
+					Region r = (Region)n;
+					w[col] = Math.max(w[col], Math.max(r.getMinWidth(), grid.getColumnConstraints().get(col).getMinWidth()));
+				}
+
+			}
+			double sum = 0;
+			for (double wd : w)
+				sum += wd+grid.getHgap();
+			grid.setMinWidth(sum+grid.getHgap()+8);
+			//Logging.instance.log(sum+" of "+Arrays.toString(w));
+			//Platform.runLater(() -> grid.layout());
 		}
 		catch (IOException e) {
 			e.printStackTrace();
@@ -407,8 +460,13 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 				label.setStyle("-fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.HIGHLIGHT_COLOR)+";");
 				label.setText(label.getText()+" ("+mod+")");
 			}
-			else if (r instanceof Fuel) {
+			else if (r instanceof Fuel || (r instanceof GroupedProducer && !((GroupedProducer)r).producers.isEmpty() && ((GroupedProducer)r).producers.iterator().next() instanceof Fuel)) {
 				label.setStyle("-fx-text-fill: #ea5;");
+			}
+			else if (r instanceof ResourceSupply || (r instanceof GroupedProducer && !((GroupedProducer)r).producers.isEmpty() && ((GroupedProducer)r).producers.iterator().next() instanceof ResourceSupply)) {
+				label.setStyle("-fx-text-fill: #5ea;");
+				if (r instanceof ResourceSupply)
+					label.setText(label.getText()+" ("+((ResourceSupply)r).getResource().displayName+")");
 			}
 			GuiUtil.sizeToContent(label);
 		}
@@ -431,5 +489,135 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 			for (GuiInstance<ItemRateController> gui : outputSlots.values())
 				gui.controller.setScale(scale);
 		}
+
+		public double getInputWidth(Consumable c) {
+			return inputSlots.get(c).controller.getWidth();
+		}
+
+		public double getOutputWidth(Consumable c) {
+			return outputSlots.get(c).controller.getWidth();
+		}
 	}
+
+	private class GroupedProducer<P extends ItemConsumerProducer> implements ItemConsumerProducer {
+
+		public final String displayName;
+		public final NamedIcon icon;
+
+		private final Collection<P> producers;
+		private final Function<P, Float> countFetch;
+
+		public GroupedProducer(String name, NamedIcon ico, Collection<P> li, Function<P, Float> f) {
+			displayName = name;
+			icon = ico;
+			producers = li;
+			countFetch = f;
+		}
+
+		@Override
+		public String getDisplayName() {
+			return displayName;
+		}
+
+		@Override
+		public NamedIcon getLocationIcon() {
+			return icon;
+		}
+
+		@Override
+		public Map<Consumable, Float> getIngredientsPerMinute() {
+			HashMap<Consumable, Float> map = new HashMap();
+			for (P r : producers) {
+				float scale = countFetch.apply(r);
+				if (scale > 0)
+					CountMap.incrementMapByMap(map, r.getIngredientsPerMinute(), scale);
+			}
+			return map;
+		}
+
+		@Override
+		public Map<Consumable, Float> getProductsPerMinute() {
+			HashMap<Consumable, Float> map = new HashMap();
+			for (P r : producers) {
+				float scale = countFetch.apply(r);
+				if (scale > 0)
+					CountMap.incrementMapByMap(map, r.getProductsPerMinute(), scale);
+			}
+			return map;
+		}
+	}
+	/*
+	private class GroupedSupply implements ItemConsumerProducer {
+
+		@Override
+		public String getDisplayName() {
+			return "External Supplies";
+		}
+
+		@Override
+		public Resource getLocationIcon() {
+			return InternalIcons.SUPPLY;
+		}
+
+		@Override
+		public Map<Consumable, Float> getIngredientsPerMinute() {
+			return Map.of();
+		}
+
+		@Override
+		public Map<Consumable, Float> getProductsPerMinute() {
+			HashMap<Consumable, Float> map = new HashMap();
+			for (ResourceSupply r : owner.getSupplies()) {
+				Consumable c = r.getResource();
+				Float has = map.get(c);
+				map.put(c, (has == null ? 0 : has.floatValue())+r.getYield());
+			}
+			return map;
+		}
+
+	}
+
+	private class GroupedGenerators implements ItemConsumerProducer {
+
+		private static final ArrayList<Fuel> allFuels = new ArrayList();
+
+		static {
+			for (Generator g : Database.getAllGenerators()) {
+				allFuels.addAll(g.getFuels());
+			}
+		}
+
+		@Override
+		public String getDisplayName() {
+			return "Generators";
+		}
+
+		@Override
+		public Resource getLocationIcon() {
+			return InternalIcons.POWER;
+		}
+
+		@Override
+		public Map<Consumable, Float> getIngredientsPerMinute() {
+			HashMap<Consumable, Float> map = new HashMap();
+			for (Fuel f : allFuels) {
+				Consumable c = r.getResource();
+				Float has = map.get(c);
+				map.put(c, (has == null ? 0 : has.floatValue())+r.getYield());
+			}
+			return map;
+		}
+
+		@Override
+		public Map<Consumable, Float> getProductsPerMinute() {
+			HashMap<Consumable, Float> map = new HashMap();
+			for (Fuel f : allFuels) {
+				Consumable c = r.getResource();
+				Float has = map.get(c);
+				map.put(c, (has == null ? 0 : has.floatValue())+r.getYield());
+			}
+			return map;
+		}
+
+	}*/
 }

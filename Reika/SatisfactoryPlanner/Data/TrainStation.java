@@ -30,7 +30,7 @@ public class TrainStation<R extends Consumable> extends LogisticSupply<R> {
 	}
 
 	@Override
-	public Resource getIcon() {
+	public Resource getLocationIcon() {
 		return Database.lookupBuilding(isFluid ? "Build_TrainDockingStationLiquid_C" : "Build_TrainDockingStation_C");
 	}
 

@@ -21,7 +21,7 @@ public class DroneStation extends LogisticSupply<Item> {
 	}
 
 	@Override
-	public Resource getIcon() {
+	public Resource getLocationIcon() {
 		return Database.lookupVehicle("Desc_DroneTransport_C");// Database.lookupBuilding("Desc_TrainDockingStation_C");
 	}
 

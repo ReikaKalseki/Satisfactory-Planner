@@ -3,7 +3,7 @@ package Reika.SatisfactoryPlanner.Data;
 import java.util.Locale;
 import java.util.function.Supplier;
 
-import Reika.SatisfactoryPlanner.Main;
+import Reika.SatisfactoryPlanner.InternalIcons;
 import Reika.SatisfactoryPlanner.Data.Constants.RateLimitedSupplyLine;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.FontModifier;
@@ -23,8 +23,8 @@ public class Warning implements Comparable<Warning> {
 	public final String warningText;
 	public final WarningSeverity severity;
 
-	public static final StringIconName THROUGHPUT_BOTTLENECK = new StringIconName("throughput-bottleneck.png");
-	public static final StringIconName UNSTABLE = new StringIconName("unstable.png");
+	public static final StringIconName THROUGHPUT_BOTTLENECK = new StringIconName(InternalIcons.BOTTLENECK);
+	//public static final StringIconName UNSTABLE = new StringIconName(InternalIcons.UNSTABLE);
 
 	public Warning(WarningSeverity sev, String txt) {
 		this(sev, txt, null);
@@ -137,15 +137,15 @@ public class Warning implements Comparable<Warning> {
 
 	public static class StringIconName implements Supplier<Image> {
 
-		public final String iconName;
+		public final InternalIcons iconName;
 
-		public StringIconName(String ico) {
+		public StringIconName(InternalIcons ico) {
 			iconName = ico;
 		}
 
 		@Override
 		public Image get() {
-			return new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/"+iconName));
+			return iconName.createIcon();
 		}
 
 	}

@@ -1,4 +1,4 @@
-package Reika.SatisfactoryPlanner.Util;
+package Reika.SatisfactoryPlanner;
 
 import java.io.File;
 

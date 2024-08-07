@@ -102,6 +102,10 @@ public class ItemRateController extends ControllerBase {
 		amount.setMinWidth(GuiUtil.getWidth(minimumWidth, GuiSystem.getFont(FontModifier.BOLD)));
 	}
 
+	public double getWidth() {
+		return amount.getMinWidth();
+	}
+
 	public void setState(WarningState st) {
 		st.applyStyles.accept(this);
 	}

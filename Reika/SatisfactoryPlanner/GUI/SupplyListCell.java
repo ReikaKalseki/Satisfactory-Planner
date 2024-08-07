@@ -12,12 +12,12 @@ class SupplyListCell<B extends ResourceSupply> extends DecoratedListCell<B> {
 
 	@Override
 	protected String getString(B obj) {
-		return obj.getIcon().displayName;
+		return obj.getLocationIcon().getDisplayName();
 	}
 
 	@Override
 	protected Node createDecoration(B obj) {
-		return obj.getIcon().createImageView();
+		return obj.getLocationIcon().createImageView();
 	}
 
 }

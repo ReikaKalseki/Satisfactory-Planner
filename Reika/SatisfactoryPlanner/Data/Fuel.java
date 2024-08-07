@@ -1,8 +1,13 @@
 package Reika.SatisfactoryPlanner.Data;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 public class Fuel implements ItemConsumerProducer {
+
+	private static final ArrayList<Fuel> fuels = new ArrayList();
 
 	public final Generator generator;
 	public final Consumable item;
@@ -25,6 +30,12 @@ public class Fuel implements ItemConsumerProducer {
 		secondaryBurnRate = this.computeSecondaryRate();
 		byproduct = out;
 		byproductAmount = amt;
+
+		fuels.add(this);
+	}
+
+	public static List<Fuel> getFuels() {
+		return Collections.unmodifiableList(fuels);
 	}
 
 	@Override
@@ -38,7 +49,7 @@ public class Fuel implements ItemConsumerProducer {
 	}
 
 	@Override
-	public FunctionalBuilding getBuilding() {
+	public Resource getLocationIcon() {
 		return generator;
 	}
 

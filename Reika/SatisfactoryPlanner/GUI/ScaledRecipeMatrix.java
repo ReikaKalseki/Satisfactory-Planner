@@ -135,6 +135,8 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 				this.onSetCount((Recipe)r, owner.getCount((Recipe)r));
 
 		this.addTitles();
+
+		grid.getColumnConstraints().get(countColumn).setMinWidth(92);
 	}
 
 	@Override
@@ -194,7 +196,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 	@Override
 	public void onSetCount(Generator g, Fuel fuel, int old, int count) {
 		super.onSetCount(g, fuel, old, count);
-		if (count > 0)
+		if (count > 0 && recipeEntries.containsKey(fuel))
 			recipeEntries.get(fuel).setScale(count);
 		this.updateStatuses(fuel);
 	}

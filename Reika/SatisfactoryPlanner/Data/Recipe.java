@@ -65,7 +65,7 @@ public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 	}
 
 	@Override
-	public FunctionalBuilding getBuilding() {
+	public Resource getLocationIcon() {
 		return productionBuilding;
 	}
 

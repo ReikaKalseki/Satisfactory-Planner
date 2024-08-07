@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 
 import Reika.SatisfactoryPlanner.Main;
+import Reika.SatisfactoryPlanner.NamedIcon;
 import Reika.SatisfactoryPlanner.GUI.GuiUtil;
 import Reika.SatisfactoryPlanner.GUI.Setting;
 import Reika.SatisfactoryPlanner.Util.Logging;
@@ -14,7 +15,7 @@ import Reika.SatisfactoryPlanner.Util.Logging;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
-public abstract class Resource {
+public abstract class Resource implements NamedIcon {
 
 	public final String id;
 	public final String displayName;
@@ -42,6 +43,10 @@ public abstract class Resource {
 
 	public final String getMod() {
 		return sourceMod;
+	}
+
+	public final String getDisplayName() {
+		return displayName;
 	}
 
 	private InputStream getIcon() {

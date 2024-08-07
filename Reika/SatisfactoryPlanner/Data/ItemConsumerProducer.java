@@ -2,11 +2,13 @@ package Reika.SatisfactoryPlanner.Data;
 
 import java.util.Map;
 
+import Reika.SatisfactoryPlanner.NamedIcon;
+
 public interface ItemConsumerProducer {
 
 	public String getDisplayName();
 
-	public FunctionalBuilding getBuilding();
+	public NamedIcon getLocationIcon();
 
 	public Map<Consumable, Float> getIngredientsPerMinute();
 

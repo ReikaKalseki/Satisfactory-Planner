@@ -35,6 +35,7 @@
 <?import fxexpansions.ExpandingTilePane?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
@@ -94,7 +95,7 @@
                      <content>
                         <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
                            <children>
-                              <TitledPane fx:id="infoPanel" collapsible="false" layoutX="10.0" layoutY="10.0" text="Information">
+                              <TitledPane fx:id="infoPanel" collapsible="false" layoutX="10.0" layoutY="10.0" text="Information" VBox.vgrow="NEVER">
                                  <content>
                                     <GridPane fx:id="infoGrid" hgap="4.0" vgap="4.0">
                                        <columnConstraints>
@@ -118,7 +119,7 @@
                                     </GridPane>
                                  </content>
                               </TitledPane>
-                              <TitledPane fx:id="statsPanel" collapsible="false" text="Statistics">
+                              <TitledPane fx:id="statsPanel" collapsible="false" text="Statistics" VBox.vgrow="NEVER">
                                  <content>
                                     <GridPane fx:id="statisticsGrid" hgap="4.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vgap="4.0">
                                       <columnConstraints>
@@ -150,7 +151,7 @@
                                     <Insets />
                                  </VBox.margin>
                               </TitledPane>
-                              <TitledPane fx:id="warningPanel" collapsible="false" text="Warnings">
+                              <TitledPane fx:id="warningPanel" collapsible="false" text="Warnings" VBox.vgrow="ALWAYS">
                                  <content>
                                     <VBox fx:id="warningList" spacing="8.0">
                                        <padding>
@@ -201,7 +202,7 @@
                                     </VBox>
                                  </content>
                               </TitledPane>
-                              <TitledPane fx:id="outputPanel1" collapsible="false" layoutX="10.0" layoutY="212.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Total Input">
+                              <TitledPane fx:id="outputPanel1" collapsible="false" layoutX="10.0" layoutY="212.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Total Input" VBox.vgrow="NEVER">
                                  <content>
                                     <ExpandingTilePane fx:id="localSupplyTotals" hgap="16.0" vgap="8.0">
                                        <padding>
@@ -209,7 +210,7 @@
                                        </padding></ExpandingTilePane>
                                  </content>
                               </TitledPane>
-                              <TitledPane fx:id="outputPanel" collapsible="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Desired Outputs" VBox.vgrow="ALWAYS">
+                              <TitledPane fx:id="outputPanel" collapsible="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Desired Outputs" VBox.vgrow="NEVER">
                                  <content>
                                     <VBox spacing="4.0">
                                        <children>
@@ -245,9 +246,25 @@
                      <content>
                         <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="4.0">
                            <children>
-                              <SearchableComboBox fx:id="recipeDropdown" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="32.0" promptText="Click To Add Recipe..." />
-                              <TitledPane fx:id="gridContainer" collapsible="false" text="Item Matrix" />
-                              <TitledPane fx:id="netGridContainer" collapsible="false" text="Net Matrix" />
+                              <GridPane fx:id="matrixOptionGrid" hgap="4.0" vgap="4.0" VBox.vgrow="NEVER">
+                                 <columnConstraints>
+                                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+                                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+                                 </columnConstraints>
+                                 <rowConstraints>
+                                    <RowConstraints vgrow="SOMETIMES" />
+                                    <RowConstraints vgrow="SOMETIMES" />
+                                 </rowConstraints>
+                                 <children>
+                                    <Label layoutX="20.0" layoutY="37.0" text="Include Resource Supplies" />
+                                    <Label layoutX="20.0" layoutY="24.0" text="Include Generators" wrapText="true" GridPane.rowIndex="1" />
+                                    <ChoiceBox fx:id="generatorMatrixOptions" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                    <ChoiceBox fx:id="resourceMatrixOptions" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" />
+                                 </children>
+                              </GridPane>
+                              <SearchableComboBox fx:id="recipeDropdown" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="32.0" promptText="Click To Add Recipe..." VBox.vgrow="NEVER" />
+                              <TitledPane fx:id="gridContainer" collapsible="false" text="Item Matrix" VBox.vgrow="ALWAYS" />
+                              <TitledPane fx:id="netGridContainer" collapsible="false" text="Net Matrix" VBox.vgrow="ALWAYS" />
                            </children>
                            <padding>
                               <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />

@@ -21,7 +21,7 @@ public class TruckStation extends LogisticSupply<Item> {
 	}
 
 	@Override
-	public Resource getIcon() {
+	public Resource getLocationIcon() {
 		return Database.lookupVehicle("Desc_Truck_C");// Database.lookupBuilding("Desc_TrainDockingStation_C");
 	}
 
