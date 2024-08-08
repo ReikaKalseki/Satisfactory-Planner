@@ -31,18 +31,18 @@ public class GuiSystem extends Application {
 	public void start(Stage primaryStage) throws Exception {
 		service = this.getHostServices();
 
-		fontMap.put(Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans-Regular.ttf"), 12));
-		fontMap.put(Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans-Bold.ttf"), 12), FontModifier.BOLD);
-		fontMap.put(Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans-SemiBold.ttf"), 12), FontModifier.SEMIBOLD);
-		fontMap.put(Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans-Italic.ttf"), 12), FontModifier.ITALIC);
-		fontMap.put(Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans-BoldItalic.ttf"), 12), FontModifier.ITALIC, FontModifier.BOLD);
-		fontMap.put(Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans-SemiBoldItalic.ttf"), 12), FontModifier.ITALIC, FontModifier.SEMIBOLD);
-		fontMap.put(Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans_Condensed-Regular.ttf"), 12), FontModifier.CONDENSED);
-		fontMap.put(Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans_Condensed-Bold.ttf"), 12), FontModifier.BOLD, FontModifier.CONDENSED);
-		fontMap.put(Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans_Condensed-SemiBold.ttf"), 12), FontModifier.SEMIBOLD, FontModifier.CONDENSED);
-		fontMap.put(Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans_Condensed-Italic.ttf"), 12), FontModifier.ITALIC, FontModifier.CONDENSED);
-		fontMap.put(Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans_Condensed-BoldItalic.ttf"), 12), FontModifier.ITALIC, FontModifier.BOLD, FontModifier.CONDENSED);
-		fontMap.put(Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans_Condensed-SemiBoldItalic.ttf"), 12), FontModifier.ITALIC, FontModifier.SEMIBOLD, FontModifier.CONDENSED);
+		fontMap.put(Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans/Regular.ttf"), 12));
+		fontMap.put(Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans/Bold.ttf"), 12), FontModifier.BOLD);
+		fontMap.put(Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans/SemiBold.ttf"), 12), FontModifier.SEMIBOLD);
+		fontMap.put(Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans/Italic.ttf"), 12), FontModifier.ITALIC);
+		fontMap.put(Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans/BoldItalic.ttf"), 12), FontModifier.ITALIC, FontModifier.BOLD);
+		fontMap.put(Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans/SemiBoldItalic.ttf"), 12), FontModifier.ITALIC, FontModifier.SEMIBOLD);
+		fontMap.put(Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans/Condensed-Regular.ttf"), 12), FontModifier.CONDENSED);
+		fontMap.put(Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans/Condensed-Bold.ttf"), 12), FontModifier.BOLD, FontModifier.CONDENSED);
+		fontMap.put(Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans/Condensed-SemiBold.ttf"), 12), FontModifier.SEMIBOLD, FontModifier.CONDENSED);
+		fontMap.put(Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans/Condensed-Italic.ttf"), 12), FontModifier.ITALIC, FontModifier.CONDENSED);
+		fontMap.put(Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans/Condensed-BoldItalic.ttf"), 12), FontModifier.ITALIC, FontModifier.BOLD, FontModifier.CONDENSED);
+		fontMap.put(Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans/Condensed-SemiBoldItalic.ttf"), 12), FontModifier.ITALIC, FontModifier.SEMIBOLD, FontModifier.CONDENSED);
 
 		InputStream in = this.getClass().getResourceAsStream("icon.png");
 		if (in != null)
