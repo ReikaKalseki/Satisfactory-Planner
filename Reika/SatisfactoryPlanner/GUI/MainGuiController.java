@@ -487,7 +487,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 
 	public boolean isRecipeValid(Recipe r) {
 		for (ToggleableVisiblityGroup tv : ToggleableVisiblityGroup.values()) {
-			if (tv.isRecipeInGroup.test(r) && !factory.getToggle(tv))
+			if (!factory.getToggle(tv) && tv.isRecipeInGroup.test(r))
 				return false;
 		}
 		return true;
@@ -725,6 +725,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	@Override
 	public void onSetToggle(ToggleableVisiblityGroup tv, boolean active) {
 		toggleFilters.get(tv).setSelected(active);
+		this.rebuildLists(true, true);
 	}
 
 	@Override

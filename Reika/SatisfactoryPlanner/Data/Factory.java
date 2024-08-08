@@ -86,6 +86,8 @@ public class Factory {
 
 		for (Generator g : Database.getAllGenerators())
 			generators.put(g, new FuelChoices(g));
+
+		toggles.removeIf(tv -> !tv.defaultValue);
 	}
 
 	public Factory addCallback(FactoryListener r) {
@@ -109,6 +111,8 @@ public class Factory {
 		Collections.sort(recipeList);
 		this.rebuildFlows();
 		this.notifyListeners(c -> c.onAddRecipe(r));
+		if (!skipNotify)
+			GuiUtil.queueIfNecessary(() -> this.alignMatrices());
 	}
 
 	public void removeRecipe(Recipe r) {
@@ -117,6 +121,8 @@ public class Factory {
 			recipes.remove(r);
 			this.rebuildFlows();
 			this.notifyListeners(c -> c.onRemoveRecipe(r));
+			if (!skipNotify)
+				GuiUtil.queueIfNecessary(() -> this.alignMatrices());
 		}
 	}
 
@@ -135,6 +141,13 @@ public class Factory {
 	public void rebuildMatrices() {
 		matrix.rebuild();
 		scaleMatrix.rebuild();
+
+		this.alignMatrices();
+	}
+
+	private void alignMatrices() {
+		matrix.alignWith(scaleMatrix);
+		scaleMatrix.alignWith(matrix);
 	}
 
 	public void updateMatrixStatus(Consumable c) {
@@ -152,6 +165,8 @@ public class Factory {
 		this.rebuildFlows();
 		this.updateMatrixStatus(res.getResource());
 		this.notifyListeners(c -> c.onAddSupply(res));
+		if (!skipNotify)
+			GuiUtil.queueIfNecessary(() -> this.alignMatrices());
 	}
 
 	public void removeExternalSupply(ResourceSupply res) {
@@ -159,6 +174,8 @@ public class Factory {
 		this.rebuildFlows();
 		this.updateMatrixStatus(res.getResource());
 		this.notifyListeners(c -> c.onRemoveSupply(res));
+		if (!skipNotify)
+			GuiUtil.queueIfNecessary(() -> this.alignMatrices());
 	}
 
 	public int getExternalSupply(Consumable c) {
@@ -266,6 +283,8 @@ public class Factory {
 		recipes.put(r, amt);
 		this.rebuildFlows();
 		this.notifyListeners(c -> c.onSetCount(r, amt));
+		if (!skipNotify)
+			GuiUtil.queueIfNecessary(() -> this.alignMatrices());
 	}
 
 	public int getCount(Generator g, Fuel f) {
@@ -284,6 +303,8 @@ public class Factory {
 		generators.get(g).setCount(f, amt);
 		this.rebuildFlows();
 		this.notifyListeners(c -> c.onSetCount(g, f, old, amt));
+		if (!skipNotify)
+			GuiUtil.queueIfNecessary(() -> this.alignMatrices());
 	}
 
 	public void updateIO() {
@@ -596,13 +617,17 @@ public class Factory {
 		}
 		else {
 			for (Object o : toggles) {
-				this.toggles.add(ToggleableVisiblityGroup.valueOf((String)o));
+				String s = (String)o;
+				if (s.equalsIgnoreCase("POST10")) //ignore removed group
+					continue;
+				this.toggles.add(ToggleableVisiblityGroup.valueOf(s));
 			}
 		}
 
 		this.rebuildFlows();
 		skipNotify = false;
 		this.notifyListeners(c -> c.onLoaded());
+		GuiUtil.queueIfNecessary(() -> this.alignMatrices());
 	}
 
 	private void setCurrentFile(File f) {

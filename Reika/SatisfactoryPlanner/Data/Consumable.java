@@ -38,8 +38,8 @@ public abstract class Consumable extends Resource implements Comparable<Consumab
 		nativeClass = cat;
 		energyValue = nrg;
 		isEquipment = cat.equalsIgnoreCase("FGEquipmentDescriptor");
-		isBiomass = cat.equalsIgnoreCase("FGItemDescriptorBiomass") && energyValue > 0;
-		isFicsmas = id.startsWith("Desc_Xmas") || displayName.startsWith("FICSMAS"); //FIXME misses several including firework and snow
+		isBiomass = (cat.equalsIgnoreCase("FGItemDescriptorBiomass") && energyValue > 0) || id.equalsIgnoreCase("Desc_AlienProtein_C") || id.equalsIgnoreCase("Desc_AlienDNACapsule_C");
+		isFicsmas = id.startsWith("Desc_Xmas") || id.equalsIgnoreCase("Desc_Snow_C") || displayName.startsWith("FICSMAS") || id.startsWith("Desc_Fireworks_Projectile");
 		byCategory.addValue(cat, this);
 		Logging.instance.log("Registered item type "+this);
 	}

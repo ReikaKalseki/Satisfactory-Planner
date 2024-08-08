@@ -103,7 +103,7 @@ public class ItemRateController extends ControllerBase {
 	}
 
 	public double getWidth() {
-		return amount.getMinWidth();
+		return amount.getMinWidth()+mainPanel.getSpacing()+icon.getFitWidth();
 	}
 
 	public void setState(WarningState st) {

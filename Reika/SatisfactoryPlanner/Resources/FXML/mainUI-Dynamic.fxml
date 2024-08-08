@@ -248,8 +248,8 @@
                            <children>
                               <GridPane fx:id="matrixOptionGrid" hgap="4.0" vgap="4.0" VBox.vgrow="NEVER">
                                  <columnConstraints>
-                                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
-                                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+                                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="160.0" />
+                                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="256.0" minWidth="128.0" />
                                  </columnConstraints>
                                  <rowConstraints>
                                     <RowConstraints vgrow="SOMETIMES" />
@@ -262,7 +262,7 @@
                                     <ChoiceBox fx:id="resourceMatrixOptions" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" />
                                  </children>
                               </GridPane>
-                              <SearchableComboBox fx:id="recipeDropdown" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="32.0" promptText="Click To Add Recipe..." VBox.vgrow="NEVER" />
+                              <SearchableComboBox fx:id="recipeDropdown" maxHeight="-Infinity" maxWidth="420.0" prefHeight="32.0" promptText="Click To Add Recipe..." VBox.vgrow="NEVER" />
                               <TitledPane fx:id="gridContainer" collapsible="false" text="Item Matrix" VBox.vgrow="ALWAYS" />
                               <TitledPane fx:id="netGridContainer" collapsible="false" text="Net Matrix" VBox.vgrow="ALWAYS" />
                            </children>

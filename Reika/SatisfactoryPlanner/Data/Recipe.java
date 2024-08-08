@@ -21,6 +21,8 @@ public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 
 	public final boolean isFicsmas;
 
+	private boolean usesFluids;
+
 	private final TreeMap<Consumable, Integer> costsRaw = new TreeMap();
 	private final TreeMap<Consumable, Float> costsPerMinute = new TreeMap();
 	private final TreeMap<Consumable, Float> productPerMinute = new TreeMap();
@@ -73,13 +75,19 @@ public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 		costsRaw.put(i, amt);
 		costsPerMinute.put(i, amt*timeCoefficient);
 		maxIngredients = Math.max(costsPerMinute.size(), maxIngredients);
+		usesFluids |= i instanceof Fluid;
 		return this;
 	}
 
 	public Recipe addProduct(Consumable i, int amt) {
 		productPerMinute.put(i, amt*timeCoefficient);
 		maxProducts = Math.max(productPerMinute.size(), maxProducts);
+		usesFluids |= i instanceof Fluid;
 		return this;
+	}
+
+	public boolean usesFluids() {
+		return usesFluids;
 	}
 
 	public boolean isPackaging() {

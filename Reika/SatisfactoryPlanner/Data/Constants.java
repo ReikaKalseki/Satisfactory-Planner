@@ -162,23 +162,25 @@ public class Constants {
 	}
 
 	public static enum ToggleableVisiblityGroup {
-		EQUIPMENT("Equipment", i -> i.isEquipment, r -> r.isSoleProduct(i -> i.isEquipment)),
-		BIOMASS("Biomass", i -> i.isBiomass, r -> r.isSoleProduct(i -> i.isBiomass)),
-		FICSMAS("Ficsmas", i -> i.isFicsmas, r -> r.isFicsmas),
-		ALTERNATE("Alternates", i -> false, r -> r.isAlternate),
-		POST10("Post 1.0", i -> false, r -> false), //TODO POST10
-		FINDABLE("Findable-Only", i -> i.isFindables(), r -> r.isFindables()),
-		PACKAGING("Packaging", i -> false, r -> r.isPackaging()),
-		UNPACKAGING("Unpackaging", i -> false, r -> r.isUnpackaging()),
+		FLUID(true, "Fluid", i -> i instanceof Fluid, r -> r.usesFluids()),
+		EQUIPMENT(false, "Equipment", i -> i.isEquipment, r -> r.isSoleProduct(i -> i.isEquipment)),
+		BIOMASS(false, "Biomass", i -> i.isBiomass, r -> r.isSoleProduct(i -> i.isBiomass)),
+		FICSMAS(true, "Ficsmas", i -> i.isFicsmas, r -> r.isFicsmas),
+		ALTERNATE(true, "Alternates", i -> false, r -> r.isAlternate),
+		FINDABLE(false, "Findable-Only", i -> i.isFindables(), r -> r.isFindables()),
+		PACKAGING(true, "Packaging", i -> false, r -> r.isPackaging()),
+		UNPACKAGING(false, "Unpackaging", i -> false, r -> r.isUnpackaging()),
 		;
 
 		public final int bitflag;
 
+		public final boolean defaultValue;
 		public final String displayName;
 		public final Predicate<Consumable> isItemInGroup;
 		public final Predicate<Recipe> isRecipeInGroup;
 
-		private ToggleableVisiblityGroup(String n, Predicate<Consumable> pi, Predicate<Recipe> pr) {
+		private ToggleableVisiblityGroup(boolean def, String n, Predicate<Consumable> pi, Predicate<Recipe> pr) {
+			defaultValue = def;
 			displayName = n;
 			isItemInGroup = pi;
 			isRecipeInGroup = pr;

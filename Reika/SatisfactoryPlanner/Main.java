@@ -104,24 +104,7 @@ public class Main {
 	public static List<File> getRecentFiles() {
 		return Collections.unmodifiableList(recentFiles);
 	}
-	/*
-	public static File extractResourceFolder(String name) {
-		File f = getRelativeFile("Resources/"+name+"/");
-		if (f.isDirectory()) {
-			return f;
-		}
-		else {
-			System.out.println("Extracting resource folder '"+name+"'");
-			if (f.mkdirs()) {
-				//TODO extraction of assets
-				return f;
-			}
-			else {
-				throw new RuntimeException("Failed to extract '"+name+"'");
-			}
-		}
-	}
-	 */
+
 	public static File getRelativeFile(String path) {
 		return isCompiled ? new File(path) : new File("src/main/java/Reika/SatisfactoryPlanner/", path);
 	}

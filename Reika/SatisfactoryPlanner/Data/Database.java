@@ -251,7 +251,7 @@ public class Database {
 		String out = obj.getString("mProduct");
 		String time = obj.getString("mManufactoringDuration");
 		FunctionalBuilding b = building == null ? null : (FunctionalBuilding)lookupBuilding(building);
-		boolean xmas = id.startsWith("Desc_Xmas") || disp.startsWith("FICSMAS") || obj.getString("mRelevantEvents").contains("EV_Christmas");
+		boolean xmas = id.startsWith("Desc_Xmas") || id.startsWith("Recipe_Fireworks") || disp.startsWith("FICSMAS") || obj.getString("mRelevantEvents").contains("EV_Christmas");
 		Recipe r = new Recipe(id, disp, b, Float.parseFloat(time), xmas);
 		for (String ing : in.substring(2, in.length()-2).split("\\),\\(")) {
 			String[] parts = ing.split(",");

@@ -82,6 +82,8 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 
 	protected FXMLControllerBase gui;
 
+	private double[] contentWidths;
+
 	protected RecipeMatrixBase(Factory f) {
 		owner = f;
 		grid = new GridPane();
@@ -105,6 +107,10 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 
 	public final GridPane getGrid() {
 		return grid;
+	}
+
+	public boolean isGridBuilt() {
+		return contentWidths != null;
 	}
 
 	protected final List<ItemConsumerProducer> getRecipes() {
@@ -183,13 +189,15 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 		grid.add(row.label, nameColumn, rowIndex);
 		for (Entry<Consumable, Float> e : r.getIngredientsPerMinute().entrySet()) {
 			Consumable c = e.getKey();
-			GuiInstance<ItemRateController> gui = GuiUtil.createItemView(c, e.getValue()*this.getMultiplier(r), grid, ingredientsStartColumn+inputs.indexOf(c)*2, rowIndex);
-			row.inputSlots.put(c, gui);
+			int col = ingredientsStartColumn+inputs.indexOf(c)*2;
+			GuiInstance<ItemRateController> gui = GuiUtil.createItemView(c, e.getValue()*this.getMultiplier(r), grid, col, rowIndex);
+			row.inputSlots.put(c, new RateSlot(gui, col));
 		}
 		for (Entry<Consumable, Float> e : r.getProductsPerMinute().entrySet()) {
 			Consumable c = e.getKey();
-			GuiInstance<ItemRateController> gui = GuiUtil.createItemView(c, e.getValue()*this.getMultiplier(r), grid, productsStartColumn+outputs.indexOf(c)*2, rowIndex);
-			row.outputSlots.put(c, gui);
+			int col = productsStartColumn+outputs.indexOf(c)*2;
+			GuiInstance<ItemRateController> gui = GuiUtil.createItemView(c, e.getValue()*this.getMultiplier(r), grid, col, rowIndex);
+			row.outputSlots.put(c, new RateSlot(gui, col));
 		}
 		NamedIcon loc = r.getLocationIcon();
 		if (loc != null)
@@ -209,6 +217,12 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 			});
 			grid.add(b, buttonColumn, row.rowIndex);
 			row.button = b;
+		}
+		else if (r instanceof Fuel || (r instanceof GroupedProducer && ((GroupedProducer)r).getType() instanceof Fuel)) {
+			grid.add(InternalIcons.POWER.createImageView(), buttonColumn, row.rowIndex);
+		}
+		else if (r instanceof ResourceSupply || (r instanceof GroupedProducer && ((GroupedProducer)r).getType() instanceof ResourceSupply)) {
+			grid.add(InternalIcons.SUPPLY.createImageView(), buttonColumn, row.rowIndex);
 		}
 
 		this.createDivider(mainGapColumn, rowIndex, 0);
@@ -360,28 +374,60 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 			grid.getRowConstraints().clear();
 			recipeEntries.clear();
 			this.rebuildGrid();
-			grid.getColumnConstraints().get(buttonColumn).setMinWidth(32);
-			grid.getColumnConstraints().get(buildingColumn).setMinWidth(32);
-			grid.layout();
-			double[] w = new double[grid.getColumnCount()];
-			for (Node n : grid.getChildren()) {
-				if (n instanceof Region) {
-					int col = grid.getColumnIndex(n);
-					Region r = (Region)n;
-					w[col] = Math.max(w[col], Math.max(r.getMinWidth(), grid.getColumnConstraints().get(col).getMinWidth()));
-				}
-
-			}
-			double sum = 0;
-			for (double wd : w)
-				sum += wd+grid.getHgap();
-			grid.setMinWidth(sum+grid.getHgap()+8);
+			this.initializeWidths();
 			//Logging.instance.log(sum+" of "+Arrays.toString(w));
 			//Platform.runLater(() -> grid.layout());
 		}
 		catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void initializeWidths() {
+		grid.getColumnConstraints().get(buttonColumn).setMinWidth(32);
+		grid.getColumnConstraints().get(buildingColumn).setMinWidth(32);
+		grid.layout();
+		contentWidths = new double[grid.getColumnCount()];
+		this.computeWidths(contentWidths, true);
+	}
+
+	public void alignWith(RecipeMatrixBase other) {
+		this.computeWidths(other.contentWidths, false);
+	}
+
+	private void computeWidths(double[] minValues, boolean computeChildWidth) {
+		if (computeChildWidth) {
+			for (Node n : grid.getChildren()) {
+				if (n instanceof Region) {
+					int col = grid.getColumnIndex(n);
+					Region r = (Region)n;
+					contentWidths[col] = Math.max(minValues[col], Math.max(r.getMinWidth(), grid.getColumnConstraints().get(col).getMinWidth()));
+				}
+
+			}
+		}
+		else {
+			for (int i = 0; i < contentWidths.length; i++) {
+				if (i < minValues.length) {
+					//Logging.instance.log("Column "+i+" = "+contentWidths[i]+" <> "+minValues[i]);
+					this.updateColumnWidth(i, minValues[i]);
+				}
+			}
+		}
+		this.resizeGrid();
+	}
+
+	private void resizeGrid() {
+		double sum = 0;
+		for (double wd : contentWidths)
+			sum += wd+grid.getHgap();
+		grid.setMinWidth(sum+grid.getHgap()+8);
+	}
+
+	private void updateColumnWidth(int col, double atLeast) {
+		//Logging.instance.log("Updating width @ "+col+" >= "+atLeast+" from "+contentWidths[col]);
+		contentWidths[col] = Math.max(atLeast, contentWidths[col]);
+		grid.getColumnConstraints().get(col).setMinWidth(contentWidths[col]);
 	}
 
 	@Override
@@ -434,13 +480,29 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 
 	}
 
+	public double getWidth(int col) {
+		return contentWidths[col];
+	}
+
+	private class RateSlot {
+
+		private final GuiInstance<ItemRateController> gui;
+		private final int columnIndex;
+
+		private RateSlot(GuiInstance<ItemRateController> g, int idx) {
+			gui = g;
+			columnIndex = idx;
+		}
+
+	}
+
 	protected class RecipeRow {
 
 		public final ItemConsumerProducer recipe;
 		public final int recipeIndex;
 		public final int rowIndex;
-		private final HashMap<Consumable, GuiInstance<ItemRateController>> inputSlots = new HashMap();
-		private final HashMap<Consumable, GuiInstance<ItemRateController>> outputSlots = new HashMap();
+		private final HashMap<Consumable, RateSlot> inputSlots = new HashMap();
+		private final HashMap<Consumable, RateSlot> outputSlots = new HashMap();
 
 		private final Label label;
 
@@ -460,10 +522,10 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 				label.setStyle("-fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.HIGHLIGHT_COLOR)+";");
 				label.setText(label.getText()+" ("+mod+")");
 			}
-			else if (r instanceof Fuel || (r instanceof GroupedProducer && !((GroupedProducer)r).producers.isEmpty() && ((GroupedProducer)r).producers.iterator().next() instanceof Fuel)) {
+			else if (r instanceof Fuel || (r instanceof GroupedProducer && ((GroupedProducer)r).getType() instanceof Fuel)) {
 				label.setStyle("-fx-text-fill: #ea5;");
 			}
-			else if (r instanceof ResourceSupply || (r instanceof GroupedProducer && !((GroupedProducer)r).producers.isEmpty() && ((GroupedProducer)r).producers.iterator().next() instanceof ResourceSupply)) {
+			else if (r instanceof ResourceSupply || (r instanceof GroupedProducer && ((GroupedProducer)r).getType() instanceof ResourceSupply)) {
 				label.setStyle("-fx-text-fill: #5ea;");
 				if (r instanceof ResourceSupply)
 					label.setText(label.getText()+" ("+((ResourceSupply)r).getResource().displayName+")");
@@ -484,19 +546,27 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 		}
 
 		public void setScale(float scale) {
-			for (GuiInstance<ItemRateController> gui : inputSlots.values())
-				gui.controller.setScale(scale);
-			for (GuiInstance<ItemRateController> gui : outputSlots.values())
-				gui.controller.setScale(scale);
+			for (RateSlot gui : inputSlots.values()) {
+				gui.gui.controller.setScale(scale);
+				if (RecipeMatrixBase.this.isGridBuilt())
+					RecipeMatrixBase.this.updateColumnWidth(gui.columnIndex, gui.gui.controller.getWidth());
+			}
+			for (RateSlot gui : outputSlots.values()) {
+				gui.gui.controller.setScale(scale);
+				if (RecipeMatrixBase.this.isGridBuilt())
+					RecipeMatrixBase.this.updateColumnWidth(gui.columnIndex, gui.gui.controller.getWidth());
+			}
+			if (RecipeMatrixBase.this.isGridBuilt())
+				RecipeMatrixBase.this.resizeGrid();
 		}
-
+		/*
 		public double getInputWidth(Consumable c) {
-			return inputSlots.get(c).controller.getWidth();
+			return inputSlots.get(c).gui.controller.getWidth();
 		}
 
 		public double getOutputWidth(Consumable c) {
-			return outputSlots.get(c).controller.getWidth();
-		}
+			return outputSlots.get(c).gui.controller.getWidth();
+		}*/
 	}
 
 	private class GroupedProducer<P extends ItemConsumerProducer> implements ItemConsumerProducer {
@@ -522,6 +592,10 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 		@Override
 		public NamedIcon getLocationIcon() {
 			return icon;
+		}
+
+		public ItemConsumerProducer getType() {
+			return producers.isEmpty() ? null : producers.iterator().next();
 		}
 
 		@Override
