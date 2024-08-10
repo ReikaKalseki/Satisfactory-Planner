@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 import Reika.SatisfactoryPlanner.GUI.GuiSystem;
+import Reika.SatisfactoryPlanner.GUI.GuiUtil;
 
 import javafx.application.HostServices;
 import javafx.fxml.FXML;
@@ -59,7 +60,7 @@ public abstract class FXMLControllerBase extends ControllerBase  {
 		container.widthProperty().addListener((v, o, n) -> {this.onWindowResize();});
 		container.heightProperty().addListener((v, o, n) -> {this.onWindowResize();});
 
-		this.setFont(this.getRootNode(), GuiSystem.getDefaultFont());
+		GuiUtil.setFont(this);
 	}
 
 	public final <C extends FXMLControllerBase> GuiInstance<C> loadNestedFXML(String fxml, Pane container) throws IOException {

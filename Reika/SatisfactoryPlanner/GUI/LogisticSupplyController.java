@@ -164,7 +164,7 @@ public class LogisticSupplyController extends RadioTitledPaneSection {
 			this.close();
 		});
 
-		this.setFont(this.getRootNode(), GuiSystem.getDefaultFont());
+		GuiUtil.setFont(this);
 	}
 
 	@Override

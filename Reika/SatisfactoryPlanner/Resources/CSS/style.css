@@ -1,0 +1,44 @@
+.root {
+    /*-fx-font-size: 16pt;*/
+    -fx-font-family: "Open Sans";
+    -fx-base: "#585858";
+    -fx-text-fill: "#585858";
+    /*-fx-base: "#585858";*/
+    -fx-background: "#7D7D7D";
+}
+/*
+.root * {
+    -fx-text-fill: "#585858";
+}*/
+
+.panel {
+    -fx-color: "#7D7D7D";
+    -fx-text-fill: "#ffffff";
+    -fx-background: "#ffffff";
+	-fx-border-color: "#373737";
+	-fx-border-width: 6px;
+	-fx-border-style: solid;
+	-fx-border-radius: 8px;
+	-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 15, 0.1, 4.0, 4.0);
+}
+
+.panel > .title {
+	-fx-background-color: "#585858";
+    -fx-font-size: 12pt;
+    -fx-font-weight: 700;
+}
+
+.widget .tab, .widget .menu {
+    -fx-base: "#909090";
+	-fx-background-color: "#909090";
+}
+
+.widget .tab:hover, .widget .menu:hover {
+    -fx-base: "#E69344";
+	-fx-background-color: "#E69344";
+}
+
+.widget .tab:selected, .widget .menu:selected {
+    -fx-base: "#585858";
+	-fx-background-color: "#585858";
+}

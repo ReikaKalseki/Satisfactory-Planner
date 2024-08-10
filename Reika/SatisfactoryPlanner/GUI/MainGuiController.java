@@ -433,13 +433,20 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		this.getWindow().getScene().getAccelerators().put(new KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN), () -> {root.layout(); tabs.requestLayout();});
 
 		for (Generator g : Database.getAllGenerators()) {
-			GuiInstance<GeneratorRowController> gui = this.loadNestedFXML("GeneratorRow", generatorList);
+			GuiInstance<GeneratorRowController> gui = this.loadNestedFXML("GeneratorRow", n -> {
+				TitledPane tp = new TitledPane(g.displayName, n);
+				tp.setAnimated(false);
+				tp.setExpanded(true);
+				tp.setCollapsible(false);
+				tp.getStyleClass().add("panel");
+				generatorList.getChildren().add(tp);
+			});
 			gui.controller.setGenerator(g);
 			generators.put(g, gui);
 		}
 
-		this.setFont(gridContainer, GuiSystem.getDefaultFont());
-		this.setFont(netGridContainer, GuiSystem.getDefaultFont());
+		GuiUtil.setFont(gridContainer);
+		GuiUtil.setFont(netGridContainer);
 
 		this.buildRecentList();
 

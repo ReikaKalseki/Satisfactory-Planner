@@ -12,9 +12,11 @@ import org.controlsfx.control.SearchableComboBox;
 
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Resource;
+import Reika.SatisfactoryPlanner.GUI.GuiSystem.FontModifier;
 import Reika.SatisfactoryPlanner.Util.Errorable;
 import Reika.SatisfactoryPlanner.Util.JavaUtil;
 
+import fxexpansions.ControllerBase;
 import fxexpansions.ExpandingTilePane;
 import fxexpansions.GuiInstance;
 import javafx.animation.KeyFrame;
@@ -30,17 +32,23 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputControl;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.ColumnConstraints;
@@ -424,6 +432,66 @@ public class GuiUtil {
 				Platform.runLater(() -> showException(ex));
 			}
 		});
+	}
+
+	public static void setFont(ControllerBase c, FontModifier... fm) {
+		setFont(c.getRootNode(), fm);
+	}
+
+	public static void setFont(Node n, FontModifier... fm) {
+		if (true)
+			return;
+		Font f = GuiSystem.getFont(fm);
+		if (n instanceof TextInputControl) {
+			Font fp = ((TextInputControl)n).getFont();
+			double size = fp != null ? fp.getSize() : 12;
+			((TextInputControl)n).setFont(f);
+		}
+		if (n instanceof Labeled) {
+			Font fp = ((Labeled)n).getFont();
+			double size = fp != null ? fp.getSize() : 12;
+			if (n instanceof TitledPane) {
+				size = 14;
+				setFont(((TitledPane)n).getContent(), fm);
+			}
+			((Labeled)n).setFont(f);
+			setFont(((Labeled)n).getGraphic(), fm);
+		}
+		if (n instanceof ComboBox) {
+			n.setStyle(GuiSystem.getFontStyle(fm));
+		}
+		if (n instanceof ChoiceBox) {
+			n.setStyle(GuiSystem.getFontStyle(fm));
+		}
+		if (n instanceof TabPane) {
+			for (Tab t : ((TabPane)n).getTabs()) {
+				t.setStyle(GuiSystem.getFontStyle(fm));
+				setFont(t.getContent(), fm);
+			}
+		}
+		if (n instanceof ScrollPane) {
+			setFont(((ScrollPane)n).getContent(), fm);
+		}
+		if (n instanceof Parent) {
+			for (Node n2 : ((Parent)n).getChildrenUnmodifiable()) {
+				setFont(n2, fm);
+			}
+		}
+		if (n instanceof MenuBar) {
+			MenuBar m = (MenuBar)n;
+			for (Menu m2 : m.getMenus()) {
+				setFont(m2, fm);
+			}
+			m.setStyle(GuiSystem.getFontStyle(fm));
+		}
+	}
+
+	public static void setFont(Menu m, FontModifier... fm) {
+		for (MenuItem m2 : m.getItems()) {
+			m2.setStyle(GuiSystem.getFontStyle(fm));
+			if (m2 instanceof Menu)
+				setFont((Menu)m2, fm);
+		}
 	}
 
 }

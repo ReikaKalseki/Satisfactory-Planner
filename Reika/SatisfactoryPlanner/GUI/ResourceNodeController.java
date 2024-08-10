@@ -233,7 +233,7 @@ public class ResourceNodeController extends RadioTitledPaneSection {
 
 		GuiInstance<ClockspeedSliderController> gui = this.loadNestedFXML("ClockspeedSlider", extraGrid, 1, 1);
 		gui.controller.setCallback(v -> {clockSpeed = v; this.updateStats();});
-		this.setFont(this.getRootNode(), GuiSystem.getDefaultFont());
+		GuiUtil.setFont(this);
 	}
 
 }

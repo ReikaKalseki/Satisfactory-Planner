@@ -55,9 +55,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import org.controlsfx.control.SearchableComboBox?>
 
-<VBox fx:id="root" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="12.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.MainGuiController">
+<VBox fx:id="root" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="12.0" stylesheets="@../CSS/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.MainGuiController">
   <children>
-    <MenuBar fx:id="menu" VBox.vgrow="NEVER">
+    <MenuBar fx:id="menu" styleClass="widget" VBox.vgrow="NEVER">
       <menus>
             <Menu fx:id="controlMenu" mnemonicParsing="false" text="Program">
               <items>
@@ -87,15 +87,15 @@
             </Menu>
       </menus>
     </MenuBar>
-      <TabPane fx:id="tabs" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" tabClosingPolicy="UNAVAILABLE">
+      <TabPane fx:id="tabs" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="widget" tabClosingPolicy="UNAVAILABLE">
         <tabs>
             <Tab fx:id="overviewTab" closable="false" text="Factory Overview">
                <content>
                   <ScrollPane fx:id="overviewScroll" fitToHeight="true" fitToWidth="true" hbarPolicy="ALWAYS" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vbarPolicy="ALWAYS">
                      <content>
-                        <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+                        <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="8.0">
                            <children>
-                              <TitledPane fx:id="infoPanel" collapsible="false" layoutX="10.0" layoutY="10.0" text="Information" VBox.vgrow="NEVER">
+                              <TitledPane fx:id="infoPanel" collapsible="false" layoutX="10.0" layoutY="10.0" styleClass="panel" text="Information" VBox.vgrow="NEVER">
                                  <content>
                                     <GridPane fx:id="infoGrid" hgap="4.0" vgap="4.0">
                                        <columnConstraints>
@@ -119,7 +119,7 @@
                                     </GridPane>
                                  </content>
                               </TitledPane>
-                              <TitledPane fx:id="statsPanel" collapsible="false" text="Statistics" VBox.vgrow="NEVER">
+                              <TitledPane fx:id="statsPanel" collapsible="false" styleClass="panel" text="Statistics" VBox.vgrow="NEVER">
                                  <content>
                                     <GridPane fx:id="statisticsGrid" hgap="4.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vgap="4.0">
                                       <columnConstraints>
@@ -151,7 +151,7 @@
                                     <Insets />
                                  </VBox.margin>
                               </TitledPane>
-                              <TitledPane fx:id="warningPanel" collapsible="false" text="Warnings" VBox.vgrow="ALWAYS">
+                              <TitledPane fx:id="warningPanel" collapsible="false" styleClass="panel" text="Warnings" VBox.vgrow="ALWAYS">
                                  <content>
                                     <VBox fx:id="warningList" spacing="8.0">
                                        <padding>
@@ -164,6 +164,9 @@
                                  </VBox.margin>
                               </TitledPane>
                            </children>
+                           <padding>
+                              <Insets bottom="8.0" left="4.0" right="4.0" top="8.0" />
+                           </padding>
                         </VBox>
                      </content>
                   </ScrollPane>
@@ -173,9 +176,9 @@
                <content>
                   <ScrollPane fx:id="ioScroll" fitToHeight="true" fitToWidth="true" hbarPolicy="ALWAYS" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vbarPolicy="ALWAYS">
                      <content>
-                        <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+                        <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="8.0">
                            <children>
-                              <TitledPane fx:id="inputPanel" collapsible="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Resource Supply" VBox.vgrow="ALWAYS">
+                              <TitledPane fx:id="inputPanel" collapsible="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="panel" text="Resource Supply" VBox.vgrow="ALWAYS">
                                  <content>
                                     <VBox spacing="4.0">
                                        <children>
@@ -202,7 +205,7 @@
                                     </VBox>
                                  </content>
                               </TitledPane>
-                              <TitledPane fx:id="outputPanel1" collapsible="false" layoutX="10.0" layoutY="212.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Total Input" VBox.vgrow="NEVER">
+                              <TitledPane fx:id="outputPanel1" collapsible="false" layoutX="10.0" layoutY="212.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="panel" text="Total Input" VBox.vgrow="NEVER">
                                  <content>
                                     <ExpandingTilePane fx:id="localSupplyTotals" hgap="16.0" vgap="8.0">
                                        <padding>
@@ -210,7 +213,7 @@
                                        </padding></ExpandingTilePane>
                                  </content>
                               </TitledPane>
-                              <TitledPane fx:id="outputPanel" collapsible="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Desired Outputs" VBox.vgrow="NEVER">
+                              <TitledPane fx:id="outputPanel" collapsible="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="panel" text="Desired Outputs" VBox.vgrow="NEVER">
                                  <content>
                                     <VBox spacing="4.0">
                                        <children>
@@ -225,6 +228,9 @@
                                  </content>
                               </TitledPane>
                            </children>
+                           <padding>
+                              <Insets bottom="8.0" left="4.0" right="4.0" top="8.0" />
+                           </padding>
                         </VBox>
                      </content>
                   </ScrollPane>
@@ -244,7 +250,7 @@
                <content>
                   <ScrollPane fx:id="craftingScroll" fitToHeight="true" fitToWidth="true" hbarPolicy="ALWAYS" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" pannable="true" vbarPolicy="ALWAYS">
                      <content>
-                        <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="4.0">
+                        <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="8.0">
                            <children>
                               <GridPane fx:id="matrixOptionGrid" hgap="4.0" vgap="4.0" VBox.vgrow="NEVER">
                                  <columnConstraints>
@@ -263,11 +269,11 @@
                                  </children>
                               </GridPane>
                               <SearchableComboBox fx:id="recipeDropdown" maxHeight="-Infinity" maxWidth="420.0" prefHeight="32.0" promptText="Click To Add Recipe..." VBox.vgrow="NEVER" />
-                              <TitledPane fx:id="gridContainer" collapsible="false" text="Item Matrix" VBox.vgrow="ALWAYS" />
-                              <TitledPane fx:id="netGridContainer" collapsible="false" text="Net Matrix" VBox.vgrow="ALWAYS" />
+                              <TitledPane fx:id="gridContainer" collapsible="false" styleClass="panel" text="Item Matrix" VBox.vgrow="ALWAYS" />
+                              <TitledPane fx:id="netGridContainer" collapsible="false" styleClass="panel" text="Net Matrix" VBox.vgrow="ALWAYS" />
                            </children>
                            <padding>
-                              <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                              <Insets bottom="8.0" left="4.0" right="4.0" top="8.0" />
                            </padding>
                         </VBox>
                      </content>
