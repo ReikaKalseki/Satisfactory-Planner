@@ -84,6 +84,9 @@ public abstract class Resource implements NamedIcon {
 
 	public final ImageView createImageView(int size) {
 		ImageView ret = new ImageView(this.createIcon(size));
+		ret.setFitHeight(size);
+		ret.setFitWidth(size);
+		ret.setSmooth(true);
 		GuiUtil.setTooltip(ret, displayName);
 		return ret;
 	}

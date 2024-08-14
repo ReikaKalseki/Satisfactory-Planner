@@ -6,13 +6,13 @@ import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.FontModifier;
 import Reika.SatisfactoryPlanner.Util.ColorUtil;
 
-import fxexpansions.ControllerBase;
+import fxexpansions.SizedControllerBase;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
@@ -20,7 +20,7 @@ import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.text.TextAlignment;
 
-public class ItemRateController extends ControllerBase {
+public class ItemRateController extends SizedControllerBase {
 
 	private final HBox mainPanel = new HBox();
 
@@ -32,29 +32,27 @@ public class ItemRateController extends ControllerBase {
 
 	private final Line divider = new Line();
 
-	private final ImageView icon = new ImageView();
-
 	public final Consumable item;
 
 	private float baseAmount;
 
 	private String minimumWidth = "min";
 
+	private final StackPane itemBox;
+
 	public ItemRateController(Consumable c, float amt) {
 		item = c;
 		baseAmount = amt;
 
-		mainPanel.setSpacing(4);
+		mainPanel.setSpacing(6);
 		mainPanel.setMaxHeight(Double.MAX_VALUE);
 		mainPanel.setMaxWidth(Double.MAX_VALUE);
 
-		icon.setFitHeight(32);
-		icon.setFitWidth(32);
-		icon.setSmooth(true);
 		countContainer.setAlignment(Pos.CENTER);
 		amount.setPadding(new Insets(-2, 0, -3, 0));
 		amount.setAlignment(Pos.CENTER);
 		amount.setTextAlignment(TextAlignment.CENTER);
+		//amount.setStyle("-fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.FICSIT_COLOR)+";");
 		minLabel.setPadding(new Insets(-4, 0, -2, 0));
 		minLabel.setAlignment(Pos.CENTER);
 		minLabel.setTextAlignment(TextAlignment.CENTER);
@@ -64,22 +62,21 @@ public class ItemRateController extends ControllerBase {
 		divider.setStrokeType(StrokeType.CENTERED);
 		divider.setStrokeLineCap(StrokeLineCap.ROUND);
 
-		mainPanel.getChildren().add(icon);
+		itemBox = GuiUtil.createItemDisplay(c, 32, true);
+		mainPanel.getChildren().add(itemBox);
 		mainPanel.getChildren().add(countContainer);
 		countContainer.getChildren().add(amount);
 		countContainer.getChildren().add(divider);
 		countContainer.getChildren().add(minLabel);
 
-		icon.setImage(c.createIcon());
 		this.setAmountText(amt);
-		GuiUtil.setTooltip(icon, c.displayName);
 
 		countContainer.minWidthProperty().bind(amount.minWidthProperty().add(2));
 
 		divider.endXProperty().bind(countContainer.widthProperty().subtract(divider.strokeWidthProperty()));
 		this.setTextStyle(GuiSystem.getFontStyle(FontModifier.SEMIBOLD));
 
-		mainPanel.minWidthProperty().bind(countContainer.widthProperty().add(mainPanel.spacingProperty()).add(icon.fitWidthProperty()));
+		mainPanel.minWidthProperty().bind(countContainer.widthProperty().add(mainPanel.spacingProperty()).add(32));
 		GuiUtil.sizeToContent(minLabel);
 	}
 
@@ -102,8 +99,14 @@ public class ItemRateController extends ControllerBase {
 		amount.setMinWidth(GuiUtil.getWidth(minimumWidth, GuiSystem.getFont(FontModifier.BOLD)));
 	}
 
+	@Override
+	public double getHeight() {
+		return Math.max(32, mainPanel.getHeight());
+	}
+
+	@Override
 	public double getWidth() {
-		return amount.getMinWidth()+mainPanel.getSpacing()+icon.getFitWidth();
+		return amount.getMinWidth()+mainPanel.getSpacing()+32;
 	}
 
 	public void setState(WarningState st) {
@@ -121,7 +124,7 @@ public class ItemRateController extends ControllerBase {
 	}
 
 	public static enum WarningState {
-		NONE(v -> {v.setTextStyle(GuiSystem.getFontStyle(FontModifier.SEMIBOLD)); v.mainPanel.setStyle(""); v.setLineStyle(UIConstants.FADE_COLOR, 1.5);}),
+		NONE(v -> {v.setTextStyle(/*"-fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.FICSIT_COLOR)+"; "+*/GuiSystem.getFontStyle(FontModifier.SEMIBOLD)); v.mainPanel.setStyle(""); v.setLineStyle(UIConstants.FADE_COLOR, 1.5);}),
 		LEFTOVER(v -> {v.setTextStyle("-fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.WARN_COLOR)+"; "+GuiSystem.getFontStyle(FontModifier.BOLD)); v.setLineStyle(UIConstants.WARN_COLOR, 2); v.mainPanel.setStyle("");}),
 		INSUFFICIENT(v -> {v.setTextStyle("-fx-text-fill: #fff; "+GuiSystem.getFontStyle(FontModifier.BOLD)); v.setLineStyle(Color.WHITE, 3); v.mainPanel.setStyle("-fx-background-color: "+ColorUtil.getCSSHex(UIConstants.SEVERE_COLOR)+";");});
 

@@ -5,6 +5,7 @@ import java.io.IOException;
 import Reika.SatisfactoryPlanner.Data.Factory;
 import Reika.SatisfactoryPlanner.Data.LogisticSupply;
 import Reika.SatisfactoryPlanner.Data.OverclockableResource;
+import Reika.SatisfactoryPlanner.Data.Resource;
 import Reika.SatisfactoryPlanner.Data.ResourceSupply;
 
 import fxexpansions.FXMLControllerBase;
@@ -73,7 +74,7 @@ public abstract class ResourceSupplyEntryController<R extends ResourceSupply> ex
 	public final void setSupply(Factory f, R res) throws IOException {
 		supply = res;
 		factory = f;
-		Node n = this.getTopBarContent(GuiUtil.createSpacedHBox(res.getResource().createImageView(), res.getLocationIcon().createImageView(), this.getTopBarRightContent()));
+		Node n = this.getTopBarContent(GuiUtil.createSpacedHBox(GuiUtil.createItemDisplay(res.getResource(), 32, false), GuiUtil.createItemDisplay((Resource)res.getLocationIcon(), 32, false), this.getTopBarRightContent()));
 		if (n != null)
 			topBar.getChildren().add(n);
 		this.updateStats();

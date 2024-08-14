@@ -86,8 +86,11 @@
                </items>
             </Menu>
       </menus>
+         <VBox.margin>
+            <Insets />
+         </VBox.margin>
     </MenuBar>
-      <TabPane fx:id="tabs" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="widget" tabClosingPolicy="UNAVAILABLE">
+      <TabPane fx:id="tabs" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="widget" tabClosingPolicy="UNAVAILABLE" tabMinWidth="160.0">
         <tabs>
             <Tab fx:id="overviewTab" closable="false" text="Factory Overview">
                <content>
@@ -104,7 +107,7 @@
                                        </columnConstraints>
                                        <rowConstraints>
                                           <RowConstraints vgrow="SOMETIMES" />
-                                          <RowConstraints vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="24.0" vgrow="SOMETIMES" />
                                        </rowConstraints>
                                        <children>
                                           <Label layoutX="20.0" layoutY="37.0" text="Name" />
@@ -183,7 +186,7 @@
                                     <VBox spacing="4.0">
                                        <children>
                                           <TilePane fx:id="inputGrid" />
-                                          <Button fx:id="addInputButton" contentDisplay="RIGHT" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Add External Resource Input">
+                                          <Button fx:id="addInputButton" contentDisplay="RIGHT" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="widget" text="Add External Resource Input">
                                              <graphic>
                                                 <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                                                    <image>
@@ -192,7 +195,7 @@
                                                 </ImageView>
                                              </graphic>
                                           </Button>
-                                          <Button fx:id="addMineButton" contentDisplay="RIGHT" layoutX="20.0" layoutY="20.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Add Local Resource Mine">
+                                          <Button fx:id="addMineButton" contentDisplay="RIGHT" layoutX="20.0" layoutY="20.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="widget" text="Add Local Resource Mine">
                                              <graphic>
                                                 <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                                                    <image>
@@ -217,7 +220,7 @@
                                  <content>
                                     <VBox spacing="4.0">
                                        <children>
-                                          <SearchableComboBox fx:id="addProductButton" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="32.0" promptText="Choose Item..." />
+                                          <SearchableComboBox fx:id="addProductButton" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="32.0" promptText="Choose Item..." styleClass="widget" />
                                           <TilePane fx:id="productGrid" hgap="4.0" vgap="4.0">
                                              <padding>
                                                 <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
@@ -252,23 +255,31 @@
                      <content>
                         <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="8.0">
                            <children>
-                              <GridPane fx:id="matrixOptionGrid" hgap="4.0" vgap="4.0" VBox.vgrow="NEVER">
-                                 <columnConstraints>
-                                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="160.0" />
-                                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="256.0" minWidth="128.0" />
-                                 </columnConstraints>
-                                 <rowConstraints>
-                                    <RowConstraints vgrow="SOMETIMES" />
-                                    <RowConstraints vgrow="SOMETIMES" />
-                                 </rowConstraints>
-                                 <children>
-                                    <Label layoutX="20.0" layoutY="37.0" text="Include Resource Supplies" />
-                                    <Label layoutX="20.0" layoutY="24.0" text="Include Generators" wrapText="true" GridPane.rowIndex="1" />
-                                    <ChoiceBox fx:id="generatorMatrixOptions" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                    <ChoiceBox fx:id="resourceMatrixOptions" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" />
-                                 </children>
-                              </GridPane>
-                              <SearchableComboBox fx:id="recipeDropdown" maxHeight="-Infinity" maxWidth="420.0" prefHeight="32.0" promptText="Click To Add Recipe..." VBox.vgrow="NEVER" />
+                              <TitledPane animated="false" collapsible="false" styleClass="panel" text="Options" VBox.vgrow="NEVER">
+                                 <content>
+                                    <VBox spacing="8.0">
+                                       <children>
+                                          <GridPane fx:id="matrixOptionGrid" hgap="4.0" vgap="4.0">
+                                             <columnConstraints>
+                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="160.0" />
+                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="256.0" minWidth="128.0" />
+                                             </columnConstraints>
+                                             <rowConstraints>
+                                                <RowConstraints vgrow="SOMETIMES" />
+                                                <RowConstraints vgrow="SOMETIMES" />
+                                             </rowConstraints>
+                                             <children>
+                                                <Label layoutX="20.0" layoutY="37.0" text="Include Resource Supplies" />
+                                                <Label layoutX="20.0" layoutY="24.0" text="Include Generators" wrapText="true" GridPane.rowIndex="1" />
+                                                <ChoiceBox fx:id="generatorMatrixOptions" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="widget" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                <ChoiceBox fx:id="resourceMatrixOptions" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="widget" GridPane.columnIndex="1" />
+                                             </children>
+                                          </GridPane>
+                                          <SearchableComboBox fx:id="recipeDropdown" maxHeight="-Infinity" maxWidth="420.0" prefHeight="32.0" promptText="Click To Add Recipe..." styleClass="widget" VBox.vgrow="NEVER" />
+                                       </children>
+                                    </VBox>
+                                 </content>
+                              </TitledPane>
                               <TitledPane fx:id="gridContainer" collapsible="false" styleClass="panel" text="Item Matrix" VBox.vgrow="ALWAYS" />
                               <TitledPane fx:id="netGridContainer" collapsible="false" styleClass="panel" text="Net Matrix" VBox.vgrow="ALWAYS" />
                            </children>

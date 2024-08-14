@@ -28,7 +28,6 @@ import Reika.SatisfactoryPlanner.Data.Generator;
 import Reika.SatisfactoryPlanner.Data.ItemConsumerProducer;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.Data.ResourceSupply;
-import Reika.SatisfactoryPlanner.Util.ColorUtil;
 import Reika.SatisfactoryPlanner.Util.CountMap;
 
 import fxexpansions.FXMLControllerBase;
@@ -89,8 +88,8 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 		grid = new GridPane();
 		owner.addCallback(this);
 
-		grid.setHgap(4);
-		grid.setVgap(4);
+		grid.setHgap(2);
+		grid.setVgap(2);
 		grid.setMaxHeight(Double.POSITIVE_INFINITY);
 		grid.setMaxWidth(Double.POSITIVE_INFINITY);
 		grid.setPrefHeight(Region.USE_COMPUTED_SIZE);
@@ -519,14 +518,14 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 			label.setFont(Font.font(label.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, 14));
 			String mod = r instanceof Recipe ? ((Recipe)r).getMod() : null;
 			if (!Strings.isNullOrEmpty(mod)) {
-				label.setStyle("-fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.HIGHLIGHT_COLOR)+";");
+				//label.setStyle("-fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.HIGHLIGHT_COLOR)+";");
 				label.setText(label.getText()+" ("+mod+")");
 			}
 			else if (r instanceof Fuel || (r instanceof GroupedProducer && ((GroupedProducer)r).getType() instanceof Fuel)) {
-				label.setStyle("-fx-text-fill: #ea5;");
+				//label.setStyle("-fx-text-fill: #ea5;");
 			}
 			else if (r instanceof ResourceSupply || (r instanceof GroupedProducer && ((GroupedProducer)r).getType() instanceof ResourceSupply)) {
-				label.setStyle("-fx-text-fill: #5ea;");
+				//label.setStyle("-fx-text-fill: #5ea;");
 				if (r instanceof ResourceSupply)
 					label.setText(label.getText()+" ("+((ResourceSupply)r).getResource().displayName+")");
 			}

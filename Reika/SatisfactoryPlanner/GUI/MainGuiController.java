@@ -14,6 +14,7 @@ import org.controlsfx.control.SearchableComboBox;
 
 import Reika.SatisfactoryPlanner.FactoryListener;
 import Reika.SatisfactoryPlanner.InclusionPattern;
+import Reika.SatisfactoryPlanner.InternalIcons;
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Data.Constants.ToggleableVisiblityGroup;
 import Reika.SatisfactoryPlanner.Data.Consumable;
@@ -285,6 +286,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 					factory.setToggle(tv, nnew);
 			});
 			toggleFilters.put(tv, cb);
+			cb.getStyleClass().add("widget");
 			toggleFilterBox.getChildren().add(cb);
 		}
 
@@ -417,6 +419,11 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	@Override
 	protected void postInit(Stage w) throws IOException {
 		super.postInit(w);
+
+		overviewTab.setGraphic(new ImageView(InternalIcons.OVERVIEW.createIcon(16)));
+		ioTab.setGraphic(new ImageView(InternalIcons.INPUTOUTPUT.createIcon(16)));
+		powerTab.setGraphic(new ImageView(InternalIcons.POWERTAB.createIcon(16)));
+		craftingTab.setGraphic(new ImageView(InternalIcons.MATRICES.createIcon(16)));
 
 		for (Tab t : tabs.getTabs()) {
 			ScrollPane p = (ScrollPane)t.getContent();

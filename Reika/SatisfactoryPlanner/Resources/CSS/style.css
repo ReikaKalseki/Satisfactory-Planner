@@ -1,3 +1,8 @@
+/*@font-face {
+    font-family: 'Open Sans';
+    src: url('../Fonts/OpenSans/Regular.ttf');
+}*/
+
 .root {
     /*-fx-font-size: 16pt;*/
     -fx-font-family: "Open Sans";
@@ -11,34 +16,158 @@
     -fx-text-fill: "#585858";
 }*/
 
+*:focused {
+    -fx-background-color: white;
+}
+
 .panel {
     -fx-color: "#7D7D7D";
     -fx-text-fill: "#ffffff";
-    -fx-background: "#ffffff";
 	-fx-border-color: "#373737";
+	-fx-background-color: white;
+    -fx-background-radius: 15px;
 	-fx-border-width: 6px;
 	-fx-border-style: solid;
 	-fx-border-radius: 8px;
 	-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 15, 0.1, 4.0, 4.0);
 }
 
-.panel > .title {
+.panel .title {
 	-fx-background-color: "#585858";
     -fx-font-size: 12pt;
     -fx-font-weight: 700;
 }
 
-.widget .tab, .widget .menu {
-    -fx-base: "#909090";
-	-fx-background-color: "#909090";
+.panel .content {
+	-fx-background-color: transparent;
+	-fx-border-radius: 8px;
+	-fx-border-width: 0;
 }
 
-.widget .tab:hover, .widget .menu:hover {
-    -fx-base: "#E69344";
+.widget.menu-bar * {
+    -fx-text-fill: "#ffffff";
+}
+
+.widget.menu-bar, .widget .container > .menu-button {
+	-fx-background-color: "#3F3F3F";
+}
+
+.widget .menu-item, .widget .menu {
+	-fx-background-color: "#7D7D7D";
+}
+
+.widget.menu-bar > .container > .menu-button:hover, .widget .menu-item:hover, .widget .menu:hover {
 	-fx-background-color: "#E69344";
 }
 
-.widget .tab:selected, .widget .menu:selected {
+.widget.menu-bar > .container > .menu-button:selected, .widget .menu-item:selected, .widget .menu:selected {
+	-fx-background-color: "#585858";
+}
+
+.widget .tab {
+    -fx-base: "#7D7D7D";
+	-fx-background-color: "#7D7D7D";
+	-fx-background-insets: 0;
+	-fx-background-radius: 0;
+	-fx-min-width: 92px;
+	-fx-font-size: 14px;
+	-fx-font-weight: 500;
+}
+
+.widget .tab * {
+	-fx-alignment: CENTER_LEFT;
+}
+
+.widget .button, .widget .text-field, .widget .combo-box, .widget .choice-box {
+    -fx-base: "#cccccc";
+	-fx-background-color: "#cccccc";
+	-fx-background-insets: 0;
+	-fx-background-radius: 0;
+}
+
+.widget .tab:hover, .widget .button:hover, .widget .text-field:hover, .widget .combo-box:hover, .widget .choice-box:hover, .widget .check-box:hover .box:hover, .widget .spinner .increment-arrow-button:hover, .widget .spinner .decrement-arrow-button:hover {
+    -fx-base: "#E69344";
+	-fx-background-color: "#E69344";
+	-fx-background-insets: 0;
+	-fx-background-radius: 0;
+}
+
+.widget .tab:selected, .widget .button:selected, .widget .text-field:selected, .widget .combo-box:selected, .widget .choice-box:selected, .widget .spinner .increment-arrow-button:selected, .widget .spinner .decrement-arrow-button:selected {
     -fx-base: "#585858";
 	-fx-background-color: "#585858";
+	-fx-background-insets: 0;
+	-fx-background-radius: 0;
+}
+
+.widget .combo-box .arrow, .widget .choice-box .arrow, .widget .combo-box:hover .arrow, .widget .choice-box:hover .arrow, .widget .combo-box:selected .arrow, .widget .choice-box:selected .arrow {
+    -fx-shape: null;
+    -fx-background-color: transparent;
+	-fx-background-position: center;
+	-fx-background-repeat: stretch;
+	-fx-background-image: url("../../Resources/Graphics/Icons/dropdown-arrow-small.png");
+	-fx-padding: 6 6 6 6;
+}
+
+.widget .check-box .box {
+    -fx-base: "#AAAAAA";
+	-fx-background-color: "#AAAAAA";
+	-fx-background-insets: 0;
+	-fx-background-radius: 0;
+}
+
+.widget .check-box .mark, .widget .check-box:selected .mark, .widget .check-box:indeterminate .mark {
+	-fx-padding: 6 6 6 6;
+}
+
+.widget .check-box:selected .mark, .widget .check-box:indeterminate .mark {
+    -fx-shape: null;
+    -fx-background-color: transparent;
+	-fx-background-position: center;
+	-fx-background-repeat: stretch;
+	-fx-background-image: url("../../Resources/Graphics/Icons/checkbox-check-alpha.png");
+}
+
+.widget .spinner .increment-arrow-button, .widget .spinner .decrement-arrow-button {
+    -fx-base: "#7D7D7D";
+	-fx-background-color: "#7D7D7D";
+	-fx-background-insets: 0;
+	-fx-background-radius: 0;
+}
+
+.widget .spinner .increment-arrow, .widget .spinner .decrement-arrow {
+    /*-fx-shape: null;*/
+    -fx-background-color: white;
+	-fx-background-position: center;
+	-fx-background-repeat: stretch;
+}
+/*
+.widget .spinner .increment-arrow {
+	-fx-background-image: url("../../Resources/Graphics/Icons/checkbox-check-alpha.png");
+}
+
+
+.widget .spinner .decrement-arrow {
+	-fx-background-image: url("../../Resources/Graphics/Icons/checkbox-check-alpha.png");
+}*/
+
+.scroll-bar {
+	-fx-font-size: 16px;
+}
+
+.scroll-bar .track {
+	-fx-background-color: "#3F3F3F";
+}
+
+.scroll-bar .thumb {
+	-fx-background-color: "#CCCCCC";
+	-fx-background-radius: 0;
+}
+
+.scroll-bar .thumb:hover {
+	-fx-background-color: "#E69344";
+}
+
+.scroll-bar .increment-button, .scroll-bar .decrement-button, .scroll-bar .increment-arrow, .scroll-bar .decrement-arrow {
+	visibility: hidden;
+	background-color: transparent;
 }

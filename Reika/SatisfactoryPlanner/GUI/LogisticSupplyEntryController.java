@@ -7,7 +7,7 @@ import Reika.SatisfactoryPlanner.Data.LogisticSupply;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Spinner;
-import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 public class LogisticSupplyEntryController extends ResourceSupplyEntryController<LogisticSupply> {
@@ -16,7 +16,7 @@ public class LogisticSupplyEntryController extends ResourceSupplyEntryController
 	private Spinner<Integer> amount;
 
 	@FXML
-	private ImageView icon;
+	private HBox countRow;
 
 	@Override
 	protected void postInit(Stage w) throws IOException {
@@ -34,13 +34,14 @@ public class LogisticSupplyEntryController extends ResourceSupplyEntryController
 	@Override
 	protected void updateStats() {
 		yieldDisplay.getChildren().clear();
-		icon.setImage(supply.resource.createIcon());
+		//icon.setImage(supply.resource.createIcon());
 	}
 
 	@Override
 	protected void onSetSupply(Factory f, LogisticSupply res) {
 		amount.getValueFactory().setValue(res.getYield());
 		f.updateMatrixStatus(res.getResource());
+		countRow.getChildren().add(0, GuiUtil.createItemDisplay(supply.getResource(), 32, false));
 	}
 
 }

@@ -10,5 +10,6 @@ public class UIConstants {
 	public static final Color SEVERE_COLOR = new Color(1, 0, 0, 1);
 	public static final Color OKAY_COLOR = new Color(0, 0.67F, 0, 1);
 	public static final Color HIGHLIGHT_COLOR = new Color(0, 0.75F, 1, 1);
+	public static final Color FICSIT_COLOR = Color.web("#E69344");
 
 }

@@ -16,6 +16,10 @@ public enum InternalIcons implements NamedIcon {
 	POWER(32),
 	SUPPLY(32),
 	BOTTLENECK(16),
+	OVERVIEW(16),
+	INPUTOUTPUT(16),
+	POWERTAB(16),
+	MATRICES(16),
 	;
 
 	public final int defaultSize;

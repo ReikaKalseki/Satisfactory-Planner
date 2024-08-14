@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 
 import org.controlsfx.control.SearchableComboBox;
 
+import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Resource;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.FontModifier;
@@ -51,6 +52,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -58,6 +61,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -492,6 +496,22 @@ public class GuiUtil {
 			if (m2 instanceof Menu)
 				setFont((Menu)m2, fm);
 		}
+	}
+
+	public static StackPane createItemDisplay(Resource c, int size, boolean compress) {
+		StackPane sp = new StackPane();
+		ImageView bcg = createItemBCG(size+8);
+		sp.getChildren().add(bcg);
+		if (compress)
+			sp.setMargin(bcg, new Insets(-4, -4, -4, -4));
+		ImageView icon = c.createImageView();
+		sp.getChildren().add(icon);
+		GuiUtil.setTooltip(icon, c.displayName);
+		return sp;
+	}
+
+	public static ImageView createItemBCG(int size) {
+		return new ImageView(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/item-background.png"), size, size, true, true));
 	}
 
 }

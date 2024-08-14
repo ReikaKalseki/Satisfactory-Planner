@@ -7,6 +7,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 
 
 public class ItemCountController extends SizedControllerBase {
@@ -15,6 +16,8 @@ public class ItemCountController extends SizedControllerBase {
 
 	private final Label countLabel = new Label();
 
+	private final StackPane itemBox;
+
 	public final Resource item;
 
 	public ItemCountController(Resource c, float amt) {
@@ -22,9 +25,11 @@ public class ItemCountController extends SizedControllerBase {
 
 		root.setSpacing(4);
 		root.setAlignment(Pos.CENTER);
-		root.getChildren().add(c.createImageView());
+		itemBox = GuiUtil.createItemDisplay(c, 32, false);
+		root.getChildren().add(itemBox);
 		root.getChildren().add(countLabel);
 		this.setAmount(amt);
+		//countLabel.setStyle("-fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.FICSIT_COLOR)+"; "+GuiSystem.getFontStyle(FontModifier.BOLD));
 	}
 
 	public void setAmount(float amt) {
@@ -38,12 +43,12 @@ public class ItemCountController extends SizedControllerBase {
 
 	@Override
 	public double getWidth() {
-		return 32+GuiUtil.getWidth(countLabel)+root.getSpacing();
+		return 40+GuiUtil.getWidth(countLabel)+root.getSpacing();
 	}
 
 	@Override
 	public double getHeight() {
-		return 32;
+		return 40;
 	}
 
 	@Override
