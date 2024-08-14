@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<GridPane hgap="2.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.GeneratorRowController">
+<GridPane hgap="2.0" stylesheets="@../CSS/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.GeneratorRowController">
    <columnConstraints>
       <ColumnConstraints fillWidth="false" hgrow="NEVER" />
       <ColumnConstraints fillWidth="false" hgrow="NEVER" />
@@ -34,7 +34,7 @@
             <Font name="System Bold" size="14.0" />
          </font>
       </Label>
-      <HBox fx:id="fuelBar" alignment="CENTER_LEFT" minWidth="8.0" prefHeight="32.0" GridPane.columnIndex="5">
+      <HBox fx:id="fuelBar" alignment="CENTER_LEFT" minHeight="64.0" minWidth="8.0" styleClass="dark-pane" GridPane.columnIndex="5">
          <GridPane.margin>
             <Insets left="8.0" />
          </GridPane.margin></HBox>

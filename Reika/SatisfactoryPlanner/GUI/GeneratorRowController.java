@@ -92,9 +92,9 @@ public class GeneratorRowController extends FXMLControllerBase {
 			catch (Exception e) {
 				GuiUtil.showException(e);
 			}
-			Label lb = new Label("OR");
+			Label lb = new Label("+");
 			lb.setPadding(new Insets(0, 8, 0, 8));
-			lb.setStyle(GuiSystem.getFontStyle(FontModifier.SEMIBOLD)+" -fx-font-size:16;");
+			lb.setStyle(GuiSystem.getFontStyle(FontModifier.SEMIBOLD)+" -fx-font-size:24; -fx-text-fill:#E69344;");
 			fuelBar.getChildren().add(lb);
 		}
 		if (fuelBar.getChildren().size() > 1) //remove last trailing OR

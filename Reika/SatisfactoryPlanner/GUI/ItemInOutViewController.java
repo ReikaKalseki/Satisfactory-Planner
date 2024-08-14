@@ -131,5 +131,9 @@ public class ItemInOutViewController extends FXMLControllerBase {
 		outputLabel.setText(sg);
 	}
 
+	public double getHeight() {
+		return rootGrid.getHeight();
+	}
+
 }
 

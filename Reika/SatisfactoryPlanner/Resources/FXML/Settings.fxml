@@ -36,8 +36,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
@@ -45,42 +44,39 @@
 <?import javafx.scene.layout.VBox?>
 <?import org.controlsfx.control.textfield.CustomTextField?>
 
-<VBox fx:id="root" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="600.0" spacing="4.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.SettingsController">
+<VBox fx:id="root" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="600.0" spacing="8.0" stylesheets="@../CSS/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.SettingsController">
   <children>
-      <TabPane fx:id="tabs" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" tabClosingPolicy="UNAVAILABLE">
-        <tabs>
-            <Tab fx:id="appTab" closable="false" text="Application Settings">
-               <content>
-                  <GridPane alignment="CENTER_LEFT" hgap="4.0" vgap="12.0">
-                     <columnConstraints>
-                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="96.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" />
-                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="120.0" />
-                     </columnConstraints>
-                     <rowConstraints>
-                        <RowConstraints vgrow="SOMETIMES" />
-                        <RowConstraints vgrow="SOMETIMES" />
-                     </rowConstraints>
-                     <children>
-                        <Label text="Game Install Directory" wrapText="true" />
-                        <Button fx:id="chooseGameDir" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Choose Directory" GridPane.columnIndex="2" />
-                        <CustomTextField fx:id="gameDirPath" GridPane.columnIndex="1" />
-                        <Label layoutX="14.0" layoutY="18.0" text="Allow Fractional Building Counts" wrapText="true" GridPane.rowIndex="1" />
-                        <CheckBox fx:id="allowFractional" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                     </children>
-                     <padding>
-                        <Insets bottom="4.0" left="4.0" top="12.0" />
-                     </padding>
-                  </GridPane>
-               </content>
-            </Tab>
-          <Tab fx:id="visualTab" closable="false" text="Visual Settings">
-               <content>
-                  <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
-               </content></Tab>
-        </tabs>
-      </TabPane>
-      <TilePane alignment="CENTER" hgap="8.0" vgap="8.0" VBox.vgrow="ALWAYS">
+      <TitledPane animated="false" collapsible="false" styleClass="panel" text="Application">
+         <content>
+            <GridPane alignment="CENTER_LEFT" hgap="4.0" styleClass="widget" vgap="12.0">
+               <columnConstraints>
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="96.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="120.0" />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints vgrow="SOMETIMES" />
+                  <RowConstraints vgrow="SOMETIMES" />
+               </rowConstraints>
+               <children>
+                  <Label text="Game Install Directory" wrapText="true" />
+                  <Button fx:id="chooseGameDir" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Choose Directory" GridPane.columnIndex="2" />
+                  <CustomTextField fx:id="gameDirPath" GridPane.columnIndex="1" />
+                  <Label layoutX="14.0" layoutY="18.0" text="Allow Fractional Building Counts" wrapText="true" GridPane.rowIndex="1" />
+                  <CheckBox fx:id="allowFractional" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+               </children>
+               <padding>
+                  <Insets bottom="4.0" left="4.0" top="12.0" />
+               </padding>
+            </GridPane>
+         </content>
+      </TitledPane>
+      <TitledPane animated="false" collapsible="false" layoutX="14.0" layoutY="14.0" styleClass="panel" text="Visual">
+         <content>
+            <VBox spacing="4.0" styleClass="widget" />
+         </content>
+      </TitledPane>
+      <TilePane alignment="CENTER" hgap="8.0" styleClass="widget" vgap="8.0" VBox.vgrow="ALWAYS">
          <children>
             <Button fx:id="revertAll" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="32.0" prefWidth="128.0" text="Revert To Defaults" />
             <Button fx:id="closeWindow" layoutX="170.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="32.0" prefWidth="128.0" text="Close Settings" />

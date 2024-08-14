@@ -89,7 +89,6 @@ public class LogisticSupplyController extends RadioTitledPaneSection {
 	protected void postInit(Stage w) throws IOException {
 		super.postInit(w);
 
-		itemDropdown.setItems(FXCollections.observableArrayList(Database.getAllItems()));
 		beltTier.setItems(FXCollections.observableArrayList(BeltTier.values()));
 		pipeTier.setItems(FXCollections.observableArrayList(PipeTier.values()));
 
@@ -181,7 +180,7 @@ public class LogisticSupplyController extends RadioTitledPaneSection {
 			Toggle b = radioButtons.getSelectedToggle();
 			if (b == pipeRadio)
 				li.removeIf(c -> c instanceof Item);
-			if (b == beltRadio || b == truckRadio || b == droneRadio)
+			else if (b == beltRadio || b == truckRadio || b == droneRadio)
 				li.removeIf(c -> c instanceof Fluid);
 			MainGuiController main = (MainGuiController)owner;
 			li.removeIf(c -> !main.isItemValid(c));

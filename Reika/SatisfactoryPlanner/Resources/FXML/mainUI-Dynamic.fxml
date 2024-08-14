@@ -48,8 +48,10 @@
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.TilePane?>
 <?import javafx.scene.layout.VBox?>
@@ -185,7 +187,7 @@
                                  <content>
                                     <VBox spacing="4.0">
                                        <children>
-                                          <TilePane fx:id="inputGrid" />
+                                          <TilePane fx:id="inputGrid" styleClass="dark-pane" VBox.vgrow="ALWAYS" />
                                           <Button fx:id="addInputButton" contentDisplay="RIGHT" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="widget" text="Add External Resource Input">
                                              <graphic>
                                                 <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
@@ -257,27 +259,32 @@
                            <children>
                               <TitledPane animated="false" collapsible="false" styleClass="panel" text="Options" VBox.vgrow="NEVER">
                                  <content>
-                                    <VBox spacing="8.0">
+                                    <HBox spacing="8.0">
                                        <children>
-                                          <GridPane fx:id="matrixOptionGrid" hgap="4.0" vgap="4.0">
-                                             <columnConstraints>
-                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="160.0" />
-                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="256.0" minWidth="128.0" />
-                                             </columnConstraints>
-                                             <rowConstraints>
-                                                <RowConstraints vgrow="SOMETIMES" />
-                                                <RowConstraints vgrow="SOMETIMES" />
-                                             </rowConstraints>
+                                          <VBox spacing="8.0" styleClass="widget">
                                              <children>
-                                                <Label layoutX="20.0" layoutY="37.0" text="Include Resource Supplies" />
-                                                <Label layoutX="20.0" layoutY="24.0" text="Include Generators" wrapText="true" GridPane.rowIndex="1" />
-                                                <ChoiceBox fx:id="generatorMatrixOptions" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="widget" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                                <ChoiceBox fx:id="resourceMatrixOptions" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="widget" GridPane.columnIndex="1" />
+                                                <GridPane fx:id="matrixOptionGrid" hgap="4.0" vgap="4.0">
+                                                   <columnConstraints>
+                                                      <ColumnConstraints hgrow="NEVER" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="160.0" />
+                                                      <ColumnConstraints hgrow="NEVER" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="256.0" />
+                                                   </columnConstraints>
+                                                   <rowConstraints>
+                                                      <RowConstraints vgrow="SOMETIMES" />
+                                                      <RowConstraints vgrow="SOMETIMES" />
+                                                   </rowConstraints>
+                                                   <children>
+                                                      <Label layoutX="20.0" layoutY="37.0" text="Include Resource Supplies" />
+                                                      <Label layoutX="20.0" layoutY="24.0" text="Include Generators" wrapText="true" GridPane.rowIndex="1" />
+                                                      <ChoiceBox fx:id="generatorMatrixOptions" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                      <ChoiceBox fx:id="resourceMatrixOptions" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" />
+                                                   </children>
+                                                </GridPane>
+                                                <SearchableComboBox fx:id="recipeDropdown" maxHeight="-Infinity" maxWidth="420.0" prefHeight="32.0" promptText="Click To Add Recipe..." VBox.vgrow="NEVER" />
                                              </children>
-                                          </GridPane>
-                                          <SearchableComboBox fx:id="recipeDropdown" maxHeight="-Infinity" maxWidth="420.0" prefHeight="32.0" promptText="Click To Add Recipe..." styleClass="widget" VBox.vgrow="NEVER" />
+                                          </VBox>
+                                          <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="dark-pane" HBox.hgrow="ALWAYS" />
                                        </children>
-                                    </VBox>
+                                    </HBox>
                                  </content>
                               </TitledPane>
                               <TitledPane fx:id="gridContainer" collapsible="false" styleClass="panel" text="Item Matrix" VBox.vgrow="ALWAYS" />
