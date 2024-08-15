@@ -56,4 +56,9 @@ public class InputBelt extends LogisticSupply<Item> {
 		return this.getLocationIcon().displayName;
 	}
 
+	@Override
+	public int getSubSortIndex() {
+		return 0;
+	}
+
 }

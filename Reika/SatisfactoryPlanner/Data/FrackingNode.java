@@ -36,4 +36,9 @@ public class FrackingNode extends BaseResourceNode<Fluid> {
 		return PipeTier.TWO.maxThroughput;
 	}
 
+	@Override
+	public int getSubSortIndex() {
+		return 3;
+	}
+
 }

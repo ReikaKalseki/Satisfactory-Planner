@@ -94,4 +94,9 @@ public class FrackingCluster implements ExtractableResource<Fluid> {
 		return "Resource Well Cluster";
 	}
 
+	@Override
+	public int getSubSortIndex() {
+		return 3;
+	}
+
 }

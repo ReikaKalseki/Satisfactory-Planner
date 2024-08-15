@@ -56,4 +56,9 @@ public class InputPipe extends LogisticSupply<Fluid> {
 		return this.getLocationIcon().displayName;
 	}
 
+	@Override
+	public int getSubSortIndex() {
+		return 1;
+	}
+
 }

@@ -40,4 +40,9 @@ public class TruckStation extends LogisticSupply<Item> {
 		return "Truck Route";
 	}
 
+	@Override
+	public int getSubSortIndex() {
+		return 2;
+	}
+
 }

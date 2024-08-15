@@ -148,9 +148,10 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 
 	protected final void computeIO() {
 		inputs = new ArrayList(owner.getAllIngredients());
-		outputs = new ArrayList(owner.getAllProducedItems());
+		HashSet<Consumable> out = new HashSet(owner.getAllProducedItems());
 		if (owner.resourceMatrixRule != InclusionPattern.EXCLUDE)
-			outputs.addAll(owner.getAllSuppliedItems());
+			out.addAll(owner.getAllSuppliedItems());
+		outputs = new ArrayList(out);
 		Collections.sort(inputs);
 		Collections.sort(outputs);
 	}

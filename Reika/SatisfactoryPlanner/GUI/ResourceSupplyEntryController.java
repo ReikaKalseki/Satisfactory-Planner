@@ -17,7 +17,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-public abstract class ResourceSupplyEntryController<R extends ResourceSupply> extends FXMLControllerBase {
+public abstract class ResourceSupplyEntryController<R extends ResourceSupply> extends FXMLControllerBase implements Comparable<ResourceSupplyEntryController> {
 
 	@FXML
 	protected VBox root;
@@ -90,6 +90,10 @@ public abstract class ResourceSupplyEntryController<R extends ResourceSupply> ex
 			f.addExternalSupply(r);
 		});
 		this.onSetSupply(f, res);
+	}
+
+	public int compareTo(ResourceSupplyEntryController rc) {
+		return ResourceSupply.globalSupplySorter.compare(supply, rc.supply);
 	}
 
 }

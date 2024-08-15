@@ -178,13 +178,6 @@ public class Factory {
 			GuiUtil.queueIfNecessary(() -> this.alignMatrices());
 	}
 
-	public int getExternalSupply(Consumable c) {
-		int ret = 0;
-		for (ResourceSupply res : resourceSources.get(c))
-			ret += res.getYield();
-		return ret;
-	}
-
 	public Collection<ResourceSupply> getSupplies() {
 		return Collections.unmodifiableCollection(resourceSources.allValues(false));
 	}
@@ -416,7 +409,7 @@ public class Factory {
 			return false;
 		//ItemFlow f = this.getFlow(c);
 		//return f != null && f.getTotalAvailable() > f.getConsumption();
-		return this.getTotalProduction(c)+this.getExternalSupply(c) > this.getTotalConsumption(c);
+		return this.getTotalProduction(c)+this.getExternalInput(c) > this.getTotalConsumption(c);
 	}
 
 	public void getWarnings(Consumer<Warning> call) {/*
@@ -441,7 +434,7 @@ public class Factory {
 			if (desiredProducts.contains(c))
 				continue;
 			float prod = this.getTotalProduction(c);
-			float sup = this.getExternalSupply(c);
+			float sup = this.getExternalInput(c);
 			float has = prod+sup;
 			float need = this.getTotalConsumption(c);
 			if (has > need) {
@@ -453,9 +446,9 @@ public class Factory {
 		}
 		for (RecipeProductLoop p : recipeLoops) {
 			String msg = "A production loop exists between "+p.recipe1.displayName+" and "+p.recipe2.displayName;
-			if (this.getExternalSupply(p.item1) > 0)
+			if (this.getExternalInput(p.item1) > 0)
 				call.accept(new Warning(p.item1 instanceof Fluid ? WarningSeverity.SEVERE : WarningSeverity.MINOR, msg+", with "+p.item1.displayName+" also being supplied externally. This risks a deadlock", new ResourceIconName(p.item1)));
-			if (this.getExternalSupply(p.item2) > 0)
+			if (this.getExternalInput(p.item2) > 0)
 				call.accept(new Warning(p.item2 instanceof Fluid ? WarningSeverity.SEVERE : WarningSeverity.MINOR, msg+", with "+p.item2.displayName+" also being supplied externally. This risks a deadlock", new ResourceIconName(p.item2)));
 		}
 		for (Consumable c : desiredProducts) {

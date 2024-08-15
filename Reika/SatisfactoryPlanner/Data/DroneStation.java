@@ -40,4 +40,9 @@ public class DroneStation extends LogisticSupply<Item> {
 		return "Drone Port";
 	}
 
+	@Override
+	public int getSubSortIndex() {
+		return 4;
+	}
+
 }

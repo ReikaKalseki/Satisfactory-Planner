@@ -61,4 +61,9 @@ public class SolidResourceNode extends BaseResourceNode<Item> {
 		return BeltTier.FIVE.maxThroughput;
 	}
 
+	@Override
+	public int getSubSortIndex() {
+		return 0;
+	}
+
 }

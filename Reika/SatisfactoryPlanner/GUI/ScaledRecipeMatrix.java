@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
+import Reika.SatisfactoryPlanner.InclusionPattern;
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Fuel;
 import Reika.SatisfactoryPlanner.Data.Generator;
@@ -124,7 +125,8 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 		for (int i = 0; i < outputs.size(); i++) {
 			Consumable c = outputs.get(i);
 			int idx = productsStartColumn+outputs.indexOf(c)*2;
-			GuiInstance<ItemRateController> gui = GuiUtil.createItemView(c, owner.getTotalProduction(c), grid, idx, sumsRow);
+			//Logging.instance.log(c+" @ "+idx+" in "+outputs.indexOf(c)+":"+outputs);
+			GuiInstance<ItemRateController> gui = GuiUtil.createItemView(c, this.getAvailable(c), grid, idx, sumsRow);
 			sumEntriesOut.put(c, gui);
 			if (i < outputs.size()-1)
 				this.createDivider(idx+1, sumsRow, 2);
@@ -137,6 +139,10 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 		this.addTitles();
 
 		grid.getColumnConstraints().get(countColumn).setMinWidth(92);
+	}
+
+	private float getAvailable(Consumable c) {
+		return owner.getTotalProduction(c)+(owner.resourceMatrixRule == InclusionPattern.EXCLUDE ? 0 : owner.getExternalInput(c));
 	}
 
 	@Override
@@ -236,7 +242,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 
 		gui = sumEntriesOut.get(c);
 		if (gui != null) {
-			gui.controller.setAmount(owner.getTotalProduction(c));
+			gui.controller.setAmount(this.getAvailable(c));
 			gui.controller.setState(owner.isExcess(c) ? WarningState.LEFTOVER : WarningState.NONE);
 		}
 	}

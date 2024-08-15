@@ -4,6 +4,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -23,6 +25,7 @@ import fxexpansions.GuiInstance;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
@@ -378,7 +381,7 @@ public class GuiUtil {
 		return gui;
 	}
 
-	public static void setTitledPaneGraphicRight(TitledPane tp) {
+	public static void setTitledPaneGraphicRight(TitledPane tp, double extraSpace) {
 		Label lb = new Label(tp.getText());
 		lb.setFont(tp.getFont());
 		HBox box = new HBox();
@@ -390,7 +393,7 @@ public class GuiUtil {
 		tp.setText(null);
 		tp.setGraphic(box);
 		Insets pad = tp.getLabelPadding();
-		box.setPadding(new Insets(0, 14, 0, tp.isCollapsible() ? 14 : 4));
+		box.setPadding(new Insets(0, 14+extraSpace, 0, (tp.isCollapsible() ? 14 : 4)+extraSpace));
 		box.minWidthProperty().bind(tp.widthProperty().subtract(pad.getLeft()).subtract(pad.getRight()));
 		box.maxWidthProperty().bind(box.minWidthProperty());
 	}
@@ -404,32 +407,50 @@ public class GuiUtil {
 		}
 	}
 
-	public static void queueTask(Errorable e) {
-		VBox box = new VBox();
-		box.setSpacing(12);
-		box.setPadding(new Insets(8, 8, 8, 8));
-		Label lb = new Label("The selected operation is underway.");
-		lb.setFont(Font.font(GuiSystem.getDefaultFont().getFamily(), 14));
-		box.getChildren().add(lb);
-		box.getChildren().add(new ProgressBar());
-		for (Node n : box.getChildren()) {
-			if (n instanceof Region) {
-				Region r = (Region)n;
-				box.setVgrow(r, Priority.ALWAYS);
-				r.setMaxWidth(Double.MAX_VALUE);
-			}
-		}
+	private static final HashMap<Long, Stage> waitingDialogs = new HashMap();
 
-		Stage s = new Stage();
-		s.setTitle("Loading");
-		s.setScene(new Scene(box, 300, 65));
-		box.layout();
-		s.show();
+	public static void queueTask(Errorable e) {
+		long time = System.currentTimeMillis();
+		queueIfNecessary(() -> {
+			VBox box = new VBox();
+			box.setSpacing(12);
+			box.setPadding(new Insets(8, 8, 8, 8));
+			Label lb = new Label("The selected operation is underway.");
+			lb.setFont(Font.font(GuiSystem.getDefaultFont().getFamily(), 14));
+			box.getChildren().add(lb);
+			box.getChildren().add(new ProgressBar());
+			for (Node n : box.getChildren()) {
+				if (n instanceof Region) {
+					Region r = (Region)n;
+					box.setVgrow(r, Priority.ALWAYS);
+					r.setMaxWidth(Double.MAX_VALUE);
+				}
+			}
+
+			Stage s = new Stage();
+			s.setTitle("Loading");
+			s.setScene(new Scene(box, 300, 65));
+			s.getScene().getStylesheets().add(Main.class.getResource("Resources/CSS/style.css").toString());
+			box.layout();
+			waitingDialogs.put(time, s);
+			s.show();
+		});
 		JavaUtil.queueTask(() -> {
 			try {
 				//Thread.sleep(1000);
 				e.run();
-				Platform.runLater(() -> s.close());
+				Platform.runLater(() -> {
+					while (!waitingDialogs.containsKey(time)) {
+						//Logging.instance.log("Waiting");
+						try {
+							Thread.sleep(20);
+						}
+						catch (InterruptedException ex) {
+							ex.printStackTrace();
+						}
+					}
+					waitingDialogs.remove(time).close();
+				});
 			}
 			catch (Exception ex) {
 				ex.printStackTrace();
@@ -438,10 +459,12 @@ public class GuiUtil {
 		});
 	}
 
+	@Deprecated
 	public static void setFont(ControllerBase c, FontModifier... fm) {
 		setFont(c.getRootNode(), fm);
 	}
 
+	@Deprecated
 	public static void setFont(Node n, FontModifier... fm) {
 		if (true)
 			return;
@@ -512,6 +535,21 @@ public class GuiUtil {
 
 	public static ImageView createItemBCG(int size) {
 		return new ImageView(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/item-background.png"), size, size, true, true));
+	}
+
+	public static void addSortedNode(Pane p, GuiInstance g, Comparator<Node> compare) {
+		addSortedNode(p, g.rootNode, compare);
+	}
+
+	public static void addSortedNode(Pane p, Node n, Comparator<Node> compare) {
+		ObservableList<Node> li = p.getChildren();
+		for (int i = li.size()-1; i >= 0; i--) {
+			if (compare.compare(n, li.get(i)) > 0) { //comes after i, add after i
+				li.add(i+1, n);
+				return;
+			}
+		}
+		li.add(0, n); //smaller than every entry, add to beginning
 	}
 
 }

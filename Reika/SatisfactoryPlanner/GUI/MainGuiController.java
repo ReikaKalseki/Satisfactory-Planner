@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Locale;
@@ -245,6 +246,14 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	private final HashMap<Generator, GuiInstance<GeneratorRowController>> generators = new HashMap();
 	private final HashMap<Consumable, ProductButton> productButtons = new HashMap();
 	private final HashMap<ResourceSupply, GuiInstance<? extends ResourceSupplyEntryController>> supplyEntries = new HashMap();
+	private final HashMap<Node, GuiInstance<? extends ResourceSupplyEntryController>> supplyEntryNodes = new HashMap();
+
+	private final Comparator<Node> supplySorter = new Comparator<Node>() {
+		@Override
+		public int compare(Node o1, Node o2) {
+			return supplyEntryNodes.get(o1).controller.compareTo(supplyEntryNodes.get(o2).controller);
+		}
+	};
 
 	@Override
 	public void init(HostServices services) throws IOException {
@@ -441,7 +450,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 
 		for (Generator g : Database.getAllGenerators()) {
 			GuiInstance<GeneratorRowController> gui = this.loadNestedFXML("GeneratorRow", n -> {
-				TitledPane tp = new TitledPane(g.displayName, n);
+				TitledPane tp = new TitledPane(g.displayName, n.rootNode);
 				tp.setAnimated(false);
 				tp.setExpanded(true);
 				tp.setCollapsible(false);
@@ -702,32 +711,38 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 
 	@Override
 	public void onAddSupply(ResourceSupply res) {
-		try {
-			if (res instanceof WaterExtractor) {
-				GuiInstance<WaterEntryController> gui = this.loadNestedFXML("WaterEntry", inputGrid);
-				gui.controller.setSupply(factory, (WaterExtractor)res);
-				supplyEntries.put(res, gui);
-			}
-			else if (res instanceof SolidResourceNode) {
-				GuiInstance<MinerEntryController> gui = this.loadNestedFXML("MinerEntry", inputGrid);
-				gui.controller.setSupply(factory, (SolidResourceNode)res);
-				supplyEntries.put(res, gui);
-			}
-			else if (res instanceof ExtractableResource) {
-				GuiInstance<ResourceMineEntryController> gui = this.loadNestedFXML("ResourceMineEntry", inputGrid);
-				gui.controller.setSupply(factory, res);
-				supplyEntries.put(res, gui);
-			}
-			else if (res instanceof LogisticSupply) {
-				GuiInstance<LogisticSupplyEntryController> gui = this.loadNestedFXML("LogisticSupplyEntry", inputGrid);
-				gui.controller.setSupply(factory, (LogisticSupply)res);
-				supplyEntries.put(res, gui);
-			}
+		if (res instanceof WaterExtractor) {
+			this.addResourceEntry("WaterEntry", res);
 		}
-		catch (IOException e) {
-			e.printStackTrace();
+		else if (res instanceof SolidResourceNode) {
+			this.addResourceEntry("MinerEntry", res);
+		}
+		else if (res instanceof ExtractableResource) {
+			this.addResourceEntry("ResourceMineEntry", res);
+		}
+		else if (res instanceof LogisticSupply) {
+			this.addResourceEntry("LogisticSupplyEntry", res);
 		}
 		this.updateStats(true, false, true, false, true, true);
+	}
+
+	private <C extends ResourceSupplyEntryController, R extends ResourceSupply> void addResourceEntry(String fxml, R res) {
+		try {
+			this.loadNestedFXML(fxml, g -> {
+				try {
+					((ResourceSupplyEntryController)g.controller).setSupply(factory, res);
+					supplyEntries.put(res, g);
+					supplyEntryNodes.put(g.rootNode, g);
+					GuiUtil.addSortedNode(inputGrid, g.rootNode, supplySorter);
+				}
+				catch (IOException e) {
+					GuiUtil.showException(e);
+				}
+			});
+		}
+		catch (IOException e) {
+			GuiUtil.showException(e);
+		}
 	}
 
 	@Override

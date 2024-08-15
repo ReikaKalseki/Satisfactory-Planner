@@ -63,4 +63,9 @@ public class TrainStation<R extends Consumable> extends LogisticSupply<R> {
 		return "Train Station";
 	}
 
+	@Override
+	public int getSubSortIndex() {
+		return 3;
+	}
+
 }

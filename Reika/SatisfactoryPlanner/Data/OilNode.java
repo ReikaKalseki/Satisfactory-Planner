@@ -43,4 +43,9 @@ public class OilNode extends BaseResourceNode<Fluid> {
 		return PipeTier.TWO.maxThroughput;
 	}
 
+	@Override
+	public int getSubSortIndex() {
+		return 2;
+	}
+
 }

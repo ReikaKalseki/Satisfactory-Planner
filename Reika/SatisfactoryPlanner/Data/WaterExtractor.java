@@ -77,4 +77,9 @@ public class WaterExtractor implements ExtractableResource<Fluid> {
 
 	}
 
+	@Override
+	public int getSubSortIndex() {
+		return 1;
+	}
+
 }
