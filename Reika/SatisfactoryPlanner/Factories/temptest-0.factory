@@ -40,15 +40,16 @@
     "name": "temptest",
     "generators": [
         {
+            "count_Desc_LiquidTurboFuel_C": 0,
+            "count_Desc_LiquidBiofuel_C": 0,
+            "count_Desc_LiquidFuel_C": 2,
+            "id": "Build_GeneratorFuel_C"
+        },
+        {
             "count_Desc_Coal_C": 16,
             "count_Desc_CompactedCoal_C": 0,
             "count_Desc_PetroleumCoke_C": 0,
             "id": "Build_GeneratorCoal_C"
-        },
-        {
-            "count_Desc_NuclearFuelRod_C": 4,
-            "id": "Build_GeneratorNuclear_C",
-            "count_Desc_PlutoniumFuelRod_C": 0
         },
         {
             "count_Desc_HatcherParts_C": 0,
@@ -66,40 +67,17 @@
             "count_Desc_Wood_C": 0
         },
         {
-            "count_Desc_LiquidTurboFuel_C": 0,
-            "count_Desc_LiquidBiofuel_C": 0,
-            "count_Desc_LiquidFuel_C": 2,
-            "id": "Build_GeneratorFuel_C"
+            "count_Desc_NuclearFuelRod_C": 4,
+            "id": "Build_GeneratorNuclear_C",
+            "count_Desc_PlutoniumFuelRod_C": 0
         }
     ],
     "resources": [
-        {
-            "item": "Desc_Coal_C",
-            "purity": "PURE",
-            "clock": 2.5,
-            "type": "MINER",
-            "miner": "THREE"
-        },
-        {
-            "item": "Desc_Rubber_C",
-            "amount": 33,
-            "type": "TRUCK"
-        },
         {
             "item": "Desc_LiquidOil_C",
             "purity": "PURE",
             "clock": 1,
             "type": "OIL"
-        },
-        {
-            "count": 32,
-            "clock": 1.5,
-            "type": "WATER"
-        },
-        {
-            "item": "BP_EquipmentDescriptorCandyCane_C",
-            "amount": 3,
-            "type": "DRONE"
         },
         {
             "normal": 4,
@@ -110,10 +88,32 @@
             "impure": 2
         },
         {
+            "count": 32,
+            "clock": 1.5,
+            "type": "WATER"
+        },
+        {
+            "item": "Desc_Coal_C",
+            "purity": "PURE",
+            "clock": 2.5,
+            "type": "MINER",
+            "miner": "THREE"
+        },
+        {
+            "item": "BP_EquipmentDescriptorCandyCane_C",
+            "amount": 3,
+            "type": "DRONE"
+        },
+        {
             "item": "Desc_LiquidFuel_C",
             "amount": 400,
             "pipe": "TWO",
             "type": "PIPE"
+        },
+        {
+            "item": "Desc_Rubber_C",
+            "amount": 33,
+            "type": "TRUCK"
         },
         {
             "item": "Desc_Berry_C",
@@ -122,5 +122,12 @@
             "type": "BELT"
         }
     ],
-    "products": ["Desc_CartridgeStandard_C"]
+    "products": [
+        "Desc_CartridgeStandard_C",
+        "Desc_OreCopper_C",
+        "Desc_XmasBall3_C",
+        "Desc_SpaceElevatorPart_4_C",
+        "Desc_Berry_C",
+        "Desc_QuartzCrystal_C"
+    ]
 }

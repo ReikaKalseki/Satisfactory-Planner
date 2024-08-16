@@ -21,7 +21,7 @@ public class WaterEntryController extends ResourceMineEntryController<WaterExtra
 		GuiUtil.setupCounter(count, 0, 9999, 0, true);
 		count.valueProperty().addListener((val, old, nnew) -> {
 			supply.numberExtractors = nnew;
-			this.updateStats();
+			this.updateStats(true);
 		});
 	}
 

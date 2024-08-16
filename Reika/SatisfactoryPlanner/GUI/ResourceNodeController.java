@@ -145,16 +145,16 @@ public class ResourceNodeController extends RadioTitledPaneSection {
 		purity.setCellFactory(c -> new PurityListCell("", false));
 
 		purity.getSelectionModel().selectedItemProperty().addListener((val, old, nnew) -> {
-			this.updateStats();
+			this.updateStats(true);
 		});
 		solidDropdown.getSelectionModel().selectedItemProperty().addListener((val, old, nnew) -> {
-			this.updateStats();
+			this.updateStats(true);
 		});
 		solidMinerTier.getSelectionModel().selectedItemProperty().addListener((val, old, nnew) -> {
-			this.updateStats();
+			this.updateStats(true);
 		});
 		frackingDropdown.getSelectionModel().selectedItemProperty().addListener((val, old, nnew) -> {
-			this.updateStats();
+			this.updateStats(true);
 		});
 
 		this.setupFrackingSpinner(frackingImpure, Purity.IMPURE);
@@ -191,15 +191,15 @@ public class ResourceNodeController extends RadioTitledPaneSection {
 	protected void onToggleSelected(RadioButton rb) {
 		super.onToggleSelected(rb);
 		purity.setDisable(rb == waterRadio || rb == frackingRadio);
-		this.updateStats();
+		this.updateStats(true);
 	}
 
-	private void updateStats() {
+	private void updateStats(boolean fullUpdate) {
 		ExtractableResource res = this.createResource();
 		yieldDisplay.getChildren().clear();
 		if (res != null && res.getResource() != null && res.getYield() > 0) {
 			res.setClockSpeed(clockSpeed/100F);
-			GuiUtil.addIconCount(res.getResource(), res.getYield(), yieldDisplay);
+			GuiUtil.addIconCount(res.getResource(), res.getYield(), 4, yieldDisplay);
 		}
 	}
 
@@ -211,7 +211,7 @@ public class ResourceNodeController extends RadioTitledPaneSection {
 		counter.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, max, 0));
 		GuiUtil.setupCounter(counter, 0, max, 0, true);
 		counter.valueProperty().addListener((val, old, nnew) -> {
-			this.updateStats();
+			this.updateStats(false);
 		});
 	}
 
@@ -232,7 +232,7 @@ public class ResourceNodeController extends RadioTitledPaneSection {
 		super.postInit(w);
 
 		GuiInstance<ClockspeedSliderController> gui = this.loadNestedFXML("ClockspeedSlider", extraGrid, 1, 1);
-		gui.controller.setCallback(v -> {clockSpeed = v; this.updateStats();});
+		gui.controller.setCallback((v, f) -> {clockSpeed = v; this.updateStats(f);});
 		GuiUtil.setFont(this);
 	}
 

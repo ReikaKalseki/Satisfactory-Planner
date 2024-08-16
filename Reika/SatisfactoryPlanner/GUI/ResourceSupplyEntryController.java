@@ -49,10 +49,12 @@ public abstract class ResourceSupplyEntryController<R extends ResourceSupply> ex
 		GuiUtil.setFont(this);
 	}
 
-	protected void updateStats() {
+	protected void updateStats(boolean fullUpdate) {
+		//Logging.instance.log("Updating supply "+supply.getResource().displayName+"x"+supply.getYield()+": "+fullUpdate);
 		yieldDisplay.getChildren().clear();
-		GuiUtil.addIconCount(supply.getResource(), supply.getYield(), yieldDisplay);
-		factory.updateIO();
+		GuiUtil.addIconCount(supply.getResource(), supply.getYield(), 4, yieldDisplay);
+		if (fullUpdate)
+			factory.updateResourceSupply(supply);
 	}
 
 	protected final R getSupply() {
@@ -77,7 +79,7 @@ public abstract class ResourceSupplyEntryController<R extends ResourceSupply> ex
 		Node n = this.getTopBarContent(GuiUtil.createSpacedHBox(GuiUtil.createItemDisplay(res.getResource(), 32, false), GuiUtil.createItemDisplay((Resource)res.getLocationIcon(), 32, false), this.getTopBarRightContent()));
 		if (n != null)
 			topBar.getChildren().add(n);
-		this.updateStats();
+		this.updateStats(true);
 		deleteButton.setOnAction(e -> {
 			f.removeExternalSupply(res);
 		});

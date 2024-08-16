@@ -26,13 +26,13 @@ public class LogisticSupplyEntryController extends ResourceSupplyEntryController
 
 		amount.valueProperty().addListener((val, old, nnew) -> {
 			supply.setAmount(nnew);
-			this.updateStats();
+			this.updateStats(true);
 		});
 		//amount.getEditor().setVisible(false);
 	}
 
 	@Override
-	protected void updateStats() {
+	protected void updateStats(boolean fullUpdate) {
 		yieldDisplay.getChildren().clear();
 		//icon.setImage(supply.resource.createIcon());
 	}

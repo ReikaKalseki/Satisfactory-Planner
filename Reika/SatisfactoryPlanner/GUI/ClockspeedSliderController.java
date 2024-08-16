@@ -1,10 +1,8 @@
 package Reika.SatisfactoryPlanner.GUI;
 
 import java.io.IOException;
-import java.util.function.Consumer;
 
 import Reika.SatisfactoryPlanner.Data.Database;
-import Reika.SatisfactoryPlanner.Util.MathUtil;
 
 import fxexpansions.FXMLControllerBase;
 import javafx.application.HostServices;
@@ -40,7 +38,7 @@ public class ClockspeedSliderController extends FXMLControllerBase {
 
 	private boolean updatingValue;
 
-	private Consumer<Integer> callback;
+	private ClockSpeedListener callback;
 
 	@Override
 	public void init(HostServices services) throws IOException {
@@ -92,21 +90,20 @@ public class ClockspeedSliderController extends FXMLControllerBase {
 		slider.valueProperty().addListener((val, old, nnew) -> {
 			int real = (int)Math.round(nnew.doubleValue());
 			if (!updatingValue)
-				this.setValue(real, false, true);
+				this.setValue(real, false, true, false);
 			if (Math.abs(nnew.doubleValue()-real) >= 0.1)
 				slider.setValue(real);
 		});
 
-		slider.setOnMouseReleased(e -> {
-			double val = slider.getValue();
-			if (slider.isSnapToTicks() && ((int)(val))%50 != 0) {
-				slider.setValue(MathUtil.roundToNearestX(50, (int)slider.getValue()));
+		slider.valueChangingProperty().addListener((val, old, nnew) -> {
+			if (old && !nnew) {
+				Platform.runLater(() -> callback.onSetSpeed((int)slider.getValue(), true));
 			}
 		});
 
 		spinner.valueProperty().addListener((val, old, nnew) -> {
 			if (nnew != null && !updatingValue)
-				this.setValue(nnew.intValue(), true, false);
+				this.setValue(nnew.intValue(), true, false, true);
 		});
 		TextField txt = spinner.getEditor();
 		txt.textProperty().addListener((val, old, nnew) -> {
@@ -145,10 +142,10 @@ public class ClockspeedSliderController extends FXMLControllerBase {
 	}
 
 	public void setValue(int real) {
-		this.setValue(real, true, true);
+		this.setValue(real, true, true, true);
 	}
 
-	private void setValue(int real, boolean updateSlider, boolean updateSpinner) {
+	private void setValue(int real, boolean updateSlider, boolean updateSpinner, boolean fullUpdate) {
 		updatingValue = true;
 		if (updateSlider)
 			slider.setValue(real);
@@ -165,11 +162,18 @@ public class ClockspeedSliderController extends FXMLControllerBase {
 		updatingValue = false;
 
 		if (callback != null)
-			callback.accept(real);
+			callback.onSetSpeed(real, fullUpdate);
 	}
 
-	public void setCallback(Consumer<Integer> call) {
+	public void setCallback(ClockSpeedListener call) {
 		callback = call;
+	}
+
+	@FunctionalInterface
+	public interface ClockSpeedListener {
+
+		public void onSetSpeed(int percent, boolean fullUpdate);
+
 	}
 
 }

@@ -139,16 +139,16 @@
                                           <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" prefHeight="32.0" vgrow="SOMETIMES" />
                                       </rowConstraints>
                                        <children>
-                                          <Label layoutX="20.0" layoutY="37.0" text="Required Buildings" />
-                                          <Label text="Construction Cost" GridPane.rowIndex="1" />
-                                          <Label layoutX="20.0" layoutY="20.0" text="Net Power Production" GridPane.rowIndex="4" />
-                                          <Label fx:id="powerProduction" layoutX="20.0" layoutY="100.0" text="0 MW" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                                          <ExpandingTilePane fx:id="buildCostBar" hgap="16.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vgap="8.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                          <ExpandingTilePane fx:id="buildingBar" hgap="16.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vgap="8.0" GridPane.columnIndex="1" />
-                                          <Label layoutX="20.0" layoutY="100.0" text="Net Consumption" GridPane.rowIndex="2" />
-                                          <ExpandingTilePane fx:id="netProductBar" hgap="16.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vgap="8.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                                          <Label layoutX="20.0" layoutY="172.0" text="Net Production" GridPane.rowIndex="3" />
-                                          <ExpandingTilePane fx:id="netConsumptionBar" hgap="16.0" layoutX="140.0" layoutY="128.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vgap="8.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                          <Label layoutX="20.0" layoutY="37.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Required Buildings" />
+                                          <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" text="Construction Cost" GridPane.rowIndex="1" />
+                                          <Label layoutX="20.0" layoutY="20.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Net Power Production" GridPane.rowIndex="4" />
+                                          <Label fx:id="powerProduction" layoutX="20.0" layoutY="100.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="0 MW" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                          <ExpandingTilePane fx:id="buildCostBar" hgap="16.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" tileAlignment="CENTER_LEFT" vgap="8.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                          <ExpandingTilePane fx:id="buildingBar" hgap="16.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" tileAlignment="CENTER_LEFT" vgap="8.0" GridPane.columnIndex="1" />
+                                          <Label layoutX="20.0" layoutY="100.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Net Consumption" GridPane.rowIndex="2" />
+                                          <ExpandingTilePane fx:id="netProductBar" hgap="16.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" tileAlignment="CENTER_LEFT" vgap="8.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                          <Label layoutX="20.0" layoutY="172.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" text="Net Production" GridPane.rowIndex="3" />
+                                          <ExpandingTilePane fx:id="netConsumptionBar" hgap="16.0" layoutX="140.0" layoutY="128.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" tileAlignment="CENTER_LEFT" vgap="8.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                        </children>
                                     </GridPane>
                                  </content>
@@ -212,7 +212,7 @@
                               </TitledPane>
                               <TitledPane fx:id="outputPanel1" collapsible="false" layoutX="10.0" layoutY="212.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="panel" text="Total Input" VBox.vgrow="NEVER">
                                  <content>
-                                    <ExpandingTilePane fx:id="localSupplyTotals" hgap="16.0" vgap="8.0">
+                                    <ExpandingTilePane fx:id="localSupplyTotals" hgap="16.0" tileAlignment="CENTER_LEFT" vgap="8.0">
                                        <padding>
                                           <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
                                        </padding></ExpandingTilePane>

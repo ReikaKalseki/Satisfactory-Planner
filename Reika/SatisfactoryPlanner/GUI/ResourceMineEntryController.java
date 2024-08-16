@@ -68,10 +68,11 @@ public class ResourceMineEntryController<R extends ExtractableResource> extends 
 		gui.rootNode.toBack();
 		topBar.toBack();
 		Platform.runLater(() -> gui.controller.setValue((int)(res.getClockSpeed()*100)));
-		gui.controller.setCallback(v -> {
+		gui.controller.setCallback((v, full) -> {
 			supply.setClockSpeed(v/100F);
-			f.updateMatrixStatus(supply.getResource());
-			this.updateStats();
+			if (full)
+				f.updateMatrixStatus(supply.getResource());
+			this.updateStats(full);
 		});
 	}
 

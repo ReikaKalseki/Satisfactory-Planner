@@ -264,3 +264,7 @@
 .progress-bar .bar {
 	-fx-font-size: 16px;
 }
+
+.table-row-darken {
+	-fx-background-color: "#F0F0F0";
+}

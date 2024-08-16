@@ -37,6 +37,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 	private final HashMap<Consumable, GuiInstance<ItemRateController>> sumEntriesOut = new HashMap();
 
 	private boolean buildingGrid;
+	private boolean settingValue;
 
 	public ScaledRecipeMatrix(RecipeMatrix r) {
 		super(r.owner);
@@ -132,7 +133,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 				this.createDivider(idx+1, sumsRow, 2);
 		}
 
-		for (ItemConsumerProducer r : this.getRecipes())
+		for (ItemConsumerProducer r : recipes)
 			if (r instanceof Recipe)
 				this.onSetCount((Recipe)r, owner.getCount((Recipe)r));
 
@@ -157,8 +158,11 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 			counter.setMinHeight(Region.USE_PREF_SIZE);
 			counter.setMaxHeight(Region.USE_PREF_SIZE);
 			counter.valueProperty().addListener((val, old, nnew) -> {
-				if (nnew != null)
+				if (nnew != null) {
+					settingValue = true;
 					parent.owner.setCount((Recipe)r, nnew.floatValue());
+					settingValue = false;
+				}
 			});
 			grid.add(counter, countColumn, rowIndex.rowIndex);
 			recipeEntries.get(r).addChildNode(counter, "counter");
@@ -175,7 +179,11 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 	@Override
 	protected void onClickPrefixButton(Recipe r) {
 		//owner.setCount(r, 0);
-		((Spinner<Double>)recipeEntries.get(r).getChildNode("counter")).getValueFactory().setValue(0D); //will trigger the listener above to update
+		this.zeroRecipeRow(recipeEntries.get(r)); //will trigger the listener above to update
+	}
+
+	private void zeroRecipeRow(RecipeRow rr) {
+		((Spinner<Double>)rr.getChildNode("counter")).getValueFactory().setValue(0D);
 	}
 
 	@Override
@@ -195,7 +203,10 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 
 	@Override
 	public void onSetCount(Recipe r, float amt) {
-		recipeEntries.get(r).setScale(amt);
+		RecipeRow rr = recipeEntries.get(r);
+		rr.setScale(amt);
+		if (!settingValue && !buildingGrid && this.isGridBuilt())
+			this.zeroRecipeRow(rr);
 		this.updateStatuses(r);
 	}
 

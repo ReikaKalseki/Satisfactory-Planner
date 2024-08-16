@@ -3,6 +3,7 @@ package Reika.SatisfactoryPlanner.GUI;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumMap;
@@ -362,6 +363,14 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 				Factory.loadFactory(f, this);
 			}
 		});
+		GuiUtil.setMenuEvent(clearMenu, () -> factory.clearRecipes());
+		GuiUtil.setMenuEvent(zeroMenu, () -> {
+			for (Recipe r : new ArrayList<Recipe>(factory.getRecipes())) {
+				factory.setCount(r, 0);
+			}
+		});
+		GuiUtil.setMenuEvent(clearProductMenu, () -> factory.removeProducts(new ArrayList<Consumable>(factory.getDesiredProducts())));
+		GuiUtil.setMenuEvent(isolateMenu, () -> factory.removeExternalSupplies(new ArrayList<ResourceSupply>(factory.getSupplies())));
 
 		statisticsGrid.getRowConstraints().get(0).minHeightProperty().bind(buildingBar.minHeightProperty());
 		statisticsGrid.getRowConstraints().get(1).minHeightProperty().bind(buildCostBar.minHeightProperty());
@@ -591,7 +600,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 			for (FunctionalBuilding b : bc.keySet()) {
 
 				int amt = bc.get(b);
-				GuiUtil.addIconCount(b, amt, buildingBar);
+				GuiUtil.addIconCount(b, amt, 5, buildingBar);
 
 				for (Entry<Item, Integer> e : b.getConstructionCost().entrySet()) {
 					cost.increment(e.getKey(), e.getValue()*amt);
@@ -599,7 +608,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 			}
 
 			for (Item i : cost.keySet()) {
-				GuiUtil.addIconCount(i, cost.get(i), buildCostBar);
+				GuiUtil.addIconCount(i, cost.get(i), 5, buildCostBar);
 			}
 		}
 
@@ -637,7 +646,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 			for (Consumable c : factory.getAllIngredients()) {
 				float amt = factory.getTotalConsumption(c)-factory.getTotalProduction(c);
 				if (amt > 0)
-					GuiUtil.addIconCount(c, amt, netConsumptionBar);
+					GuiUtil.addIconCount(c, amt, 5, netConsumptionBar);
 			}
 		}
 		if (production) {
@@ -645,7 +654,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 			for (Consumable c : factory.getAllProducedItems()) {
 				float amt = factory.getTotalProduction(c)-factory.getTotalConsumption(c);
 				if (amt > 0)
-					GuiUtil.addIconCount(c, amt, netProductBar);
+					GuiUtil.addIconCount(c, amt, 5, netProductBar);
 			}
 		}
 
@@ -656,7 +665,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 				totalSupply.increment(res.getResource(), res.getYield());
 			}
 			for (Consumable c : totalSupply.keySet()) {
-				GuiUtil.addIconCount(c, totalSupply.get(c), localSupplyTotals);
+				GuiUtil.addIconCount(c, totalSupply.get(c), 5, localSupplyTotals);
 			}
 		}
 		root.layout();
@@ -665,13 +674,19 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	@Override
 	public void onAddRecipe(Recipe r) {
 		this.rebuildLists(true, false);
-		this.updateStats(false);
+		this.updateStats(true, true, true, true, false, true);
 	}
 
 	@Override
 	public void onRemoveRecipe(Recipe r) {
 		this.rebuildLists(true, false);
-		this.updateStats(false);
+		this.updateStats(true, true, true, true, false, true);
+	}
+
+	@Override
+	public void onRemoveRecipes(Collection<Recipe> c) {
+		this.rebuildLists(true, false);
+		this.updateStats(true, true, true, true, false, true);
 	}
 
 	@Override
@@ -706,6 +721,13 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	@Override
 	public void onRemoveProduct(Consumable c) {
 		productGrid.getChildren().remove(productButtons.get(c));
+		this.updateStats(true, false, false, false, false, false);
+	}
+
+	@Override
+	public void onRemoveProducts(Collection<Consumable> c) {
+		for (Consumable cc : c)
+			productGrid.getChildren().remove(productButtons.get(cc));
 		this.updateStats(true, false, false, false, false, false);
 	}
 
@@ -749,6 +771,18 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	public void onRemoveSupply(ResourceSupply s) {
 		inputGrid.getChildren().remove(supplyEntries.get(s).rootNode);
 		this.updateStats(true, false, true, false, true, true);
+	}
+
+	@Override
+	public void onRemoveSupplies(Collection<ResourceSupply> c) {
+		for (ResourceSupply s : c)
+			inputGrid.getChildren().remove(supplyEntries.get(s).rootNode);
+		this.updateStats(true, false, true, false, true, true);
+	}
+
+	@Override
+	public void onUpdateSupply(ResourceSupply s) {
+		//do not need anything since update IO accomplishes
 	}
 
 	@Override

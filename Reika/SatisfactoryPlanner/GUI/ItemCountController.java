@@ -1,5 +1,7 @@
 package Reika.SatisfactoryPlanner.GUI;
 
+import org.apache.commons.lang3.StringUtils;
+
 import Reika.SatisfactoryPlanner.Data.Resource;
 
 import fxexpansions.SizedControllerBase;
@@ -54,6 +56,10 @@ public class ItemCountController extends SizedControllerBase {
 	@Override
 	public String toString() {
 		return item.displayName+" "+countLabel.getText();
+	}
+
+	public void setMaxLength(int digits) {
+		countLabel.setMinWidth(GuiUtil.getWidth(StringUtils.repeat("0", digits)+".00", GuiSystem.getFont()));
 	}
 
 }

@@ -76,6 +76,9 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 
 	protected final HashMap<ItemConsumerProducer, RecipeRow> recipeEntries = new HashMap();
 
+	private GroupedProducer<ResourceSupply> supplyGroup;
+	private GroupedProducer<Fuel> generatorGroup;
+
 	public final Factory owner;
 	protected final GridPane grid;
 
@@ -118,8 +121,10 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 			case EXCLUDE:
 				break;
 			case MERGE:
-				if (owner.getSupplies().size() > 0)
-					ret.add(new GroupedProducer<ResourceSupply>("External Supplies", InternalIcons.SUPPLY, owner.getSupplies(), r -> 1F));
+				if (owner.getSupplies().size() > 0) {
+					supplyGroup = new GroupedProducer<ResourceSupply>("External Supplies", InternalIcons.SUPPLY, owner.getSupplies(), r -> 1F);
+					ret.add(supplyGroup);
+				}
 				break;
 			case INDIVIDUAL:
 				ret.addAll(owner.getSupplies());
@@ -130,8 +135,10 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 			case EXCLUDE:
 				break;
 			case MERGE:
-				if (owner.getTotalGeneratorCount() > 0)
-					ret.add(new GroupedProducer<Fuel>("Generators", InternalIcons.POWER, Fuel.getFuels(), f -> (float)owner.getCount(f.generator, f)));
+				if (owner.getTotalGeneratorCount() > 0) {
+					generatorGroup = new GroupedProducer<Fuel>("Generators", InternalIcons.POWER, Fuel.getFuels(), f -> (float)owner.getCount(f.generator, f));
+					ret.add(generatorGroup);
+				}
 				break;
 			case INDIVIDUAL:
 				for (Generator g : Database.getAllGenerators()) {
@@ -373,6 +380,8 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 			grid.getColumnConstraints().clear();
 			grid.getRowConstraints().clear();
 			recipeEntries.clear();
+			supplyGroup = null;
+			generatorGroup = null;
 			this.rebuildGrid();
 			this.initializeWidths();
 			//Logging.instance.log(sum+" of "+Arrays.toString(w));
@@ -424,7 +433,11 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 		grid.setMinWidth(sum+grid.getHgap()+8);
 	}
 
-	private void updateColumnWidth(int col, double atLeast) {
+	private void updateColumnWidth(int col, double atLeast) {/*
+		if (col >= contentWidths.length) {
+			Logging.instance.log(this+": Tried to set width of col "+col+" / "+contentWidths.length+"&"+grid.getColumnConstraints().size());
+			return;
+		}*/
 		//Logging.instance.log("Updating width @ "+col+" >= "+atLeast+" from "+contentWidths[col]);
 		contentWidths[col] = Math.max(atLeast, contentWidths[col]);
 		grid.getColumnConstraints().get(col).setMinWidth(contentWidths[col]);
@@ -433,11 +446,19 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 	@Override
 	public final void onAddRecipe(Recipe r) {
 		this.rebuild();
+		this.onUpdateIO();
+	}
+
+	@Override
+	public final void onRemoveRecipes(Collection<Recipe> c) {
+		this.rebuild();
+		this.onUpdateIO();
 	}
 
 	@Override
 	public final void onRemoveRecipe(Recipe r) {
 		this.rebuild();
+		this.onUpdateIO();
 	}
 
 	@Override
@@ -465,10 +486,45 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 	public final void onRemoveProduct(Consumable c) {}
 
 	@Override
-	public final void onAddSupply(ResourceSupply s) {}
+	public final void onRemoveProducts(Collection<Consumable> c) {}
 
 	@Override
-	public final void onRemoveSupply(ResourceSupply s) {}
+	public final void onAddSupply(ResourceSupply s) {
+		if (owner.resourceMatrixRule != InclusionPattern.EXCLUDE) {
+			this.rebuild();
+			this.onUpdateIO();
+		}
+	}
+
+	@Override
+	public final void onRemoveSupply(ResourceSupply s) {
+		if (owner.resourceMatrixRule != InclusionPattern.EXCLUDE) {
+			this.rebuild();
+			this.onUpdateIO();
+		}
+	}
+
+	@Override
+	public final void onRemoveSupplies(Collection<ResourceSupply> c) {
+		if (owner.resourceMatrixRule != InclusionPattern.EXCLUDE) {
+			this.rebuild();
+			this.onUpdateIO();
+		}
+	}
+
+	@Override
+	public void onUpdateSupply(ResourceSupply r) {
+		switch (owner.resourceMatrixRule) {
+			case EXCLUDE:
+				break;
+			case MERGE:
+				recipeEntries.get(supplyGroup).setAmount(r.getResource(), r.getYield(), false, true);
+				break;
+			case INDIVIDUAL:
+				recipeEntries.get(r).setAmount(r.getResource(), r.getYield(), false, true);
+				break;
+		}
+	}
 
 	@Override
 	public final void onSetToggle(ToggleableVisiblityGroup grp, boolean active) {}
@@ -555,6 +611,27 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 				gui.gui.controller.setScale(scale);
 				if (RecipeMatrixBase.this.isGridBuilt())
 					RecipeMatrixBase.this.updateColumnWidth(gui.columnIndex, gui.gui.controller.getWidth());
+			}
+			if (RecipeMatrixBase.this.isGridBuilt())
+				RecipeMatrixBase.this.resizeGrid();
+		}
+
+		public void setAmount(Consumable c, float amt, boolean in, boolean out) {
+			if (in) {
+				RateSlot gui = inputSlots.get(c);
+				if (gui != null) {
+					gui.gui.controller.setAmount(amt);
+					if (RecipeMatrixBase.this.isGridBuilt())
+						RecipeMatrixBase.this.updateColumnWidth(gui.columnIndex, gui.gui.controller.getWidth());
+				}
+			}
+			if (out) {
+				RateSlot gui = outputSlots.get(c);
+				if (gui != null) {
+					gui.gui.controller.setAmount(amt);
+					if (RecipeMatrixBase.this.isGridBuilt())
+						RecipeMatrixBase.this.updateColumnWidth(gui.columnIndex, gui.gui.controller.getWidth());
+				}
 			}
 			if (RecipeMatrixBase.this.isGridBuilt())
 				RecipeMatrixBase.this.resizeGrid();

@@ -70,6 +70,7 @@ public class RecipeMatrix extends RecipeMatrixBase {
 
 	}
 
+	@Override
 	public void onUpdateIO() {
 
 	}
