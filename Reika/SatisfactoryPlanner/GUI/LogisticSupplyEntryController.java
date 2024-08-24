@@ -33,6 +33,7 @@ public class LogisticSupplyEntryController extends ResourceSupplyEntryController
 
 	@Override
 	protected void updateStats(boolean fullUpdate) {
+		super.updateStats(fullUpdate);
 		yieldDisplay.getChildren().clear();
 		//icon.setImage(supply.resource.createIcon());
 	}

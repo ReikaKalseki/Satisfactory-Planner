@@ -6,11 +6,12 @@ import java.util.List;
 import Reika.SatisfactoryPlanner.Data.Factory;
 import Reika.SatisfactoryPlanner.Data.ItemConsumerProducer;
 import Reika.SatisfactoryPlanner.Data.Recipe;
+import Reika.SatisfactoryPlanner.GUI.RecipeMatrixContainer.MatrixType;
 
 public class RecipeMatrix extends RecipeMatrixBase {
 
 	public RecipeMatrix(Factory f) {
-		super(f);
+		super(f, MatrixType.MAIN);
 	}
 
 	@Override

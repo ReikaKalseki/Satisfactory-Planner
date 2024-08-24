@@ -11,6 +11,7 @@ import Reika.SatisfactoryPlanner.Data.Generator;
 import Reika.SatisfactoryPlanner.Data.ItemConsumerProducer;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.GUI.ItemRateController.WarningState;
+import Reika.SatisfactoryPlanner.GUI.RecipeMatrixContainer.MatrixType;
 
 import fxexpansions.GuiInstance;
 import javafx.geometry.Insets;
@@ -40,7 +41,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 	private boolean settingValue;
 
 	public ScaledRecipeMatrix(RecipeMatrix r) {
-		super(r.owner);
+		super(r.owner, MatrixType.SCALE);
 		parent = r;
 	}
 
@@ -115,10 +116,11 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 
 		buildingGrid = false;
 
+		GridPane gp = this.getGrid();
 		for (int i = 0; i < inputs.size(); i++) {
 			Consumable c = inputs.get(i);
 			int idx = ingredientsStartColumn+inputs.indexOf(c)*2;
-			GuiInstance<ItemRateController> gui = GuiUtil.createItemView(c, owner.getTotalConsumption(c), grid, idx, sumsRow);
+			GuiInstance<ItemRateController> gui = GuiUtil.createItemView(c, owner.getTotalConsumption(c), gp, idx, sumsRow);
 			sumEntriesIn.put(c, gui);
 			if (i < inputs.size()-1)
 				this.createDivider(idx+1, sumsRow, 2);
@@ -127,7 +129,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 			Consumable c = outputs.get(i);
 			int idx = productsStartColumn+outputs.indexOf(c)*2;
 			//Logging.instance.log(c+" @ "+idx+" in "+outputs.indexOf(c)+":"+outputs);
-			GuiInstance<ItemRateController> gui = GuiUtil.createItemView(c, this.getAvailable(c), grid, idx, sumsRow);
+			GuiInstance<ItemRateController> gui = GuiUtil.createItemView(c, this.getAvailable(c), gp, idx, sumsRow);
 			sumEntriesOut.put(c, gui);
 			if (i < outputs.size()-1)
 				this.createDivider(idx+1, sumsRow, 2);
@@ -139,7 +141,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 
 		this.addTitles();
 
-		grid.getColumnConstraints().get(countColumn).setMinWidth(92);
+		gp.getColumnConstraints().get(countColumn).setMinWidth(92);
 	}
 
 	private float getAvailable(Consumable c) {
@@ -153,10 +155,11 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 		this.createDivider(countGapColumn, rowIndex.rowIndex, 0);
 		if (r instanceof Recipe) {
 			Spinner<Double> counter = new Spinner();
-			GuiUtil.setupCounter(counter, 0, 9999, parent.owner.getCount((Recipe)r), true);
+			GuiUtil.setupCounter(counter, 0, 9999, owner.getCount((Recipe)r), true);
 			counter.setPrefHeight(32);
 			counter.setMinHeight(Region.USE_PREF_SIZE);
 			counter.setMaxHeight(Region.USE_PREF_SIZE);
+			//counter.getValueFactory().setValue(owner.get);
 			counter.valueProperty().addListener((val, old, nnew) -> {
 				if (nnew != null) {
 					settingValue = true;
@@ -164,14 +167,14 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 					settingValue = false;
 				}
 			});
-			grid.add(counter, countColumn, rowIndex.rowIndex);
+			this.getGrid().add(counter, countColumn, rowIndex.rowIndex);
 			recipeEntries.get(r).addChildNode(counter, "counter");
 		}
 		else if (r instanceof Fuel) {
 			Fuel f = (Fuel)r;
 			Label lb = new Label(String.valueOf(owner.getCount(f.generator, f)));
 			lb.setPadding(new Insets(2, 2, 2, 8));
-			grid.add(lb, countColumn, rowIndex.rowIndex);
+			this.getGrid().add(lb, countColumn, rowIndex.rowIndex);
 		}
 		return rowIndex;
 	}
@@ -197,8 +200,8 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 
 		countLabel = new Label("Counts");
 		countLabel.setFont(Font.font(countLabel.getFont().getFamily(), FontWeight.BOLD, 16));
-		grid.add(countLabel, countColumn, titlesRow);
-		grid.setColumnSpan(countLabel, GridPane.REMAINING);
+		this.getGrid().add(countLabel, countColumn, titlesRow);
+		this.getGrid().setColumnSpan(countLabel, GridPane.REMAINING);
 	}
 
 	@Override
@@ -220,26 +223,15 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 
 	public void onUpdateIO() {
 		for (ItemConsumerProducer i : recipeEntries.keySet()) {
-			if (i instanceof Recipe)
-				this.updateStatuses((Recipe)i);
-			if (i instanceof Fuel)
-				this.updateStatuses((Fuel)i);
+			this.updateStatuses(i);
 		}
 	}
 
-	private void updateStatuses(Recipe r) {
-		for (Consumable c : r.getIngredientsPerMinute().keySet())
+	private void updateStatuses(ItemConsumerProducer i) {
+		for (Consumable c : i.getIngredientsPerMinute().keySet())
 			this.updateStatuses(c);
-		for (Consumable c : r.getProductsPerMinute().keySet())
+		for (Consumable c : i.getProductsPerMinute().keySet())
 			this.updateStatuses(c);
-	}
-
-	private void updateStatuses(Fuel fuel) {
-		this.updateStatuses(fuel.item);
-		if (fuel.secondaryItem != null)
-			this.updateStatuses(fuel.secondaryItem);
-		if (fuel.byproduct != null)
-			this.updateStatuses(fuel.byproduct);
 	}
 
 	@Override

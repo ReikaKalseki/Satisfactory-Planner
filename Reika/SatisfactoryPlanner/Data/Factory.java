@@ -30,15 +30,14 @@ import Reika.SatisfactoryPlanner.Data.Warning.ResourceIconName;
 import Reika.SatisfactoryPlanner.Data.Warning.WarningSeverity;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem;
 import Reika.SatisfactoryPlanner.GUI.GuiUtil;
-import Reika.SatisfactoryPlanner.GUI.MainGuiController;
 import Reika.SatisfactoryPlanner.GUI.RecipeMatrix;
+import Reika.SatisfactoryPlanner.GUI.RecipeMatrixContainer;
+import Reika.SatisfactoryPlanner.GUI.RecipeMatrixContainer.MatrixType;
 import Reika.SatisfactoryPlanner.GUI.ScaledRecipeMatrix;
 import Reika.SatisfactoryPlanner.Util.CountMap;
 import Reika.SatisfactoryPlanner.Util.JSONUtil;
 import Reika.SatisfactoryPlanner.Util.Logging;
 import Reika.SatisfactoryPlanner.Util.MultiMap;
-
-import javafx.scene.Node;
 
 public class Factory {
 
@@ -56,6 +55,8 @@ public class Factory {
 	private final RecipeMatrix matrix = new RecipeMatrix(this);
 	private final ScaledRecipeMatrix scaleMatrix = new ScaledRecipeMatrix(matrix);
 
+	private final EnumSet<MatrixType> invalidMatrices = EnumSet.noneOf(MatrixType.class);
+
 	private final MultiMap<Consumable, ResourceSupply> resourceSources = new MultiMap();
 	private final ArrayList<Consumable> desiredProducts = new ArrayList();
 
@@ -72,7 +73,7 @@ public class Factory {
 
 	private File currentFile;
 
-	private MainGuiController gui;
+	private RecipeMatrixContainer gui;
 
 	public InclusionPattern generatorMatrixRule = InclusionPattern.INDIVIDUAL;
 	public InclusionPattern resourceMatrixRule = InclusionPattern.MERGE;
@@ -113,7 +114,7 @@ public class Factory {
 		this.rebuildFlows();
 		this.notifyListeners(c -> c.onAddRecipe(r));
 		if (!skipNotify)
-			GuiUtil.queueIfNecessary(() -> this.alignMatrices());
+			this.queueMatrixAlign();
 	}
 
 	public void removeRecipe(Recipe r) {
@@ -123,7 +124,7 @@ public class Factory {
 			this.rebuildFlows();
 			this.notifyListeners(c -> c.onRemoveRecipe(r));
 			if (!skipNotify)
-				GuiUtil.queueIfNecessary(() -> this.alignMatrices());
+				this.queueMatrixAlign();
 		}
 	}
 
@@ -138,35 +139,41 @@ public class Factory {
 		skipNotify = false;
 		this.rebuildFlows();
 		this.notifyListeners(l -> l.onRemoveRecipes(c));
-		GuiUtil.queueIfNecessary(() -> this.alignMatrices());
+		this.queueMatrixAlign();
 	}
 
 	public void clearRecipes() {
 		this.removeRecipes(new ArrayList(recipes.keySet()));
 	}
 
-	public Node createRawMatrix() {
-		//if (recipes.isEmpty())
-		//	return null;
-		return matrix.getGrid();
-	}
-
-	public Node createNetMatrix() {
-		//if (recipes.isEmpty())
-		//	return null;
-		return scaleMatrix.getGrid();
-	}
-
-	public void rebuildMatrices() {
-		matrix.rebuild();
-		scaleMatrix.rebuild();
+	public void rebuildMatrices(boolean updateIO) {
+		matrix.rebuild(updateIO);
+		scaleMatrix.rebuild(updateIO);
 
 		this.alignMatrices();
 	}
 
+	private void queueMatrixAlign() {
+		GuiUtil.queueIfNecessary(() -> this.alignMatrices());
+	}
+
 	private void alignMatrices() {
+		if (!invalidMatrices.isEmpty())
+			return;
+		Logging.instance.log("Aligning matrices");
 		matrix.alignWith(scaleMatrix);
 		scaleMatrix.alignWith(matrix);
+	}
+
+	public void setGridBuilt(MatrixType mt, boolean built) {
+		Logging.instance.log("Setting matrix "+mt+" status: "+built);
+		if (built)
+			invalidMatrices.remove(mt);
+		else
+			invalidMatrices.add(mt);
+
+		if (invalidMatrices.isEmpty())
+			this.queueMatrixAlign();
 	}
 
 	public void updateMatrixStatus(Consumable c) {
@@ -187,7 +194,7 @@ public class Factory {
 		this.updateMatrixStatus(res.getResource());
 		this.notifyListeners(c -> c.onAddSupply(res));
 		if (!skipNotify)
-			GuiUtil.queueIfNecessary(() -> this.alignMatrices());
+			this.queueMatrixAlign();
 	}
 
 	public void removeExternalSupply(ResourceSupply res) {
@@ -196,7 +203,7 @@ public class Factory {
 		this.updateMatrixStatus(res.getResource());
 		this.notifyListeners(c -> c.onRemoveSupply(res));
 		if (!skipNotify)
-			GuiUtil.queueIfNecessary(() -> this.alignMatrices());
+			this.queueMatrixAlign();
 	}
 
 	public void removeExternalSupplies(Collection<ResourceSupply> c) {
@@ -211,7 +218,7 @@ public class Factory {
 			this.updateMatrixStatus(cc);
 		this.notifyListeners(l -> l.onRemoveSupplies(c));
 		if (!skipNotify)
-			GuiUtil.queueIfNecessary(() -> this.alignMatrices());
+			this.queueMatrixAlign();
 	}
 
 	public Collection<ResourceSupply> getSupplies() {
@@ -319,9 +326,10 @@ public class Factory {
 	public void setCount(Recipe r, float amt) {
 		recipes.put(r, amt);
 		this.rebuildFlows();
-		this.notifyListeners(c -> c.onSetCount(r, amt));
+		if (invalidMatrices.isEmpty())
+			this.notifyListeners(c -> c.onSetCount(r, amt));
 		if (!skipNotify)
-			GuiUtil.queueIfNecessary(() -> this.alignMatrices());
+			this.queueMatrixAlign();
 	}
 
 	public int getCount(Generator g, Fuel f) {
@@ -341,7 +349,7 @@ public class Factory {
 		this.rebuildFlows();
 		this.notifyListeners(c -> c.onSetCount(g, f, old, amt));
 		if (!skipNotify)
-			GuiUtil.queueIfNecessary(() -> this.alignMatrices());
+			this.queueMatrixAlign();
 	}
 
 	public void updateIO() {
@@ -666,7 +674,7 @@ public class Factory {
 		skipNotify = true;
 		for (FactoryListener rr : changeCallback)
 			rr.onLoaded();
-		GuiUtil.queueIfNecessary(() -> this.alignMatrices());
+		this.queueMatrixAlign();
 		skipNotify = false;
 	}
 
@@ -689,7 +697,7 @@ public class Factory {
 		});
 	}
 
-	public void setUI(MainGuiController gui) {
+	public void setUI(RecipeMatrixContainer gui) {
 		this.gui = gui;
 		matrix.setUI(gui);
 		scaleMatrix.setUI(gui);

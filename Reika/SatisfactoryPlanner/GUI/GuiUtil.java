@@ -5,9 +5,9 @@ import java.io.StringWriter;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import org.controlsfx.control.SearchableComboBox;
@@ -18,6 +18,7 @@ import Reika.SatisfactoryPlanner.Data.Resource;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.FontModifier;
 import Reika.SatisfactoryPlanner.Util.Errorable;
 import Reika.SatisfactoryPlanner.Util.JavaUtil;
+import Reika.SatisfactoryPlanner.Util.Logging;
 
 import fxexpansions.ControllerBase;
 import fxexpansions.ExpandingTilePane;
@@ -31,7 +32,6 @@ import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBase;
@@ -44,7 +44,6 @@ import javafx.scene.control.Labeled;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
@@ -70,7 +69,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Screen;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 
 public class GuiUtil {
@@ -408,49 +406,30 @@ public class GuiUtil {
 		}
 	}
 
-	private static final HashMap<Long, Stage> waitingDialogs = new HashMap();
-
 	public static void queueTask(Errorable e) {
-		long time = System.currentTimeMillis();
-		queueIfNecessary(() -> {
-			VBox box = new VBox();
-			box.setSpacing(12);
-			box.setPadding(new Insets(8, 8, 8, 8));
-			Label lb = new Label("The selected operation is underway.");
-			lb.setFont(Font.font(GuiSystem.getDefaultFont().getFamily(), 14));
-			box.getChildren().add(lb);
-			box.getChildren().add(new ProgressBar());
-			for (Node n : box.getChildren()) {
-				if (n instanceof Region) {
-					Region r = (Region)n;
-					box.setVgrow(r, Priority.ALWAYS);
-					r.setMaxWidth(Double.MAX_VALUE);
-				}
-			}
+		queueTask(e, null);
+	}
 
-			Stage s = new Stage();
-			s.setTitle("Loading");
-			s.setScene(new Scene(box, 300, 65));
-			s.getScene().getStylesheets().add(Main.class.getResource("Resources/CSS/style.css").toString());
-			box.layout();
-			waitingDialogs.put(time, s);
-			s.show();
-		});
+	public static void queueTask(Errorable e, Errorable jfxActionWhenDone) {
+		UUID id = WaitDialogManager.instance.registerTask();
+		Logging.instance.log("Queuing long task ["+id+"] "+e+" with JFX post-action "+jfxActionWhenDone);
 		JavaUtil.queueTask(() -> {
 			try {
 				//Thread.sleep(1000);
 				e.run();
+				Logging.instance.log("Task "+e+" complete, queuing JFX post-action if any");
+				Thread.sleep(250);
+				Thread.sleep(10);
 				Platform.runLater(() -> {
-					while (!waitingDialogs.containsKey(time)) {
-						//Logging.instance.log("Waiting");
+					if (jfxActionWhenDone != null) {
 						try {
-							Thread.sleep(20);
+							jfxActionWhenDone.run();
 						}
-						catch (InterruptedException ex) {
+						catch (Exception ex) {
 							ex.printStackTrace();
 						}
 					}
-					waitingDialogs.remove(time).close();
+					WaitDialogManager.instance.completeTask(id);
 				});
 			}
 			catch (Exception ex) {

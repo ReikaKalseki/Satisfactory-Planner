@@ -72,7 +72,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
-public class MainGuiController extends FXMLControllerBase implements FactoryListener {
+public class MainGuiController extends FXMLControllerBase implements FactoryListener, RecipeMatrixContainer {
 
 	private boolean hasLoaded;
 
@@ -396,13 +396,17 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 
 		generatorMatrixOptions.getSelectionModel().selectedItemProperty().addListener((val, old, nnew) -> {
 			factory.generatorMatrixRule = nnew;
-			factory.updateIO();
-			factory.rebuildMatrices();
+			if (matrixOptionsActive) {
+				factory.updateIO();
+				factory.rebuildMatrices(true);
+			}
 		});
 		resourceMatrixOptions.getSelectionModel().selectedItemProperty().addListener((val, old, nnew) -> {
 			factory.resourceMatrixRule = nnew;
-			factory.updateIO();
-			factory.rebuildMatrices();
+			if (matrixOptionsActive) {
+				factory.updateIO();
+				factory.rebuildMatrices(true);
+			}
 		});
 
 		buildingBar.minRowHeight = 32;
@@ -415,23 +419,21 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		return factory;
 	}
 
+	private boolean matrixOptionsActive = true;
+
 	public void setFactory(Factory f) {
 		factory = f;
-		factory.setUI(this);
 
+		GuiUtil.queueIfNecessary(() -> factory.setUI(this));
+
+		matrixOptionsActive = false;
 		generatorMatrixOptions.getSelectionModel().select(factory.generatorMatrixRule);
 		resourceMatrixOptions.getSelectionModel().select(factory.resourceMatrixRule);
+		matrixOptionsActive = true;
 
 		for (GuiInstance<GeneratorRowController> gui : generators.values()) {
 			gui.controller.setFactory(f);
 		}
-		GuiUtil.queueIfNecessary(() -> {
-			Node gp = factory.createRawMatrix();
-			gridContainer.setContent(gp);
-
-			gp = factory.createNetMatrix();
-			netGridContainer.setContent(gp);
-		});
 	}
 
 	@Override
@@ -476,6 +478,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		this.buildRecentList();
 
 		this.setFactory(new Factory());
+		factory.rebuildMatrices(false);
 		factory.addCallback(this);
 
 		this.rebuildEntireUI();
@@ -854,5 +857,35 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		}
 
 
+	}
+
+	@Override
+	public void setMatrix(MatrixType mt, GridPane g) {
+		TitledPane tp = null;
+		switch(mt) {
+			case MAIN:
+				tp = gridContainer;
+				break;
+			case SCALE:
+				tp = netGridContainer;
+				break;
+		}
+
+		tp.setContent(g);
+	}
+
+	@Override
+	public GridPane getMatrix(MatrixType mt) {
+		TitledPane tp = null;
+		switch(mt) {
+			case MAIN:
+				tp = gridContainer;
+				break;
+			case SCALE:
+				tp = netGridContainer;
+				break;
+		}
+
+		return (GridPane)tp.getContent();
 	}
 }

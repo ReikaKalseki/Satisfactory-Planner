@@ -28,9 +28,11 @@ import Reika.SatisfactoryPlanner.Data.Generator;
 import Reika.SatisfactoryPlanner.Data.ItemConsumerProducer;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.Data.ResourceSupply;
+import Reika.SatisfactoryPlanner.GUI.RecipeMatrixContainer.MatrixType;
 import Reika.SatisfactoryPlanner.Util.CountMap;
+import Reika.SatisfactoryPlanner.Util.Errorable;
+import Reika.SatisfactoryPlanner.Util.Logging;
 
-import fxexpansions.FXMLControllerBase;
 import fxexpansions.GuiInstance;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -80,26 +82,22 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 	private GroupedProducer<Fuel> generatorGroup;
 
 	public final Factory owner;
-	protected final GridPane grid;
 
-	protected FXMLControllerBase gui;
+	protected RecipeMatrixContainer gui;
 
 	private double[] contentWidths;
 
-	protected RecipeMatrixBase(Factory f) {
-		owner = f;
-		grid = new GridPane();
-		owner.addCallback(this);
+	public final MatrixType type;
 
-		grid.setHgap(2);
-		grid.setVgap(2);
-		grid.setMaxHeight(Double.POSITIVE_INFINITY);
-		grid.setMaxWidth(Double.POSITIVE_INFINITY);
-		grid.setPrefHeight(Region.USE_COMPUTED_SIZE);
-		grid.setPrefWidth(Region.USE_COMPUTED_SIZE);
+	private GridPane grid;
+
+	protected RecipeMatrixBase(Factory f, MatrixType t) {
+		owner = f;
+		type = t;
+		owner.addCallback(this);
 	}
 
-	public final void setUI(FXMLControllerBase gui) {
+	public final void setUI(RecipeMatrixContainer gui) {
 		this.gui = gui;
 	}
 
@@ -374,22 +372,53 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 		return Integer.MIN_VALUE;
 	}
 
-	public final void rebuild() {
-		try {
-			grid.getChildren().clear();
-			grid.getColumnConstraints().clear();
-			grid.getRowConstraints().clear();
+	public final void rebuild(boolean updateIO) {
+		//Logging.instance.log("Rebuilding grid "+type+" from ");
+		//Thread.dumpStack();
+		owner.setGridBuilt(type, false);
+		contentWidths = null;
+		Errorable rebuild = () -> {
+			GridPane current = gui.getMatrix(type);
+			long id = System.identityHashCode(grid);
+			if (grid == current)
+				throw new IllegalStateException("New "+type+" grid "+id+" socketed too early!");
+			Logging.instance.log("Rebuilding "+type+" matrix with pane "+id+" ["+System.identityHashCode(current)+"]");
+			//grid.getChildren().clear();
+			//grid.getColumnConstraints().clear();
+			//grid.getRowConstraints().clear();
 			recipeEntries.clear();
 			supplyGroup = null;
 			generatorGroup = null;
 			this.rebuildGrid();
 			this.initializeWidths();
+			Logging.instance.log("Finished rebuilding "+type+" matrix");
+			if (updateIO)
+				this.onUpdateIO();
 			//Logging.instance.log(sum+" of "+Arrays.toString(w));
 			//Platform.runLater(() -> grid.layout());
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
+		};
+
+		//thread jumping:
+		//cancelled JFX: remove grid from scenetree
+		//other thread: rebuild grid
+		//JFX: put grid back in scenetree
+		GuiUtil.queueIfNecessary(() -> {
+			long old = System.identityHashCode(grid);
+			grid = new GridPane();
+			Logging.instance.log("Beginning rebuild of "+type+" matrix: "+old+" > "+System.identityHashCode(grid)+" ["+System.identityHashCode(gui.getMatrix(type))+"]");
+			//gui.setMatrix(type, null); //leave old grid in place
+			grid.setHgap(2);
+			grid.setVgap(2);
+			grid.setMaxHeight(Double.POSITIVE_INFINITY);
+			grid.setMaxWidth(Double.POSITIVE_INFINITY);
+			grid.setPrefHeight(Region.USE_COMPUTED_SIZE);
+			grid.setPrefWidth(Region.USE_COMPUTED_SIZE);
+			GuiUtil.queueTask(rebuild, () -> {
+				Logging.instance.log("Socketing new "+type+" matrix "+System.identityHashCode(grid));
+				gui.setMatrix(type, grid);
+				owner.setGridBuilt(type, true);
+			});
+		});
 	}
 
 	private void initializeWidths() {
@@ -445,37 +474,33 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 
 	@Override
 	public final void onAddRecipe(Recipe r) {
-		this.rebuild();
-		this.onUpdateIO();
+		this.rebuild(true);
 	}
 
 	@Override
 	public final void onRemoveRecipes(Collection<Recipe> c) {
-		this.rebuild();
-		this.onUpdateIO();
+		this.rebuild(true);
 	}
 
 	@Override
 	public final void onRemoveRecipe(Recipe r) {
-		this.rebuild();
-		this.onUpdateIO();
+		this.rebuild(true);
 	}
 
 	@Override
 	public final void onCleared() {
-		GuiUtil.queueIfNecessary(() -> this.rebuild());
+		this.rebuild(false);
 	}
 
 	@Override
 	public final void onLoaded() {
-		GuiUtil.queueIfNecessary(() -> this.rebuild());
+		this.rebuild(false);
 	}
 
 	@Override
 	public void onSetCount(Generator g, Fuel fuel, int old, int count) {
 		if ((old <= 0 && count > 0) || (count <= 0 && old > 0)) {
-			this.rebuild();
-			this.onUpdateIO();
+			this.rebuild(true);
 		}
 	}
 
@@ -491,24 +516,21 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 	@Override
 	public final void onAddSupply(ResourceSupply s) {
 		if (owner.resourceMatrixRule != InclusionPattern.EXCLUDE) {
-			this.rebuild();
-			this.onUpdateIO();
+			this.rebuild(true);
 		}
 	}
 
 	@Override
 	public final void onRemoveSupply(ResourceSupply s) {
 		if (owner.resourceMatrixRule != InclusionPattern.EXCLUDE) {
-			this.rebuild();
-			this.onUpdateIO();
+			this.rebuild(true);
 		}
 	}
 
 	@Override
 	public final void onRemoveSupplies(Collection<ResourceSupply> c) {
 		if (owner.resourceMatrixRule != InclusionPattern.EXCLUDE) {
-			this.rebuild();
-			this.onUpdateIO();
+			this.rebuild(true);
 		}
 	}
 
@@ -587,6 +609,14 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 					label.setText(label.getText()+" ("+((ResourceSupply)r).getResource().displayName+")");
 			}
 			GuiUtil.sizeToContent(label);
+			/*
+			if (r instanceof Recipe) {
+				this.setScale(owner.getCount((Recipe)r));
+			}
+			else if (r instanceof Fuel) {
+				Fuel f = (Fuel)r;
+				this.setScale(owner.getCount(f.generator, f));
+			}*/
 		}
 
 		public Button getButton() {

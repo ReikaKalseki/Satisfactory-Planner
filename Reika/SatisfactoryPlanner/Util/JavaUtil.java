@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 
 public final class JavaUtil {
 
-	private static final ExecutorService threader = Executors.newFixedThreadPool(2);
+	private static final ExecutorService threader = Executors.newFixedThreadPool(4);
 
 	public static final Comparator<Comparable> reverseComparator = new Comparator<Comparable>() {
 
