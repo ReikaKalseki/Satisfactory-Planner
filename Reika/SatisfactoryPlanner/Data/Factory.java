@@ -154,7 +154,7 @@ public class Factory {
 	}
 
 	private void queueMatrixAlign() {
-		GuiUtil.queueIfNecessary(() -> this.alignMatrices());
+		GuiUtil.runOnJFXThread(() -> this.alignMatrices());
 	}
 
 	private void alignMatrices() {
@@ -557,11 +557,11 @@ public class Factory {
 
 	public void save() {
 		if (currentFile != null)
-			GuiUtil.queueTask(() -> this.save(currentFile));
+			GuiUtil.queueTask("Saving factory", () -> this.save(currentFile));
 	}
 
 	public void save(File f) {
-		GuiUtil.queueTask(() -> {
+		GuiUtil.queueTask("Saving "+f.getAbsolutePath(), () -> {
 			JSONObject root = new JSONObject();
 			JSONArray recipes = new JSONArray();
 			JSONArray generators = new JSONArray();
@@ -612,7 +612,7 @@ public class Factory {
 	}
 
 	public void reload() {
-		GuiUtil.queueTask(() -> this.load(currentFile));
+		GuiUtil.queueTask("Reloading factory from disk", () -> this.load(currentFile));
 	}
 
 	private void load(File f) throws Exception {
@@ -686,8 +686,9 @@ public class Factory {
 	}
 
 	public static void loadFactory(File f, FactoryListener... l) {
-		Logging.instance.log("Loading factory from "+f.getAbsolutePath());
-		GuiUtil.queueTask(() -> {
+		String msg = "Loading factory from "+f.getAbsolutePath();
+		Logging.instance.log(msg);
+		GuiUtil.queueTask(msg, () -> {
 			Factory ret = new Factory();
 			for (FactoryListener fl : l) {
 				ret.addCallback(fl);

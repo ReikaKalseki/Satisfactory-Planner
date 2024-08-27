@@ -15,7 +15,7 @@ import org.controlsfx.control.SearchableComboBox;
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Resource;
-import Reika.SatisfactoryPlanner.GUI.GuiSystem.FontModifier;
+import Reika.SatisfactoryPlanner.Util.ColorUtil;
 import Reika.SatisfactoryPlanner.Util.Errorable;
 import Reika.SatisfactoryPlanner.Util.JavaUtil;
 import Reika.SatisfactoryPlanner.Util.Logging;
@@ -36,13 +36,9 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Spinner;
@@ -51,7 +47,6 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputControl;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
@@ -65,6 +60,11 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
+import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
@@ -93,6 +93,8 @@ public class GuiUtil {
 
 	public static HBox createSpacedHBox(Node left, Node ctr, Node right) {
 		HBox p = new HBox();
+		p.setMaxWidth(Double.MAX_VALUE);
+		p.setMaxHeight(Double.MAX_VALUE);
 		p.setAlignment(Pos.CENTER);
 		p.getChildren().add(left);
 		addSpacer(p);
@@ -106,6 +108,8 @@ public class GuiUtil {
 
 	public static VBox createSpacedVBox(Node left, Node ctr, Node right) {
 		VBox p = new VBox();
+		p.setMaxWidth(Double.MAX_VALUE);
+		p.setMaxHeight(Double.MAX_VALUE);
 		p.setAlignment(Pos.CENTER);
 		p.getChildren().add(left);
 		addSpacer(p);
@@ -397,7 +401,7 @@ public class GuiUtil {
 		box.maxWidthProperty().bind(box.minWidthProperty());
 	}
 
-	public static void queueIfNecessary(Errorable r) {
+	public static void runOnJFXThread(Errorable r) {
 		if (Platform.isFxApplicationThread()) {
 			tryWithErrorHandling(r);
 		}
@@ -406,20 +410,18 @@ public class GuiUtil {
 		}
 	}
 
-	public static void queueTask(Errorable e) {
-		queueTask(e, null);
+	public static void queueTask(String desc, Errorable e) {
+		queueTask(desc, e, null);
 	}
 
-	public static void queueTask(Errorable e, Errorable jfxActionWhenDone) {
-		UUID id = WaitDialogManager.instance.registerTask();
-		Logging.instance.log("Queuing long task ["+id+"] "+e+" with JFX post-action "+jfxActionWhenDone);
+	public static void queueTask(String desc, Errorable e, Errorable jfxActionWhenDone) {
+		UUID id = WaitDialogManager.instance.registerTask(desc);
+		Logging.instance.log("Queuing long task '"+desc+"' ["+id+"] "+e+" with JFX post-action "+jfxActionWhenDone);
 		JavaUtil.queueTask(() -> {
 			try {
 				//Thread.sleep(1000);
 				e.run();
-				Logging.instance.log("Task "+e+" complete, queuing JFX post-action if any");
-				Thread.sleep(250);
-				Thread.sleep(10);
+				Logging.instance.log("Task '"+desc+"' ["+id+"] complete, queuing JFX post-action if any");
 				Platform.runLater(() -> {
 					if (jfxActionWhenDone != null) {
 						try {
@@ -439,65 +441,140 @@ public class GuiUtil {
 		});
 	}
 
-	@Deprecated
-	public static void setFont(ControllerBase c, FontModifier... fm) {
-		setFont(c.getRootNode(), fm);
+	public static void putInto(Node parent, Node n) {
+		if (parent instanceof ScrollPane) {
+			((ScrollPane)parent).setContent(n);
+		}
+		else if (parent instanceof TitledPane) {
+			((TitledPane)parent).setContent(n);
+		}
+		else if (parent instanceof Pane) {
+			((Pane)parent).getChildren().add(n);
+		}
 	}
 
-	@Deprecated
-	public static void setFont(Node n, FontModifier... fm) {
-		if (true)
-			return;
-		Font f = GuiSystem.getFont(fm);
-		if (n instanceof TextInputControl) {
-			Font fp = ((TextInputControl)n).getFont();
-			double size = fp != null ? fp.getSize() : 12;
-			((TextInputControl)n).setFont(f);
+	public static Parent reparent(Node n, Parent p) {
+		Parent from = n.getParent();
+		//if (from instanceof Tab) {
+
+		//}
+		if (from instanceof ScrollPane) {
+			((ScrollPane)from).setContent(p);
+			putInto(p, n);
 		}
-		if (n instanceof Labeled) {
-			Font fp = ((Labeled)n).getFont();
-			double size = fp != null ? fp.getSize() : 12;
-			if (n instanceof TitledPane) {
-				size = 14;
-				setFont(((TitledPane)n).getContent(), fm);
+		else if (from instanceof TitledPane) {
+			((TitledPane)from).setContent(p);
+			putInto(p, n);
+		}
+		else if (from instanceof Pane) {
+			Pane pp = (Pane)from;
+			Priority pr = null;
+			if (pp instanceof VBox)
+				pr = ((VBox)pp).getVgrow(n);
+			else if (pp instanceof HBox)
+				pr = ((HBox)pp).getHgrow(n);
+			int idx = pp.getChildren().indexOf(n);
+			putInto(p, n);
+			pp.getChildren().add(idx, p);
+			if (pp instanceof VBox)
+				((VBox)pp).setVgrow(n, pr);
+			else if (pp instanceof HBox)
+				((HBox)pp).setHgrow(n, pr);
+		}
+		else {
+			putInto(p, n); //n might not have a parent, put it into p directly
+		}
+		return from;
+	}
+
+	public static void initWidgets(ControllerBase c) {
+		initWidgets(c.getRootNode());
+	}
+
+	public static void initWidgets(Parent root) {
+		applyToAllNodes(root, n -> {
+			if (n != null) {
+				if (n.getStyleClass().contains("panel")) {
+					applyPanelBolts(n, 3);
+				}/*
+				else if (n.getStyleClass().contains("dark-pane")) {
+					applyPanelBolts(n, 6);
+				}*/
 			}
-			((Labeled)n).setFont(f);
-			setFont(((Labeled)n).getGraphic(), fm);
+		});
+	}
+
+	public static StackPane applyPanelBolts(Node n, double inset) {
+		StackPane p = new StackPane();
+		p.setMaxWidth(Double.MAX_VALUE);
+		p.setMinWidth(Region.USE_COMPUTED_SIZE);
+		p.setMaxHeight(Double.MAX_VALUE);
+		p.setMinHeight(Region.USE_COMPUTED_SIZE);
+		reparent(n, p);
+		GridPane bolts = new GridPane();
+		bolts.setMouseTransparent(true);
+		bolts.setMaxWidth(Double.MAX_VALUE);
+		bolts.setMaxHeight(Double.MAX_VALUE);
+		p.getChildren().add(bolts);
+		for (int i = 0; i < 3; i++) {
+			bolts.getRowConstraints().add(new RowConstraints());
+			bolts.getColumnConstraints().add(new ColumnConstraints());
 		}
-		if (n instanceof ComboBox) {
-			n.setStyle(GuiSystem.getFontStyle(fm));
-		}
-		if (n instanceof ChoiceBox) {
-			n.setStyle(GuiSystem.getFontStyle(fm));
-		}
+		bolts.add(createBoltGraphic(), 0, 0);
+		bolts.add(createBoltGraphic(), 2, 0);
+		bolts.add(createBoltGraphic(), 0, 2);
+		bolts.add(createBoltGraphic(), 2, 2);
+		bolts.getRowConstraints().get(0).setVgrow(Priority.NEVER);
+		bolts.getRowConstraints().get(1).setVgrow(Priority.ALWAYS);
+		bolts.getRowConstraints().get(2).setVgrow(Priority.NEVER);
+		bolts.getColumnConstraints().get(0).setHgrow(Priority.NEVER);
+		bolts.getColumnConstraints().get(1).setHgrow(Priority.ALWAYS);
+		bolts.getColumnConstraints().get(2).setHgrow(Priority.NEVER);
+		bolts.setPadding(new Insets(inset, inset, inset, inset));
+		return p;
+	}
+
+	public static Node createBoltGraphic() {
+		StackPane sp = new StackPane();
+
+		Circle c = new Circle();
+		c.setStroke(Color.TRANSPARENT);
+		c.setFill(new LinearGradient(0.5, 0, 0.5, 1, true, CycleMethod.NO_CYCLE, new Stop(0, ColorUtil.getColor(0xFFBDBDBD)), new Stop(1, ColorUtil.getColor(0xFF767676))));
+		c.setRadius(6);
+
+		Circle c2 = new Circle();
+		c2.setStroke(Color.TRANSPARENT);
+		c2.setFill(new LinearGradient(0.5, 0, 0.5, 1, true, CycleMethod.NO_CYCLE, new Stop(0, ColorUtil.getColor(0xFF4E4E4E)), new Stop(1, ColorUtil.getColor(0xFF646464))));
+		c2.setRadius(3);
+
+		sp.getChildren().add(c);
+		sp.getChildren().add(c2);
+		return sp;
+	}
+
+	public static void addPaneNodeAt(Pane p, Node n, double x, double y) {
+		p.getChildren().add(n);
+		n.setLayoutX(x);
+		n.setLayoutY(y);
+	}
+
+	public static void applyToAllNodes(Node n, Consumer<Node> call) {
+		call.accept(n);
 		if (n instanceof TabPane) {
 			for (Tab t : ((TabPane)n).getTabs()) {
-				t.setStyle(GuiSystem.getFontStyle(fm));
-				setFont(t.getContent(), fm);
+				applyToAllNodes(t.getContent(), call);
 			}
 		}
-		if (n instanceof ScrollPane) {
-			setFont(((ScrollPane)n).getContent(), fm);
+		else if (n instanceof ScrollPane) {
+			applyToAllNodes(((ScrollPane)n).getContent(), call);
 		}
-		if (n instanceof Parent) {
+		else if (n instanceof TitledPane) {
+			applyToAllNodes(((TitledPane)n).getContent(), call);
+		}
+		else if (n instanceof Parent) {
 			for (Node n2 : ((Parent)n).getChildrenUnmodifiable()) {
-				setFont(n2, fm);
+				applyToAllNodes(n2, call);
 			}
-		}
-		if (n instanceof MenuBar) {
-			MenuBar m = (MenuBar)n;
-			for (Menu m2 : m.getMenus()) {
-				setFont(m2, fm);
-			}
-			m.setStyle(GuiSystem.getFontStyle(fm));
-		}
-	}
-
-	public static void setFont(Menu m, FontModifier... fm) {
-		for (MenuItem m2 : m.getItems()) {
-			m2.setStyle(GuiSystem.getFontStyle(fm));
-			if (m2 instanceof Menu)
-				setFont((Menu)m2, fm);
 		}
 	}
 

@@ -187,7 +187,7 @@
                                  <content>
                                     <VBox spacing="4.0">
                                        <children>
-                                          <TilePane fx:id="inputGrid" styleClass="dark-pane" VBox.vgrow="ALWAYS" />
+                                          <TilePane fx:id="inputGrid" minHeight="200.0" styleClass="dark-pane" VBox.vgrow="ALWAYS" />
                                           <Button fx:id="addInputButton" contentDisplay="RIGHT" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="widget" text="Add External Resource Input">
                                              <graphic>
                                                 <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">

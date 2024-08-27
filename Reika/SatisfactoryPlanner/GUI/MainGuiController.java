@@ -64,6 +64,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.TilePane;
@@ -424,7 +425,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	public void setFactory(Factory f) {
 		factory = f;
 
-		GuiUtil.queueIfNecessary(() -> factory.setUI(this));
+		GuiUtil.runOnJFXThread(() -> factory.setUI(this));
 
 		matrixOptionsActive = false;
 		generatorMatrixOptions.getSelectionModel().select(factory.generatorMatrixRule);
@@ -455,6 +456,11 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 			p.setMaxWidth(Region.USE_PREF_SIZE);
 			p.setFitToHeight(true);
 			p.setFitToWidth(true);
+
+			HBox hb = GuiUtil.createSpacedHBox(new Label(t.getText()), t.getGraphic(), null);
+			hb.setSpacing(11);
+			t.setGraphic(hb);
+			t.setText(null);
 		}
 
 		this.getWindow().getScene().getAccelerators().put(new KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN), () -> {root.layout(); tabs.requestLayout();});
@@ -466,14 +472,14 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 				tp.setExpanded(true);
 				tp.setCollapsible(false);
 				tp.getStyleClass().add("panel");
-				generatorList.getChildren().add(tp);
+				generatorList.getChildren().add(GuiUtil.applyPanelBolts(tp, 3));
 			});
 			gui.controller.setGenerator(g);
 			generators.put(g, gui);
 		}
 
-		GuiUtil.setFont(gridContainer);
-		GuiUtil.setFont(netGridContainer);
+		GuiUtil.initWidgets(gridContainer);
+		GuiUtil.initWidgets(netGridContainer);
 
 		this.buildRecentList();
 
@@ -802,12 +808,12 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	@Override
 	public void onLoaded() {
 		this.onSetFile(factory.getFile());
-		GuiUtil.queueIfNecessary(() -> this.rebuildEntireUI());
+		GuiUtil.runOnJFXThread(() -> this.rebuildEntireUI());
 	}
 
 	@Override
 	public void onCleared() {
-		GuiUtil.queueIfNecessary(() -> this.rebuildEntireUI());
+		GuiUtil.runOnJFXThread(() -> this.rebuildEntireUI());
 	}
 
 	@Override

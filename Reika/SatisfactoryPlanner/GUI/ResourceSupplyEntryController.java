@@ -46,7 +46,7 @@ public abstract class ResourceSupplyEntryController<R extends ResourceSupply> ex
 	protected void postInit(Stage w) throws IOException {
 		super.postInit(w);
 
-		GuiUtil.setFont(this);
+		GuiUtil.initWidgets(this);
 	}
 
 	protected void updateStats(boolean fullUpdate) {

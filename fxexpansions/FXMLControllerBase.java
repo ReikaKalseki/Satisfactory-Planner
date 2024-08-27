@@ -60,7 +60,7 @@ public abstract class FXMLControllerBase extends ControllerBase  {
 		container.widthProperty().addListener((v, o, n) -> {this.onWindowResize();});
 		container.heightProperty().addListener((v, o, n) -> {this.onWindowResize();});
 
-		GuiUtil.setFont(this);
+		GuiUtil.initWidgets(this);
 	}
 
 	public final <C extends FXMLControllerBase> GuiInstance<C> loadNestedFXML(String fxml, Pane container) throws IOException {

@@ -95,7 +95,7 @@ public class SettingsController extends FXMLControllerBase {
 			Setting.ALLOWDECIMAL.setValue(nnew);
 		});
 
-		GuiUtil.setFont(root);
+		GuiUtil.initWidgets(root);
 
 		this.setFields();
 	}

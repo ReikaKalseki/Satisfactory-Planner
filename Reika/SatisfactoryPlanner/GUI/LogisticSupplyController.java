@@ -163,7 +163,7 @@ public class LogisticSupplyController extends RadioTitledPaneSection {
 			this.close();
 		});
 
-		GuiUtil.setFont(this);
+		GuiUtil.initWidgets(this);
 	}
 
 	@Override

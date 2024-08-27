@@ -1,7 +1,5 @@
 package Reika.SatisfactoryPlanner.GUI;
 
-import java.util.Collections;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -23,49 +21,68 @@ public class WaitDialogManager {
 
 	public static final WaitDialogManager instance = new WaitDialogManager();
 
-	private final Set<UUID> currentTasks = Collections.newSetFromMap(new ConcurrentHashMap(4));
+	private final ConcurrentHashMap<UUID, String> currentTasks = new ConcurrentHashMap(4);
 
 	private Stage dialog;
+	private Label taskList;
 
 	private WaitDialogManager() {
 
 	}
 
-	public UUID registerTask() {
+	public UUID registerTask(String desc) {
 		UUID uid = UUID.randomUUID();
-		while (!currentTasks.add(uid)) //reroll if conflict
+		while (currentTasks.containsKey(uid)) //reroll if conflict
 			uid = UUID.randomUUID();
 
-		Logging.instance.log("Adding queued task "+uid+" to wait UI");
+		currentTasks.put(uid, desc);
+
+		Logging.instance.log("Adding queued task '"+desc+"' "+uid+" to wait UI, task list = "+currentTasks);
 
 		if (dialog == null)
 			this.showUI();
+		if (taskList != null && dialog != null && dialog.isShowing())
+			taskList.setText(this.computeTaskText());
 
 		return uid;
 	}
 
 	public void completeTask(UUID id) {
-		Logging.instance.log("Removing queued task "+id+" from wait UI");
 		currentTasks.remove(id);
+		Logging.instance.log("Removing queued task "+id+" from wait UI, task list = "+currentTasks);
 		if (currentTasks.isEmpty()) {
 			this.closeUI();
 		}
+		else {
+			taskList.setText(this.computeTaskText());
+		}
+	}
+
+	private String computeTaskText() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("The following operations are underway:\n");
+		for (String s : currentTasks.values()) {
+			sb.append("\n");
+			sb.append(s);
+		}
+		return sb.toString();
 	}
 
 	private void showUI() {
-		GuiUtil.queueIfNecessary(() -> {
+		GuiUtil.runOnJFXThread(() -> {
 			if (currentTasks.isEmpty()) {
 				Logging.instance.log("All tasks completed before wait UI shown. Skipping.");
 				return;
 			}
 
-			Logging.instance.log("Loading wait UI");
+			Logging.instance.log("All tasks complete. Loading wait UI");
 			VBox box = new VBox();
 			box.setSpacing(12);
 			box.setPadding(new Insets(8, 8, 8, 8));
-			Label lb = new Label("The selected operation is underway.");
-			lb.setFont(Font.font(GuiSystem.getDefaultFont().getFamily(), 14));
-			box.getChildren().add(lb);
+			taskList = new Label(this.computeTaskText());
+			taskList.setFont(Font.font(GuiSystem.getDefaultFont().getFamily(), 12));
+			taskList.setWrapText(true);
+			box.getChildren().add(taskList);
 			box.getChildren().add(new ProgressBar());
 			for (Node n : box.getChildren()) {
 				if (n instanceof Region) {
@@ -77,7 +94,7 @@ public class WaitDialogManager {
 
 			dialog = new Stage();
 			dialog.setTitle("Loading");
-			dialog.setScene(new Scene(box, 300, 65));
+			dialog.setScene(new Scene(box, 500, 192));
 			dialog.getScene().getStylesheets().add(Main.class.getResource("Resources/CSS/style.css").toString());
 			box.layout();
 			dialog.show();
@@ -86,7 +103,7 @@ public class WaitDialogManager {
 	}
 
 	private void closeUI() {
-		GuiUtil.queueIfNecessary(() -> {
+		GuiUtil.runOnJFXThread(() -> {
 			if (dialog == null) {
 				Logging.instance.log("Wait UI already closed. Skipping.");
 				return;

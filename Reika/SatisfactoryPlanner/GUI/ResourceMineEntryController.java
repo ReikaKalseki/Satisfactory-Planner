@@ -23,7 +23,7 @@ public class ResourceMineEntryController<R extends ExtractableResource> extends 
 	protected void postInit(Stage w) throws IOException {
 		super.postInit(w);
 
-		GuiUtil.setFont(this);
+		GuiUtil.initWidgets(this);
 	}
 
 	@Override

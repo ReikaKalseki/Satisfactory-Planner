@@ -373,11 +373,18 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 	}
 
 	public final void rebuild(boolean updateIO) {
-		//Logging.instance.log("Rebuilding grid "+type+" from ");
+		Logging.instance.log("Rebuilding grid "+type);
 		//Thread.dumpStack();
 		owner.setGridBuilt(type, false);
 		contentWidths = null;
 		Errorable rebuild = () -> {
+			Logging.instance.log("Matrix "+type+" rebuild task started");
+			grid.setHgap(2);
+			grid.setVgap(2);
+			grid.setMaxHeight(Double.POSITIVE_INFINITY);
+			grid.setMaxWidth(Double.POSITIVE_INFINITY);
+			grid.setPrefHeight(Region.USE_COMPUTED_SIZE);
+			grid.setPrefWidth(Region.USE_COMPUTED_SIZE);
 			GridPane current = gui.getMatrix(type);
 			long id = System.identityHashCode(grid);
 			if (grid == current)
@@ -402,18 +409,12 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 		//cancelled JFX: remove grid from scenetree
 		//other thread: rebuild grid
 		//JFX: put grid back in scenetree
-		GuiUtil.queueIfNecessary(() -> {
+		GuiUtil.runOnJFXThread(() -> {
 			long old = System.identityHashCode(grid);
 			grid = new GridPane();
 			Logging.instance.log("Beginning rebuild of "+type+" matrix: "+old+" > "+System.identityHashCode(grid)+" ["+System.identityHashCode(gui.getMatrix(type))+"]");
 			//gui.setMatrix(type, null); //leave old grid in place
-			grid.setHgap(2);
-			grid.setVgap(2);
-			grid.setMaxHeight(Double.POSITIVE_INFINITY);
-			grid.setMaxWidth(Double.POSITIVE_INFINITY);
-			grid.setPrefHeight(Region.USE_COMPUTED_SIZE);
-			grid.setPrefWidth(Region.USE_COMPUTED_SIZE);
-			GuiUtil.queueTask(rebuild, () -> {
+			GuiUtil.queueTask("Rebuilding "+type+" matrix UI", rebuild, () -> {
 				Logging.instance.log("Socketing new "+type+" matrix "+System.identityHashCode(grid));
 				gui.setMatrix(type, grid);
 				owner.setGridBuilt(type, true);
