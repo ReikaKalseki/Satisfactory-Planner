@@ -1,10 +1,7 @@
 package Reika.SatisfactoryPlanner.Data;
 
-import Reika.SatisfactoryPlanner.Util.CountMap;
-
 public class FunctionalBuilding extends Building {
 
-	private final CountMap<Item> constructionCost = new CountMap();
 	public final float basePowerCostMW;
 
 	public FunctionalBuilding(String id, String dis, String icon, float mw) {

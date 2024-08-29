@@ -168,7 +168,18 @@ public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 	}
 
 	public int getTier() {
-		return minimumTier;
+		return Math.min(Milestone.getMaxTier(), minimumTier);
+	}
+
+	public void clearIngredients() {
+		costsPerMinute.clear();
+		costsRaw.clear();
+		usesFluids = !productPerMinute.isEmpty() && productPerMinute.keySet().stream().anyMatch(c -> c instanceof Fluid);
+	}
+
+	public void clearProducts() {
+		productPerMinute.clear();
+		usesFluids = !costsRaw.isEmpty() && costsRaw.keySet().stream().anyMatch(c -> c instanceof Fluid);
 	}
 
 }

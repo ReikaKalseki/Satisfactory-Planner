@@ -14,9 +14,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import org.controlsfx.control.SearchableComboBox?>
 
-<VBox prefWidth="300.0" spacing="8.0" stylesheets="@../CSS/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.LogisticSupplyController">
+<VBox prefWidth="300.0" spacing="24.0" styleClass="widget" stylesheets="@../CSS/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.LogisticSupplyController">
    <children>
-      <TitledPane collapsible="false" contentDisplay="RIGHT" text="Conveyor Belt">
+      <TitledPane collapsible="false" contentDisplay="RIGHT" styleClass="panel" text="Conveyor Belt">
          <content>
             <VBox spacing="4.0">
                <children>
@@ -26,19 +26,15 @@
                      </VBox.margin></ComboBox>
                </children>
                <padding>
-                  <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                  <Insets bottom="4.0" left="8.0" right="8.0" top="4.0" />
                </padding>
             </VBox>
          </content>
          <graphic>
             <RadioButton fx:id="beltRadio" mnemonicParsing="false" />
          </graphic>
-         <styleClass>
-            <String fx:value="panel" />
-            <String fx:value="widget" />
-         </styleClass>
       </TitledPane>
-      <TitledPane collapsible="false" contentDisplay="RIGHT" layoutX="14.0" layoutY="14.0" text="Fluid Pipe">
+      <TitledPane collapsible="false" contentDisplay="RIGHT" layoutX="14.0" layoutY="14.0" styleClass="panel" text="Fluid Pipe">
          <content>
             <VBox spacing="4.0">
                <children>
@@ -48,17 +44,13 @@
                      </VBox.margin></ComboBox>
                </children>
                <padding>
-                  <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                  <Insets bottom="4.0" left="8.0" right="8.0" top="4.0" />
                </padding>
             </VBox>
          </content>
          <graphic>
             <RadioButton fx:id="pipeRadio" mnemonicParsing="false" />
          </graphic>
-         <styleClass>
-            <String fx:value="panel" />
-            <String fx:value="widget" />
-         </styleClass>
       </TitledPane>
       <TitledPane animated="false" collapsible="false" contentDisplay="RIGHT" expanded="false" text="Truck Route">
          <graphic>
@@ -66,7 +58,7 @@
          </graphic>
          <styleClass>
             <String fx:value="panel" />
-            <String fx:value="widget" />
+            <String fx:value="single-bolt-row" />
          </styleClass>
       </TitledPane>
       <TitledPane animated="false" collapsible="false" contentDisplay="RIGHT" expanded="false" layoutX="14.0" layoutY="14.0" text="Drone Port">
@@ -75,10 +67,10 @@
          </graphic>
          <styleClass>
             <String fx:value="panel" />
-            <String fx:value="widget" />
+            <String fx:value="single-bolt-row" />
          </styleClass>
       </TitledPane>
-      <TitledPane collapsible="false" contentDisplay="RIGHT" layoutX="14.0" layoutY="132.0" text="Train Station">
+      <TitledPane collapsible="false" contentDisplay="RIGHT" layoutX="14.0" layoutY="132.0" styleClass="panel" text="Train Station">
          <content>
             <VBox spacing="4.0">
                <children>
@@ -94,6 +86,9 @@
                         <Label text="Station Count" />
                         <Spinner fx:id="trainStationCount" layoutX="120.0" layoutY="10.0" GridPane.columnIndex="1" />
                      </children>
+                     <VBox.margin>
+                        <Insets left="8.0" right="8.0" />
+                     </VBox.margin>
                   </GridPane>
                </children>
                <padding>
@@ -104,12 +99,8 @@
          <graphic>
             <RadioButton fx:id="trainRadio" mnemonicParsing="false" />
          </graphic>
-         <styleClass>
-            <String fx:value="panel" />
-            <String fx:value="widget" />
-         </styleClass>
       </TitledPane>
-      <TitledPane animated="false" collapsible="false" text="Shared Properties">
+      <TitledPane animated="false" collapsible="false" styleClass="panel" text="Shared Properties">
          <VBox.margin>
             <Insets />
          </VBox.margin>
@@ -126,15 +117,11 @@
                <children>
                   <Label text="Resource" />
                   <Label layoutX="10.0" layoutY="59.0" text="Amount" GridPane.rowIndex="1" />
-                  <Spinner fx:id="itemAmount" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <Spinner fx:id="itemAmount" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                   <SearchableComboBox fx:id="itemDropdown" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="32.0" promptText="Choose Item..." GridPane.columnIndex="1" />
                </children>
             </GridPane>
          </content>
-         <styleClass>
-            <String fx:value="panel" />
-            <String fx:value="widget" />
-         </styleClass>
       </TitledPane>
       <VBox styleClass="widget">
          <children>

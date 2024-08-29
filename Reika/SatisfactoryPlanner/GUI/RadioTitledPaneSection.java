@@ -26,13 +26,14 @@ public abstract class RadioTitledPaneSection extends FXMLControllerBase {
 		radioButtons.selectedToggleProperty().addListener((val, old, nnew) -> this.onToggleSelected((RadioButton)nnew));
 
 		for (Node n : this.getRootNode().getChildrenUnmodifiable()) {
+			n = GuiUtil.unwrapDecorativeWrappers(n);
 			if (n instanceof TitledPane) {
 				TitledPane tp = (TitledPane)n;
 				Node g = tp.getGraphic();
 				if (g instanceof RadioButton) {
 					RadioButton rb = (RadioButton)g;
 					rb.setToggleGroup(radioButtons);
-					GuiUtil.setTitledPaneGraphicRight(tp, 14);
+					GuiUtil.setTitledPaneGraphicRight(tp, 14+16); //+16 because of the 8 from bolt wrap pad
 					selections.put(rb, tp);
 				}
 			}

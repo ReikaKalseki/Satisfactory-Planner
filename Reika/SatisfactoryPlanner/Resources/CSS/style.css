@@ -45,6 +45,12 @@
     -fx-color: "#7D7D7D";
     -fx-text-fill: "#ffffff";
 	-fx-border-color: "#373737";
+	/*
+	-fx-padding: 4px 4px 4px 4px; /* this value is used as the first bcg stop, to avoid the white spilling outside *//*
+	-fx-background-color: "#373737", white;
+    -fx-background-radius: 8px, 15px;
+    -fx-background-insets: 0, 8px;
+	*/
 	-fx-background-color: white;
     -fx-background-radius: 15px;
 	-fx-border-width: 6px;
@@ -53,16 +59,36 @@
 	-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 1.5, 0.1, 0.0, 5.0);
 }
 
+.bolt-wrapper {
+	-fx-background-color: "#373737";
+	-fx-background-radius: 8px;
+}
+
+.bolt-wrapped {
+	-fx-padding: 8px 8px 8px 8px;
+	-fx-background-color: "#373737", white;
+    -fx-background-radius: 8px, 6px;
+    -fx-background-insets: 0, 14px;
+}
+
 .panel .title {
 	-fx-background-color: "#585858";
     -fx-font-size: 12pt;
     -fx-font-weight: 700;
+	-fx-text-fill: "#fff";
 }
-
+/*
+.bolt-wrapped .title {
+	-fx-background-color: "#373737", "#585858";
+    -fx-background-insets: 0 0 0 0, 6px 6px 0 6px;
+	-fx-padding: 10px 16px 5px 16px;
+}
+*/
 .panel .content {
 	-fx-background-color: transparent;
 	-fx-border-radius: 8px;
 	-fx-border-width: 0;
+	-fx-padding: 8px 8px 8px 8px;
 }
 
 .widget, .widget .scroll-pane, .widget .scroll-pane > * {
@@ -205,6 +231,11 @@
 .widget .spinner .decrement-arrow {
 	-fx-background-image: url("../../Resources/Graphics/Icons/checkbox-check-alpha.png");
 }*/
+
+.widget .radio-button, .widget .check-box {
+	-fx-border-width: 0;
+	-fx-border-color: transparent;
+}
 
 .widget .radio-button > .radio {
   -fx-background-color: "#AAAAAA";

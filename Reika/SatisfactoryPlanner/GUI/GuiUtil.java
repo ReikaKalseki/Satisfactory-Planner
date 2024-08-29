@@ -395,9 +395,10 @@ public class GuiUtil {
 		box.getChildren().add(tp.getGraphic());
 		tp.setText(null);
 		tp.setGraphic(box);
+		Insets tpad = tp.getPadding();
 		Insets pad = tp.getLabelPadding();
 		box.setPadding(new Insets(0, 14+extraSpace, 0, (tp.isCollapsible() ? 14 : 4)+extraSpace));
-		box.minWidthProperty().bind(tp.widthProperty().subtract(pad.getLeft()).subtract(pad.getRight()));
+		box.minWidthProperty().bind(tp.widthProperty().subtract(pad.getLeft()).subtract(pad.getRight()).subtract(tpad.getLeft()).subtract(tpad.getRight()));
 		box.maxWidthProperty().bind(box.minWidthProperty());
 	}
 
@@ -487,6 +488,12 @@ public class GuiUtil {
 		return from;
 	}
 
+	public static Node unwrapDecorativeWrappers(Node n) {
+		if (n instanceof Parent && n.getStyleClass().contains("bolt-wrapper"))
+			n = ((Parent)n).getChildrenUnmodifiable().get(0);
+		return n;
+	}
+
 	public static void initWidgets(ControllerBase c) {
 		initWidgets(c.getRootNode());
 	}
@@ -494,7 +501,7 @@ public class GuiUtil {
 	public static void initWidgets(Parent root) {
 		applyToAllNodes(root, n -> {
 			if (n != null) {
-				if (n.getStyleClass().contains("panel")) {
+				if (n.getStyleClass().contains("panel") && !n.getStyleClass().contains("bolt-wrapped")) {
 					applyPanelBolts(n, 3);
 				}/*
 				else if (n.getStyleClass().contains("dark-pane")) {
@@ -506,6 +513,10 @@ public class GuiUtil {
 
 	public static StackPane applyPanelBolts(Node n, double inset) {
 		StackPane p = new StackPane();
+		//if (n instanceof TitledPane)
+		//	((TitledPane)n).setPadding(new Insets(4, 4, 4, 4));
+		p.getStyleClass().add("bolt-wrapper");
+		n.getStyleClass().add("bolt-wrapped");
 		p.setMaxWidth(Double.MAX_VALUE);
 		p.setMinWidth(Region.USE_COMPUTED_SIZE);
 		p.setMaxHeight(Double.MAX_VALUE);
@@ -516,17 +527,29 @@ public class GuiUtil {
 		bolts.setMaxWidth(Double.MAX_VALUE);
 		bolts.setMaxHeight(Double.MAX_VALUE);
 		p.getChildren().add(bolts);
-		for (int i = 0; i < 3; i++) {
+		if (n.getStyleClass().contains("single-bolt-row")) {
 			bolts.getRowConstraints().add(new RowConstraints());
 			bolts.getColumnConstraints().add(new ColumnConstraints());
+			bolts.getColumnConstraints().add(new ColumnConstraints());
+			bolts.getColumnConstraints().add(new ColumnConstraints());
+			bolts.add(createBoltGraphic(), 0, 0);
+			bolts.add(createBoltGraphic(), 2, 0);
+			bolts.getRowConstraints().get(0).setVgrow(Priority.ALWAYS);
+			inset -= 2;
 		}
-		bolts.add(createBoltGraphic(), 0, 0);
-		bolts.add(createBoltGraphic(), 2, 0);
-		bolts.add(createBoltGraphic(), 0, 2);
-		bolts.add(createBoltGraphic(), 2, 2);
-		bolts.getRowConstraints().get(0).setVgrow(Priority.NEVER);
-		bolts.getRowConstraints().get(1).setVgrow(Priority.ALWAYS);
-		bolts.getRowConstraints().get(2).setVgrow(Priority.NEVER);
+		else {
+			for (int i = 0; i < 3; i++) {
+				bolts.getRowConstraints().add(new RowConstraints());
+				bolts.getColumnConstraints().add(new ColumnConstraints());
+			}
+			bolts.add(createBoltGraphic(), 0, 0);
+			bolts.add(createBoltGraphic(), 2, 0);
+			bolts.add(createBoltGraphic(), 0, 2);
+			bolts.add(createBoltGraphic(), 2, 2);
+			bolts.getRowConstraints().get(0).setVgrow(Priority.NEVER);
+			bolts.getRowConstraints().get(1).setVgrow(Priority.ALWAYS);
+			bolts.getRowConstraints().get(2).setVgrow(Priority.NEVER);
+		}
 		bolts.getColumnConstraints().get(0).setHgrow(Priority.NEVER);
 		bolts.getColumnConstraints().get(1).setHgrow(Priority.ALWAYS);
 		bolts.getColumnConstraints().get(2).setHgrow(Priority.NEVER);

@@ -1,5 +1,7 @@
 package Reika.SatisfactoryPlanner.GUI;
 
+import java.util.HashMap;
+
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.FunctionalBuilding;
@@ -15,15 +17,31 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.shape.Rectangle;
 
-class RecipeListCell extends DecoratedListCell<Recipe> {
+public class RecipeListCell extends DecoratedListCell<Recipe> {
+
+	private static final HashMap<Recipe, Node> cachedDecorations = new HashMap();
+	//private Node graphic;
 
 	public RecipeListCell(String ptext, boolean isButton) {
 		super(ptext, isButton);
+		//Logging.instance.log("Creating recipe list cell "+ptext);
 	}
 
 	@Override
 	protected String getString(Recipe obj) {
 		return obj.displayName+" (T"+obj.getTier()+")";
+	}
+
+	@Override
+	protected void onCreateCellContent(Recipe obj, Node graphic) {
+		cachedDecorations.put(obj, graphic);
+		//this.graphic = graphic;
+	}
+
+	@Override
+	protected Node getCachedCellContent(Recipe r) {
+		return cachedDecorations.get(r);
+		//return graphic;
 	}
 
 	@Override
@@ -70,7 +88,13 @@ class RecipeListCell extends DecoratedListCell<Recipe> {
 		graphicBar.getChildren().add(buildingBar);
 		graphicBar.setSpacing(24);
 		return graphicBar;
+	}
 
+	public static void init() {/*
+		RecipeListCell temp = new RecipeListCell("temp", false);
+		cachedDecorations.clear();
+		for (Recipe r : Database.getAllAutoRecipes())
+			temp.updateItem(r, false);*/
 	}
 
 }

@@ -1,7 +1,5 @@
 package Reika.SatisfactoryPlanner.GUI;
 
-import java.io.InputStream;
-
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Util.BitflagMap;
@@ -44,9 +42,7 @@ public class GuiSystem extends Application {
 		fontMap.put(Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans/Condensed-BoldItalic.ttf"), 12), FontModifier.ITALIC, FontModifier.BOLD, FontModifier.CONDENSED);
 		fontMap.put(Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans/Condensed-SemiBoldItalic.ttf"), 12), FontModifier.ITALIC, FontModifier.SEMIBOLD, FontModifier.CONDENSED);
 
-		InputStream in = this.getClass().getResourceAsStream("icon.png");
-		if (in != null)
-			icon = new Image(in);
+		icon = new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/appicon.png"));
 
 
 		Main.isJFXActive = true;

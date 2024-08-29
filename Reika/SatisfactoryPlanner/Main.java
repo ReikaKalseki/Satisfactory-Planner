@@ -8,14 +8,18 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Database;
+import Reika.SatisfactoryPlanner.Data.Factory;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem;
 import Reika.SatisfactoryPlanner.GUI.MainGuiController;
+import Reika.SatisfactoryPlanner.GUI.RecipeListCell;
 import Reika.SatisfactoryPlanner.GUI.Setting;
 import Reika.SatisfactoryPlanner.GUI.Setting.SettingRef;
 import Reika.SatisfactoryPlanner.Util.FixedList;
@@ -69,12 +73,8 @@ public class Main {
 		Platform.exit();
 	}
 
-	public static void parseGameData() throws IOException {
-		/*
-		Database.loadItems();
-		Database.loadBuildings();
-		Database.loadRecipes();
-		 */
+	public static Future<Void> parseGameData() throws IOException {
+		CompletableFuture<Void> f = new CompletableFuture();
 		Database.clear();
 		Database.parseGameJSON();
 		Database.loadVanillaData();
@@ -85,8 +85,12 @@ public class Main {
 			c.createIcon(); //cache default icon size
 		GuiInstance<MainGuiController> main = GuiSystem.getMainGUI();
 		if (main != null) {
+			main.controller.setFactory(new Factory());
 			main.controller.rebuildLists(true, true);
+			RecipeListCell.init();
 		}
+		f.complete(null);
+		return f;
 	}
 
 	public static void addRecentFile(File f) {

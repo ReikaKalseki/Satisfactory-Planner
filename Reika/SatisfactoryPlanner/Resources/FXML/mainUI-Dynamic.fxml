@@ -42,6 +42,7 @@
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
@@ -98,9 +99,9 @@
                <content>
                   <ScrollPane fx:id="overviewScroll" fitToHeight="true" fitToWidth="true" hbarPolicy="ALWAYS" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vbarPolicy="ALWAYS">
                      <content>
-                        <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="8.0">
+                        <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="24.0">
                            <children>
-                              <TitledPane fx:id="infoPanel" collapsible="false" layoutX="10.0" layoutY="10.0" styleClass="panel" text="Information" VBox.vgrow="NEVER">
+                              <TitledPane fx:id="infoPanel" collapsible="false" layoutX="10.0" layoutY="10.0" styleClass="panel" text="Information And Options" VBox.vgrow="NEVER">
                                  <content>
                                     <GridPane fx:id="infoGrid" hgap="4.0" vgap="4.0">
                                        <columnConstraints>
@@ -108,18 +109,21 @@
                                           <ColumnConstraints hgrow="SOMETIMES" />
                                        </columnConstraints>
                                        <rowConstraints>
-                                          <RowConstraints vgrow="SOMETIMES" />
-                                          <RowConstraints minHeight="24.0" vgrow="SOMETIMES" />
+                                          <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" prefHeight="32.0" vgrow="SOMETIMES" />
+                                          <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" prefHeight="32.0" vgrow="SOMETIMES" />
+                                          <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" prefHeight="32.0" vgrow="SOMETIMES" />
                                        </rowConstraints>
                                        <children>
                                           <Label layoutX="20.0" layoutY="37.0" text="Name" />
-                                          <TextField fx:id="factoryName" GridPane.columnIndex="1" />
+                                          <TextField fx:id="factoryName" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" />
                                           <Label layoutX="20.0" layoutY="24.0" text="Allow Items Or Recipes:" wrapText="true" GridPane.rowIndex="1" />
                                           <TilePane fx:id="toggleFilterBox" alignment="CENTER_LEFT" hgap="24.0" tileAlignment="CENTER_LEFT" vgap="8.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                              <padding>
                                                 <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
                                              </padding>
                                           </TilePane>
+                                          <Label layoutX="20.0" layoutY="52.0" text="Maximum Allowed Tier" wrapText="true" GridPane.rowIndex="2" />
+                                          <Slider fx:id="tierFilter" blockIncrement="1.0" majorTickUnit="1.0" max="4.0" minorTickCount="0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="4.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                        </children>
                                     </GridPane>
                                  </content>
@@ -137,6 +141,7 @@
                                         <RowConstraints maxHeight="1.7976931348623157E308" minHeight="32.0" valignment="CENTER" vgrow="SOMETIMES" />
                                           <RowConstraints maxHeight="1.7976931348623157E308" minHeight="32.0" valignment="CENTER" vgrow="SOMETIMES" />
                                           <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" prefHeight="32.0" vgrow="SOMETIMES" />
+                                          <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" prefHeight="32.0" vgrow="SOMETIMES" />
                                       </rowConstraints>
                                        <children>
                                           <Label layoutX="20.0" layoutY="37.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Required Buildings" />
@@ -149,6 +154,8 @@
                                           <ExpandingTilePane fx:id="netProductBar" hgap="16.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" tileAlignment="CENTER_LEFT" vgap="8.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                                           <Label layoutX="20.0" layoutY="172.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" text="Net Production" GridPane.rowIndex="3" />
                                           <ExpandingTilePane fx:id="netConsumptionBar" hgap="16.0" layoutX="140.0" layoutY="128.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" tileAlignment="CENTER_LEFT" vgap="8.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                          <Label layoutX="20.0" layoutY="164.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" text="Required Tiers" GridPane.rowIndex="5" />
+                                          <ExpandingTilePane fx:id="tierBar" layoutX="152.0" layoutY="128.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" tileAlignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                                        </children>
                                     </GridPane>
                                  </content>
@@ -181,11 +188,11 @@
                <content>
                   <ScrollPane fx:id="ioScroll" fitToHeight="true" fitToWidth="true" hbarPolicy="ALWAYS" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vbarPolicy="ALWAYS">
                      <content>
-                        <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="8.0">
+                        <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="24.0">
                            <children>
                               <TitledPane fx:id="inputPanel" collapsible="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="panel" text="Resource Supply" VBox.vgrow="ALWAYS">
                                  <content>
-                                    <VBox spacing="4.0">
+                                    <VBox spacing="8.0">
                                        <children>
                                           <TilePane fx:id="inputGrid" minHeight="200.0" styleClass="dark-pane" VBox.vgrow="ALWAYS" />
                                           <Button fx:id="addInputButton" contentDisplay="RIGHT" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="widget" text="Add External Resource Input">
@@ -244,7 +251,7 @@
                <content>
                   <ScrollPane fx:id="powerScroll" fitToHeight="true" fitToWidth="true" hbarPolicy="ALWAYS" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vbarPolicy="ALWAYS">
                      <content>
-                        <VBox fx:id="generatorList" spacing="12.0">
+                        <VBox fx:id="generatorList" spacing="24.0">
                            <padding>
                               <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                            </padding></VBox>
@@ -255,7 +262,7 @@
                <content>
                   <ScrollPane fx:id="craftingScroll" fitToHeight="true" fitToWidth="true" hbarPolicy="ALWAYS" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" pannable="true" vbarPolicy="ALWAYS">
                      <content>
-                        <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="8.0">
+                        <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="24.0">
                            <children>
                               <TitledPane animated="false" collapsible="false" styleClass="panel" text="Options" VBox.vgrow="NEVER">
                                  <content>

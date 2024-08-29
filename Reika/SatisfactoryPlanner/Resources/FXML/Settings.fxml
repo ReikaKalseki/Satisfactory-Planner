@@ -44,7 +44,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import org.controlsfx.control.textfield.CustomTextField?>
 
-<VBox fx:id="root" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="600.0" spacing="8.0" stylesheets="@../CSS/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.SettingsController">
+<VBox fx:id="root" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="600.0" spacing="24.0" stylesheets="@../CSS/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.SettingsController">
   <children>
       <TitledPane animated="false" collapsible="false" styleClass="panel" text="Application">
          <content>
@@ -66,7 +66,7 @@
                   <CheckBox fx:id="allowFractional" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                </children>
                <padding>
-                  <Insets bottom="4.0" left="4.0" top="12.0" />
+                  <Insets bottom="8.0" left="8.0" right="8.0" top="16.0" />
                </padding>
             </GridPane>
          </content>

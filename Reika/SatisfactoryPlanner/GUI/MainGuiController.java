@@ -10,6 +10,8 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map.Entry;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.SearchableComboBox;
@@ -28,6 +30,7 @@ import Reika.SatisfactoryPlanner.Data.FunctionalBuilding;
 import Reika.SatisfactoryPlanner.Data.Generator;
 import Reika.SatisfactoryPlanner.Data.Item;
 import Reika.SatisfactoryPlanner.Data.LogisticSupply;
+import Reika.SatisfactoryPlanner.Data.Milestone;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.Data.ResourceSupply;
 import Reika.SatisfactoryPlanner.Data.SolidResourceNode;
@@ -54,6 +57,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Slider;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
@@ -124,6 +128,9 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 
 	@FXML
 	private ExpandingTilePane<ItemCountController> netConsumptionBar;
+
+	@FXML
+	private ExpandingTilePane<TierLampController> tierBar;
 
 	@FXML
 	private Tab craftingTab;
@@ -239,6 +246,9 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	@FXML
 	private ChoiceBox<InclusionPattern> resourceMatrixOptions;
 
+	@FXML
+	private Slider tierFilter;
+
 	//@FXML
 	//private Button refreshButton;
 
@@ -249,6 +259,8 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	private final HashMap<Consumable, ProductButton> productButtons = new HashMap();
 	private final HashMap<ResourceSupply, GuiInstance<? extends ResourceSupplyEntryController>> supplyEntries = new HashMap();
 	private final HashMap<Node, GuiInstance<? extends ResourceSupplyEntryController>> supplyEntryNodes = new HashMap();
+	private GuiInstance<TierLampController>[] tierLamps = null;
+	private int maxAllowedTier = 999;
 
 	private final Comparator<Node> supplySorter = new Comparator<Node>() {
 		@Override
@@ -301,6 +313,14 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 			toggleFilterBox.getChildren().add(cb);
 		}
 
+		tierFilter.valueProperty().addListener((val, old, nnew) -> {
+			int old2 = maxAllowedTier;
+			maxAllowedTier = ((Double)nnew).intValue();
+			if (old2 != maxAllowedTier) {
+				this.rebuildLists(true, false);
+			}
+		});
+
 		GuiUtil.setupAddSelector(addProductButton, new SearchableSelector<Consumable>(){
 			@Override
 			public void accept(Consumable t) {
@@ -348,7 +368,12 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 			});
 		}));
 		GuiUtil.setMenuEvent(quitMenu, () -> this.close());
-		GuiUtil.setMenuEvent(newMenu, () -> {this.setFactory(new Factory()); this.rebuildEntireUI();});
+		GuiUtil.setMenuEvent(newMenu, () -> {
+			GuiUtil.queueTask("Loading new factory", () -> {
+				this.setFactory(new Factory());
+				factory.init();
+			}, () -> this.rebuildEntireUI());
+		});
 		GuiUtil.setMenuEvent(saveMenu, () -> factory.save());
 		GuiUtil.setMenuEvent(saveAsMenu, () -> {
 			File f = this.openSaveAsDialog(factory.name+".factory", Main.getRelativeFile("Factories"));
@@ -414,6 +439,22 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		buildCostBar.minRowHeight = 32;
 		netConsumptionBar.minRowHeight = 32;
 		netProductBar.minRowHeight = 32;
+
+		this.setupTierBar();
+	}
+
+	private void setupTierBar() {
+		tierBar.getChildren().clear();
+		tierLamps = new GuiInstance[Milestone.getMaxTier()+1];
+		for (int i = 0; i < tierLamps.length; i++) {
+			TierLampController c = new TierLampController(i);
+			GuiInstance<TierLampController> gui = new GuiInstance<TierLampController>(c.getRootNode(), c);
+			tierBar.addEntry(gui);
+			tierLamps[i] = gui;
+		}
+
+		tierFilter.setMax(Milestone.getMaxTier());
+		tierFilter.setValue(tierFilter.getMax());
 	}
 
 	public Factory getFactory() {
@@ -423,6 +464,8 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	private boolean matrixOptionsActive = true;
 
 	public void setFactory(Factory f) {
+		if (factory != null)
+			factory.prepareDisposal();
 		factory = f;
 
 		GuiUtil.runOnJFXThread(() -> factory.setUI(this));
@@ -440,6 +483,8 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	@Override
 	protected void postInit(Stage w) throws IOException {
 		super.postInit(w);
+
+		GuiUtil.queueTask("Building recipe menu", () -> RecipeListCell.init());
 
 		overviewTab.setGraphic(new ImageView(InternalIcons.OVERVIEW.createIcon(16)));
 		ioTab.setGraphic(new ImageView(InternalIcons.INPUTOUTPUT.createIcon(16)));
@@ -501,7 +546,8 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		if (recipe) {
 			recipeDropdown.getSelectionModel().clearSelection();
 			ArrayList<Recipe> li2 = new ArrayList(Database.getAllAutoRecipes());
-			li2.removeIf(r -> !this.isRecipeValid(r) || factory.getRecipes().contains(r));
+			if (factory != null)
+				li2.removeIf(r -> !this.isRecipeValid(r) || factory.getRecipes().contains(r));
 
 			recipeDropdown.setItems(FXCollections.observableList(li2));
 			recipeDropdown.setDisable(li2.isEmpty());
@@ -527,6 +573,8 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	}
 
 	public boolean isRecipeValid(Recipe r) {
+		if (r.getTier() > maxAllowedTier)
+			return false;
 		for (ToggleableVisiblityGroup tv : ToggleableVisiblityGroup.values()) {
 			if (!factory.getToggle(tv) && tv.isRecipeInGroup.test(r))
 				return false;
@@ -593,10 +641,10 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	}
 
 	public void updateStats(boolean all) {
-		this.updateStats(all, all, all, all, all, all);
+		this.updateStats(all, all, all, all, all, all, all);
 	}
 
-	public void updateStats(boolean warnings, boolean buildings, boolean production, boolean consuming, boolean local, boolean power) {
+	public void updateStats(boolean warnings, boolean buildings, boolean production, boolean consuming, boolean local, boolean power, boolean tier) {
 		if (warnings)
 			this.updateWarnings();
 
@@ -618,6 +666,13 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 
 			for (Item i : cost.keySet()) {
 				GuiUtil.addIconCount(i, cost.get(i), 5, buildCostBar);
+			}
+		}
+
+		if (tier) {
+			int max = factory.getMaxTier();
+			for (int i = 0; i < tierLamps.length; i++) {
+				tierLamps[i].controller.setState(i <= max);
 			}
 		}
 
@@ -683,24 +738,24 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	@Override
 	public void onAddRecipe(Recipe r) {
 		this.rebuildLists(true, false);
-		this.updateStats(true, true, true, true, false, true);
+		this.updateStats(true, true, true, true, false, true, true);
 	}
 
 	@Override
 	public void onRemoveRecipe(Recipe r) {
 		this.rebuildLists(true, false);
-		this.updateStats(true, true, true, true, false, true);
+		this.updateStats(true, true, true, true, false, true, true);
 	}
 
 	@Override
 	public void onRemoveRecipes(Collection<Recipe> c) {
 		this.rebuildLists(true, false);
-		this.updateStats(true, true, true, true, false, true);
+		this.updateStats(true, true, true, true, false, true, true);
 	}
 
 	@Override
 	public void onSetCount(Recipe r, float count) {
-		this.updateStats(true, true, true, true, false, true);
+		this.updateStats(true, true, true, true, false, true, false);
 	}
 
 	@Override
@@ -718,26 +773,26 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		for (GuiInstance<GeneratorRowController> gui : generators.values()) {
 			gui.controller.setWidths(count, count);
 		}*/
-		this.updateStats(true, true, true, true, false, true);
+		this.updateStats(true, true, true, true, false, true, count == 0 || old == 0);
 	}
 
 	@Override
 	public void onAddProduct(Consumable c) {
 		productGrid.getChildren().add(new ProductButton(c));
-		this.updateStats(true, false, false, false, false, false);
+		this.updateStats(true, false, false, false, false, false, false);
 	}
 
 	@Override
 	public void onRemoveProduct(Consumable c) {
 		productGrid.getChildren().remove(productButtons.get(c));
-		this.updateStats(true, false, false, false, false, false);
+		this.updateStats(true, false, false, false, false, false, false);
 	}
 
 	@Override
 	public void onRemoveProducts(Collection<Consumable> c) {
 		for (Consumable cc : c)
 			productGrid.getChildren().remove(productButtons.get(cc));
-		this.updateStats(true, false, false, false, false, false);
+		this.updateStats(true, false, false, false, false, false, false);
 	}
 
 	@Override
@@ -754,7 +809,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		else if (res instanceof LogisticSupply) {
 			this.addResourceEntry("LogisticSupplyEntry", res);
 		}
-		this.updateStats(true, false, true, false, true, true);
+		this.updateStats(true, false, true, false, true, true, false);
 	}
 
 	private <C extends ResourceSupplyEntryController, R extends ResourceSupply> void addResourceEntry(String fxml, R res) {
@@ -779,14 +834,14 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	@Override
 	public void onRemoveSupply(ResourceSupply s) {
 		inputGrid.getChildren().remove(supplyEntries.get(s).rootNode);
-		this.updateStats(true, false, true, false, true, true);
+		this.updateStats(true, false, true, false, true, true, false);
 	}
 
 	@Override
 	public void onRemoveSupplies(Collection<ResourceSupply> c) {
 		for (ResourceSupply s : c)
 			inputGrid.getChildren().remove(supplyEntries.get(s).rootNode);
-		this.updateStats(true, false, true, false, true, true);
+		this.updateStats(true, false, true, false, true, true, false);
 	}
 
 	@Override
@@ -802,13 +857,18 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 
 	@Override
 	public void onUpdateIO() {
-		this.updateStats(true, false, true, false, true, true);
+		this.updateStats(true, false, true, false, true, true, false);
 	}
 
 	@Override
-	public void onLoaded() {
+	public Future<Void> onLoaded() {
 		this.onSetFile(factory.getFile());
-		GuiUtil.runOnJFXThread(() -> this.rebuildEntireUI());
+		CompletableFuture<Void> f = new CompletableFuture();
+		GuiUtil.runOnJFXThread(() -> {
+			this.rebuildEntireUI();
+			f.complete(null);
+		});
+		return f;
 	}
 
 	@Override

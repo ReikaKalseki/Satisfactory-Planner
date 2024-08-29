@@ -51,9 +51,22 @@ abstract class DecoratedListCell<T> extends ListCell<T> {
 	protected abstract String getString(T obj);
 
 	private Node createCellContent(T r) {
+		Node n = this.getCachedCellContent(r);
+		if (n != null)
+			return n;
 		Label lb = new Label(this.getString(r));
 		lb.setStyle(GuiSystem.getFontStyle(FontModifier.SEMIBOLD)+" -fx-text-fill: #222");
-		return GuiUtil.createSpacedHBox(lb, this.createDecoration(r), null);
+		n = GuiUtil.createSpacedHBox(lb, this.createDecoration(r), null);
+		this.onCreateCellContent(r, n);
+		return n;
+	}
+	
+	protected void onCreateCellContent(T obj, Node graphic) {
+		
+	}
+	
+	protected Node getCachedCellContent(T obj) {
+		return null;
 	}
 
 }

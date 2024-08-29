@@ -15,9 +15,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import org.controlsfx.control.SearchableComboBox?>
 
-<VBox prefWidth="300.0" spacing="8.0" stylesheets="@../CSS/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.ResourceNodeController">
+<VBox prefWidth="300.0" spacing="24.0" styleClass="widget" stylesheets="@../CSS/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.ResourceNodeController">
    <children>
-      <TitledPane collapsible="false" contentDisplay="RIGHT" text="Solid Resource Node">
+      <TitledPane collapsible="false" contentDisplay="RIGHT" styleClass="panel" text="Solid Resource Node">
          <content>
             <VBox spacing="4.0">
                <children>
@@ -25,19 +25,15 @@
                   <ComboBox fx:id="solidMinerTier" layoutX="14.0" layoutY="14.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="32.0" promptText="Choose Miner..." />
                </children>
                <padding>
-                  <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                  <Insets bottom="4.0" left="8.0" right="8.0" top="4.0" />
                </padding>
             </VBox>
          </content>
          <graphic>
             <RadioButton fx:id="solidRadio" mnemonicParsing="false" />
          </graphic>
-         <styleClass>
-            <String fx:value="panel" />
-            <String fx:value="widget" />
-         </styleClass>
       </TitledPane>
-      <TitledPane animated="false" collapsible="false" contentDisplay="RIGHT" text="Water Extractor">
+      <TitledPane animated="false" collapsible="false" contentDisplay="RIGHT" styleClass="panel" text="Water Extractor">
          <graphic>
             <RadioButton fx:id="waterRadio" mnemonicParsing="false" />
          </graphic>
@@ -59,14 +55,13 @@
                         <Label text="Extractor Count" />
                         <Spinner fx:id="waterCount" layoutX="120.0" layoutY="10.0" GridPane.columnIndex="1" />
                      </children>
+                     <VBox.margin>
+                        <Insets left="8.0" right="8.0" />
+                     </VBox.margin>
                   </GridPane>
                </children>
             </VBox>
          </content>
-         <styleClass>
-            <String fx:value="panel" />
-            <String fx:value="widget" />
-         </styleClass>
       </TitledPane>
       <TitledPane animated="false" collapsible="false" contentDisplay="RIGHT" expanded="false" layoutX="14.0" layoutY="14.0" text="Oil Node">
          <graphic>
@@ -74,10 +69,10 @@
          </graphic>
          <styleClass>
             <String fx:value="panel" />
-            <String fx:value="widget" />
+            <String fx:value="single-bolt-row" />
          </styleClass>
       </TitledPane>
-      <TitledPane collapsible="false" contentDisplay="RIGHT" layoutX="14.0" layoutY="132.0" text="Resource Wells">
+      <TitledPane collapsible="false" contentDisplay="RIGHT" layoutX="14.0" layoutY="132.0" styleClass="panel" text="Resource Wells">
          <content>
             <VBox spacing="4.0">
                <children>
@@ -103,19 +98,15 @@
                   </GridPane>
                </children>
                <padding>
-                  <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                  <Insets bottom="4.0" left="8.0" right="8.0" top="4.0" />
                </padding>
             </VBox>
          </content>
          <graphic>
             <RadioButton fx:id="frackingRadio" mnemonicParsing="false" />
          </graphic>
-         <styleClass>
-            <String fx:value="panel" />
-            <String fx:value="widget" />
-         </styleClass>
       </TitledPane>
-      <TitledPane animated="false" collapsible="false" text="Shared Properties">
+      <TitledPane animated="false" collapsible="false" styleClass="panel" text="Shared Properties">
          <VBox.margin>
             <Insets />
          </VBox.margin>
@@ -135,14 +126,10 @@
                   <Label text="Node Purity" />
                   <Label layoutX="10.0" layoutY="59.0" text="Net Yield" GridPane.rowIndex="2" />
                   <HBox fx:id="yieldDisplay" alignment="CENTER_LEFT" layoutX="94.0" layoutY="88.0" prefHeight="32.0" spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                  <ComboBox fx:id="purity" prefWidth="150.0" promptText="Choose Purity..." GridPane.columnIndex="1" />
+                  <ComboBox fx:id="purity" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Choose Purity..." GridPane.columnIndex="1" />
                </children>
             </GridPane>
          </content>
-         <styleClass>
-            <String fx:value="panel" />
-            <String fx:value="widget" />
-         </styleClass>
       </TitledPane>
       <VBox styleClass="widget">
          <children>

@@ -11,9 +11,11 @@ public class Milestone {
 	private final ArrayList<Milestone> dependencies = new ArrayList();
 	private final ArrayList<Recipe> associatedRecipes = new ArrayList();
 
-	private int tier;
+	private int tier = 0;
 
 	public final String displayName;
+
+	private static int maxTier;
 
 	public Milestone(int t, String dis) {
 		tier = t;
@@ -30,6 +32,7 @@ public class Milestone {
 	public Milestone addDependency(Milestone r) {
 		dependencies.add(r);
 		tier = Math.max(tier, r.tier);
+		maxTier = Math.max(maxTier, tier);
 		return this;
 	}
 
@@ -44,6 +47,10 @@ public class Milestone {
 
 	public List<Recipe> getRecipes() {
 		return Collections.unmodifiableList(associatedRecipes);
+	}
+
+	public static int getMaxTier() {
+		return maxTier;
 	}
 
 }

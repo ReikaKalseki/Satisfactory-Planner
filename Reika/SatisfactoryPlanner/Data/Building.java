@@ -1,11 +1,8 @@
 package Reika.SatisfactoryPlanner.Data;
 
-import Reika.SatisfactoryPlanner.Util.CountMap;
 import Reika.SatisfactoryPlanner.Util.Logging;
 
 public class Building extends HandBuildable implements Comparable<Building> {
-
-	private final CountMap<Item> constructionCost = new CountMap();
 
 	public Building(String id, String dis, String icon) {
 		super(id, dis, icon);

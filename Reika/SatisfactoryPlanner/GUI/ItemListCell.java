@@ -8,6 +8,7 @@ class ItemListCell<C extends Consumable> extends DecoratedListCell<C> {
 
 	public ItemListCell(String ptext, boolean isButton) {
 		super(ptext, isButton);
+		//Logging.instance.log("Creating item list cell "+ptext);
 	}
 
 	@Override

@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.Future;
 import java.util.function.Consumer;
 
 import org.json.JSONArray;
@@ -70,6 +71,7 @@ public class Factory {
 	public String name;
 
 	private boolean skipNotify;
+	private boolean loading;
 
 	private File currentFile;
 
@@ -111,6 +113,8 @@ public class Factory {
 		recipeList.add(r);
 		recipes.put(r, 0F);
 		Collections.sort(recipeList);
+		if (loading)
+			return;
 		this.rebuildFlows();
 		this.notifyListeners(c -> c.onAddRecipe(r));
 		if (!skipNotify)
@@ -121,10 +125,12 @@ public class Factory {
 		recipeLoops.removeIf(p -> p.recipe1.equals(r) || p.recipe2.equals(r));
 		if (recipeList.remove(r)) {
 			recipes.remove(r);
-			this.rebuildFlows();
-			this.notifyListeners(c -> c.onRemoveRecipe(r));
-			if (!skipNotify)
-				this.queueMatrixAlign();
+			if (!loading) {
+				this.rebuildFlows();
+				this.notifyListeners(c -> c.onRemoveRecipe(r));
+				if (!skipNotify)
+					this.queueMatrixAlign();
+			}
 		}
 	}
 
@@ -137,6 +143,8 @@ public class Factory {
 			}
 		}
 		skipNotify = false;
+		if (loading)
+			return;
 		this.rebuildFlows();
 		this.notifyListeners(l -> l.onRemoveRecipes(c));
 		this.queueMatrixAlign();
@@ -190,6 +198,8 @@ public class Factory {
 	 */
 	public void addExternalSupply(ResourceSupply res) {
 		resourceSources.addValue(res.getResource(), res);
+		if (loading)
+			return;
 		this.rebuildFlows();
 		this.updateMatrixStatus(res.getResource());
 		this.notifyListeners(c -> c.onAddSupply(res));
@@ -199,6 +209,8 @@ public class Factory {
 
 	public void removeExternalSupply(ResourceSupply res) {
 		resourceSources.remove(res.getResource(), res);
+		if (loading)
+			return;
 		this.rebuildFlows();
 		this.updateMatrixStatus(res.getResource());
 		this.notifyListeners(c -> c.onRemoveSupply(res));
@@ -213,6 +225,8 @@ public class Factory {
 			items.add(cc);
 			resourceSources.remove(cc, res);
 		}
+		if (loading)
+			return;
 		this.rebuildFlows();
 		for (Consumable cc : items)
 			this.updateMatrixStatus(cc);
@@ -233,22 +247,28 @@ public class Factory {
 		if (desiredProducts.contains(c))
 			return;
 		desiredProducts.add(c);
+		if (loading)
+			return;
 		this.updateMatrixStatus(c);
 		this.notifyListeners(l -> l.onAddProduct(c));
 	}
 
 	public void removeProduct(Consumable c) {
 		if (desiredProducts.remove(c)) {
-			this.updateMatrixStatus(c);
-			this.notifyListeners(l -> l.onRemoveProduct(c));
+			if (!loading) {
+				this.updateMatrixStatus(c);
+				this.notifyListeners(l -> l.onRemoveProduct(c));
+			}
 		}
 	}
 
 	public void removeProducts(Collection<Consumable> c) {
 		if (desiredProducts.removeAll(c)) {
-			for (Consumable cc : c)
-				this.updateMatrixStatus(cc);
-			this.notifyListeners(l -> l.onRemoveProducts(c));
+			if (!loading) {
+				for (Consumable cc : c)
+					this.updateMatrixStatus(cc);
+				this.notifyListeners(l -> l.onRemoveProducts(c));
+			}
 		}
 	}
 
@@ -325,6 +345,8 @@ public class Factory {
 
 	public void setCount(Recipe r, float amt) {
 		recipes.put(r, amt);
+		if (loading)
+			return;
 		this.rebuildFlows();
 		if (invalidMatrices.isEmpty())
 			this.notifyListeners(c -> c.onSetCount(r, amt));
@@ -346,6 +368,8 @@ public class Factory {
 	public void setCount(Generator g, Fuel f, int amt) {
 		int old = generators.get(g).getCount(f);
 		generators.get(g).setCount(f, amt);
+		if (loading)
+			return;
 		this.rebuildFlows();
 		this.notifyListeners(c -> c.onSetCount(g, f, old, amt));
 		if (!skipNotify)
@@ -358,6 +382,8 @@ public class Factory {
 	}
 
 	public void updateResourceSupply(ResourceSupply r) {
+		if (loading)
+			return;
 		this.notifyListeners(c -> c.onUpdateSupply(r));
 		this.updateIO();
 	}
@@ -617,6 +643,7 @@ public class Factory {
 
 	private void load(File f) throws Exception {
 		skipNotify = true;
+		loading = true;
 		this.clear();
 
 		this.setCurrentFile(f);
@@ -669,13 +696,25 @@ public class Factory {
 			}
 		}
 
+		this.init();
+	}
+
+	public void init() throws Exception {
 		skipNotify = false;
 		this.rebuildFlows();
 		skipNotify = true;
+		ArrayList<Future<Void>> waits = new ArrayList();
 		for (FactoryListener rr : changeCallback)
-			rr.onLoaded();
+			waits.add(rr.onLoaded());
+		while (!waits.isEmpty()) {
+			while (!waits.get(0).isDone()) {
+				Thread.sleep(20);
+			}
+			waits.remove(0);
+		}
 		this.queueMatrixAlign();
 		skipNotify = false;
+		loading = false;
 	}
 
 	private void setCurrentFile(File f) {
@@ -702,6 +741,22 @@ public class Factory {
 		this.gui = gui;
 		matrix.setUI(gui);
 		scaleMatrix.setUI(gui);
+	}
+
+	public void prepareDisposal() {
+		skipNotify = true;
+	}
+
+	public int getMaxTier() {
+		int ret = 0;
+		for (Recipe r : recipeList) {
+			ret = Math.max(ret, r.getTier());
+		}
+		for (FuelChoices g : generators.values()) {
+			if (g.getTotal() > 0 && g.generator.getRecipe() != null)
+				ret = Math.max(ret, g.generator.getRecipe().getTier());
+		}
+		return ret;
 	}
 
 }

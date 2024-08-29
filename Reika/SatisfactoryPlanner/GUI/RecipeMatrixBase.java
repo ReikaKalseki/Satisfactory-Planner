@@ -10,6 +10,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 import java.util.function.Function;
 
 import com.google.common.base.Strings;
@@ -372,13 +374,15 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 		return Integer.MIN_VALUE;
 	}
 
-	public final void rebuild(boolean updateIO) {
+	public final Future<Void> rebuild(boolean updateIO) {
+		CompletableFuture<Void> f = new CompletableFuture();
 		Logging.instance.log("Rebuilding grid "+type);
 		//Thread.dumpStack();
 		owner.setGridBuilt(type, false);
 		contentWidths = null;
 		Errorable rebuild = () -> {
 			Logging.instance.log("Matrix "+type+" rebuild task started");
+			//Thread.sleep(5000);
 			grid.setHgap(2);
 			grid.setVgap(2);
 			grid.setMaxHeight(Double.POSITIVE_INFINITY);
@@ -418,8 +422,10 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 				Logging.instance.log("Socketing new "+type+" matrix "+System.identityHashCode(grid));
 				gui.setMatrix(type, grid);
 				owner.setGridBuilt(type, true);
+				f.complete(null);
 			});
 		});
+		return f;
 	}
 
 	private void initializeWidths() {
@@ -494,8 +500,8 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 	}
 
 	@Override
-	public final void onLoaded() {
-		this.rebuild(false);
+	public final Future<Void> onLoaded() {
+		return this.rebuild(false);
 	}
 
 	@Override

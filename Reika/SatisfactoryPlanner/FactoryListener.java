@@ -2,6 +2,7 @@ package Reika.SatisfactoryPlanner;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.concurrent.Future;
 
 import Reika.SatisfactoryPlanner.Data.Constants.ToggleableVisiblityGroup;
 import Reika.SatisfactoryPlanner.Data.Consumable;
@@ -30,7 +31,7 @@ public interface FactoryListener extends Comparable<FactoryListener> {
 	public void onUpdateSupply(ResourceSupply s);
 	public void onSetToggle(ToggleableVisiblityGroup grp, boolean active);
 	public void onUpdateIO();
-	public void onLoaded();
+	public Future<Void> onLoaded();
 	public void onCleared();
 	public void onSetFile(File f);
 

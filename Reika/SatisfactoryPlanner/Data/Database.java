@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map.Entry;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
@@ -120,6 +119,7 @@ public class Database {
 	}
 
 	public static void sort() {
+		Logging.instance.log(String.format("Sorting data with %d items, %d recipes, %d building recipes, %d buildings, %d generators, and %d vehicles", allItemsSorted.size(), allAutoRecipesSorted.size(), allBuildingRecipesSorted.size(), allBuildingsSorted.size(), allGeneratorsSorted.size(), allVehiclesSorted.size()));
 		Collections.sort(allItemsSorted);
 		Collections.sort(allAutoRecipesSorted);
 		Collections.sort(allBuildingRecipesSorted);
@@ -264,10 +264,11 @@ public class Database {
 		if (r.productionBuilding == null) { //is a buildable
 			String bid = parseID(out.replace("Desc_", "Build_"));
 			if (allBuildings.containsKey(bid)) {
-				Building bb = lookupBuilding(bid);
+				Building bb = lookupBuilding(bid);/*
 				for (Entry<Consumable, Integer> e : r.getDirectCost().entrySet()) {
 					bb.addIngredient((Item)e.getKey(), e.getValue());
-				}
+				}*/
+				bb.setRecipe(r);
 				Logging.instance.log("Set "+bb+" recipe: "+bb.getConstructionCost());
 			}
 			allBuildingRecipesSorted.add(r);
@@ -466,17 +467,28 @@ public class Database {
 		Logging.instance.log("Loading buildings from "+f.getCanonicalPath());
 		for (File f2 : f.listFiles()) {
 			if (f2.getName().endsWith(".json") && !f2.getName().startsWith("template")) {
-				Logging.instance.log("Loading building file "+f2);
-				JSONObject data = new JSONObject(FileUtils.readFileToString(f2, Charsets.UTF_8));
-				FunctionalBuilding r = new FunctionalBuilding(data.getString("ID"), data.getString("Name"), data.getString("Icon"), data.getInt("PowerCost"));
-				JSONArray ing = data.getJSONArray("Ingredients");
+				try {
+					Logging.instance.log("Loading building file "+f2);
+					JSONObject data = new JSONObject(FileUtils.readFileToString(f2, Charsets.UTF_8));
+					FunctionalBuilding r = new FunctionalBuilding(data.getString("ID"), data.getString("Name"), data.getString("Icon"), data.getInt("PowerCost"));
+					/*JSONArray ing = data.getJSONArray("Ingredients");
 				for (Object o : ing) {
 					JSONObject inner = (JSONObject)o;
 					r.addIngredient((Item)lookupItem(inner.getString("Item")), inner.getInt("Amount"));
 				}
-				Logging.instance.log("Loaded custom building "+r);
-				allBuildings.put(r.id, r);
-				allBuildingsSorted.add(r);
+				if (data.has("tier"))
+					r.addMilestone(data.getInt("tier"));
+					 */
+					String rec = data.getString("recipe");
+					r.setRecipe(lookupRecipe(rec));
+					Logging.instance.log("Loaded custom building "+r);
+					allBuildings.put(r.id, r);
+					allBuildingsSorted.add(r);
+				}
+				catch (Exception e) {
+					Logging.instance.log("Failed to parse custom building definition file "+f2.getAbsolutePath());
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -487,29 +499,35 @@ public class Database {
 		Logging.instance.log("Loading milestones from "+f.getCanonicalPath());
 		for (File f2 : f.listFiles()) {
 			if (f2.getName().endsWith(".json") && !f2.getName().startsWith("template")) {
-				Logging.instance.log("Loading milestone file "+f2);
-				JSONObject obj = new JSONObject(FileUtils.readFileToString(f2, Charsets.UTF_8));
+				try {
+					Logging.instance.log("Loading milestone file "+f2);
+					JSONObject obj = new JSONObject(FileUtils.readFileToString(f2, Charsets.UTF_8));
 
-				Milestone m = new Milestone(obj.getInt("Tier"), obj.getString("Name"));
-				//TODO "Cost" field?
-				if (obj.has("DependsOn")) {
-					for (Object o : obj.getJSONArray("DependsOn")) {
-						String ulock = (String)o;
-						if (allMilestones.containsKey(ulock)) {
-							m.addDependency(lookupMilestone(ulock));
+					Milestone m = new Milestone(obj.getInt("Tier"), obj.getString("Name"));
+					//TODO "Cost" field?
+					if (obj.has("DependsOn")) {
+						for (Object o : obj.getJSONArray("DependsOn")) {
+							String ulock = (String)o;
+							if (allMilestones.containsKey(ulock)) {
+								m.addDependency(lookupMilestone(ulock));
+							}
 						}
 					}
-				}
-				boolean flag = false;
-				for (Object o : obj.getJSONArray("Recipes")) {
-					String ulock = (String)o;
-					if (allRecipes.containsKey(ulock)) {
-						flag = true;
-						m.addRecipe(lookupRecipe(ulock));
+					boolean flag = false;
+					for (Object o : obj.getJSONArray("Recipes")) {
+						String ulock = (String)o;
+						if (allRecipes.containsKey(ulock)) {
+							flag = true;
+							m.addRecipe(lookupRecipe(ulock));
+						}
 					}
+					if (flag)
+						allMilestones.put(obj.getString("ID"), m);
 				}
-				if (flag)
-					allMilestones.put(obj.getString("ID"), m);
+				catch (Exception e) {
+					Logging.instance.log("Failed to parse custom milestone definition file "+f2.getAbsolutePath());
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -520,7 +538,8 @@ public class Database {
 		Logging.instance.log("Loading recipes from "+f.getCanonicalPath());
 		for (File f2 : f.listFiles()) {
 			if (f2.getName().endsWith(".json") && !f2.getName().startsWith("template")) {
-				/* fuck modular java
+				try {
+					/* fuck modular java
 				JsonObject data = new Gson().fromJson(new BufferedReader(new FileReader(f2)), JsonObject.class);
 				boolean alt = data.has("alternate") && data.get("alternate").getAsBoolean();
 				Recipe r = new Recipe(data.get("name").getAsString(), alt);
@@ -530,35 +549,70 @@ public class Database {
 				for (Entry<String, JsonElement> e : data.get("products").getAsJsonObject().entrySet()) {
 					r.addProduct(lookupItem(e.getKey()), e.getValue().getAsInt());
 				}*/
-				Logging.instance.log("Loading recipe file "+f2);
-				JSONObject obj = new JSONObject(FileUtils.readFileToString(f2, Charsets.UTF_8));
-				String disp = obj.getString("Name");
-				String id = obj.has("ID") ? obj.getString("ID") : f2.getName().replace("Recipe_", "");
-				String build = obj.getJSONArray("ProducedIn").getString(0);
-				build = build+"_C";
-				Recipe r = new Recipe(id, disp, (FunctionalBuilding)lookupBuilding(build), obj.getFloat("ManufacturingDuration"), false);
-				r.markModded(mod);
-				JSONArray ing = obj.getJSONArray("Ingredients");
-				for (Object o : ing) {
-					JSONObject inner = (JSONObject)o;
-					Consumable c = lookupItem(inner.getString("Item")+"_C");
-					int amt = inner.getInt("Amount");
-					if (c instanceof Fluid)
-						amt /= Constants.LIQUID_SCALAR;
-					r.addIngredient(c, amt);
+					Logging.instance.log("Loading recipe file "+f2);
+					JSONObject obj = new JSONObject(FileUtils.readFileToString(f2, Charsets.UTF_8));
+					String disp = obj.getString("Name");
+					String id = obj.has("ID") ? obj.getString("ID") : f2.getName().replace("Recipe_", "");
+					Recipe old = allRecipes.get(id);
+					boolean isDelta = false;
+					if (old != null) {
+						isDelta = obj.has("Delta") && obj.getBoolean("Delta");
+						if (isDelta)
+							Logging.instance.log("Found a custom recipe definition for ID '"+id+"', marked as a delta to "+old+".");
+						else
+							Logging.instance.log("Found a custom recipe definition for ID '"+id+"', which is already mapped to "+old+". It will be replaced.");
+						allAutoRecipesSorted.remove(old);
+					}
+					String build = obj.has("ProducedIn") ? obj.getJSONArray("ProducedIn").getString(0)+"_C" : null;
+					FunctionalBuilding crafter = build == null ? null : (FunctionalBuilding)lookupBuilding(build);
+					if (!isDelta) {
+						if (crafter == null)
+							throw new IllegalArgumentException("Invalid recipe definition - is not a delta but lacks a building");
+					}
+					Recipe r = isDelta ? old : new Recipe(id, disp, crafter, obj.getFloat("ManufacturingDuration"), false);
+					if (isDelta) {
+						if (obj.has("ManufacturingDuration"))
+							r = new Recipe(r.id, r.displayName, r.productionBuilding, obj.getFloat("ManufacturingDuration"), r.isFicsmas);
+						if (crafter != null)
+							r = new Recipe(r.id, r.displayName, crafter, r.craftingTime, r.isFicsmas);
+					}
+					else {
+						r.markModded(mod);
+					}
+					JSONArray ing = obj.has("Ingredients") ? obj.getJSONArray("Ingredients") : null;
+					if (ing == null && !isDelta)
+						throw new IllegalArgumentException("Invalid recipe definition - is not a delta but lacks ingredients");
+					if (ing != null && isDelta)
+						r.clearIngredients();
+					for (Object o : ing) {
+						JSONObject inner = (JSONObject)o;
+						Consumable c = lookupItem(inner.getString("Item")+"_C");
+						int amt = inner.getInt("Amount");
+						if (c instanceof Fluid)
+							amt /= Constants.LIQUID_SCALAR;
+						r.addIngredient(c, amt);
+					}
+					JSONArray prod = obj.has("Products") ? obj.getJSONArray("Products") : null;
+					if (prod == null && !isDelta)
+						throw new IllegalArgumentException("Invalid recipe definition - is not a delta but lacks products");
+					if (prod != null && isDelta)
+						r.clearProducts();
+					for (Object o : prod) {
+						JSONObject inner = (JSONObject)o;
+						Consumable c = lookupItem(inner.getString("Item")+"_C");
+						int amt = inner.getInt("Amount");
+						if (c instanceof Fluid)
+							amt /= Constants.LIQUID_SCALAR;
+						r.addProduct(c, amt);
+					}
+					allAutoRecipesSorted.add(r);
+					allRecipes.put(r.id, r);
+					Logging.instance.log("Registered custom recipe type "+r);
 				}
-				JSONArray prod = obj.getJSONArray("Products");
-				for (Object o : prod) {
-					JSONObject inner = (JSONObject)o;
-					Consumable c = lookupItem(inner.getString("Item")+"_C");
-					int amt = inner.getInt("Amount");
-					if (c instanceof Fluid)
-						amt /= Constants.LIQUID_SCALAR;
-					r.addProduct(c, amt);
+				catch (Exception e) {
+					Logging.instance.log("Failed to parse custom recipe definition file "+f2.getAbsolutePath());
+					e.printStackTrace();
 				}
-				allAutoRecipesSorted.add(r);
-				allRecipes.put(r.id, r);
-				Logging.instance.log("Registered custom recipe type "+r);
 			}
 		}
 	}
@@ -568,33 +622,41 @@ public class Database {
 			return;
 		Logging.instance.log("Loading items from "+f0.getCanonicalPath());
 		for (File f2 : f0.listFiles()) {
-			JSONObject obj = new JSONObject(FileUtils.readFileToString(f2, Charsets.UTF_8));
-			String form = obj.getString("Form");
-			boolean gas = form.equalsIgnoreCase("gas");
-			boolean fluid = form.equalsIgnoreCase("liquid") || gas;
-			String disp = obj.getString("Name");
-			String desc = obj.getString("Description");
-			String id = obj.has("ID") ? obj.getString("ID") : f2.getName().replace("Recipe_", "");
-			String icon = obj.getString("Icon");
-			String cat = obj.getString("Category");
-			float nrg = obj.getFloat("EnergyValue");
-			boolean resource = obj.has("ResourceItem");
-			if (fluid) {
-				String clr = obj.has("Color") ? obj.getString("Color") : null;
-				Fluid f = new Fluid(id, disp, icon, desc, cat, nrg, clr == null ? Color.BLACK : parseColor(clr));
-				f.markModded(mod);
-				allItems.put(f.id, f);
-				allItemsSorted.add(f);
-				if (resource)
-					frackableFluids.add(f);
-			}
-			else {
-				Item i = new Item(id, disp, icon, desc, cat, nrg);
-				i.markModded(mod);
-				allItems.put(i.id, i);
-				allItemsSorted.add(i);
-				if (resource)
-					mineableItems.add(i);
+			if (f2.getName().endsWith(".json") && !f2.getName().startsWith("template")) {
+				try {
+					JSONObject obj = new JSONObject(FileUtils.readFileToString(f2, Charsets.UTF_8));
+					String form = obj.getString("Form");
+					boolean gas = form.equalsIgnoreCase("gas");
+					boolean fluid = form.equalsIgnoreCase("liquid") || gas;
+					String disp = obj.getString("Name");
+					String desc = obj.getString("Description");
+					String id = obj.has("ID") ? obj.getString("ID") : f2.getName().replace("Recipe_", "");
+					String icon = obj.getString("Icon");
+					String cat = obj.getString("Category");
+					float nrg = obj.getFloat("EnergyValue");
+					boolean resource = obj.has("ResourceItem");
+					if (fluid) {
+						String clr = obj.has("Color") ? obj.getString("Color") : null;
+						Fluid f = new Fluid(id, disp, icon, desc, cat, nrg, clr == null ? Color.BLACK : parseColor(clr));
+						f.markModded(mod);
+						allItems.put(f.id, f);
+						allItemsSorted.add(f);
+						if (resource)
+							frackableFluids.add(f);
+					}
+					else {
+						Item i = new Item(id, disp, icon, desc, cat, nrg);
+						i.markModded(mod);
+						allItems.put(i.id, i);
+						allItemsSorted.add(i);
+						if (resource)
+							mineableItems.add(i);
+					}
+				}
+				catch (Exception e) {
+					Logging.instance.log("Failed to parse custom item definition file "+f2.getAbsolutePath());
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -613,6 +675,7 @@ public class Database {
 		mineableItems.clear();
 		frackableFluids.clear();
 		allMilestones.clear();
+		//Logging.instance.log(String.format("Cleared data with %d items, %d recipes, %d building recipes, %d buildings, %d generators, and %d vehicles", allItemsSorted.size(), allAutoRecipesSorted.size(), allBuildingRecipesSorted.size(), allBuildingsSorted.size(), allGeneratorsSorted.size(), allVehiclesSorted.size()));
 	}
 
 	public static enum ClassType {
@@ -643,6 +706,7 @@ public class Database {
 		public void parsePending() {
 			for (JSONObject obj : pendingParses)
 				this.parseObject(obj);
+			pendingParses.clear();
 		}
 
 		private void parseObject(JSONObject obj) {
