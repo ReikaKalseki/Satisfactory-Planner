@@ -2,6 +2,7 @@ package fxexpansions;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.function.Consumer;
 
 import Reika.SatisfactoryPlanner.GUI.GuiSystem;
@@ -11,8 +12,11 @@ import javafx.application.HostServices;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.DirectoryChooser;
@@ -25,6 +29,8 @@ public abstract class FXMLControllerBase extends ControllerBase  {
 
 	private Stage container;
 	private Parent rootNode;
+
+	private final HashSet<KeyCode> pressedKeys = new HashSet();
 
 	@FXML
 	public final void initialize() {
@@ -59,8 +65,25 @@ public abstract class FXMLControllerBase extends ControllerBase  {
 		container = w;
 		container.widthProperty().addListener((v, o, n) -> {this.onWindowResize();});
 		container.heightProperty().addListener((v, o, n) -> {this.onWindowResize();});
+		Scene s = w.getScene();
+		s.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+			if (pressedKeys.add(event.getCode()))
+				this.onKeyPressed(event.getCode());
+		});
+		s.addEventFilter(KeyEvent.KEY_RELEASED, event -> {
+			if (pressedKeys.remove(event.getCode()))
+				this.onKeyReleased(event.getCode());
+		});
 
 		GuiUtil.initWidgets(this);
+	}
+
+	protected void onKeyPressed(KeyCode code) {
+
+	}
+
+	protected void onKeyReleased(KeyCode code) {
+
 	}
 
 	public final <C extends FXMLControllerBase> GuiInstance<C> loadNestedFXML(String fxml, Pane container) throws IOException {

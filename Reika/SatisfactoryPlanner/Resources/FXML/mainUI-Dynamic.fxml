@@ -105,7 +105,7 @@
                                  <content>
                                     <GridPane fx:id="infoGrid" hgap="4.0" vgap="4.0">
                                        <columnConstraints>
-                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="128.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="140.0" />
                                           <ColumnConstraints hgrow="SOMETIMES" />
                                        </columnConstraints>
                                        <rowConstraints>
@@ -132,7 +132,7 @@
                                  <content>
                                     <GridPane fx:id="statisticsGrid" hgap="4.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vgap="4.0">
                                       <columnConstraints>
-                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="128.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="140.0" />
                                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" />
                                       </columnConstraints>
                                       <rowConstraints>
@@ -150,9 +150,9 @@
                                           <Label fx:id="powerProduction" layoutX="20.0" layoutY="100.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="0 MW" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                                           <ExpandingTilePane fx:id="buildCostBar" hgap="16.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" tileAlignment="CENTER_LEFT" vgap="8.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                           <ExpandingTilePane fx:id="buildingBar" hgap="16.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" tileAlignment="CENTER_LEFT" vgap="8.0" GridPane.columnIndex="1" />
-                                          <Label layoutX="20.0" layoutY="100.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Net Consumption" GridPane.rowIndex="2" />
+                                          <Label layoutX="20.0" layoutY="100.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Net Required Input" GridPane.rowIndex="2" />
                                           <ExpandingTilePane fx:id="netProductBar" hgap="16.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" tileAlignment="CENTER_LEFT" vgap="8.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                                          <Label layoutX="20.0" layoutY="172.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" text="Net Production" GridPane.rowIndex="3" />
+                                          <Label layoutX="20.0" layoutY="172.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" text="Net Output" GridPane.rowIndex="3" />
                                           <ExpandingTilePane fx:id="netConsumptionBar" hgap="16.0" layoutX="140.0" layoutY="128.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" tileAlignment="CENTER_LEFT" vgap="8.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                           <Label layoutX="20.0" layoutY="164.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" text="Required Tiers" GridPane.rowIndex="5" />
                                           <ExpandingTilePane fx:id="tierBar" layoutX="152.0" layoutY="128.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" tileAlignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="5" />
@@ -195,24 +195,28 @@
                                     <VBox spacing="8.0">
                                        <children>
                                           <TilePane fx:id="inputGrid" minHeight="200.0" styleClass="dark-pane" VBox.vgrow="ALWAYS" />
-                                          <Button fx:id="addInputButton" contentDisplay="RIGHT" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="widget" text="Add External Resource Input">
-                                             <graphic>
-                                                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                                                   <image>
-                                                      <Image url="@../Graphics/Icons/add.png" />
-                                                   </image>
-                                                </ImageView>
-                                             </graphic>
-                                          </Button>
-                                          <Button fx:id="addMineButton" contentDisplay="RIGHT" layoutX="20.0" layoutY="20.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="widget" text="Add Local Resource Mine">
-                                             <graphic>
-                                                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                                                   <image>
-                                                      <Image url="@../Graphics/Icons/add.png" />
-                                                   </image>
-                                                </ImageView>
-                                             </graphic>
-                                          </Button>
+                                          <HBox alignment="CENTER" spacing="64.0" styleClass="button-bar" VBox.vgrow="NEVER">
+                                             <children>
+                                                <Button fx:id="addMineButton" graphicTextGap="12.0" maxWidth="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefWidth="256.0" styleClass="widget" text="Add Local Resource Mine">
+                                                   <graphic>
+                                                      <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                                                         <image>
+                                                            <Image url="@../Graphics/Icons/button-plus-icon.png" />
+                                                         </image>
+                                                      </ImageView>
+                                                   </graphic>
+                                                </Button>
+                                                <Button fx:id="addInputButton" graphicTextGap="12.0" maxWidth="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefWidth="256.0" styleClass="widget" text="Add External Resource Input">
+                                                   <graphic>
+                                                      <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                                                         <image>
+                                                            <Image url="@../Graphics/Icons/button-plus-icon.png" />
+                                                         </image>
+                                                      </ImageView>
+                                                   </graphic>
+                                                </Button>
+                                             </children>
+                                          </HBox>
                                        </children>
                                     </VBox>
                                  </content>

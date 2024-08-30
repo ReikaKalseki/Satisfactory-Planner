@@ -18,6 +18,7 @@ public enum InternalIcons implements NamedIcon {
 	BOTTLENECK(16),
 	OVERVIEW(16),
 	INPUTOUTPUT(16),
+	INPUTOUTPUT2(16),
 	POWERTAB(16),
 	MATRICES(16),
 	;

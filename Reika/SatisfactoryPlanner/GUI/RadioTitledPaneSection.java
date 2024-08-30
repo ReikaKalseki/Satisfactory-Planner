@@ -33,7 +33,7 @@ public abstract class RadioTitledPaneSection extends FXMLControllerBase {
 				if (g instanceof RadioButton) {
 					RadioButton rb = (RadioButton)g;
 					rb.setToggleGroup(radioButtons);
-					GuiUtil.setTitledPaneGraphicRight(tp, 14+16); //+16 because of the 8 from bolt wrap pad
+					GuiUtil.setTitledPaneGraphicRight(tp, 14+16); //+16 because of the 8 from bolt wrap pad, +24 from title pad
 					selections.put(rb, tp);
 				}
 			}

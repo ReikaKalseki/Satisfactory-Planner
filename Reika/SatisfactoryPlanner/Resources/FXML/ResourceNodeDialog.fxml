@@ -8,6 +8,8 @@
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
@@ -15,7 +17,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import org.controlsfx.control.SearchableComboBox?>
 
-<VBox prefWidth="300.0" spacing="24.0" styleClass="widget" stylesheets="@../CSS/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.ResourceNodeController">
+<VBox prefWidth="450.0" spacing="24.0" styleClass="widget" stylesheets="@../CSS/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.ResourceNodeController">
    <children>
       <TitledPane collapsible="false" contentDisplay="RIGHT" styleClass="panel" text="Solid Resource Node">
          <content>
@@ -45,15 +47,15 @@
                <children>
                   <GridPane hgap="4.0" vgap="4.0">
                      <columnConstraints>
-                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="67.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="33.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="40.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="60.0" />
                      </columnConstraints>
                      <rowConstraints>
                         <RowConstraints vgrow="SOMETIMES" />
                      </rowConstraints>
                      <children>
                         <Label text="Extractor Count" />
-                        <Spinner fx:id="waterCount" layoutX="120.0" layoutY="10.0" GridPane.columnIndex="1" />
+                        <Spinner fx:id="waterCount" layoutX="120.0" layoutY="10.0" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS" />
                      </children>
                      <VBox.margin>
                         <Insets left="8.0" right="8.0" />
@@ -79,8 +81,8 @@
                   <SearchableComboBox fx:id="frackingDropdown" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="32.0" promptText="Choose Fluid..." />
                   <GridPane hgap="4.0" vgap="4.0">
                     <columnConstraints>
-                      <ColumnConstraints hgrow="SOMETIMES" percentWidth="67.0" />
-                      <ColumnConstraints hgrow="SOMETIMES" percentWidth="33.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" percentWidth="40.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" percentWidth="60.0" />
                     </columnConstraints>
                     <rowConstraints>
                       <RowConstraints vgrow="SOMETIMES" />
@@ -91,9 +93,9 @@
                         <Label text="Impure Node Count" />
                         <Label layoutX="10.0" layoutY="17.0" text="Normal Node Count" GridPane.rowIndex="1" />
                         <Label layoutX="10.0" layoutY="17.0" text="Pure Node Count" GridPane.rowIndex="2" />
-                        <Spinner fx:id="frackingNormal" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        <Spinner fx:id="frackingImpure" layoutX="120.0" layoutY="10.0" GridPane.columnIndex="1" />
-                        <Spinner fx:id="frackingPure" layoutX="10.0" layoutY="10.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <Spinner fx:id="frackingNormal" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS" />
+                        <Spinner fx:id="frackingImpure" layoutX="120.0" layoutY="10.0" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS" />
+                        <Spinner fx:id="frackingPure" layoutX="10.0" layoutY="10.0" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS" />
                      </children>
                   </GridPane>
                </children>
@@ -119,23 +121,31 @@
                <rowConstraints>
                   <RowConstraints vgrow="SOMETIMES" />
                   <RowConstraints vgrow="SOMETIMES" />
-                  <RowConstraints vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" prefHeight="36.0" vgrow="SOMETIMES" />
                </rowConstraints>
                <children>
                   <Label layoutX="10.0" layoutY="18.0" text="Clock Speed" GridPane.rowIndex="1" />
                   <Label text="Node Purity" />
                   <Label layoutX="10.0" layoutY="59.0" text="Net Yield" GridPane.rowIndex="2" />
-                  <HBox fx:id="yieldDisplay" alignment="CENTER_LEFT" layoutX="94.0" layoutY="88.0" prefHeight="32.0" spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                  <ComboBox fx:id="purity" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Choose Purity..." GridPane.columnIndex="1" />
+                  <HBox fx:id="yieldDisplay" alignment="CENTER_LEFT" layoutX="94.0" layoutY="88.0" maxWidth="1.7976931348623157E308" prefHeight="32.0" spacing="4.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS" />
+                  <ComboBox fx:id="purity" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Choose Purity..." GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS" />
                </children>
             </GridPane>
          </content>
       </TitledPane>
-      <VBox styleClass="widget">
+      <HBox alignment="CENTER" styleClass="button-bar">
          <children>
-            <Button fx:id="addButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Add Resource Extraction" />
+            <Button fx:id="addButton" alignment="CENTER" graphicTextGap="12.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" mnemonicParsing="false" prefHeight="32.0" text="Add Resource Extraction">
+               <graphic>
+                  <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../Graphics/Icons/button-plus-icon.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Button>
          </children>
-      </VBox>
+      </HBox>
    </children>
    <padding>
       <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />

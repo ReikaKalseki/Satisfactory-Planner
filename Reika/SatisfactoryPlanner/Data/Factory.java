@@ -63,6 +63,7 @@ public class Factory {
 
 	//private final HashMap<Consumable, ItemFlow> flow = new HashMap();
 	private final ItemAmountTracker production = new ItemAmountTracker();
+	private final ItemAmountTracker mines = new ItemAmountTracker();
 	private final ItemAmountTracker externalInput = new ItemAmountTracker();
 	private final ItemAmountTracker consumption = new ItemAmountTracker();
 
@@ -300,6 +301,10 @@ public class Factory {
 		return externalInput.getItems();
 	}
 
+	public Set<Consumable> getAllMinedItems() {
+		return mines.getItems();
+	}
+
 	public float getTotalConsumption(Consumable c) {/*
 		float amt = 0;
 		for (Recipe r : this.getRecipes()) {
@@ -322,8 +327,8 @@ public class Factory {
 		return production.get(c);
 	}
 
-	public float getExternalInput(Consumable c) {
-		return externalInput.get(c);
+	public float getExternalInput(Consumable c, boolean minesOnly) {
+		return minesOnly ? mines.get(c) : externalInput.get(c);
 	}
 	/*
 	public float getNetProduction(Consumable c) {
@@ -393,6 +398,7 @@ public class Factory {
 			return;
 		//		flow.clear();
 		production.clear();
+		mines.clear();
 		externalInput.clear();
 		consumption.clear();
 		for (Recipe r : recipes.keySet()) {
@@ -408,6 +414,8 @@ public class Factory {
 		for (ResourceSupply r : this.getSupplies()) {
 			//this.getOrCreateFlow(r.getResource()).externalInput += r.getYield();
 			externalInput.add(r.getResource(), r.getYield());
+			if (r instanceof ExtractableResource)
+				mines.add(r.getResource(), r.getYield());
 		}
 		if (generatorMatrixRule != InclusionPattern.EXCLUDE) {
 			for (FuelChoices fc : generators.values()) {
@@ -494,7 +502,7 @@ public class Factory {
 			return false;
 		//ItemFlow f = this.getFlow(c);
 		//return f != null && f.getTotalAvailable() > f.getConsumption();
-		return this.getTotalProduction(c)+this.getExternalInput(c) > this.getTotalConsumption(c);
+		return this.getTotalProduction(c)+this.getExternalInput(c, false) > this.getTotalConsumption(c);
 	}
 
 	public void getWarnings(Consumer<Warning> call) {/*
@@ -509,7 +517,7 @@ public class Factory {
 				call.accept(new MultipleBeltsWarning(f.item, f.getTotalAvailable(), lim));
 		}*/
 		for (Consumable c : this.getAllIngredients()) {
-			float has = this.getExternalInput(c)+this.getTotalProduction(c);
+			float has = this.getExternalInput(c, false)+this.getTotalProduction(c);
 			float need = this.getTotalConsumption(c);
 			if (has < need) {
 				call.accept(new InsufficientResourceWarning(c, need, has));
@@ -519,7 +527,7 @@ public class Factory {
 			if (desiredProducts.contains(c))
 				continue;
 			float prod = this.getTotalProduction(c);
-			float sup = this.getExternalInput(c);
+			float sup = this.getExternalInput(c, false);
 			float has = prod+sup;
 			float need = this.getTotalConsumption(c);
 			if (has > need) {
@@ -531,9 +539,9 @@ public class Factory {
 		}
 		for (RecipeProductLoop p : recipeLoops) {
 			String msg = "A production loop exists between "+p.recipe1.displayName+" and "+p.recipe2.displayName;
-			if (this.getExternalInput(p.item1) > 0)
+			if (this.getExternalInput(p.item1, false) > 0)
 				call.accept(new Warning(p.item1 instanceof Fluid ? WarningSeverity.SEVERE : WarningSeverity.MINOR, msg+", with "+p.item1.displayName+" also being supplied externally. This risks a deadlock", new ResourceIconName(p.item1)));
-			if (this.getExternalInput(p.item2) > 0)
+			if (this.getExternalInput(p.item2, false) > 0)
 				call.accept(new Warning(p.item2 instanceof Fluid ? WarningSeverity.SEVERE : WarningSeverity.MINOR, msg+", with "+p.item2.displayName+" also being supplied externally. This risks a deadlock", new ResourceIconName(p.item2)));
 		}
 		for (Consumable c : desiredProducts) {
@@ -730,7 +738,6 @@ public class Factory {
 		GuiUtil.queueTask(msg, () -> {
 			Factory ret = new Factory();
 			for (FactoryListener fl : l) {
-				ret.addCallback(fl);
 				fl.setFactory(ret);
 			}
 			ret.load(f);
@@ -757,6 +764,10 @@ public class Factory {
 				ret = Math.max(ret, g.generator.getRecipe().getTier());
 		}
 		return ret;
+	}
+
+	public void setLargeMatrixSpinnerStep(boolean large) {
+		scaleMatrix.setSpinnerStep(large ? 10 : 1);
 	}
 
 }

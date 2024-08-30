@@ -15,6 +15,7 @@ import Reika.SatisfactoryPlanner.Data.ResourceSupply;
 public interface FactoryListener extends Comparable<FactoryListener> {
 
 	public int getSortIndex();
+	/** This should also add it as a listener */
 	public void setFactory(Factory f);
 
 	public void onAddRecipe(Recipe r);

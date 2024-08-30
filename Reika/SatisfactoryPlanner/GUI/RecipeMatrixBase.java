@@ -103,6 +103,7 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 		this.gui = gui;
 	}
 
+	@Deprecated
 	protected float getMultiplier(ItemConsumerProducer r) {
 		return 1;
 	}
@@ -261,16 +262,16 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 	 */
 	protected void addTitles() {
 		nameLabel = new Label("Item Name");
-		nameLabel.setFont(Font.font(nameLabel.getFont().getFamily(), FontWeight.BOLD, 16));
+		nameLabel.getStyleClass().add("table-header");
 		grid.add(nameLabel, nameColumn, titlesRow);
 		consumptionLabel = new Label("Consuming");
-		consumptionLabel.setFont(Font.font(consumptionLabel.getFont().getFamily(), FontWeight.BOLD, 16));
+		consumptionLabel.getStyleClass().add("table-header");
 		grid.add(consumptionLabel, ingredientsStartColumn, titlesRow);
 		productionLabel = new Label("Producing");
-		productionLabel.setFont(Font.font(productionLabel.getFont().getFamily(), FontWeight.BOLD, 16));
+		productionLabel.getStyleClass().add("table-header");
 		grid.add(productionLabel, productsStartColumn, titlesRow);
 		buildingLabel = new Label("In");
-		buildingLabel.setFont(Font.font(productionLabel.getFont().getFamily(), FontWeight.BOLD, 16));
+		buildingLabel.getStyleClass().add("table-header");
 		grid.add(buildingLabel, buildingColumn, titlesRow);
 		grid.setColumnSpan(consumptionLabel, productsStartColumn-ingredientsStartColumn);
 		grid.setColumnSpan(productionLabel, buildingGapColumn-productsStartColumn);
@@ -547,7 +548,13 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 			case EXCLUDE:
 				break;
 			case MERGE:
-				recipeEntries.get(supplyGroup).setAmount(r.getResource(), r.getYield(), false, true);
+				Consumable item = r.getResource();
+				int sum = 0;
+				for (ResourceSupply r2 : owner.getSupplies()) {
+					if (r2.getResource() == item)
+						sum += r2.getYield();
+				}
+				recipeEntries.get(supplyGroup).setAmount(item, sum, false, true);
 				break;
 			case INDIVIDUAL:
 				recipeEntries.get(r).setAmount(r.getResource(), r.getYield(), false, true);
@@ -601,7 +608,6 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 			rowIndex = row;
 			recipeIndex = index;
 			label = new Label(r.getDisplayName());
-			label.setFont(Font.font(label.getFont().getFamily(), FontWeight.BOLD, FontPosture.REGULAR, 14));
 			String mod = r instanceof Recipe ? ((Recipe)r).getMod() : null;
 			if (!Strings.isNullOrEmpty(mod)) {
 				//label.setStyle("-fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.HIGHLIGHT_COLOR)+";");
@@ -615,7 +621,10 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 				if (r instanceof ResourceSupply)
 					label.setText(label.getText()+" ("+((ResourceSupply)r).getResource().displayName+")");
 			}
+			label.setFont(Font.font(GuiSystem.getDefaultFont().getFamily(), FontWeight.NORMAL, FontPosture.REGULAR, 12));
 			GuiUtil.sizeToContent(label);
+			label.setPrefWidth(label.getMinWidth());
+			label.setMaxWidth(label.getMinWidth());
 			/*
 			if (r instanceof Recipe) {
 				this.setScale(owner.getCount((Recipe)r));

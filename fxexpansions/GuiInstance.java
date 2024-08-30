@@ -36,7 +36,8 @@ public class GuiInstance<C extends ControllerBase> {
 		FXMLControllerBase c = loader.getController();
 		c.setRoot(root);
 		c.postInit(window);
-		window.getScene().getStylesheets().add(Main.class.getResource("Resources/CSS/style.css").toString());
+		Scene s = window.getScene();
+		s.getStylesheets().add(Main.class.getResource("Resources/CSS/style.css").toString());
 		return new GuiInstance(root, c);
 	}
 

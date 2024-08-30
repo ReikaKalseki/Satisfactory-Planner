@@ -17,10 +17,9 @@ import fxexpansions.GuiInstance;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory.DoubleSpinnerValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 
 public class ScaledRecipeMatrix extends RecipeMatrixBase {
 
@@ -135,9 +134,15 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 				this.createDivider(idx+1, sumsRow, 2);
 		}
 
-		for (ItemConsumerProducer r : recipes)
+		for (ItemConsumerProducer r : recipes) {
 			if (r instanceof Recipe)
 				this.onSetCount((Recipe)r, owner.getCount((Recipe)r));
+			if (r instanceof Fuel) {
+				Fuel f = (Fuel)r;
+				int amt = owner.getCount(f.generator, f);
+				this.onSetCount(f.generator, f, amt, amt);
+			}
+		}
 
 		this.addTitles();
 
@@ -145,7 +150,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 	}
 
 	private float getAvailable(Consumable c) {
-		return owner.getTotalProduction(c)+(owner.resourceMatrixRule == InclusionPattern.EXCLUDE ? 0 : owner.getExternalInput(c));
+		return owner.getTotalProduction(c)+(owner.resourceMatrixRule == InclusionPattern.EXCLUDE ? 0 : owner.getExternalInput(c, false));
 	}
 
 	@Override
@@ -199,7 +204,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 		super.addTitles();
 
 		countLabel = new Label("Counts");
-		countLabel.setFont(Font.font(countLabel.getFont().getFamily(), FontWeight.BOLD, 16));
+		countLabel.getStyleClass().add("table-header");
 		this.getGrid().add(countLabel, countColumn, titlesRow);
 		this.getGrid().setColumnSpan(countLabel, GridPane.REMAINING);
 	}
@@ -240,13 +245,19 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 		if (gui != null) {
 			float total = owner.getTotalConsumption(c);
 			gui.controller.setAmount(total);
-			gui.controller.setState(total > owner.getTotalProduction(c)+owner.getExternalInput(c) ? WarningState.INSUFFICIENT : WarningState.NONE);
+			gui.controller.setState(total > owner.getTotalProduction(c)+owner.getExternalInput(c, false) ? WarningState.INSUFFICIENT : WarningState.NONE);
 		}
 
 		gui = sumEntriesOut.get(c);
 		if (gui != null) {
 			gui.controller.setAmount(this.getAvailable(c));
 			gui.controller.setState(owner.isExcess(c) ? WarningState.LEFTOVER : WarningState.NONE);
+		}
+	}
+
+	public void setSpinnerStep(double amount) {
+		for (RecipeRow rr : recipeEntries.values()) {
+			((DoubleSpinnerValueFactory)((Spinner<Double>)rr.getChildNode("counter")).getValueFactory()).setAmountToStepBy(amount);
 		}
 	}
 

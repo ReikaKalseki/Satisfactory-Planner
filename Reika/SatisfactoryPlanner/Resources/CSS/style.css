@@ -73,6 +73,13 @@
 
 .panel .title {
 	-fx-background-color: "#585858";
+}
+
+.panel .titled-pane-graphic-title {
+	-fx-padding: 0 45px 0 0;
+}
+
+.panel .title * {
     -fx-font-size: 12pt;
     -fx-font-weight: 700;
 	-fx-text-fill: "#fff";
@@ -166,6 +173,22 @@
 	-fx-background-radius: 0;
 }
 
+.widget .combo-box .button-cell, .widget .choice-box .button-cell {
+	-fx-background-color: "#cccccc";
+}
+
+.widget .combo-box:hover .button-cell, .widget .choice-box:hover .button-cell {
+	-fx-background-color: "#E69344";
+}
+
+.widget .combo-box .dropdown-cell, .widget .choice-box .dropdown-cell {
+	-fx-background-color: "#cccccc" !important;
+}
+
+.widget .combo-box .dropdown-cell:hover, .widget .choice-box .dropdown-cell:hover {
+	-fx-background-color: "#E69344" !important;
+}
+
 .widget .tab:hover, .widget .button:hover, .widget .text-field:hover, .widget .combo-box:hover, .combo-box .combo-box-popup .list-cell:hover, .widget .choice-box:hover, .widget .check-box:hover .box:hover, .widget .spinner .increment-arrow-button:hover, .widget .spinner .decrement-arrow-button:hover {
     -fx-base: "#E69344";
 	-fx-background-color: "#E69344";
@@ -231,6 +254,19 @@
 .widget .spinner .decrement-arrow {
 	-fx-background-image: url("../../Resources/Graphics/Icons/checkbox-check-alpha.png");
 }*/
+
+.widget .spinner:focused, .widget .slider:focused, .widget .spinner:focused *, .widget .slider:focused *, .widget .combo-box:focused, .widget .choice-box:focused {
+	-fx-border-width: 0;
+	-fx-border-color: transparent;
+}
+
+.widget .spinner:disabled {
+	-fx-border-width: 0;
+	-fx-border-color: transparent;
+	-fx-border-radius: 0;
+	-fx-background-radius: 0;
+    -fx-background-color: "#cccccc";
+}
 
 .widget .radio-button, .widget .check-box {
 	-fx-border-width: 0;
@@ -320,4 +356,22 @@
 
 .table-row-darken {
 	-fx-background-color: "#F0F0F0";
+}
+
+.table-header {
+    -fx-font-family: "Open Sans";
+	-fx-font-weight: bold;
+	-fx-font-size: 14px;
+}
+
+.button-bar {
+	-fx-background-color: rgba(0, 0, 0, 0.5);
+	-fx-margin: 0 -2px 0 -2px;
+}
+
+.button-bar .button {
+	-fx-font-weight: bold;
+	-fx-font-size: 14px;
+	-fx-background-color: "#666666";
+	-fx-text-fill: "#FFFFFF";
 }

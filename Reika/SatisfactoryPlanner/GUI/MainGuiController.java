@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
@@ -467,6 +468,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		if (factory != null)
 			factory.prepareDisposal();
 		factory = f;
+		factory.addCallback(this);
 
 		GuiUtil.runOnJFXThread(() -> factory.setUI(this));
 
@@ -487,7 +489,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		GuiUtil.queueTask("Building recipe menu", () -> RecipeListCell.init());
 
 		overviewTab.setGraphic(new ImageView(InternalIcons.OVERVIEW.createIcon(16)));
-		ioTab.setGraphic(new ImageView(InternalIcons.INPUTOUTPUT.createIcon(16)));
+		ioTab.setGraphic(new ImageView(InternalIcons.INPUTOUTPUT2.createIcon(16)));
 		powerTab.setGraphic(new ImageView(InternalIcons.POWERTAB.createIcon(16)));
 		craftingTab.setGraphic(new ImageView(InternalIcons.MATRICES.createIcon(16)));
 
@@ -530,7 +532,6 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 
 		this.setFactory(new Factory());
 		factory.rebuildMatrices(false);
-		factory.addCallback(this);
 
 		this.rebuildEntireUI();
 	}
@@ -708,15 +709,17 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		if (consuming) {
 			netConsumptionBar.getChildren().clear();
 			for (Consumable c : factory.getAllIngredients()) {
-				float amt = factory.getTotalConsumption(c)-factory.getTotalProduction(c);
+				float amt = factory.getTotalConsumption(c)-factory.getTotalProduction(c)-factory.getExternalInput(c, true);
 				if (amt > 0)
 					GuiUtil.addIconCount(c, amt, 5, netConsumptionBar);
 			}
 		}
 		if (production) {
 			netProductBar.getChildren().clear();
-			for (Consumable c : factory.getAllProducedItems()) {
-				float amt = factory.getTotalProduction(c)-factory.getTotalConsumption(c);
+			HashSet<Consumable> set = new HashSet(factory.getAllProducedItems());
+			set.addAll(factory.getAllMinedItems());
+			for (Consumable c : set) {
+				float amt = factory.getTotalProduction(c)+factory.getExternalInput(c, true)-factory.getTotalConsumption(c);
 				if (amt > 0)
 					GuiUtil.addIconCount(c, amt, 5, netProductBar);
 			}
@@ -809,7 +812,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		else if (res instanceof LogisticSupply) {
 			this.addResourceEntry("LogisticSupplyEntry", res);
 		}
-		this.updateStats(true, false, true, false, true, true, false);
+		this.updateStats(true, false, true, true, true, true, false);
 	}
 
 	private <C extends ResourceSupplyEntryController, R extends ResourceSupply> void addResourceEntry(String fxml, R res) {
@@ -834,14 +837,14 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	@Override
 	public void onRemoveSupply(ResourceSupply s) {
 		inputGrid.getChildren().remove(supplyEntries.get(s).rootNode);
-		this.updateStats(true, false, true, false, true, true, false);
+		this.updateStats(true, false, true, true, true, true, false);
 	}
 
 	@Override
 	public void onRemoveSupplies(Collection<ResourceSupply> c) {
 		for (ResourceSupply s : c)
 			inputGrid.getChildren().remove(supplyEntries.get(s).rootNode);
-		this.updateStats(true, false, true, false, true, true, false);
+		this.updateStats(true, false, true, true, true, true, false);
 	}
 
 	@Override
@@ -857,7 +860,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 
 	@Override
 	public void onUpdateIO() {
-		this.updateStats(true, false, true, false, true, true, false);
+		this.updateStats(true, false, true, true, true, true, false);
 	}
 
 	@Override
@@ -953,5 +956,17 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		}
 
 		return (GridPane)tp.getContent();
+	}
+
+	@Override
+	protected void onKeyPressed(KeyCode code) {
+		if (code == KeyCode.SHIFT)
+			factory.setLargeMatrixSpinnerStep(true);
+	}
+
+	@Override
+	protected void onKeyReleased(KeyCode code) {
+		if (code == KeyCode.SHIFT)
+			factory.setLargeMatrixSpinnerStep(false);
 	}
 }

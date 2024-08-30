@@ -174,14 +174,16 @@ public class GuiUtil {
 	}
 
 	public static void setupCounter(Spinner<Integer> spinner, int min, int max, int init, boolean allowEdit) {
-		spinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(min, max, init));
+		SpinnerValueFactory.IntegerSpinnerValueFactory vf = new SpinnerValueFactory.IntegerSpinnerValueFactory(min, max, init);
+		spinner.setValueFactory(vf);
 		spinner.setEditable(allowEdit);
 
 		int maxChars = 1+(int)Math.log10(max);
 		int w = 56+8*maxChars;
 		spinner.setPrefWidth(w);
 		spinner.setMinWidth(Region.USE_PREF_SIZE);
-		spinner.setMaxWidth(Region.USE_PREF_SIZE);
+		if (spinner.getMaxWidth() < 99999)
+			spinner.setMaxWidth(Region.USE_PREF_SIZE);
 
 		if (allowEdit) {
 			TextField txt = spinner.getEditor();
@@ -194,18 +196,21 @@ public class GuiUtil {
 				txt.setText(nnew);
 			});
 		}
-		spinner.getValueFactory().setValue(init);
+		vf.setValue(init);
+
 	}
 
 	public static void setupCounter(Spinner<Double> spinner, double min, double max, double init, boolean allowEdit) {
-		spinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(min, max, init));
+		SpinnerValueFactory.DoubleSpinnerValueFactory vf = new SpinnerValueFactory.DoubleSpinnerValueFactory(min, max, init);
+		spinner.setValueFactory(vf);
 		spinner.setEditable(allowEdit);
 
 		int maxChars = 1+(int)Math.log10(max);
 		int w = 56+8*maxChars+4;
 		spinner.setPrefWidth(w);
 		spinner.setMinWidth(Region.USE_PREF_SIZE);
-		spinner.setMaxWidth(Region.USE_PREF_SIZE);
+		if (spinner.getMaxWidth() < 99999)
+			spinner.setMaxWidth(Region.USE_PREF_SIZE);
 
 		if (allowEdit) {
 			TextField txt = spinner.getEditor();
@@ -218,7 +223,7 @@ public class GuiUtil {
 				txt.setText(nnew);
 			});
 		}
-		spinner.getValueFactory().setValue(init);
+		vf.setValue(init);
 	}
 
 	public static void setButtonEvent(ButtonBase b, Errorable e) {
@@ -388,6 +393,8 @@ public class GuiUtil {
 		Label lb = new Label(tp.getText());
 		lb.setFont(tp.getFont());
 		HBox box = new HBox();
+		box.getStyleClass().add("titled-pane-graphic-title");
+		//box.setPadding(new Insets(0.01, 0.01, 0.01, 0.01));
 		box.setAlignment(Pos.CENTER);
 		box.setMaxWidth(Double.MAX_VALUE);
 		box.getChildren().add(lb);

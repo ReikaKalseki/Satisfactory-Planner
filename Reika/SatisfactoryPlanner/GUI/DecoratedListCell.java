@@ -23,9 +23,11 @@ abstract class DecoratedListCell<T> extends ListCell<T> {
 		this.setMinHeight(Region.USE_PREF_SIZE);
 		if (isButton) {
 			this.setPadding(new Insets(2, 4, 2, 4));
+			this.getStyleClass().add("button-cell");
 		}
 		else {
 			this.setPadding(new Insets(2, 12, 2, 6));
+			this.getStyleClass().add("dropdown-cell");
 		}
 		Insets in = this.getInsets();
 		this.setPrefHeight(32+in.getTop()+in.getBottom());
@@ -60,11 +62,11 @@ abstract class DecoratedListCell<T> extends ListCell<T> {
 		this.onCreateCellContent(r, n);
 		return n;
 	}
-	
+
 	protected void onCreateCellContent(T obj, Node graphic) {
-		
+
 	}
-	
+
 	protected Node getCachedCellContent(T obj) {
 		return null;
 	}
