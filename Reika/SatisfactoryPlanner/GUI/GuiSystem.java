@@ -1,5 +1,7 @@
 package Reika.SatisfactoryPlanner.GUI;
 
+import java.io.IOException;
+
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Util.BitflagMap;
@@ -24,12 +26,20 @@ public class GuiSystem extends Application {
 
 	private static Image icon;
 	private static HostServices service;
+	private static Stage loadingStage;
+	private static Stage primaryStage;
 	private static GuiInstance<MainGuiController> mainGui;
+	private static GuiInstance<SplashScreenController> splashGui;
 
 	@Override
-	public void start(Stage primaryStage) throws Exception {
+	public void start(Stage primary) throws Exception {
+		primaryStage = primary;
+		loadingStage = new Stage();
 		Logging.instance.log("Gui System Initializing");
 		service = this.getHostServices();
+
+		primaryStage.setOnCloseRequest(e -> Platform.exit());
+		loadingStage.setOnCloseRequest(e -> Platform.exit());
 
 		fontMap.put(Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans/Regular.ttf"), 12));
 		fontMap.put(Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans/Bold.ttf"), 12), FontModifier.BOLD);
@@ -46,21 +56,35 @@ public class GuiSystem extends Application {
 
 		icon = new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/appicon.png"));
 
-
 		Main.isJFXActive = true;
 		if (!Database.wasGameJSONFound()) {
 			GuiUtil.raiseDialog(AlertType.WARNING, "Game Data Not Found", "The game data JSON was not found. This probably means the specified game install directory is incorrect. Correct this in the settings to get automatic inclusion of vanilla content.", ButtonType.OK);
 		}
 
+		splashGui = GuiInstance.loadFXMLWindow("SplashScreen", loadingStage, null, "Satisfactory Planner");
+		loadingStage.show();
+		loadingStage.sizeToScene();
+		loadingStage.setResizable(false);
+		loadingStage.centerOnScreen();
+		loadingStage.setAlwaysOnTop(true);
+		GuiUtil.queueTask("Loading Game Data", () -> Main.parseGameData(), () -> this.loadMainUI());
+	}
+
+	private void loadMainUI() throws IOException {
 		Screen screen = Screen.getPrimary();
 		Rectangle2D bounds = screen.getVisualBounds();
 		primaryStage.setWidth(bounds.getWidth());
 		primaryStage.setHeight(bounds.getHeight());
+		Logging.instance.log("Loading main UI");
 		mainGui = GuiInstance.loadFXMLWindow("mainUI-Dynamic", primaryStage, null, "Satisfactory Planner");
 		//this.setFont(root, MainWindow.getGUI().getFont(10));
 		primaryStage.setMaximized(true);
-		primaryStage.setOnCloseRequest(e -> Platform.exit());
 		primaryStage.show();
+		loadingStage.close();
+	}
+
+	public static boolean isSplashShowing() {
+		return loadingStage != null && loadingStage.isShowing();
 	}
 	/*
 	public static Font getFont(double size) {

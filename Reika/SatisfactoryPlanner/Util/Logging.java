@@ -75,7 +75,7 @@ public class Logging {
 	public void log(String msg) {
 		dateInstance.setTime(System.currentTimeMillis());
 		String log = "["+logTimeStamp.format(dateInstance)+"] [Thread "+Thread.currentThread().getName()+"]: "+msg;
-		System.out.println(msg);
+		System.out.println(log);
 		logQueue.add(log);
 	}
 
@@ -92,6 +92,8 @@ public class Logging {
 				case COMMON:
 					return Main.getRelativeFile("SharedLog.log");*/default:
 					case RUNTIME:
+						if (!Main.isCompiled())
+							return null;
 						File f = Main.getRelativeFile("Logs/"+new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date())+".log");
 						f.getParentFile().mkdirs();
 						return f;

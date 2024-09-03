@@ -55,6 +55,10 @@ public class GuiInstance<C extends ControllerBase> {
 		return loadFXML(fxml, window, callback);
 	}
 
+	public static <C extends FXMLControllerBase> GuiInstance<C> changeFXMLScene(String fxml, Stage window) throws IOException {
+		return loadFXML(fxml, window, p -> window.setScene(new Scene(p)));
+	}
+
 	@Override
 	public String toString() {
 		return rootNode+" x "+controller;

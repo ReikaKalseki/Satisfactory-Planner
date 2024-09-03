@@ -63,7 +63,7 @@ public class Main {
 
 		Platform.setImplicitExit(false);
 
-		parseGameData();
+		Database.checkForGameJSON();
 
 		Logging.instance.log("===================");
 		Logging.instance.log("Starting Gui System");
@@ -86,11 +86,12 @@ public class Main {
 
 	public static Future<Void> parseGameData() throws IOException {
 		CompletableFuture<Void> f = new CompletableFuture();
-		{
+		JavaUtil.queueTask(() -> {
 			Logging.instance.log("===================");
 			Logging.instance.log("Parsing Recipe/Item Data");
 			Logging.instance.log("===================");
 			Database.clear();
+			Database.checkForGameJSON();
 			Database.parseGameJSON();
 			Database.loadVanillaData();
 			Database.loadModdedData();
@@ -100,15 +101,17 @@ public class Main {
 				c.createIcon(); //cache default icon size
 			GuiInstance<MainGuiController> main = GuiSystem.getMainGUI();
 			if (main != null) {
-				main.controller.setFactory(new Factory());
-				main.controller.rebuildLists(true, true);
 				RecipeListCell.init();
+				main.controller.setFactory(new Factory());
+				Platform.runLater(() -> main.controller.rebuildLists(true, true));;
 			}
 			Logging.instance.log("===================");
 			Logging.instance.log("Recipe/Item Data Parsed");
 			Logging.instance.log("===================");
 			f.complete(null);
-		}
+		}, e -> {
+			Logging.instance.log(e);
+		});
 		return f;
 	}
 
@@ -138,6 +141,10 @@ public class Main {
 
 	public static File getModsFolder() {
 		return new File(Setting.GAMEDIR.getCurrentValue(), "FactoryGame/Mods");
+	}
+
+	public static boolean isCompiled() {
+		return isCompiled;
 	}
 
 	public static boolean isClosing() {

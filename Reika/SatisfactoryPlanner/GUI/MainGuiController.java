@@ -17,6 +17,8 @@ import java.util.concurrent.Future;
 import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.SearchableComboBox;
 
+import com.google.common.base.Strings;
+
 import Reika.SatisfactoryPlanner.FactoryListener;
 import Reika.SatisfactoryPlanner.InclusionPattern;
 import Reika.SatisfactoryPlanner.InternalIcons;
@@ -410,12 +412,12 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		StringConverter<InclusionPattern> conv = new StringConverter<InclusionPattern>() {
 			@Override
 			public String toString(InclusionPattern p) {
-				return StringUtils.capitalize(p.name().toLowerCase(Locale.ENGLISH));
+				return p == null ? "" : StringUtils.capitalize(p.name().toLowerCase(Locale.ENGLISH));
 			}
 
 			@Override
 			public InclusionPattern fromString(String s) {
-				return InclusionPattern.valueOf(s.toUpperCase(Locale.ENGLISH));
+				return Strings.isNullOrEmpty(s) ? null : InclusionPattern.valueOf(s.toUpperCase(Locale.ENGLISH));
 			}
 		};
 		resourceMatrixOptions.setConverter(conv);

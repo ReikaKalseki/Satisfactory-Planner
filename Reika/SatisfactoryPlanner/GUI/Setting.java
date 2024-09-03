@@ -4,6 +4,8 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.Future;
 
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Util.Errorable;
@@ -11,7 +13,7 @@ import Reika.SatisfactoryPlanner.Util.Errorable;
 public class Setting<S> {
 
 	//public static final Setting<LogOptions> LOG = new Setting<LogOptions>(LogOptions.RUNTIME, new EnumConverter(LogOptions.class)).addChangeCallback(() -> Logging.instance.updateLogPath());
-	public static final Setting<File> GAMEDIR = new Setting<File>(Main.getRelativeFile(""), FileConverter.instance).addChangeCallback(() -> Main.parseGameData());
+	public static final Setting<File> GAMEDIR = new Setting<File>(Main.getRelativeFile(""), FileConverter.instance).addChangeCallback(() -> onReloadGamePath());
 	public static final Setting<Boolean> ALLOWDECIMAL = new Setting<Boolean>(false, BoolConverter.instance);
 
 	public final S defaultValue;
@@ -25,6 +27,14 @@ public class Setting<S> {
 		defaultValue = def;
 		currentValue = def;
 		converter = c;
+	}
+
+	private static void onReloadGamePath() throws Exception {
+		UUID id = WaitDialogManager.instance.registerTask("Reloading Game Data");
+		Future<Void> f = Main.parseGameData();
+		while (!f.isDone())
+			Thread.sleep(50);
+		WaitDialogManager.instance.completeTask(id);
 	}
 
 	private Setting<S> addChangeCallback(Errorable r) {

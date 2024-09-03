@@ -272,6 +272,12 @@ public class GuiUtil {
 
 	private static Alert createDialog(AlertType type, String title, String text, ButtonType... buttons) {
 		Alert a = new Alert(type, text, buttons);
+		Text tt = new Text(text);
+		ScrollPane panel = new ScrollPane();
+		panel.setContent(tt);
+		tt.setWrappingWidth(400);
+		panel.setPadding(new Insets(8, 8, 8, 8));
+		a.getDialogPane().setContent(panel);
 		a.setTitle(title);
 		GuiInstance<MainGuiController> main = GuiSystem.getMainGUI();
 		if (main != null)
@@ -281,6 +287,8 @@ public class GuiUtil {
 		a.getDialogPane().setMaxHeight(bounds.getHeight()*0.8);
 		a.setX((bounds.getWidth()-a.getWidth())/2);
 		a.setX((bounds.getHeight()-a.getHeight())/2);
+		a.getDialogPane().getScene().getStylesheets().add(Main.class.getResource("Resources/CSS/style.css").toString());
+		a.getDialogPane().getStyleClass().add("widget");
 		return a;
 	}
 
@@ -423,7 +431,7 @@ public class GuiUtil {
 	}
 
 	public static void queueTask(String desc, Errorable e, Errorable jfxActionWhenDone) {
-		UUID id = WaitDialogManager.instance.registerTask(desc);
+		UUID id = GuiSystem.isSplashShowing() ? null : WaitDialogManager.instance.registerTask(desc);
 		Logging.instance.log("Queuing long task '"+desc+"' ["+id+"] "+e+" with JFX post-action "+jfxActionWhenDone);
 		JavaUtil.queueTask(() -> {
 			try {
@@ -439,7 +447,8 @@ public class GuiUtil {
 							ex.printStackTrace();
 						}
 					}
-					WaitDialogManager.instance.completeTask(id);
+					if (id != null)
+						WaitDialogManager.instance.completeTask(id);
 				});
 			}
 			catch (Exception ex) {

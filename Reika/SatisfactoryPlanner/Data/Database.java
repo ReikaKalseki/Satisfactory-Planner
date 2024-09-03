@@ -129,8 +129,8 @@ public class Database {
 	}
 
 	public static void parseGameJSON() throws IOException {
-		File f = getGameJSON();
-		if (f.exists() && f.isFile()) {
+		if (gameJSONFound) {
+			File f = getGameJSON();
 			String UTF8_BOM = "\uFEFF";
 			String file = FileUtils.readFileToString(f, Charsets.UTF_16LE);
 			JSONTokener tok = new JSONTokener(file);
@@ -149,11 +149,12 @@ public class Database {
 					}
 				}
 			}
-			gameJSONFound = true;
 		}
-		else {
-			gameJSONFound = false;
-		}
+	}
+
+	public static void checkForGameJSON() {
+		File f = getGameJSON();
+		gameJSONFound = f.exists() && f.isFile();
 	}
 
 	public static boolean wasGameJSONFound() {
@@ -662,6 +663,7 @@ public class Database {
 	}
 
 	public static void clear() {
+		gameJSONFound = false;
 		allBuildings.clear();
 		allBuildingsSorted.clear();
 		allGeneratorsSorted.clear();
