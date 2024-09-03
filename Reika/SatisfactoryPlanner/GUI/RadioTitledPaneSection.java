@@ -17,7 +17,7 @@ public abstract class RadioTitledPaneSection extends FXMLControllerBase {
 
 	private final HashMap<RadioButton, TitledPane> selections = new HashMap();
 
-	protected ToggleGroup radioButtons = new ToggleGroup();
+	protected final ToggleGroup radioButtons = new ToggleGroup();
 
 	@Override
 	protected void postInit(Stage w) throws IOException {

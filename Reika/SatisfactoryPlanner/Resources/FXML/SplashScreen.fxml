@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="275.0" prefWidth="400.0" spacing="24.0" styleClass="widget" stylesheets="@../CSS/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.SplashScreenController">
+   <children>
+      <TitledPane collapsible="false" contentDisplay="RIGHT" styleClass="panel" text="Satisfactory Calculator">
+         <content>
+            <GridPane>
+               <columnConstraints>
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="96.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+               </rowConstraints>
+               <children>
+                  <ImageView fitHeight="64.0" fitWidth="64.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../Graphics/Icons/appicon.png" />
+                     </image>
+                  </ImageView>
+                  <VBox alignment="CENTER_LEFT" spacing="12.0" GridPane.columnIndex="1">
+                     <children>
+                        <Label text="(Sub)Factory and recipe/production planner" wrapText="true" />
+                        <Label layoutX="10.0" layoutY="11.0" text="Copyright ReikaKalseki 2024-Current" wrapText="true" />
+                        <Label layoutX="10.0" layoutY="10.0" text="Made with JavaFX" wrapText="true" />
+                        <Label layoutX="10.0" layoutY="10.0" text="This tool is neither created nor endorsed by CoffeeStain or any of its employees." wrapText="true" />
+                     </children>
+                  </VBox>
+               </children>
+            </GridPane>
+         </content>
+      </TitledPane>
+      <StackPane VBox.vgrow="NEVER">
+         <VBox.margin>
+            <Insets left="32.0" right="32.0" />
+         </VBox.margin>
+         <children>
+            <ProgressBar maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="24.0" />
+            <Label style="-fx-text-fill: #fff; -fx-font-weight: bold; -fx-font-size: 16px;" text="Loading..." textAlignment="CENTER" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+               <StackPane.margin>
+                  <Insets />
+               </StackPane.margin>
+            </Label>
+         </children>
+      </StackPane>
+   </children>
+   <padding>
+      <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
+   </padding>
+</VBox>

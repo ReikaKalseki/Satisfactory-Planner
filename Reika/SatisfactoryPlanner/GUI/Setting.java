@@ -10,6 +10,7 @@ import Reika.SatisfactoryPlanner.Util.Errorable;
 
 public class Setting<S> {
 
+	//public static final Setting<LogOptions> LOG = new Setting<LogOptions>(LogOptions.RUNTIME, new EnumConverter(LogOptions.class)).addChangeCallback(() -> Logging.instance.updateLogPath());
 	public static final Setting<File> GAMEDIR = new Setting<File>(Main.getRelativeFile(""), FileConverter.instance).addChangeCallback(() -> Main.parseGameData());
 	public static final Setting<Boolean> ALLOWDECIMAL = new Setting<Boolean>(false, BoolConverter.instance);
 
@@ -160,6 +161,26 @@ public class Setting<S> {
 		public void revert() {
 			setting.currentValue = setting.defaultValue;
 		}
+	}
+
+	public static final class EnumConverter<E extends Enum> implements StringValueConverter<E> {
+
+		private final Class<E> enumClass;
+
+		public EnumConverter(Class<E> enu) {
+			enumClass = enu;
+		}
+
+		@Override
+		public String getString(E obj) throws Exception {
+			return obj == null ? "" : obj.name();
+		}
+
+		@Override
+		public E parseString(String s) throws Exception {
+			return (E)Enum.valueOf(enumClass, s);
+		}
+
 	}
 
 }

@@ -43,6 +43,8 @@ public class Main {
 
 	private static final FixedList<File> recentFiles = new FixedList(10);
 
+	private static boolean isClosing;
+
 	public static void main(String[] args) throws Exception {
 		//System.out.println("Running with effective root of "+effectiveRoot.getCanonicalPath());
 		Logging.instance.log("Running in compiled environment: "+isCompiled+" @ "+executionLocation);
@@ -63,33 +65,50 @@ public class Main {
 
 		parseGameData();
 
+		Logging.instance.log("===================");
+		Logging.instance.log("Starting Gui System");
+		Logging.instance.log("===================");
 		Application.launch(GuiSystem.class, args);
+		Logging.instance.log("===================");
+		Logging.instance.log("Gui System Closed");
+		Logging.instance.log("===================");
+
 		for (SettingRef s : Setting.getSettings()) {
 			settings.put(s.name, s.setting.getString());
 		}
 		JSONUtil.saveFile(settingsFile, settings);
-		//FactoryManagementThread.instance.shutdown();
+		isClosing = true;
 		JavaUtil.stopThreads();
 		Platform.exit();
+		Logging.instance.log("Closing Application");
+		Logging.instance.flushLog();
 	}
 
 	public static Future<Void> parseGameData() throws IOException {
 		CompletableFuture<Void> f = new CompletableFuture();
-		Database.clear();
-		Database.parseGameJSON();
-		Database.loadVanillaData();
-		Database.loadModdedData();
-		Database.loadCustomData();
-		Database.sort();
-		for (Consumable c : Database.getAllItems())
-			c.createIcon(); //cache default icon size
-		GuiInstance<MainGuiController> main = GuiSystem.getMainGUI();
-		if (main != null) {
-			main.controller.setFactory(new Factory());
-			main.controller.rebuildLists(true, true);
-			RecipeListCell.init();
+		{
+			Logging.instance.log("===================");
+			Logging.instance.log("Parsing Recipe/Item Data");
+			Logging.instance.log("===================");
+			Database.clear();
+			Database.parseGameJSON();
+			Database.loadVanillaData();
+			Database.loadModdedData();
+			Database.loadCustomData();
+			Database.sort();
+			for (Consumable c : Database.getAllItems())
+				c.createIcon(); //cache default icon size
+			GuiInstance<MainGuiController> main = GuiSystem.getMainGUI();
+			if (main != null) {
+				main.controller.setFactory(new Factory());
+				main.controller.rebuildLists(true, true);
+				RecipeListCell.init();
+			}
+			Logging.instance.log("===================");
+			Logging.instance.log("Recipe/Item Data Parsed");
+			Logging.instance.log("===================");
+			f.complete(null);
 		}
-		f.complete(null);
 		return f;
 	}
 
@@ -119,5 +138,9 @@ public class Main {
 
 	public static File getModsFolder() {
 		return new File(Setting.GAMEDIR.getCurrentValue(), "FactoryGame/Mods");
+	}
+
+	public static boolean isClosing() {
+		return isClosing;
 	}
 }

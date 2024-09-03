@@ -50,10 +50,26 @@ public class SettingsController extends FXMLControllerBase {
 
 	@FXML
 	private Tab visualTab;
+	/*
+	@FXML
+	private RadioButton runLog;
+
+	@FXML
+	private RadioButton sharedLog;
+
+	@FXML
+	private RadioButton noLog;
+
+	private final ToggleGroup loggingOptions = new ToggleGroup();*/
 
 	@Override
-	public void init(HostServices services) throws IOException {
+	public void init(HostServices services) throws IOException {/*
+		noLog.setToggleGroup(loggingOptions);
+		sharedLog.setToggleGroup(loggingOptions);
+		runLog.setToggleGroup(loggingOptions); //order must match enum
 
+		loggingOptions.selectedToggleProperty().addListener((val, old, nnew) -> Setting.LOG.setValue(LogOptions.values()[loggingOptions.getToggles().indexOf(nnew)]));
+	 */
 	}
 
 	@Override

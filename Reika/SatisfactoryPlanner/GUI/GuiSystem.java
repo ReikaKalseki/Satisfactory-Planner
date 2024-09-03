@@ -4,6 +4,7 @@ import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Util.BitflagMap;
 import Reika.SatisfactoryPlanner.Util.JavaUtil;
+import Reika.SatisfactoryPlanner.Util.Logging;
 
 import fxexpansions.GuiInstance;
 import javafx.application.Application;
@@ -27,6 +28,7 @@ public class GuiSystem extends Application {
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+		Logging.instance.log("Gui System Initializing");
 		service = this.getHostServices();
 
 		fontMap.put(Font.loadFont(Main.class.getResourceAsStream("Resources/Fonts/OpenSans/Regular.ttf"), 12));

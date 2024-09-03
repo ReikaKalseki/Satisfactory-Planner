@@ -31,6 +31,8 @@ $RECYCLE.BIN/
 *.zip
 *.7z
 *.pdn
+*.log
+/Logs
 
 Reika/SatisfactoryPlanner/Resources/Graphics/Icons/Items
 Reika/SatisfactoryPlanner/Resources/Graphics/Icons/Buildings
