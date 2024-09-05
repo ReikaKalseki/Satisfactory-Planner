@@ -48,8 +48,8 @@
             <Insets left="32.0" right="32.0" />
          </VBox.margin>
          <children>
-            <ProgressBar maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="24.0" progress="1.0" />
-            <Label style="-fx-text-fill: #fff; -fx-font-weight: bold; -fx-font-size: 16px;" text="Loading..." textAlignment="CENTER" textFill="WHITE">
+            <ProgressBar fx:id="bar" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="24.0" progress="0.0" />
+            <Label fx:id="loadingText" style="-fx-text-fill: #fff; -fx-font-weight: bold; -fx-font-size: 16px;" text="Loading..." textAlignment="CENTER" textFill="WHITE">
                <font>
                   <Font name="System Bold" size="12.0" />
                </font>

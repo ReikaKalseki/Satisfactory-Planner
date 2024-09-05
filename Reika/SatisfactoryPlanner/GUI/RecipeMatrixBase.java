@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.function.Function;
@@ -32,7 +33,7 @@ import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.Data.ResourceSupply;
 import Reika.SatisfactoryPlanner.GUI.RecipeMatrixContainer.MatrixType;
 import Reika.SatisfactoryPlanner.Util.CountMap;
-import Reika.SatisfactoryPlanner.Util.Errorable;
+import Reika.SatisfactoryPlanner.Util.Errorable.ErrorableWithArgument;
 import Reika.SatisfactoryPlanner.Util.Logging;
 
 import fxexpansions.GuiInstance;
@@ -381,7 +382,7 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 		//Thread.dumpStack();
 		owner.setGridBuilt(type, false);
 		contentWidths = null;
-		Errorable rebuild = () -> {
+		ErrorableWithArgument<UUID> rebuild = (id) -> {
 			Logging.instance.log("Matrix "+type+" rebuild task started");
 			//Thread.sleep(5000);
 			grid.setHgap(2);
@@ -391,17 +392,19 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 			grid.setPrefHeight(Region.USE_COMPUTED_SIZE);
 			grid.setPrefWidth(Region.USE_COMPUTED_SIZE);
 			GridPane current = gui.getMatrix(type);
-			long id = System.identityHashCode(grid);
+			long gid = System.identityHashCode(grid);
 			if (grid == current)
-				throw new IllegalStateException("New "+type+" grid "+id+" socketed too early!");
-			Logging.instance.log("Rebuilding "+type+" matrix with pane "+id+" ["+System.identityHashCode(current)+"]");
+				throw new IllegalStateException("New "+type+" grid "+gid+" socketed too early!");
+			Logging.instance.log("Rebuilding "+type+" matrix with pane "+gid+" ["+System.identityHashCode(current)+"]");
 			//grid.getChildren().clear();
 			//grid.getColumnConstraints().clear();
 			//grid.getRowConstraints().clear();
 			recipeEntries.clear();
 			supplyGroup = null;
 			generatorGroup = null;
+			WaitDialogManager.instance.setTaskProgress(id, 5);
 			this.rebuildGrid();
+			WaitDialogManager.instance.setTaskProgress(id, 90);
 			this.initializeWidths();
 			Logging.instance.log("Finished rebuilding "+type+" matrix");
 			if (updateIO)
@@ -419,8 +422,9 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 			grid = new GridPane();
 			Logging.instance.log("Beginning rebuild of "+type+" matrix: "+old+" > "+System.identityHashCode(grid)+" ["+System.identityHashCode(gui.getMatrix(type))+"]");
 			//gui.setMatrix(type, null); //leave old grid in place
-			GuiUtil.queueTask("Rebuilding "+type+" matrix UI", rebuild, () -> {
+			GuiUtil.queueTask("Rebuilding "+type+" matrix UI", rebuild, (id) -> {
 				Logging.instance.log("Socketing new "+type+" matrix "+System.identityHashCode(grid));
+				WaitDialogManager.instance.setTaskProgress(id, 95);
 				gui.setMatrix(type, grid);
 				owner.setGridBuilt(type, true);
 				f.complete(null);

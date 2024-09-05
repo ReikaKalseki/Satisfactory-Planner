@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 
@@ -35,6 +36,7 @@ import Reika.SatisfactoryPlanner.GUI.RecipeMatrix;
 import Reika.SatisfactoryPlanner.GUI.RecipeMatrixContainer;
 import Reika.SatisfactoryPlanner.GUI.RecipeMatrixContainer.MatrixType;
 import Reika.SatisfactoryPlanner.GUI.ScaledRecipeMatrix;
+import Reika.SatisfactoryPlanner.GUI.WaitDialogManager;
 import Reika.SatisfactoryPlanner.Util.CountMap;
 import Reika.SatisfactoryPlanner.Util.JSONUtil;
 import Reika.SatisfactoryPlanner.Util.Logging;
@@ -476,13 +478,20 @@ public class Factory {
 		return map;
 	}*/
 
-	public float getNetPowerProduction() {
-		float ret = 0;
-		for (Generator g : generators.keySet())
-			ret += g.powerGenerationMW*this.getCount(g);
-		for (Recipe r : recipeList)
-			ret -= r.productionBuilding.basePowerCostMW*this.getCount(r);
-		return ret;
+	public void computeNetPowerProduction(float[] avgMinMax) {
+		avgMinMax[0] = 0;
+		avgMinMax[1] = 0;
+		avgMinMax[2] = 0;
+		for (Generator g : generators.keySet()) {
+			avgMinMax[0] += g.powerGenerationMW*this.getCount(g);
+		}
+		avgMinMax[1] = avgMinMax[0];
+		avgMinMax[2] = avgMinMax[0];
+		for (Recipe r : recipeList) {
+			avgMinMax[0] -= r.getPowerCost()*this.getCount(r);
+			avgMinMax[1] -= r.getMinPowerCost()*this.getCount(r);
+			avgMinMax[2] -= r.getMaxPowerCost()*this.getCount(r);
+		}
 	}
 
 	public void setToggle(ToggleableVisiblityGroup tv, boolean state) {
@@ -591,11 +600,11 @@ public class Factory {
 
 	public void save() {
 		if (currentFile != null)
-			GuiUtil.queueTask("Saving factory", () -> this.save(currentFile));
+			GuiUtil.queueTask("Saving factory", (id) -> this.save(currentFile));
 	}
 
 	public void save(File f) {
-		GuiUtil.queueTask("Saving "+f.getAbsolutePath(), () -> {
+		GuiUtil.queueTask("Saving "+f.getAbsolutePath(), (id) -> {
 			JSONObject root = new JSONObject();
 			JSONArray recipes = new JSONArray();
 			JSONArray generators = new JSONArray();
@@ -646,17 +655,20 @@ public class Factory {
 	}
 
 	public void reload() {
-		GuiUtil.queueTask("Reloading factory from disk", () -> this.load(currentFile));
+		GuiUtil.queueTask("Reloading factory from disk", (id) -> this.load(currentFile, id));
 	}
 
-	private void load(File f) throws Exception {
+	private void load(File f, UUID taskID) throws Exception {
 		skipNotify = true;
 		loading = true;
 		this.clear();
 
 		this.setCurrentFile(f);
 
+		WaitDialogManager.instance.setTaskProgress(taskID, 5);
+
 		JSONObject root = JSONUtil.readFile(f);
+		WaitDialogManager.instance.setTaskProgress(taskID, 15);
 		name = root.getString("name");
 
 		JSONArray recipes = root.getJSONArray("recipes");
@@ -664,6 +676,7 @@ public class Factory {
 		JSONArray resources = root.getJSONArray("resources");
 		JSONArray products = root.getJSONArray("products");
 		JSONArray toggles = root.has("toggles") ? root.getJSONArray("toggles") : null;
+		WaitDialogManager.instance.setTaskProgress(taskID, 20);
 		for (Object o : recipes) {
 			JSONObject block = (JSONObject)o;
 			Recipe r = Database.lookupRecipe(block.getString("id"));
@@ -674,6 +687,7 @@ public class Factory {
 			this.addRecipe(r);
 			this.setCount(r, block.getFloat("count"));
 		}
+		WaitDialogManager.instance.setTaskProgress(taskID, 50);
 		for (Object o : generators) {
 			JSONObject block = (JSONObject)o;
 			Generator r = (Generator)Database.lookupBuilding(block.getString("id"));
@@ -683,15 +697,18 @@ public class Factory {
 					this.generators.get(r).setCount(ff, block.getInt(key));
 			}
 		}
+		WaitDialogManager.instance.setTaskProgress(taskID, 60);
 		for (Object o : resources) {
 			JSONObject block = (JSONObject)o;
 			ResourceSupplyType type = ResourceSupplyType.valueOf(block.getString("type"));
 			ResourceSupply res = type.construct(block);
 			resourceSources.addValue(res.getResource(), res);
 		}
+		WaitDialogManager.instance.setTaskProgress(taskID, 75);
 		for (Object o : products) {
 			desiredProducts.add(Database.lookupItem((String)o));
 		}
+		WaitDialogManager.instance.setTaskProgress(taskID, 80);
 		if (toggles == null) {
 			this.toggles.addAll(EnumSet.allOf(ToggleableVisiblityGroup.class));
 		}
@@ -703,23 +720,30 @@ public class Factory {
 				this.toggles.add(ToggleableVisiblityGroup.valueOf(s));
 			}
 		}
+		WaitDialogManager.instance.setTaskProgress(taskID, 90);
 
-		this.init();
+		this.init(90, taskID);
 	}
 
-	public void init() throws Exception {
+	public void init(double pct, UUID taskID) throws Exception {
 		skipNotify = false;
 		this.rebuildFlows();
+		pct += 5;
 		skipNotify = true;
+		WaitDialogManager.instance.setTaskProgress(taskID, pct);
 		ArrayList<Future<Void>> waits = new ArrayList();
 		for (FactoryListener rr : changeCallback)
 			waits.add(rr.onLoaded());
+		double each = (98-pct)/waits.size();
 		while (!waits.isEmpty()) {
 			while (!waits.get(0).isDone()) {
 				Thread.sleep(20);
 			}
 			waits.remove(0);
+			pct += each;
+			WaitDialogManager.instance.setTaskProgress(taskID, pct);
 		}
+		WaitDialogManager.instance.setTaskProgress(taskID, 98);
 		this.queueMatrixAlign();
 		skipNotify = false;
 		loading = false;
@@ -735,12 +759,12 @@ public class Factory {
 	public static void loadFactory(File f, FactoryListener... l) {
 		String msg = "Loading factory from "+f.getAbsolutePath();
 		Logging.instance.log(msg);
-		GuiUtil.queueTask(msg, () -> {
+		GuiUtil.queueTask(msg, (id) -> {
 			Factory ret = new Factory();
 			for (FactoryListener fl : l) {
 				fl.setFactory(ret);
 			}
-			ret.load(f);
+			ret.load(f, id);
 		});
 	}
 

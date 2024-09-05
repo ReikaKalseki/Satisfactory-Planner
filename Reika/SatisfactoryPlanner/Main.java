@@ -8,8 +8,6 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
@@ -84,35 +82,40 @@ public class Main {
 		Logging.instance.flushLog();
 	}
 
-	public static Future<Void> parseGameData() throws IOException {
-		CompletableFuture<Void> f = new CompletableFuture();
-		JavaUtil.queueTask(() -> {
-			Logging.instance.log("===================");
-			Logging.instance.log("Parsing Recipe/Item Data");
-			Logging.instance.log("===================");
-			Database.clear();
-			Database.checkForGameJSON();
-			Database.parseGameJSON();
-			Database.loadVanillaData();
-			Database.loadModdedData();
-			Database.loadCustomData();
-			Database.sort();
-			for (Consumable c : Database.getAllItems())
-				c.createIcon(); //cache default icon size
-			GuiInstance<MainGuiController> main = GuiSystem.getMainGUI();
-			if (main != null) {
-				RecipeListCell.init();
-				main.controller.setFactory(new Factory());
-				Platform.runLater(() -> main.controller.rebuildLists(true, true));;
-			}
-			Logging.instance.log("===================");
-			Logging.instance.log("Recipe/Item Data Parsed");
-			Logging.instance.log("===================");
-			f.complete(null);
-		}, e -> {
-			Logging.instance.log(e);
-		});
-		return f;
+	public static void parseGameData() throws IOException {
+		Logging.instance.log("===================");
+		Logging.instance.log("Parsing Recipe/Item Data");
+		Logging.instance.log("===================");
+		Database.clear();
+		Database.checkForGameJSON();
+		GuiSystem.setSplashProgress(2);
+		Database.parseGameJSON();
+		GuiSystem.setSplashProgress(10);
+		Database.loadVanillaData();
+		GuiSystem.setSplashProgress(60);
+		Database.loadModdedData();
+		GuiSystem.setSplashProgress(70);
+		Database.loadCustomData();
+		GuiSystem.setSplashProgress(75);
+		Database.sort();
+		for (Consumable c : Database.getAllItems())
+			c.createIcon(); //cache default icon size
+		GuiInstance<MainGuiController> main = GuiSystem.getMainGUI();
+		if (main != null) {
+			RecipeListCell.init();
+			main.controller.setFactory(new Factory());
+			Platform.runLater(() -> main.controller.rebuildLists(true, true));;
+		}
+		GuiSystem.setSplashProgress(80);
+		try {
+			Thread.sleep(50); //let splash screen catch up
+		}
+		catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		Logging.instance.log("===================");
+		Logging.instance.log("Recipe/Item Data Parsed");
+		Logging.instance.log("===================");
 	}
 
 	public static void addRecentFile(File f) {

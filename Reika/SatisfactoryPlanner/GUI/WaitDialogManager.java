@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Util.Logging;
 
+import javafx.animation.PauseTransition;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -16,14 +17,17 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class WaitDialogManager {
 
 	public static final WaitDialogManager instance = new WaitDialogManager();
 
-	private final ConcurrentHashMap<UUID, String> currentTasks = new ConcurrentHashMap(4);
+	private final ConcurrentHashMap<UUID, WaitTask> currentTasks = new ConcurrentHashMap(4);
+	private UUID enclosingTask;
 
 	private Stage dialog;
+	private ProgressBar dialogBar;
 	private Label taskList;
 
 	private WaitDialogManager() {
@@ -35,19 +39,23 @@ public class WaitDialogManager {
 		while (currentTasks.containsKey(uid)) //reroll if conflict
 			uid = UUID.randomUUID();
 
-		currentTasks.put(uid, desc);
+		currentTasks.put(uid, new WaitTask(desc));
+
+		if (enclosingTask == null)
+			enclosingTask = uid;
 
 		Logging.instance.log("Adding queued task '"+desc+"' "+uid+" to wait UI, task list = "+currentTasks);
 
 		if (dialog == null)
 			this.showUI();
 		if (taskList != null && dialog != null && dialog.isShowing())
-			taskList.setText(this.computeTaskText());
+			GuiUtil.runOnJFXThread(() -> taskList.setText(this.computeTaskText()));
 
 		return uid;
 	}
 
 	public void completeTask(UUID id) {
+		this.setTaskProgress(id, 100);
 		currentTasks.remove(id);
 		Logging.instance.log("Removing queued task "+id+" from wait UI, task list = "+currentTasks);
 		if (currentTasks.isEmpty()) {
@@ -61,9 +69,9 @@ public class WaitDialogManager {
 	private String computeTaskText() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("The following operations are underway:\n");
-		for (String s : currentTasks.values()) {
+		for (WaitTask s : currentTasks.values()) {
 			sb.append("\n");
-			sb.append(s);
+			sb.append(s.description);
 		}
 		return sb.toString();
 	}
@@ -83,7 +91,9 @@ public class WaitDialogManager {
 			taskList.setFont(Font.font(GuiSystem.getDefaultFont().getFamily(), 12));
 			taskList.setWrapText(true);
 			box.getChildren().add(taskList);
-			box.getChildren().add(new ProgressBar());
+			dialogBar = new ProgressBar();
+			dialogBar.setProgress(0);
+			box.getChildren().add(dialogBar);
 			for (Node n : box.getChildren()) {
 				if (n instanceof Region) {
 					Region r = (Region)n;
@@ -98,6 +108,7 @@ public class WaitDialogManager {
 			dialog.getScene().getStylesheets().add(Main.class.getResource("Resources/CSS/style.css").toString());
 			box.layout();
 			dialog.show();
+			dialog.setAlwaysOnTop(true);
 			Logging.instance.log("Wait UI shown");
 		});
 	}
@@ -110,9 +121,37 @@ public class WaitDialogManager {
 			}
 
 			Logging.instance.log("Closing wait UI");
-			dialog.close();
-			dialog = null;
+			PauseTransition timer = new PauseTransition(Duration.millis(50)); //let screen stick for just long enough to show more progress
+			timer.setOnFinished(e -> {dialogBar = null; dialog.close(); dialog = null; enclosingTask = null;});
+			timer.play();
 		});
+	}
+
+	public void setTaskProgress(UUID id, double pct) {
+		if (id == null || !currentTasks.containsKey(id))
+			return;
+		WaitTask w = currentTasks.get(id);
+		w.percentageComplete = pct;
+		Logging.instance.log("Stepping task "+w.description+" to "+pct+"%");
+		if (id.equals(enclosingTask))
+			GuiUtil.runOnJFXThread(() -> dialogBar.setProgress(pct/100D));
+	}
+
+	private class WaitTask {
+
+		private final String description;
+
+		private double percentageComplete;
+
+		private WaitTask(String desc) {
+			description = desc;
+		}
+
+		@Override
+		public String toString() {
+			return description;
+		}
+
 	}
 
 }

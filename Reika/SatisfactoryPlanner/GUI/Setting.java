@@ -4,8 +4,8 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.Future;
 
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Util.Errorable;
@@ -13,11 +13,12 @@ import Reika.SatisfactoryPlanner.Util.Errorable;
 public class Setting<S> {
 
 	//public static final Setting<LogOptions> LOG = new Setting<LogOptions>(LogOptions.RUNTIME, new EnumConverter(LogOptions.class)).addChangeCallback(() -> Logging.instance.updateLogPath());
-	public static final Setting<File> GAMEDIR = new Setting<File>(Main.getRelativeFile(""), FileConverter.instance).addChangeCallback(() -> onReloadGamePath());
+	public static final Setting<File> GAMEDIR = new Setting<File>(Main.getRelativeFile(""), FileConverter.instance).addChangeCallback(() -> Main.parseGameData());
 	public static final Setting<Boolean> ALLOWDECIMAL = new Setting<Boolean>(false, BoolConverter.instance);
 
 	public final S defaultValue;
 	private S currentValue;
+	private S pendingValue;
 	private final StringValueConverter<S> converter;
 
 	private Errorable ifChanged;
@@ -29,14 +30,6 @@ public class Setting<S> {
 		converter = c;
 	}
 
-	private static void onReloadGamePath() throws Exception {
-		UUID id = WaitDialogManager.instance.registerTask("Reloading Game Data");
-		Future<Void> f = Main.parseGameData();
-		while (!f.isDone())
-			Thread.sleep(50);
-		WaitDialogManager.instance.completeTask(id);
-	}
-
 	private Setting<S> addChangeCallback(Errorable r) {
 		ifChanged = r;
 		return this;
@@ -46,9 +39,19 @@ public class Setting<S> {
 		return currentValue;
 	}
 
-	public void setValue(S val) {
-		changed = true;
-		currentValue = val;
+	public void changeValue(S val) {
+		pendingValue = val;
+		changed = !Objects.equals(val, currentValue);
+	}
+
+	public void commit() throws Exception {
+		if (changed) {
+			currentValue = pendingValue;
+			if (ifChanged != null)
+				ifChanged.run();
+		}
+		changed = false;
+		pendingValue = null;
 	}
 
 	public String getString() throws Exception {
@@ -69,12 +72,20 @@ public class Setting<S> {
 		return li;
 	}
 
-	public static void applyChanges() throws Exception {
-		for (SettingRef s : getSettings()) {
-			if (s.setting.changed && s.setting.ifChanged != null)
-				s.setting.ifChanged.run();
-			s.setting.changed = false;
+	public static /*Future<Void>*/void applyChanges(UUID id) throws Exception {
+		//CompletableFuture<Void> f = new CompletableFuture();
+		List<SettingRef> li = getSettings();
+		double each = 100/li.size();
+		//GuiUtil.queueTask("Applying Changes", (id) -> {
+		double pct = 0;
+		for (SettingRef s : li) {
+			s.setting.commit();
+			pct += each;
+			WaitDialogManager.instance.setTaskProgress(id, pct);
 		}
+		//f.complete(null);
+		//});
+		//return f;
 	}
 
 	public static interface StringValueConverter<S> {

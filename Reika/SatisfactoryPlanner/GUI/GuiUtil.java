@@ -17,6 +17,7 @@ import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Resource;
 import Reika.SatisfactoryPlanner.Util.ColorUtil;
 import Reika.SatisfactoryPlanner.Util.Errorable;
+import Reika.SatisfactoryPlanner.Util.Errorable.ErrorableWithArgument;
 import Reika.SatisfactoryPlanner.Util.JavaUtil;
 import Reika.SatisfactoryPlanner.Util.Logging;
 
@@ -426,22 +427,22 @@ public class GuiUtil {
 		}
 	}
 
-	public static void queueTask(String desc, Errorable e) {
-		queueTask(desc, e, null);
+	public static UUID queueTask(String desc, ErrorableWithArgument<UUID> e) {
+		return queueTask(desc, e, null);
 	}
 
-	public static void queueTask(String desc, Errorable e, Errorable jfxActionWhenDone) {
+	public static UUID queueTask(String desc, ErrorableWithArgument<UUID> e, ErrorableWithArgument<UUID> jfxActionWhenDone) {
 		UUID id = GuiSystem.isSplashShowing() ? null : WaitDialogManager.instance.registerTask(desc);
 		Logging.instance.log("Queuing long task '"+desc+"' ["+id+"] "+e+" with JFX post-action "+jfxActionWhenDone);
 		JavaUtil.queueTask(() -> {
 			try {
 				//Thread.sleep(1000);
-				e.run();
+				e.run(id);
 				Logging.instance.log("Task '"+desc+"' ["+id+"] complete, queuing JFX post-action if any");
 				Platform.runLater(() -> {
 					if (jfxActionWhenDone != null) {
 						try {
-							jfxActionWhenDone.run();
+							jfxActionWhenDone.run(id);
 						}
 						catch (Exception ex) {
 							ex.printStackTrace();
@@ -456,8 +457,26 @@ public class GuiUtil {
 				Platform.runLater(() -> showException(ex));
 			}
 		});
+		return id;
 	}
-
+	/*
+	public static void pauseUIUntil(Future f, Errorable whenComplete) {
+		AnimationTimer a = new AnimationTimer() {
+			@Override
+			public void handle(long now) {
+				if (f.isDone()) {
+					try {
+						whenComplete.run();
+					}
+					catch (Exception e) {
+						Logging.instance.log(e);
+					}
+				}
+			}
+		};
+		a.start();
+	}
+	 */
 	public static void putInto(Node parent, Node n) {
 		if (parent instanceof ScrollPane) {
 			((ScrollPane)parent).setContent(n);

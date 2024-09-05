@@ -1,7 +1,7 @@
 package Reika.SatisfactoryPlanner.Data;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Predicate;
@@ -27,11 +27,12 @@ public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 	private final TreeMap<Consumable, Float> costsPerMinute = new TreeMap();
 	private final TreeMap<Consumable, Float> productPerMinute = new TreeMap();
 
-	private final ArrayList<Milestone> unlocks = new ArrayList();
+	private final HashSet<Milestone> unlocks = new HashSet();
 
 	private int minimumTier = 999;
 
 	private String sourceMod;
+	public PowerOverride powerOverride;
 	/*
 	public Recipe(String id, String dn, Building b, float time) {
 		this(id, dn, b, false, time);
@@ -144,10 +145,20 @@ public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 	@Override
 	public int compareTo(Recipe o) {
 		if (minimumTier == o.minimumTier) {
-			if (productionBuilding == o.productionBuilding)
-				return String.CASE_INSENSITIVE_ORDER.compare(id, o.id);
-			else
+			if (productionBuilding == o.productionBuilding) {
+				if ((sourceMod != null) == (o.sourceMod != null)) {
+					if (isAlternate == o.isAlternate)
+						return String.CASE_INSENSITIVE_ORDER.compare(id, o.id);
+					else
+						return isAlternate ? 1 : -1;
+				}
+				else {
+					return sourceMod == null ? -1 : 1;
+				}
+			}
+			else {
 				return productionBuilding.compareTo(o.productionBuilding);
+			}
 		}
 		else {
 			return Integer.compare(minimumTier, o.minimumTier);
@@ -180,6 +191,18 @@ public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 	public void clearProducts() {
 		productPerMinute.clear();
 		usesFluids = !costsRaw.isEmpty() && costsRaw.keySet().stream().anyMatch(c -> c instanceof Fluid);
+	}
+
+	public float getPowerCost() {
+		return powerOverride != null ? powerOverride.getAveragePower() : productionBuilding.basePowerCostMW;
+	}
+
+	public float getMinPowerCost() {
+		return powerOverride != null ? powerOverride.getMinimumPower() : productionBuilding.basePowerCostMW;
+	}
+
+	public float getMaxPowerCost() {
+		return powerOverride != null ? powerOverride.getPeakPower() : productionBuilding.basePowerCostMW;
 	}
 
 }

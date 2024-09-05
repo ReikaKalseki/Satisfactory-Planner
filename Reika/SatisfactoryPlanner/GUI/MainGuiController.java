@@ -43,6 +43,7 @@ import Reika.SatisfactoryPlanner.GUI.GuiSystem.FontModifier;
 import Reika.SatisfactoryPlanner.GUI.GuiUtil.SearchableSelector;
 import Reika.SatisfactoryPlanner.Util.ColorUtil;
 import Reika.SatisfactoryPlanner.Util.CountMap;
+import Reika.SatisfactoryPlanner.Util.Logging;
 
 import fxexpansions.ExpandingTilePane;
 import fxexpansions.FXMLControllerBase;
@@ -274,6 +275,8 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 
 	@Override
 	public void init(HostServices services) throws IOException {
+		GuiSystem.setSplashProgress(85);
+		Logging.instance.log("Initializing main UI");
 		GuiUtil.setupAddSelector(recipeDropdown, new SearchableSelector<Recipe>(){
 			@Override
 			public void accept(Recipe t) {
@@ -300,29 +303,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 				return true;
 			}
 		});
-
-		GuiUtil.setButtonEvent(addMineButton, () -> this.openChildWindow("Add Resource Node", "ResourceNodeDialog"));
-		GuiUtil.setButtonEvent(addInputButton, () -> this.openChildWindow("Add Logistic Supply", "LogisticSupplyDialog"));
-
-		for (ToggleableVisiblityGroup tv : ToggleableVisiblityGroup.values()) {
-			CheckBox cb = new CheckBox(tv.displayName);
-			cb.setSelected(true);
-			cb.selectedProperty().addListener((val, old, nnew) -> {
-				if (old != nnew)
-					factory.setToggle(tv, nnew);
-			});
-			toggleFilters.put(tv, cb);
-			cb.getStyleClass().add("widget");
-			toggleFilterBox.getChildren().add(cb);
-		}
-
-		tierFilter.valueProperty().addListener((val, old, nnew) -> {
-			int old2 = maxAllowedTier;
-			maxAllowedTier = ((Double)nnew).intValue();
-			if (old2 != maxAllowedTier) {
-				this.rebuildLists(true, false);
-			}
-		});
+		Logging.instance.log("Recipe list compiled");
 
 		GuiUtil.setupAddSelector(addProductButton, new SearchableSelector<Consumable>(){
 			@Override
@@ -351,31 +332,51 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 			}
 		});
 
+		Logging.instance.log("Product list compiled");
+
 		factoryName.textProperty().addListener((val, old, nnew) -> {
 			factory.name = nnew;
 		});
+
+		tierFilter.valueProperty().addListener((val, old, nnew) -> {
+			int old2 = maxAllowedTier;
+			maxAllowedTier = ((Double)nnew).intValue();
+			if (old2 != maxAllowedTier) {
+				this.rebuildLists(true, false);
+			}
+		});
+
+		for (ToggleableVisiblityGroup tv : ToggleableVisiblityGroup.values()) {
+			CheckBox cb = new CheckBox(tv.displayName);
+			cb.setSelected(true);
+			cb.selectedProperty().addListener((val, old, nnew) -> {
+				if (old != nnew)
+					factory.setToggle(tv, nnew);
+			});
+			toggleFilters.put(tv, cb);
+			cb.getStyleClass().add("widget");
+			toggleFilterBox.getChildren().add(cb);
+		}
+
+		Logging.instance.log("Overview hooks initialized");
+
+		GuiUtil.setButtonEvent(addMineButton, () -> this.openChildWindow("Add Resource Node", "ResourceNodeDialog"));
+		GuiUtil.setButtonEvent(addInputButton, () -> this.openChildWindow("Add Logistic Supply", "LogisticSupplyDialog"));
 		/*
 		GuiUtil.setButtonEvent(refreshButton, () -> {
 			Logging.instance.log("Refresh @ "+System.currentTimeMillis());
 			factory.refreshMatrices();
 		});
 		 */
-		GuiUtil.setMenuEvent(settingsMenu, () -> this.openChildWindow("Application Settings", "Settings", g -> {
-			g.controller.getWindow().setOnCloseRequest(e -> {
-				try {
-					Setting.applyChanges();
-				}
-				catch (Exception ex) {
-					ex.printStackTrace();
-				}
-			});
-		}));
+		GuiUtil.setMenuEvent(settingsMenu, () -> this.openChildWindow("Application Settings", "Settings"));
 		GuiUtil.setMenuEvent(quitMenu, () -> this.close());
 		GuiUtil.setMenuEvent(newMenu, () -> {
-			GuiUtil.queueTask("Loading new factory", () -> {
+			GuiUtil.queueTask("Loading new factory", (id) -> {
 				this.setFactory(new Factory());
-				factory.init();
-			}, () -> this.rebuildEntireUI());
+				double pct = 20;
+				WaitDialogManager.instance.setTaskProgress(id, pct);
+				factory.init(pct, id);
+			}, (id) -> this.rebuildEntireUI());
 		});
 		GuiUtil.setMenuEvent(saveMenu, () -> factory.save());
 		GuiUtil.setMenuEvent(saveAsMenu, () -> {
@@ -400,6 +401,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		});
 		GuiUtil.setMenuEvent(clearProductMenu, () -> factory.removeProducts(new ArrayList<Consumable>(factory.getDesiredProducts())));
 		GuiUtil.setMenuEvent(isolateMenu, () -> factory.removeExternalSupplies(new ArrayList<ResourceSupply>(factory.getSupplies())));
+		Logging.instance.log("Menu hooks initialized");
 
 		statisticsGrid.getRowConstraints().get(0).minHeightProperty().bind(buildingBar.minHeightProperty());
 		statisticsGrid.getRowConstraints().get(1).minHeightProperty().bind(buildCostBar.minHeightProperty());
@@ -437,6 +439,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 				factory.rebuildMatrices(true);
 			}
 		});
+		Logging.instance.log("Matrix options set up");
 
 		buildingBar.minRowHeight = 32;
 		buildCostBar.minRowHeight = 32;
@@ -444,6 +447,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		netProductBar.minRowHeight = 32;
 
 		this.setupTierBar();
+		Logging.instance.log("Initialization complete");
 	}
 
 	private void setupTierBar() {
@@ -487,8 +491,10 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	@Override
 	protected void postInit(Stage w) throws IOException {
 		super.postInit(w);
+		Logging.instance.log("Postinit main UI start");
+		GuiSystem.setSplashProgress(90);
 
-		GuiUtil.queueTask("Building recipe menu", () -> RecipeListCell.init());
+		GuiUtil.queueTask("Building recipe menu", (id) -> RecipeListCell.init());
 
 		overviewTab.setGraphic(new ImageView(InternalIcons.OVERVIEW.createIcon(16)));
 		ioTab.setGraphic(new ImageView(InternalIcons.INPUTOUTPUT2.createIcon(16)));
@@ -511,6 +517,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 			t.setGraphic(hb);
 			t.setText(null);
 		}
+		Logging.instance.log("Tabs set up");
 
 		this.getWindow().getScene().getAccelerators().put(new KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN), () -> {root.layout(); tabs.requestLayout();});
 
@@ -526,16 +533,22 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 			gui.controller.setGenerator(g);
 			generators.put(g, gui);
 		}
+		Logging.instance.log("Generators loaded: "+generators.toString());
 
 		GuiUtil.initWidgets(gridContainer);
 		GuiUtil.initWidgets(netGridContainer);
 
+		Logging.instance.log("Matrices set up");
+
 		this.buildRecentList();
 
+		Logging.instance.log("Setting new factory");
 		this.setFactory(new Factory());
 		factory.rebuildMatrices(false);
 
+		Logging.instance.log("Refreshing UI");
 		this.rebuildEntireUI();
+		Logging.instance.log("Postinit complete");
 	}
 
 	public void rebuildLists(boolean recipe, boolean products) {
@@ -680,12 +693,17 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		}
 
 		if (power) {
-			float prod = factory.getNetPowerProduction();
-			powerProduction.setText(String.format("%.2fMW", prod));
-			if (prod > 0) {
+			float[] avgMinMax = new float[3];
+			factory.computeNetPowerProduction(avgMinMax);
+			String text = String.format("%.2fMW", avgMinMax[0]);
+			if (Math.abs(avgMinMax[1]-avgMinMax[2]) > 0.1) {
+				text = String.format("%s average (%.2fMW to %.2fMW range)", text, avgMinMax[1], avgMinMax[2]);
+			}
+			powerProduction.setText(text);
+			if (avgMinMax[0] > 0) {
 				powerProduction.setStyle(GuiSystem.getFontStyle(FontModifier.BOLD)+" -fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.OKAY_COLOR)+";");
 			}
-			else if (prod < 0) {
+			else if (avgMinMax[0] < 0) {
 				powerProduction.setStyle(GuiSystem.getFontStyle(FontModifier.BOLD)+" -fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.WARN_COLOR)+";");
 			}
 			else {

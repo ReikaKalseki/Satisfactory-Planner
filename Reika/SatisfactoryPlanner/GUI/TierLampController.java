@@ -46,7 +46,7 @@ public class TierLampController extends SizedControllerBase {
 		}
 		else {
 			root.setStyle("-fx-background-color: #7D7D7D;");
-			tierLabel.setStyle("-fx-text-fill: #fff; -fx-font-weight: 450;");
+			tierLabel.setStyle("-fx-text-fill: #fff; -fx-font-weight: 500;");
 		}
 
 	}

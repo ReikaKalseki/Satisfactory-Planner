@@ -9,6 +9,7 @@ import Reika.SatisfactoryPlanner.Util.JavaUtil;
 import Reika.SatisfactoryPlanner.Util.Logging;
 
 import fxexpansions.GuiInstance;
+import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.application.HostServices;
 import javafx.application.Platform;
@@ -19,6 +20,7 @@ import javafx.scene.image.Image;
 import javafx.scene.text.Font;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class GuiSystem extends Application {
 
@@ -67,7 +69,7 @@ public class GuiSystem extends Application {
 		loadingStage.setResizable(false);
 		loadingStage.centerOnScreen();
 		loadingStage.setAlwaysOnTop(true);
-		GuiUtil.queueTask("Loading Game Data", () -> Main.parseGameData(), () -> this.loadMainUI());
+		GuiUtil.queueTask("Loading Game Data", (id) -> Main.parseGameData(), (id) -> this.loadMainUI());
 	}
 
 	private void loadMainUI() throws IOException {
@@ -77,14 +79,25 @@ public class GuiSystem extends Application {
 		primaryStage.setHeight(bounds.getHeight());
 		Logging.instance.log("Loading main UI");
 		mainGui = GuiInstance.loadFXMLWindow("mainUI-Dynamic", primaryStage, null, "Satisfactory Planner");
+		Logging.instance.log("Main UI constructed");
 		//this.setFont(root, MainWindow.getGUI().getFont(10));
+		GuiSystem.setSplashProgress(95);
 		primaryStage.setMaximized(true);
 		primaryStage.show();
-		loadingStage.close();
+		Logging.instance.log("Main UI loaded, closing splash screen");
+
+		PauseTransition timer = new PauseTransition(Duration.millis(50)); //let splash stick for just long enough to show more progress
+		timer.setOnFinished(e -> loadingStage.close());
+		timer.play();
 	}
 
 	public static boolean isSplashShowing() {
 		return loadingStage != null && loadingStage.isShowing();
+	}
+
+	public static void setSplashProgress(double pct) {
+		if (isSplashShowing())
+			splashGui.controller.setProgress(pct);
 	}
 	/*
 	public static Font getFont(double size) {

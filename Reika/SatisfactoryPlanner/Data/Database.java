@@ -18,6 +18,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 
 import Reika.SatisfactoryPlanner.Main;
+import Reika.SatisfactoryPlanner.Data.PowerOverride.LinearIncreasePower;
 import Reika.SatisfactoryPlanner.GUI.Setting;
 import Reika.SatisfactoryPlanner.Util.Logging;
 
@@ -261,6 +262,11 @@ public class Database {
 			if (c instanceof Fluid)
 				amt /= Constants.LIQUID_SCALAR; //they store fluids in mB
 			r.addIngredient(c, amt);
+		}
+		float varConst = obj.getFloat("mVariablePowerConsumptionConstant");
+		if (varConst > 0) {
+			float varFac = obj.getFloat("mVariablePowerConsumptionFactor"); //range = factor - const to factor + const over recipe
+			r.powerOverride = new LinearIncreasePower(varFac, varConst);
 		}
 		if (r.productionBuilding == null) { //is a buildable
 			String bid = parseID(out.replace("Desc_", "Build_"));
@@ -605,6 +611,14 @@ public class Database {
 						if (c instanceof Fluid)
 							amt /= Constants.LIQUID_SCALAR;
 						r.addProduct(c, amt);
+					}
+					if (obj.has("UnlockedBy")) {
+						JSONArray milestones = obj.getJSONArray("UnlockedBy");
+						for (int i = 0; i < milestones.length(); i++) {
+							String name = milestones.getString(i)+"_C";
+							if (allMilestones.containsKey(name))
+								r.addMilestone(lookupMilestone(name));
+						}
 					}
 					allAutoRecipesSorted.add(r);
 					allRecipes.put(r.id, r);

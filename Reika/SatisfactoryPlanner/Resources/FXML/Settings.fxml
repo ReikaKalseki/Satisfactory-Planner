@@ -74,24 +74,45 @@
             </GridPane>
          </content>
       </TitledPane>
-      <TilePane alignment="CENTER" hgap="64.0" vgap="8.0" VBox.vgrow="ALWAYS">
+      <TilePane alignment="CENTER" hgap="32.0" vgap="8.0" VBox.vgrow="ALWAYS">
          <children>
-            <Button fx:id="revertAll" graphicTextGap="12.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="32.0" prefWidth="192.0" text="Revert To Defaults">
+            <Button fx:id="cancelButton" layoutX="338.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="32.0" prefWidth="166.0" text="Discard And Close">
+               <graphic>
+                  <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../Graphics/Icons/button-cancel-icon.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+               <padding>
+                  <Insets left="-4.0" />
+               </padding>
+            </Button>
+            <Button fx:id="revertAll" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="32.0" prefWidth="166.0" text="Revert To Defaults">
                <graphic>
                   <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="@../Graphics/Icons/button-reset-icon.png" />
                      </image>
                   </ImageView>
-               </graphic></Button>
-            <Button fx:id="closeWindow" graphicTextGap="12.0" layoutX="170.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="32.0" prefWidth="192.0" text="Apply And Close">
+               </graphic>
+               <TilePane.margin>
+                  <Insets />
+               </TilePane.margin>
+               <padding>
+                  <Insets left="-4.0" />
+               </padding></Button>
+            <Button fx:id="closeWindow" layoutX="170.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="32.0" prefWidth="166.0" text="Apply And Close">
                <graphic>
                   <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="@../Graphics/Icons/button-confirm-icon.png" />
                      </image>
                   </ImageView>
-               </graphic></Button>
+               </graphic>
+               <padding>
+                  <Insets left="-4.0" />
+               </padding></Button>
          </children>
          <styleClass>
             <String fx:value="widget" />

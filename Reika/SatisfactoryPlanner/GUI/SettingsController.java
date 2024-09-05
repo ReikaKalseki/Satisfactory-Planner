@@ -34,6 +34,9 @@ public class SettingsController extends FXMLControllerBase {
 	private Button closeWindow;
 
 	@FXML
+	private Button cancelButton;
+
+	@FXML
 	private CheckBox allowFractional;
 
 	@FXML
@@ -75,21 +78,29 @@ public class SettingsController extends FXMLControllerBase {
 	@Override
 	protected void postInit(Stage w) throws IOException {
 		super.postInit(w);
+		this.getWindow().setOnCloseRequest(e -> {
+			cancelButton.fire();
+		});
 		GuiUtil.setButtonEvent(chooseGameDir, () -> {
 			File f = this.openDirDialog("Satisfactory Install", Setting.GAMEDIR.getCurrentValue());
 			if (f != null) {
-				Setting.GAMEDIR.setValue(f);
+				Setting.GAMEDIR.changeValue(f);
 				gameDirPath.setText(Setting.GAMEDIR.getString());
 			}
 		});
 		GuiUtil.setButtonEvent(closeWindow, () -> {
-			Setting.applyChanges();
-			this.close();
+			GuiUtil.queueTask("Applying Changes", (id) -> Setting.applyChanges(id), (id) -> this.close());
+		});
+		GuiUtil.setButtonEvent(cancelButton, () -> {
+			if (GuiUtil.getConfirmation("Are you sure you want to discard all changes?"))
+				this.close();
 		});
 		GuiUtil.setButtonEvent(revertAll, () -> {
-			for (SettingRef s : Setting.getSettings())
-				s.revert();
-			this.setFields();
+			if (GuiUtil.getConfirmation("Are you sure you want to revert all settings? This will save over their original values.")) {
+				for (SettingRef s : Setting.getSettings())
+					s.revert();
+				this.setFields();
+			}
 		});
 
 		gameDirPath.textProperty().addListener((val, old, nnew) -> {
@@ -97,7 +108,7 @@ public class SettingsController extends FXMLControllerBase {
 			if (StringUtil.isValidPath(nnew)) {
 				File f = new File(nnew);
 				if (f.exists() && f.isDirectory()) {
-					Setting.GAMEDIR.setValue(f);
+					Setting.GAMEDIR.changeValue(f);
 					flag = true;
 				}
 			}
@@ -108,7 +119,7 @@ public class SettingsController extends FXMLControllerBase {
 		});
 
 		allowFractional.selectedProperty().addListener((val, old, nnew) -> {
-			Setting.ALLOWDECIMAL.setValue(nnew);
+			Setting.ALLOWDECIMAL.changeValue(nnew);
 		});
 
 		GuiUtil.initWidgets(root);
