@@ -53,6 +53,7 @@ public class Main {
 			}
 		}
 
+		Logging.instance.log("Loading settings from "+settingsFile.getCanonicalPath());
 		JSONObject settings = JSONUtil.readFile(settingsFile);
 		for (SettingRef s : Setting.getSettings()) {
 			if (settings.has(s.name))
@@ -74,6 +75,7 @@ public class Main {
 		for (SettingRef s : Setting.getSettings()) {
 			settings.put(s.name, s.setting.getString());
 		}
+		Logging.instance.log("Saving settings to "+settingsFile.getCanonicalPath());
 		JSONUtil.saveFile(settingsFile, settings);
 		isClosing = true;
 		JavaUtil.stopThreads();

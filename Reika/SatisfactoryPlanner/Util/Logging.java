@@ -2,11 +2,12 @@ package Reika.SatisfactoryPlanner.Util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
-import org.apache.commons.io.FileUtils;
 
 import Reika.SatisfactoryPlanner.Main;
 
@@ -20,9 +21,11 @@ public class Logging {
 
 	private final SimpleDateFormat logTimeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 	private final Date dateInstance = new Date();
-	private final ConcurrentLinkedQueue<String> logQueue = new ConcurrentLinkedQueue();
+	private final ConcurrentLinkedQueue<Byte> logQueue = new ConcurrentLinkedQueue();
 
 	private Logging() {
+		System.setOut(new LogDiversionStream(System.out));
+		System.setErr(new LogDiversionStream(System.err));
 		try {
 			this.updateLogPath();
 		}
@@ -62,21 +65,31 @@ public class Logging {
 	}
 
 	public void flushLog() throws IOException {
-		if (currentLogFile != null)
-			FileUtils.writeLines(currentLogFile, logQueue, true);
+		if (currentLogFile != null) {
+			byte[] raw = new byte[logQueue.size()];
+			int idx = 0;
+			for (Byte b : logQueue) {
+				raw[idx] = b;
+				idx++;
+			}
+			Files.write(currentLogFile.toPath(), raw, StandardOpenOption.APPEND);
+		}
 		logQueue.clear();
 	}
 
 	public void log(Throwable e) {
-		this.log(e.toString());
+		this.log(e.toString(), System.err);
 		e.printStackTrace();
 	}
 
 	public void log(String msg) {
+		this.log(msg, System.out);
+	}
+
+	private void log(String msg, PrintStream buf) {
 		dateInstance.setTime(System.currentTimeMillis());
 		String log = "["+logTimeStamp.format(dateInstance)+"] [Thread "+Thread.currentThread().getName()+"]: "+msg;
-		System.out.println(log);
-		logQueue.add(log);
+		buf.println(log);
 	}
 
 	public static enum LogOptions {
@@ -97,6 +110,22 @@ public class Logging {
 						File f = Main.getRelativeFile("Logs/"+new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date())+".log");
 						f.getParentFile().mkdirs();
 						return f;
+			}
+		}
+	}
+
+	private class LogDiversionStream extends PrintStream {
+
+		public LogDiversionStream(PrintStream wrapped) {
+			super(wrapped);
+		}
+
+		@Override
+		public void write(byte buf[], int off, int len) {
+			super.write(buf, off, len);
+			int to = off+len;
+			for (int i = off; i < to; i++) {
+				logQueue.add(buf[i]);
 			}
 		}
 	}

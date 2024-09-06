@@ -15,7 +15,7 @@ public class JSONUtil {
 	}
 
 	public static void saveFile(File f, JSONObject obj) throws IOException {
-		f.getParentFile().mkdirs();
+		f.getAbsoluteFile().getParentFile().mkdirs();
 		FileUtils.write(f, obj.toString(4), Charsets.UTF_8);
 	}
 
