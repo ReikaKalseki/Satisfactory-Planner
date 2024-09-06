@@ -6,7 +6,8 @@ import java.io.IOException;
 import org.controlsfx.control.textfield.CustomTextField;
 
 import Reika.SatisfactoryPlanner.Main;
-import Reika.SatisfactoryPlanner.GUI.Setting.SettingRef;
+import Reika.SatisfactoryPlanner.Setting;
+import Reika.SatisfactoryPlanner.Setting.SettingRef;
 import Reika.SatisfactoryPlanner.Util.StringUtil;
 
 import fxexpansions.FXMLControllerBase;

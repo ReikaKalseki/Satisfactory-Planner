@@ -6,20 +6,21 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 
+import Reika.SatisfactoryPlanner.Setting.SettingRef;
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Data.Factory;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem;
 import Reika.SatisfactoryPlanner.GUI.MainGuiController;
 import Reika.SatisfactoryPlanner.GUI.RecipeListCell;
-import Reika.SatisfactoryPlanner.GUI.Setting;
-import Reika.SatisfactoryPlanner.GUI.Setting.SettingRef;
 import Reika.SatisfactoryPlanner.Util.FixedList;
 import Reika.SatisfactoryPlanner.Util.JSONUtil;
 import Reika.SatisfactoryPlanner.Util.JavaUtil;
@@ -33,8 +34,8 @@ public class Main {
 
 	public static boolean isJFXActive;
 
-	private static final boolean isCompiled = Main.class.getResource("Main.class").toString().startsWith("jar:");
-	public static final File executionLocation = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+	private static final boolean isCompiled = Main.class.getResource("Main.class").toString().startsWith("jrt:");
+	public static final Path executionLocation = Paths.get("").toAbsolutePath();
 
 	private static final File settingsFile = getRelativeFile("settings.dat");
 	private static final File recentFilesFile = getRelativeFile("recent.dat");
@@ -52,7 +53,11 @@ public class Main {
 				recentFiles.add(new File(s));
 			}
 		}
-
+		/*
+		File f = new File("debug.txt");
+		f.createNewFile();
+		FileUtils.writeLines(f, Arrays.asList(Main.class.getResource("Main.class").toString(), isCompiled, executionLocation.toString(), getRelativeFile("").getCanonicalPath()));
+		 */
 		Logging.instance.log("Loading settings from "+settingsFile.getCanonicalPath());
 		JSONObject settings = JSONUtil.readFile(settingsFile);
 		for (SettingRef s : Setting.getSettings()) {
@@ -106,7 +111,7 @@ public class Main {
 		if (main != null) {
 			RecipeListCell.init();
 			main.controller.setFactory(new Factory());
-			Platform.runLater(() -> main.controller.rebuildLists(true, true));;
+			Platform.runLater(() -> main.controller.rebuildLists(true, true));
 		}
 		GuiSystem.setSplashProgress(80);
 		try {
@@ -137,7 +142,7 @@ public class Main {
 	}
 
 	public static File getRelativeFile(String path) {
-		return isCompiled ? new File(path) : new File("src/main/java/Reika/SatisfactoryPlanner/", path);
+		return isCompiled ? new File(path).getAbsoluteFile() : new File("src/main/java/Reika/SatisfactoryPlanner/", path);
 	}
 
 	public static InputStream getResourceStream(String path) throws FileNotFoundException {

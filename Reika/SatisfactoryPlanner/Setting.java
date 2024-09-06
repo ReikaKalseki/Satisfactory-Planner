@@ -1,4 +1,4 @@
-package Reika.SatisfactoryPlanner.GUI;
+package Reika.SatisfactoryPlanner;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import Reika.SatisfactoryPlanner.Main;
+import Reika.SatisfactoryPlanner.GUI.WaitDialogManager;
 import Reika.SatisfactoryPlanner.Util.Errorable;
 
 public class Setting<S> {

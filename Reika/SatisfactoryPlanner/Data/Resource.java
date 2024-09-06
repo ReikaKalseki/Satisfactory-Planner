@@ -8,8 +8,8 @@ import java.util.HashMap;
 
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.NamedIcon;
+import Reika.SatisfactoryPlanner.Setting;
 import Reika.SatisfactoryPlanner.GUI.GuiUtil;
-import Reika.SatisfactoryPlanner.GUI.Setting;
 import Reika.SatisfactoryPlanner.Util.Logging;
 
 import javafx.scene.image.Image;

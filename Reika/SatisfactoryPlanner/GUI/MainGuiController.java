@@ -598,7 +598,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		return true;
 	}
 
-	private void rebuildEntireUI() {
+	public void rebuildEntireUI() {
 		this.rebuildLists(true, true);
 
 		factoryName.setText(factory.name);

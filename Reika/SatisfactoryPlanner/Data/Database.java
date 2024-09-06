@@ -18,8 +18,8 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 
 import Reika.SatisfactoryPlanner.Main;
+import Reika.SatisfactoryPlanner.Setting;
 import Reika.SatisfactoryPlanner.Data.PowerOverride.LinearIncreasePower;
-import Reika.SatisfactoryPlanner.GUI.Setting;
 import Reika.SatisfactoryPlanner.Util.Logging;
 
 import javafx.scene.paint.Color;
