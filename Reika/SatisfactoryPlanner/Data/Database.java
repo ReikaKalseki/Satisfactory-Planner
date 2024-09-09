@@ -2,6 +2,7 @@ package Reika.SatisfactoryPlanner.Data;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -20,6 +21,7 @@ import com.google.common.base.Strings;
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Setting;
 import Reika.SatisfactoryPlanner.Data.PowerOverride.LinearIncreasePower;
+import Reika.SatisfactoryPlanner.Util.Errorable.ErrorableWithArgument;
 import Reika.SatisfactoryPlanner.Util.Logging;
 
 import javafx.scene.paint.Color;
@@ -440,15 +442,22 @@ public class Database {
 		ClassType.MILESTONE.parsePending();
 	}
 
-	public static void loadCustomData() throws IOException {
+	public static void loadCustomData() throws Exception {
 		Logging.instance.log("Loading direct custom data");
-		loadCustomItemFolder(Main.getRelativeFile("Resources/CustomItems"), "Custom");
-		loadCustomBuildingFolder(Main.getRelativeFile("Resources/CustomBuildings"), "Custom");
-		loadCustomRecipeFolder(Main.getRelativeFile("Resources/CustomRecipes"), "Custom");
-		loadCustomMilestoneFolder(Main.getRelativeFile("Resources/CustomMilestones"), "Custom");
+		loadCustomItemFolder(Main.getRelativeFile("CustomDefinitions/Items"), "Custom", f -> copyTemplate(f, "item"));
+		loadCustomBuildingFolder(Main.getRelativeFile("CustomDefinitions/Buildings"), "Custom", f -> copyTemplate(f, "building"));
+		loadCustomRecipeFolder(Main.getRelativeFile("CustomDefinitions/Recipes"), "Custom", f -> copyTemplate(f, "recipe"));
+		loadCustomMilestoneFolder(Main.getRelativeFile("CustomDefinitions/Milestones"), "Custom", f -> copyTemplate(f, "milestone"));
 	}
 
-	public static void loadModdedData() throws IOException {
+	private static void copyTemplate(File f, String name) throws IOException {
+		name = "template_"+name+".json";
+		File f2 = new File(f, name);
+		InputStream from = Main.class.getResourceAsStream("Resources/Examples/"+name);
+		FileUtils.copyInputStreamToFile(from, f2);
+	}
+
+	public static void loadModdedData() throws Exception {
 		if (!Main.getModsFolder().exists())
 			return;
 		Logging.instance.log("Loading mod data");
@@ -457,10 +466,10 @@ public class Database {
 			Logging.instance.log("Checking mod "+name);
 			File f = new File(mod, "ContentLib");
 			if (f.exists()) {
-				loadCustomItemFolder(new File(f, "Items"), name);
-				//loadCustomBuildingFolder(new File(f, "CustomBuildings"), name);
-				loadCustomRecipeFolder(new File(f, "Recipes"), name);
-				loadCustomMilestoneFolder(new File(f, "Schematics"), name);
+				loadCustomItemFolder(new File(f, "Items"), name, null);
+				//loadCustomBuildingFolder(new File(f, "CustomBuildings"), name, null);
+				loadCustomRecipeFolder(new File(f, "Recipes"), name, null);
+				loadCustomMilestoneFolder(new File(f, "Schematics"), name, null);
 			}
 			else {
 				Logging.instance.log("No ContentLib. Skipping.");
@@ -468,9 +477,15 @@ public class Database {
 		}
 	}
 
-	private static void loadCustomBuildingFolder(File f, String mod) throws IOException {
-		if (!f.exists())
+	private static void loadCustomBuildingFolder(File f, String mod, ErrorableWithArgument<File> createTemplate) throws Exception {
+		if (!f.exists()) {
+			if (createTemplate != null) {
+				Logging.instance.log("No custom building folder exists, creating templates.");
+				f.mkdirs();
+				createTemplate.run(f);
+			}
 			return;
+		}
 		Logging.instance.log("Loading buildings from "+f.getCanonicalPath());
 		for (File f2 : f.listFiles()) {
 			if (f2.getName().endsWith(".json") && !f2.getName().startsWith("template")) {
@@ -500,9 +515,15 @@ public class Database {
 		}
 	}
 
-	private static void loadCustomMilestoneFolder(File f, String mod) throws IOException {
-		if (!f.exists())
+	private static void loadCustomMilestoneFolder(File f, String mod, ErrorableWithArgument<File> createTemplate) throws Exception {
+		if (!f.exists()) {
+			if (createTemplate != null) {
+				Logging.instance.log("No custom milestone folder exists, creating templates.");
+				f.mkdirs();
+				createTemplate.run(f);
+			}
 			return;
+		}
 		Logging.instance.log("Loading milestones from "+f.getCanonicalPath());
 		for (File f2 : f.listFiles()) {
 			if (f2.getName().endsWith(".json") && !f2.getName().startsWith("template")) {
@@ -539,9 +560,15 @@ public class Database {
 		}
 	}
 
-	private static void loadCustomRecipeFolder(File f, String mod) throws IOException {
-		if (!f.exists())
+	private static void loadCustomRecipeFolder(File f, String mod, ErrorableWithArgument<File> createTemplate) throws Exception {
+		if (!f.exists()) {
+			if (createTemplate != null) {
+				Logging.instance.log("No custom recipe folder exists, creating templates.");
+				f.mkdirs();
+				createTemplate.run(f);
+			}
 			return;
+		}
 		Logging.instance.log("Loading recipes from "+f.getCanonicalPath());
 		for (File f2 : f.listFiles()) {
 			if (f2.getName().endsWith(".json") && !f2.getName().startsWith("template")) {
@@ -632,9 +659,15 @@ public class Database {
 		}
 	}
 
-	private static void loadCustomItemFolder(File f0, String mod) throws IOException {
-		if (!f0.exists())
+	private static void loadCustomItemFolder(File f0, String mod, ErrorableWithArgument<File> createTemplate) throws Exception {
+		if (!f0.exists()) {
+			if (createTemplate != null) {
+				Logging.instance.log("No custom item folder exists, creating templates.");
+				f0.mkdirs();
+				createTemplate.run(f0);
+			}
 			return;
+		}
 		Logging.instance.log("Loading items from "+f0.getCanonicalPath());
 		for (File f2 : f0.listFiles()) {
 			if (f2.getName().endsWith(".json") && !f2.getName().startsWith("template")) {
@@ -645,7 +678,7 @@ public class Database {
 					boolean fluid = form.equalsIgnoreCase("liquid") || gas;
 					String disp = obj.getString("Name");
 					String desc = obj.getString("Description");
-					String id = obj.has("ID") ? obj.getString("ID") : f2.getName().replace("Recipe_", "");
+					String id = obj.has("ID") ? obj.getString("ID") : f2.getName().replace("Item_", "");
 					String icon = obj.getString("Icon");
 					String cat = obj.getString("Category");
 					float nrg = obj.getFloat("EnergyValue");
@@ -691,6 +724,8 @@ public class Database {
 		mineableItems.clear();
 		frackableFluids.clear();
 		allMilestones.clear();
+		Milestone.resetTiers();
+		Resource.resetIconCheck();
 		//Logging.instance.log(String.format("Cleared data with %d items, %d recipes, %d building recipes, %d buildings, %d generators, and %d vehicles", allItemsSorted.size(), allAutoRecipesSorted.size(), allBuildingRecipesSorted.size(), allBuildingsSorted.size(), allGeneratorsSorted.size(), allVehiclesSorted.size()));
 	}
 

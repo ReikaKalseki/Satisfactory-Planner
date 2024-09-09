@@ -548,6 +548,8 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 
 		Logging.instance.log("Refreshing UI");
 		this.rebuildEntireUI();
+
+		Platform.runLater(() -> this.layout());
 		Logging.instance.log("Postinit complete");
 	}
 
@@ -568,6 +570,8 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 			recipeDropdown.setItems(FXCollections.observableList(li2));
 			recipeDropdown.setDisable(li2.isEmpty());
 		}
+
+		this.setupTierBar();
 	}
 
 	public void buildRecentList() {
@@ -624,19 +628,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 
 		this.updateStats(true);
 
-		if (this.getRootNode() != null)
-			this.getRootNode().layout();
-		Platform.runLater(() -> { //ugly hack but necessary to resize the tabpane, and later since it needs a layout pass to finish
-			tabs.requestLayout();/*
-				container.window.sizeToScene();
-				container.window.centerOnScreen();
-				Rectangle2D monitor = Screen.getPrimary().getVisualBounds();
-				if (container.window.getWidth() > monitor.getWidth())
-					container.window.setWidth(monitor.getWidth());
-				if (container.window.getHeight() > monitor.getHeight()-48) //48 for title bar
-					container.window.setHeight(monitor.getHeight()-48);*/
-			this.getRootNode().layout();
-		});
+		this.layout();
 	}
 
 	private void updateWarnings() {
@@ -988,5 +980,21 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	protected void onKeyReleased(KeyCode code) {
 		if (code == KeyCode.SHIFT)
 			factory.setLargeMatrixSpinnerStep(false);
+	}
+
+	public void layout() {
+		if (this.getRootNode() != null)
+			this.getRootNode().layout();
+		Platform.runLater(() -> { //ugly hack but necessary to resize the tabpane, and later since it needs a layout pass to finish
+			tabs.requestLayout();/*
+				container.window.sizeToScene();
+				container.window.centerOnScreen();
+				Rectangle2D monitor = Screen.getPrimary().getVisualBounds();
+				if (container.window.getWidth() > monitor.getWidth())
+					container.window.setWidth(monitor.getWidth());
+				if (container.window.getHeight() > monitor.getHeight()-48) //48 for title bar
+					container.window.setHeight(monitor.getHeight()-48);*/
+			this.getRootNode().layout();
+		});
 	}
 }

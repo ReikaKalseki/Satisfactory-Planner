@@ -17,6 +17,10 @@ import javafx.scene.image.ImageView;
 
 public abstract class Resource implements NamedIcon {
 
+	private static boolean anyIcons = false;
+	private static boolean missingAnyVanillaIcons = false;
+	private static boolean missingAnyIcons = false;
+
 	public final String id;
 	public final String displayName;
 	public final String iconName;
@@ -50,13 +54,24 @@ public abstract class Resource implements NamedIcon {
 	}
 
 	private InputStream getIcon() {
-		//return Main.class.getResourceAsStream("Resources/Graphics/Icons/"+this.getIconFolder()+"/"+iconName+".png");
+		File f = new File(Setting.GAMEDIR.getCurrentValue(), "FactoryGame/Icons/"+iconName+".png");
 		try {
-			//TODO add a way to autoinstall the mod?
-			return new FileInputStream(new File(Setting.GAMEDIR.getCurrentValue(), "FactoryGame/Icons/"+iconName+".png")); //from the icon dump mod
+			if (!f.exists()) {
+				missingAnyIcons = true;
+				if (sourceMod == null)
+					missingAnyVanillaIcons = true;
+
+				InputStream fallback = Main.class.getResourceAsStream("Resources/Graphics/Icons/Game/"+iconName+".png");
+				return fallback;
+			}
+			anyIcons = true;
+			return new FileInputStream(f);
 		}
 		catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
+			missingAnyIcons = true;
+			if (sourceMod == null)
+				missingAnyVanillaIcons = true;
+			return null;
 		}
 	}
 
@@ -69,7 +84,7 @@ public abstract class Resource implements NamedIcon {
 		if (img == null) {
 			InputStream in = this.getIcon();
 			if (in == null) {
-				Logging.instance.log("No icon '"+iconName+"' for "+this);
+				Logging.instance.log("No icon '"+iconName+"' for "+this, System.err);
 				in = Main.class.getResourceAsStream("Resources/Graphics/Icons/NotFound.png");
 			}
 			img = new Image(in, size, size, true, true);
@@ -92,5 +107,23 @@ public abstract class Resource implements NamedIcon {
 	}
 
 	protected abstract String getIconFolder();
+
+	public static void resetIconCheck() {
+		anyIcons = false;
+		missingAnyIcons = false;
+		missingAnyVanillaIcons = false;
+	}
+
+	public static boolean doAnyIconsExist() {
+		return anyIcons;
+	}
+
+	public static boolean areAnyIconsMissing() {
+		return missingAnyIcons;
+	}
+
+	public static boolean areAnyVanillaIconsMissing() {
+		return missingAnyVanillaIcons;
+	}
 
 }

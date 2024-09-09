@@ -86,7 +86,7 @@ public class Logging {
 		this.log(msg, System.out);
 	}
 
-	private void log(String msg, PrintStream buf) {
+	public void log(String msg, PrintStream buf) {
 		dateInstance.setTime(System.currentTimeMillis());
 		String log = "["+logTimeStamp.format(dateInstance)+"] [Thread "+Thread.currentThread().getName()+"]: "+msg;
 		buf.println(log);

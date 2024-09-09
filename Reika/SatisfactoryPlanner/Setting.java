@@ -13,7 +13,7 @@ import Reika.SatisfactoryPlanner.Util.Errorable;
 public class Setting<S> {
 
 	//public static final Setting<LogOptions> LOG = new Setting<LogOptions>(LogOptions.RUNTIME, new EnumConverter(LogOptions.class)).addChangeCallback(() -> Logging.instance.updateLogPath());
-	public static final Setting<File> GAMEDIR = new Setting<File>(Main.getRelativeFile(""), FileConverter.instance).addChangeCallback(() -> Main.parseGameData());
+	public static final Setting<File> GAMEDIR = new Setting<File>(new File("C:/Program Files (x86)/Steam/steamapps/common/Satisfactory"), FileConverter.instance).addChangeCallback(() -> Main.parseGameData());
 	public static final Setting<Boolean> ALLOWDECIMAL = new Setting<Boolean>(false, BoolConverter.instance);
 
 	public final S defaultValue;

@@ -53,4 +53,8 @@ public class Milestone {
 		return maxTier;
 	}
 
+	public static void resetTiers() {
+		maxTier = 0;
+	}
+
 }

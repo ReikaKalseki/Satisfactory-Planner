@@ -26,12 +26,10 @@
         }
     ],
     "toggles": [
-        "EQUIPMENT",
-        "BIOMASS",
+        "FLUID",
         "FICSMAS",
         "ALTERNATE",
         "POST10",
-        "FINDABLE",
         "PACKAGING",
         "UNPACKAGING"
     ],

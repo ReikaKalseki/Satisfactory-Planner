@@ -89,7 +89,7 @@ public class Main {
 		Logging.instance.flushLog();
 	}
 
-	public static void parseGameData() throws IOException {
+	public static void parseGameData() throws Exception {
 		Logging.instance.log("===================");
 		Logging.instance.log("Parsing Recipe/Item Data");
 		Logging.instance.log("===================");
@@ -110,8 +110,11 @@ public class Main {
 		GuiInstance<MainGuiController> main = GuiSystem.getMainGUI();
 		if (main != null) {
 			RecipeListCell.init();
-			main.controller.setFactory(new Factory());
-			Platform.runLater(() -> main.controller.rebuildLists(true, true));
+			Platform.runLater(() -> {
+				main.controller.rebuildEntireUI();
+				main.controller.setFactory(new Factory());
+				main.controller.layout();
+			});
 		}
 		GuiSystem.setSplashProgress(80);
 		try {
@@ -160,4 +163,9 @@ public class Main {
 	public static boolean isClosing() {
 		return isClosing;
 	}
+	/*
+	public static void installIconDumper() {
+		String url = "https://cdn.discordapp.com/attachments/1253701121533284474/1253724210275024916/IconDumper-Windows.zip?ex=66e05d28&is=66df0ba8&hm=9c55b19057838dde0bed76ccf3bdb6e78f80f8053a7bab4a69d95f0c4e236bb8&";
+
+	}*/
 }

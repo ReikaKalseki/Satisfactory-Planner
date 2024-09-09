@@ -260,23 +260,23 @@ public class GuiUtil {
 	}
 
 	public static ButtonType raiseDialog(AlertType type, String title, String text, ButtonType... buttons) {
-		return raiseDialog(type, title, text, null, buttons);
+		return raiseDialog(type, title, text, null, 400, buttons);
 	}
 
-	public static ButtonType raiseDialog(AlertType type, String title, String text, Consumer<Alert> modifier, ButtonType... buttons) {
-		Alert a = createDialog(type, title, text, buttons);
+	public static ButtonType raiseDialog(AlertType type, String title, String text, Consumer<Alert> modifier, int width, ButtonType... buttons) {
+		Alert a = createDialog(type, title, text, width, buttons);
 		if (modifier != null)
 			modifier.accept(a);
 		Optional<ButtonType> b = a.showAndWait();
 		return b.isPresent() ? b.get() : null;
 	}
 
-	private static Alert createDialog(AlertType type, String title, String text, ButtonType... buttons) {
+	private static Alert createDialog(AlertType type, String title, String text, int width, ButtonType... buttons) {
 		Alert a = new Alert(type, text, buttons);
 		Text tt = new Text(text);
 		ScrollPane panel = new ScrollPane();
 		panel.setContent(tt);
-		tt.setWrappingWidth(400);
+		tt.setWrappingWidth(width);
 		panel.setPadding(new Insets(8, 8, 8, 8));
 		a.getDialogPane().setContent(panel);
 		a.setTitle(title);
@@ -313,7 +313,7 @@ public class GuiUtil {
 			if (msg != null) {
 				a.getDialogPane().setHeaderText(msg);
 			}
-		}, ButtonType.OK);
+		}, 600, ButtonType.OK);
 	}
 
 	public static <E> void setupAddSelector(SearchableComboBox<E> sb, Consumer<E> onSelect, boolean clearOnSelect) {

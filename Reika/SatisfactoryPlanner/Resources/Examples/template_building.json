@@ -1,0 +1,7 @@
+{
+  "ID": "TemplateCrafter",
+  "Name": "Fakeifier",
+  "Description": "The fakest building of all.",
+  "Icon": "SomeFileName.png",
+  "PowerCost": 25
+}

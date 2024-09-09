@@ -1,0 +1,18 @@
+{
+  "ID": "SchematicExample",
+  "Name": "Unlocking Examples",
+  "Type": "Milestone",
+  "Tier": 5,
+  "Cost": [
+    {
+      "Item": "SomeItem",
+      "Amount": 1
+    },
+    {
+      "Item": "AnotherItem",
+      "Amount": 100
+    }
+  ],
+  "Recipes": [ "Recipe_Example"]
+  "DependsOn": [ "NonexistingMilestone", "SomethingElse" ]
+}

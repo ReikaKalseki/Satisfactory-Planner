@@ -33,6 +33,7 @@ $RECYCLE.BIN/
 *.pdn
 *.log
 /Logs
+/CustomDefinitions
 
-Reika/SatisfactoryPlanner/Resources/Graphics/Icons/Items
-Reika/SatisfactoryPlanner/Resources/Graphics/Icons/Buildings
+Reika/SatisfactoryPlanner/Resources/Graphics/Icons/Game
+Reika/SatisfactoryPlanner/CustomDefinitions

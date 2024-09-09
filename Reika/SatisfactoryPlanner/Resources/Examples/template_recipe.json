@@ -1,0 +1,28 @@
+{
+	"ID": "Recipe_Example",
+    "Name": "Example Recipe",
+	"Delta": "False",
+    "Ingredients": [
+        {
+            "Item": "A_Fake_Item",
+            "Amount": 9
+        },
+        {
+            "Item": "SecondItem",
+            "Amount": 1
+        }
+    ],
+    "Products": [
+        {
+            "Item": "Desc_TheOutput",
+            "Amount": 5
+        }
+    ],
+    "ManufacturingDuration": 12,
+    "ProducedIn": [
+        "Build_AssemblerMk1"
+    ],
+    "UnlockedBy": [
+        "SchematicExample"
+    ]
+}

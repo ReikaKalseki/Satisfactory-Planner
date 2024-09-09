@@ -1,0 +1,1 @@
+Some of the libraries this application depends on have been statically linked (via jlink) into the application redistributable. Their licenses are included here, and apply to their respective code and redistributables (but not the Satisfactory Calculator code or application itself).

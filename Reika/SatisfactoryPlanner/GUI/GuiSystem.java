@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Data.Database;
+import Reika.SatisfactoryPlanner.Data.Resource;
 import Reika.SatisfactoryPlanner.Util.BitflagMap;
 import Reika.SatisfactoryPlanner.Util.JavaUtil;
 import Reika.SatisfactoryPlanner.Util.Logging;
@@ -13,8 +14,10 @@ import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.application.HostServices;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.text.Font;
@@ -73,6 +76,37 @@ public class GuiSystem extends Application {
 	}
 
 	private void loadMainUI() throws IOException {
+		if (Resource.areAnyIconsMissing()) {
+			String warn = "";
+			String iconDumpBtn = "To get detailed instructions on how to obtain, install, and use IconDumper, click the 'IconDumper' button below.";
+			if (Resource.doAnyIconsExist()) {
+				if (Resource.areAnyVanillaIconsMissing()) {
+					warn = "Some items, buildings, etc are missing fetchable in-game icons, including vanilla ones. The tool will use backup copies of icons, but this may not be fully up to date with the game.\n\nYou can try updating your copy of this application, or, for automatic inclusion of all icons, including from mods, you can install the IconDumper mod.\n"+iconDumpBtn;
+				}
+				else {
+					warn = "Some modded items, buildings, etc are missing fetchable in-game icons.\n\nAs it is impossible to include all modded icons, to have automatic icon loading, you will need to use the IconDumper mod.\n"+iconDumpBtn;
+				}
+			}
+			else {
+				warn = "No in-game icons for items, buildings, etc were found.\nThe tool will use backup copies of icons, but this may not be fully up to date with the game and will not include icons for modded assets.\n\nFor automatic inclusion of all icons, including from mods, you can install the IconDumper mod.\n"+iconDumpBtn;
+			}
+			GuiUtil.raiseDialog(AlertType.WARNING, "No Icons Found", warn, a -> {
+				a.initOwner(loadingStage); //keeps it on top
+				Button icoDmpBtn = (Button)a.getDialogPane().lookupButton(ButtonType.NEXT);
+				String iconDumpUse = "Download and install the Satisfactory Mod Manager, then install the IconDumper mod. Once loaded into a world with everything unlocked, open its UI and dump all icons (at least 128x recommended size), of all types.";//"Download And Installation:\nClick the 'Install' button below to download and install the mod.\n\nUsage:\nLoad the game in a save with everything unlocked, scroll through the codex to force the game to load all icons, and then close the codex and hit Ctrl-R to export. There should now be an 'Icons' folder in the game directory. Restart this application.";
+				icoDmpBtn.setText("IconDumper");
+				icoDmpBtn.addEventFilter(ActionEvent.ACTION, e -> {
+					GuiUtil.raiseDialog(AlertType.INFORMATION, "IconDumper Instructions", iconDumpUse, a2 -> {
+						a2.initOwner(loadingStage);/*
+						Button downloadBtn = (Button)a2.getDialogPane().lookupButton(ButtonType.NEXT);
+						downloadBtn.setText("Install");
+						downloadBtn.addEventFilter(ActionEvent.ACTION, e2 -> {Main.installIconDumper(); e2.consume();});*/
+					}, 800, ButtonType.OK/*, ButtonType.NEXT*/);
+					e.consume();
+				}
+						);
+			}, 800, ButtonType.OK, ButtonType.NEXT);
+		}
 		Screen screen = Screen.getPrimary();
 		Rectangle2D bounds = screen.getVisualBounds();
 		primaryStage.setWidth(bounds.getWidth());

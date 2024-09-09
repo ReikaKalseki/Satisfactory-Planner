@@ -1,0 +1,10 @@
+{
+  "ID": "TemplateOre",
+  "Name": "Fakeium Ore",
+  "Form": "Solid",
+  "Description": "An ore that does not exist.",
+  "Icon": "SomeFileName.png",
+  "Category": "Whatever",
+  "EnergyValue": "0.25",
+  "ResourceItem": "True"
+}

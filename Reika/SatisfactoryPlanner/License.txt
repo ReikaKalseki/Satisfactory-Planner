@@ -1,0 +1,33 @@
+License
+Downloading and using this application constitutes a complete and unconditional agreement with these terms!
+
+As is necessity, I reserve the right to make changes to these terms at any time and grant exceptions if I so desire.
+All permissions and exceptions are non-transferrable and revocable.
+The terms only apply so long as you actually use this application; if you wish to terminate the agreement with these conditions, you may do so by deleting it from your computer.
+
+In the event that any clause or part thereof of this license proves unenforceable or invalid, it will be replaced by the closest usable variant, or removed if no such possibility exists. Under no circumstances does the failure of one part of this license impact the remainder.
+
+0. GENERAL
+This software is provided under a visible-source license which permits public access to the source code and invites feedback on the application or its implementation, but maintains authorial control over the actual application development and release.
+
+1. LIABILITY
+This software is provided 'as is' with no warranties, implied or otherwise. The owner takes no responsibility for any damages incurred from use. All damages caused from the use or misuse of this application fall on the user.
+
+2. USE
+This application may be used for its intended purpose, to aid in Satisfactory gameplay via providing the ability to plan factories, as you see fit. It may not be used to generate profit, circumvent the law, or other use contrary to its original function.
+
+3. REDISTRIBUTION
+This application may not be uploaded or mirrored by anyone other than the owner, and all links to it must link to this site.
+
+4. DERIVATIVE WORKS
+This software is provided freely and may be modified for private use. Public use of modified or derivative versions is prohibited unless you are given specific written permission from me. Creating derivative works for commercial use is expressly forbidden and the owner reserves full right to seek damages.
+
+5. MONETIZATION
+Any attempts to make money off of this application (selling, selling modified/derivative versions, adfly, sharecash, donations, ad revenue, etc.) are strictly forbidden, and the owner may claim damages or take other action to rectify the situation.
+
+6. LICENSING
+You must agree to the entirety of this license in full in order to use this application. Use of the tool constitutes implicit and unconditional agreement to these terms.
+The author of this application reserves the right to change this license as is deemed necessary without prior warning, though such warning may and likely will be provided at the author's discretion. Such changes take effect immediately; it is not required to explicitly agree nor update the application.
+
+7. COST
+This software is provided free of charge for all users. If you obtained this software from any other source, or paid money to access it, you have been scammed. Get a refund immediately, and report the scammer to me.
