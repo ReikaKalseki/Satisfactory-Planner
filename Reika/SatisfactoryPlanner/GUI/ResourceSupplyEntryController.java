@@ -2,6 +2,8 @@ package Reika.SatisfactoryPlanner.GUI;
 
 import java.io.IOException;
 
+import Reika.SatisfactoryPlanner.InternalIcons;
+import Reika.SatisfactoryPlanner.NamedIcon;
 import Reika.SatisfactoryPlanner.Data.Factory;
 import Reika.SatisfactoryPlanner.Data.LogisticSupply;
 import Reika.SatisfactoryPlanner.Data.OverclockableResource;
@@ -14,6 +16,7 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -76,21 +79,27 @@ public abstract class ResourceSupplyEntryController<R extends ResourceSupply> ex
 	public final void setSupply(Factory f, R res) throws IOException {
 		supply = res;
 		factory = f;
-		Node n = this.getTopBarContent(GuiUtil.createSpacedHBox(GuiUtil.createItemDisplay(res.getResource(), 32, false), GuiUtil.createItemDisplay((Resource)res.getLocationIcon(), 32, false), this.getTopBarRightContent()));
+		StackPane itemIco = GuiUtil.createItemDisplay(res.getResource(), 32, false);
+		NamedIcon fromIco = res.getLocationIcon();
+		HBox hb = GuiUtil.createSpacedHBox(itemIco, fromIco instanceof InternalIcons ? ((InternalIcons)fromIco).createImageView(32) : GuiUtil.createItemDisplay((Resource)fromIco, 32, false), this.getTopBarRightContent());
+		hb.setSpacing(4);
+		Node n = this.getTopBarContent(hb);
 		if (n != null)
 			topBar.getChildren().add(n);
 		this.updateStats(true);
 		deleteButton.setOnAction(e -> {
 			f.removeExternalSupply(res);
 		});
-		duplicateButton.setOnAction(e -> {
-			ResourceSupply r = res.duplicate();
-			if (r instanceof OverclockableResource)
-				((OverclockableResource)r).setClockSpeed(((OverclockableResource)res).getClockSpeed());
-			if (r instanceof LogisticSupply)
-				((LogisticSupply)r).setAmount(((LogisticSupply)res).getYield());
-			f.addExternalSupply(r);
-		});
+		if (duplicateButton != null) {
+			duplicateButton.setOnAction(e -> {
+				ResourceSupply r = res.duplicate();
+				if (r instanceof OverclockableResource)
+					((OverclockableResource)r).setClockSpeed(((OverclockableResource)res).getClockSpeed());
+				if (r instanceof LogisticSupply)
+					((LogisticSupply)r).setAmount(((LogisticSupply)res).getYield());
+				f.addExternalSupply(r);
+			});
+		}
 		this.onSetSupply(f, res);
 	}
 

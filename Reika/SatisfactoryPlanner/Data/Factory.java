@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 
@@ -55,8 +57,8 @@ public class Factory {
 
 	private final ArrayList<FactoryListener> changeCallback = new ArrayList();
 
-	private final RecipeMatrix matrix = new RecipeMatrix(this);
-	private final ScaledRecipeMatrix scaleMatrix = new ScaledRecipeMatrix(matrix);
+	private final RecipeMatrix matrix;
+	private final ScaledRecipeMatrix scaleMatrix;
 
 	private final EnumSet<MatrixType> invalidMatrices = EnumSet.noneOf(MatrixType.class);
 
@@ -88,6 +90,13 @@ public class Factory {
 	}
 
 	public Factory() {
+		this(false);
+	}
+
+	private Factory(boolean nonUI) {
+		matrix = nonUI ? null : new RecipeMatrix(this);
+		scaleMatrix = nonUI ? null : new ScaledRecipeMatrix(matrix);
+
 		//matrix.buildGrid();
 		//scaleMatrix.buildGrid();
 
@@ -158,6 +167,8 @@ public class Factory {
 	}
 
 	public void rebuildMatrices(boolean updateIO) {
+		if (matrix == null) //non-UI factory
+			return;
 		matrix.rebuild(updateIO);
 		scaleMatrix.rebuild(updateIO);
 
@@ -165,11 +176,13 @@ public class Factory {
 	}
 
 	private void queueMatrixAlign() {
+		if (matrix == null)
+			return;
 		GuiUtil.runOnJFXThread(() -> this.alignMatrices());
 	}
 
 	private void alignMatrices() {
-		if (!invalidMatrices.isEmpty())
+		if (!invalidMatrices.isEmpty() || matrix == null)
 			return;
 		Logging.instance.log("Aligning matrices");
 		matrix.alignWith(scaleMatrix);
@@ -210,6 +223,22 @@ public class Factory {
 			this.queueMatrixAlign();
 	}
 
+	public void addExternalSupplies(Collection<? extends ResourceSupply> c) {
+		HashSet<Consumable> set = new HashSet();
+		for (ResourceSupply res : c) {
+			resourceSources.addValue(res.getResource(), res);
+			set.add(res.getResource());
+		}
+		if (loading)
+			return;
+		this.rebuildFlows();
+		for (Consumable item : set)
+			this.updateMatrixStatus(item);
+		this.notifyListeners(l -> l.onAddSupplies(c));
+		if (!skipNotify)
+			this.queueMatrixAlign();
+	}
+
 	public void removeExternalSupply(ResourceSupply res) {
 		resourceSources.remove(res.getResource(), res);
 		if (loading)
@@ -221,7 +250,7 @@ public class Factory {
 			this.queueMatrixAlign();
 	}
 
-	public void removeExternalSupplies(Collection<ResourceSupply> c) {
+	public void removeExternalSupplies(Collection<? extends ResourceSupply> c) {
 		HashSet<Consumable> items = new HashSet();
 		for (ResourceSupply res : c) {
 			Consumable cc = res.getResource();
@@ -542,7 +571,7 @@ public class Factory {
 			if (has > need) {
 				call.accept(new ExcessResourceWarning(c, need, has));
 			}
-			RateLimitedSupplyLine lim = c instanceof Fluid ? PipeTier.TWO : BeltTier.FIVE;
+			RateLimitedSupplyLine lim = c instanceof Fluid ? PipeTier.TWO : BeltTier.SIX;
 			if (has > lim.getMaxThroughput())
 				call.accept(new MultipleBeltsWarning(c, has, lim));
 		}
@@ -690,7 +719,10 @@ public class Factory {
 		WaitDialogManager.instance.setTaskProgress(taskID, 50);
 		for (Object o : generators) {
 			JSONObject block = (JSONObject)o;
-			Generator r = (Generator)Database.lookupBuilding(block.getString("id"));
+			String id = block.getString("id");
+			if (id.equalsIgnoreCase("Build_GeneratorBiomass_C"))
+				id = "Build_GeneratorBiomass_Automated_C";
+			Generator r = (Generator)Database.lookupBuilding(id);
 			for (Fuel ff : r.getFuels()) {
 				String key = "count_"+ff.item.id;
 				if (block.has(key))
@@ -756,16 +788,27 @@ public class Factory {
 		GuiSystem.getMainGUI().controller.buildRecentList();
 	}
 
-	public static void loadFactory(File f, FactoryListener... l) {
+	public static Future<Factory> loadFactory(File f, FactoryListener... l) {
+		return doLoadFactory(f, () -> new Factory(false), l);
+	}
+
+	public static Future<Factory> loadFactoryData(File f, FactoryListener... l) {
+		return doLoadFactory(f, () -> new Factory(true), l);
+	}
+
+	private static Future<Factory> doLoadFactory(File f, Callable<Factory> call, FactoryListener... l) {
 		String msg = "Loading factory from "+f.getAbsolutePath();
+		CompletableFuture<Factory> fut = new CompletableFuture();
 		Logging.instance.log(msg);
 		GuiUtil.queueTask(msg, (id) -> {
-			Factory ret = new Factory();
+			Factory ret = call.call();
 			for (FactoryListener fl : l) {
 				fl.setFactory(ret);
 			}
 			ret.load(f, id);
+			fut.complete(ret);
 		});
+		return fut;
 	}
 
 	public void setUI(RecipeMatrixContainer gui) {

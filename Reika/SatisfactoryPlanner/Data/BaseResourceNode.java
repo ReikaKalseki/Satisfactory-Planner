@@ -58,7 +58,7 @@ public abstract class BaseResourceNode<R extends Consumable> implements Extracta
 		int yield = this.getYield();
 		int max = this.getMaximumThroughput();
 		if (yield > max) {
-			c.accept(new PortThroughputWarning(this.getDescriptiveName(), yield, resource instanceof Fluid ? PipeTier.TWO : BeltTier.FIVE, 1));
+			c.accept(new PortThroughputWarning(this.getDescriptiveName(), yield, resource instanceof Fluid ? PipeTier.TWO : BeltTier.SIX, 1));
 		}
 	}
 

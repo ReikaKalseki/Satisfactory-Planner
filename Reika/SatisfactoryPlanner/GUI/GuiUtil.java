@@ -331,6 +331,19 @@ public class GuiUtil {
 		setupAddSelector(sb, (Consumer<E>)sel, sel.clearOnSelect());
 		sb.setButtonCell(sel.createListCell("Click to "+sel.getActionName()+" "+sel.getEntryTypeName()+"...", true));
 		sb.setCellFactory(c -> sel.createListCell("", false));
+		/*
+		//FIXME temporary workaround to stop space from counting as a select
+		sb.skinProperty().addListener((val, old, nnew) -> {
+			if (nnew instanceof SkinBase) {
+				((ComboBox<E>)((SkinBase<ComboBox<E>>)nnew).getChildren().get(0)).skinProperty().addListener((obs, oldVal, newVal) -> {
+					if (newVal instanceof ComboBoxListViewSkin) {
+						ComboBoxListViewSkin cblwSkin = (ComboBoxListViewSkin)newVal;
+						cblwSkin.getPopupContent().setOnKeyPressed(e -> {if (e.getCode() == KeyCode.SPACE) {Logging.instance.log("Space"); cblwSkin.getSkinnable().requestFocus(); e.consume();}});
+					}
+				});
+			}
+		});
+		 */
 	}
 
 	public static interface SearchableSelector<E> extends Consumer<E> {
@@ -436,26 +449,26 @@ public class GuiUtil {
 		Logging.instance.log("Queuing long task '"+desc+"' ["+id+"] "+e+" with JFX post-action "+jfxActionWhenDone);
 		JavaUtil.queueTask(() -> {
 			try {
-				//Thread.sleep(1000);
 				e.run(id);
-				Logging.instance.log("Task '"+desc+"' ["+id+"] complete, queuing JFX post-action if any");
-				Platform.runLater(() -> {
-					if (jfxActionWhenDone != null) {
-						try {
-							jfxActionWhenDone.run(id);
-						}
-						catch (Exception ex) {
-							ex.printStackTrace();
-						}
-					}
-					if (id != null)
-						WaitDialogManager.instance.completeTask(id);
-				});
 			}
 			catch (Exception ex) {
+				Logging.instance.log("Task '"+desc+"' ["+id+"] threw exception:");
 				ex.printStackTrace();
 				Platform.runLater(() -> showException(ex));
 			}
+			Logging.instance.log("Task '"+desc+"' ["+id+"] complete, queuing JFX post-action if any");
+			Platform.runLater(() -> {
+				if (jfxActionWhenDone != null) {
+					try {
+						jfxActionWhenDone.run(id);
+					}
+					catch (Exception ex) {
+						ex.printStackTrace();
+					}
+				}
+				if (id != null)
+					WaitDialogManager.instance.completeTask(id);
+			});
 		});
 		return id;
 	}

@@ -27,8 +27,9 @@ public interface FactoryListener extends Comparable<FactoryListener> {
 	public void onRemoveProduct(Consumable c);
 	public void onRemoveProducts(Collection<Consumable> c);
 	public void onAddSupply(ResourceSupply s);
+	public void onAddSupplies(Collection<? extends ResourceSupply> c);
 	public void onRemoveSupply(ResourceSupply s);
-	public void onRemoveSupplies(Collection<ResourceSupply> c);
+	public void onRemoveSupplies(Collection<? extends ResourceSupply> c);
 	public void onUpdateSupply(ResourceSupply s);
 	public void onSetToggle(ToggleableVisiblityGroup grp, boolean active);
 	public void onUpdateIO();

@@ -1,6 +1,8 @@
 package Reika.SatisfactoryPlanner.GUI;
 
 import java.io.IOException;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Data.Database;
@@ -62,9 +64,6 @@ public class GuiSystem extends Application {
 		icon = new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/appicon.png"));
 
 		Main.isJFXActive = true;
-		if (!Database.wasGameJSONFound()) {
-			GuiUtil.raiseDialog(AlertType.WARNING, "Game Data Not Found", "The game data JSON was not found. This probably means the specified game install directory is incorrect. Correct this in the settings to get automatic inclusion of vanilla content.", ButtonType.OK);
-		}
 
 		splashGui = GuiInstance.loadFXMLWindow("SplashScreen", loadingStage, null, "Satisfactory Planner");
 		loadingStage.show();
@@ -72,7 +71,38 @@ public class GuiSystem extends Application {
 		loadingStage.setResizable(false);
 		loadingStage.centerOnScreen();
 		loadingStage.setAlwaysOnTop(true);
-		GuiUtil.queueTask("Loading Game Data", (id) -> Main.parseGameData(), (id) -> this.loadMainUI());
+
+		GuiUtil.queueTask("Loading Game Data", this::parseData, (id) -> this.loadMainUI());
+	}
+
+	private void parseData(UUID task) throws Exception {
+		if (Database.wasGameJSONFound()) {
+			Main.parseGameData();
+		}
+		else {
+			CompletableFuture<Void> wait = new CompletableFuture();
+			GuiUtil.runOnJFXThread(() -> {
+				GuiUtil.raiseDialog(AlertType.WARNING, "Game Data Not Found", "The game data JSON was not found. This probably means the specified game install directory is incorrect. Correct this in the settings to get automatic inclusion of vanilla content.", a -> {
+					a.initOwner(loadingStage); //keeps it on top
+					Button settingBtn = (Button)a.getDialogPane().lookupButton(ButtonType.NEXT);
+					settingBtn.setText("Settings");
+					settingBtn.addEventFilter(ActionEvent.ACTION, e -> {
+						Stage put = new Stage();
+						try {
+							GuiInstance.loadFXMLWindow("Settings", put, loadingStage, "Application Settings");
+						}
+						catch (IOException e1) {
+							e1.printStackTrace();
+						}
+						put.sizeToScene();
+						put.showAndWait();
+					});
+				}, 600, ButtonType.OK, ButtonType.NEXT);
+				wait.complete(null);
+			});
+			while (!wait.isDone())
+				Thread.sleep(50);
+		}
 	}
 
 	private void loadMainUI() throws IOException {
@@ -103,8 +133,7 @@ public class GuiSystem extends Application {
 						downloadBtn.addEventFilter(ActionEvent.ACTION, e2 -> {Main.installIconDumper(); e2.consume();});*/
 					}, 800, ButtonType.OK/*, ButtonType.NEXT*/);
 					e.consume();
-				}
-						);
+				});
 			}, 800, ButtonType.OK, ButtonType.NEXT);
 		}
 		Screen screen = Screen.getPrimary();

@@ -3,6 +3,8 @@ package Reika.SatisfactoryPlanner.GUI;
 import org.apache.commons.lang3.StringUtils;
 
 import Reika.SatisfactoryPlanner.Data.Resource;
+import Reika.SatisfactoryPlanner.GUI.GuiSystem.FontModifier;
+import Reika.SatisfactoryPlanner.Util.ColorUtil;
 
 import fxexpansions.SizedControllerBase;
 import javafx.geometry.Pos;
@@ -60,6 +62,10 @@ public class ItemCountController extends SizedControllerBase {
 
 	public void setMaxLength(int digits) {
 		countLabel.setMinWidth(GuiUtil.getWidth(StringUtils.repeat("0", digits)+".00", GuiSystem.getFont()));
+	}
+
+	public void setWarning() {
+		countLabel.setStyle("-fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.WARN_COLOR)+"; "+GuiSystem.getFontStyle(FontModifier.BOLD));
 	}
 
 }

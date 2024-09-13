@@ -88,6 +88,14 @@
                   <MenuItem fx:id="clearProductMenu" mnemonicParsing="false" text="Clear Desired Products" />
                </items>
             </Menu>
+            <Menu fx:id="helpMenu" mnemonicParsing="false" text="Help">
+               <items>
+                  <MenuItem fx:id="aboutMenu" mnemonicParsing="false" text="About" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem fx:id="guideMenu" mnemonicParsing="false" text="Usage Basics" />
+                  <MenuItem fx:id="bugMenu" mnemonicParsing="false" text="Report A Bug" />
+               </items>
+            </Menu>
       </menus>
          <VBox.margin>
             <Insets />
@@ -215,7 +223,19 @@
                                                       </ImageView>
                                                    </graphic>
                                                 </Button>
+                                                <Button fx:id="addFactoryInputButton" graphicTextGap="12.0" layoutX="372.0" layoutY="10.0" maxWidth="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefWidth="256.0" styleClass="widget" text="Add Factory As Input">
+                                                   <graphic>
+                                                      <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                                                         <image>
+                                                            <Image url="@../Graphics/Icons/button-plus-icon.png" />
+                                                         </image>
+                                                      </ImageView>
+                                                   </graphic>
+                                                </Button>
                                              </children>
+                                             <padding>
+                                                <Insets left="64.0" right="64.0" />
+                                             </padding>
                                           </HBox>
                                        </children>
                                     </VBox>

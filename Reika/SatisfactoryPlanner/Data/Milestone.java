@@ -24,6 +24,7 @@ public class Milestone {
 	}
 
 	public Milestone addRecipe(Recipe r) {
+		Logging.instance.log("Added recipe "+r+" to milestone "+this);
 		associatedRecipes.add(r);
 		r.addMilestone(this);
 		return this;

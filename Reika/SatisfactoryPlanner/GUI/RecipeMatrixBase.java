@@ -533,6 +533,13 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 	}
 
 	@Override
+	public final void onAddSupplies(Collection<? extends ResourceSupply> s) {
+		if (owner.resourceMatrixRule != InclusionPattern.EXCLUDE) {
+			this.rebuild(true);
+		}
+	}
+
+	@Override
 	public final void onRemoveSupply(ResourceSupply s) {
 		if (owner.resourceMatrixRule != InclusionPattern.EXCLUDE) {
 			this.rebuild(true);
@@ -540,7 +547,7 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 	}
 
 	@Override
-	public final void onRemoveSupplies(Collection<ResourceSupply> c) {
+	public final void onRemoveSupplies(Collection<? extends ResourceSupply> c) {
 		if (owner.resourceMatrixRule != InclusionPattern.EXCLUDE) {
 			this.rebuild(true);
 		}

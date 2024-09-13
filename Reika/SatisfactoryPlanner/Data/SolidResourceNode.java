@@ -58,7 +58,7 @@ public class SolidResourceNode extends BaseResourceNode<Item> {
 
 	@Override
 	public int getMaximumThroughput() {
-		return BeltTier.FIVE.maxThroughput;
+		return BeltTier.SIX.maxThroughput;
 	}
 
 	@Override

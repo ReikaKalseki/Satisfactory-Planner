@@ -344,14 +344,23 @@
     -fx-indeterminate-bar-animation-time: 3.0;
 	-fx-indeterminate-bar-escape: true;
 	-fx-indeterminate-bar-length: 256;
+	-fx-border-color: "#E69344";
+	-fx-border-width: 2px;
+	-fx-border-radius: 2px;
+	-fx-padding: -1 -1 -2 -1;
 }
 
-.progress-bar .track {
-	-fx-background-color: "#3F3F3F";
+.progress-bar .track {/*
+	-fx-background-color: "#E69344", /*"#3F3F3F"*//*transparent;
+	-fx-background-radius: 2, 1;
+	-fx-background-insets: 0, 2;*/
+	-fx-background-color: transparent;
 }
 
 .progress-bar .bar {
 	-fx-font-size: 16px;
+	-fx-background-radius: 1;
+	-fx-background-color: "#E69344"; /* removes the slight gradient */
 }
 
 .table-row-darken {

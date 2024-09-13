@@ -69,7 +69,8 @@ public class Constants {
 		TWO(120),
 		THREE(270),
 		FOUR(480),
-		FIVE(780);
+		FIVE(780),
+		SIX(1200);
 
 		public final int maxThroughput;
 
@@ -146,6 +147,7 @@ public class Constants {
 		TRUCK(TruckStation.class),
 		TRAIN(TrainStation.class),
 		DRONE(DroneStation.class),
+		FACTORY(FromFactorySupply.class),
 		;
 
 		private final Class<? extends ResourceSupply> objectClass;

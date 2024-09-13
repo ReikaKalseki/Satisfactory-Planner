@@ -1,4 +1,5 @@
 {
+    "INOUT": "EXCLUDE",
     "ALLOWDECIMAL": "true",
     "GAMEDIR": "P:/SteamOverflow/steamapps/common/Satisfactory"
 }

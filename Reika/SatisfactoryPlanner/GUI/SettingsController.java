@@ -7,6 +7,7 @@ import org.controlsfx.control.textfield.CustomTextField;
 
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Setting;
+import Reika.SatisfactoryPlanner.Setting.InputInOutputOptions;
 import Reika.SatisfactoryPlanner.Setting.SettingRef;
 import Reika.SatisfactoryPlanner.Util.StringUtil;
 
@@ -15,8 +16,10 @@ import javafx.application.HostServices;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
@@ -66,14 +69,34 @@ public class SettingsController extends FXMLControllerBase {
 
 	private final ToggleGroup loggingOptions = new ToggleGroup();*/
 
+
+	@FXML
+	private RadioButton excludeInRadio;
+
+	@FXML
+	private RadioButton mineOnlyRadio;
+
+	@FXML
+	private RadioButton allInRadio;
+
+	private final ToggleGroup includeInputOptions = new ToggleGroup();
+
 	@Override
 	public void init(HostServices services) throws IOException {/*
 		noLog.setToggleGroup(loggingOptions);
 		sharedLog.setToggleGroup(loggingOptions);
 		runLog.setToggleGroup(loggingOptions); //order must match enum
 
-		loggingOptions.selectedToggleProperty().addListener((val, old, nnew) -> Setting.LOG.setValue(LogOptions.values()[loggingOptions.getToggles().indexOf(nnew)]));
+		loggingOptions.selectedToggleProperty().addListener((val, old, nnew) -> Setting.LOG.changeValue(LogOptions.values()[loggingOptions.getToggles().indexOf(nnew)]));
 	 */
+
+		excludeInRadio.setToggleGroup(includeInputOptions);
+		mineOnlyRadio.setToggleGroup(includeInputOptions);
+		allInRadio.setToggleGroup(includeInputOptions); //order must match enum
+
+		includeInputOptions.selectToggle(includeInputOptions.getToggles().get(Setting.INOUT.getCurrentValue().ordinal()));
+
+		includeInputOptions.selectedToggleProperty().addListener((val, old, nnew) -> Setting.INOUT.changeValue(InputInOutputOptions.values()[includeInputOptions.getToggles().indexOf(nnew)]));
 	}
 
 	@Override

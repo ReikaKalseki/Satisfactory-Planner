@@ -19,6 +19,7 @@ import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Data.Factory;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem;
+import Reika.SatisfactoryPlanner.GUI.GuiUtil;
 import Reika.SatisfactoryPlanner.GUI.MainGuiController;
 import Reika.SatisfactoryPlanner.GUI.RecipeListCell;
 import Reika.SatisfactoryPlanner.Util.FixedList;
@@ -126,6 +127,12 @@ public class Main {
 		Logging.instance.log("===================");
 		Logging.instance.log("Recipe/Item Data Parsed");
 		Logging.instance.log("===================");
+	}
+
+	public static void updateMainUI() {
+		GuiInstance<MainGuiController> main = GuiSystem.getMainGUI();
+		if (main != null)
+			GuiUtil.runOnJFXThread(() -> main.controller.updateStats(true));
 	}
 
 	public static void addRecentFile(File f) {

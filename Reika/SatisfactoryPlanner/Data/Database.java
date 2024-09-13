@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.BiConsumer;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
@@ -21,6 +22,7 @@ import com.google.common.base.Strings;
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Setting;
 import Reika.SatisfactoryPlanner.Data.PowerOverride.LinearIncreasePower;
+import Reika.SatisfactoryPlanner.Util.CountMap;
 import Reika.SatisfactoryPlanner.Util.Errorable.ErrorableWithArgument;
 import Reika.SatisfactoryPlanner.Util.Logging;
 
@@ -165,14 +167,14 @@ public class Database {
 	}
 
 	private static File getGameJSON() {
-		return new File(Setting.GAMEDIR.getCurrentValue(), "CommunityResources/Docs/Docs.json");
+		return new File(Setting.GAMEDIR.getCurrentValue(), "CommunityResources/Docs/en-US.json");
 	}
 
 	private static void parseItemsJSON(JSONObject obj, boolean resource) {
 		String id = obj.getString("ClassName");
 		Logging.instance.log("Parsing JSON elem "+id);
 		String form = obj.getString("mForm");
-		boolean gas = form.equalsIgnoreCase("RF_GAS");
+		boolean gas = form.equalsIgnoreCase("RF_GAS") || form.equalsIgnoreCase("RF_PLASMA");
 		boolean fluid = form.equalsIgnoreCase("RF_LIQUID") || gas;
 		String disp = obj.getString("mDisplayName");
 		String desc = obj.getString("mDescription");
@@ -226,8 +228,13 @@ public class Database {
 	}
 
 	private static String parseID(String iid) {
-		iid = iid.substring(iid.lastIndexOf('/')+1, iid.lastIndexOf('"'));
+		int end = iid.lastIndexOf('"');
+		if (end == -1)
+			end = iid.length();
+		iid = iid.substring(iid.lastIndexOf('/')+1, end);
 		iid = iid.substring(iid.lastIndexOf('.')+1);
+		if (iid.endsWith("_C'"))
+			iid = iid.substring(0, iid.length()-1);
 		return iid;
 	}
 
@@ -257,14 +264,7 @@ public class Database {
 		FunctionalBuilding b = building == null ? null : (FunctionalBuilding)lookupBuilding(building);
 		boolean xmas = id.startsWith("Desc_Xmas") || id.startsWith("Recipe_Fireworks") || disp.startsWith("FICSMAS") || obj.getString("mRelevantEvents").contains("EV_Christmas");
 		Recipe r = new Recipe(id, disp, b, Float.parseFloat(time), xmas);
-		for (String ing : in.substring(2, in.length()-2).split("\\),\\(")) {
-			String[] parts = ing.split(",");
-			Consumable c = lookupItem(parseID(parts[0].split("=")[1]));
-			int amt = Integer.parseInt(parts[1].split("=")[1]);
-			if (c instanceof Fluid)
-				amt /= Constants.LIQUID_SCALAR; //they store fluids in mB
-			r.addIngredient(c, amt);
-		}
+		tokenizeUERecipeString(in, (c, amt) -> r.addIngredient(c, amt));
 		float varConst = obj.getFloat("mVariablePowerConsumptionConstant");
 		if (varConst > 0) {
 			float varFac = obj.getFloat("mVariablePowerConsumptionFactor"); //range = factor - const to factor + const over recipe
@@ -283,18 +283,42 @@ public class Database {
 			allBuildingRecipesSorted.add(r);
 		}
 		else {
-			for (String prod : out.substring(2, out.length()-2).split("\\),\\(")) {
-				String[] parts = prod.split(",");
-				Consumable c = lookupItem(parseID(parts[0].split("=")[1]));
-				int amt = Integer.parseInt(parts[1].split("=")[1]);
-				if (c instanceof Fluid)
-					amt /= Constants.LIQUID_SCALAR; //they store fluids in mB
-				r.addProduct(c, amt);
-			}
+			tokenizeUERecipeString(out, (c, amt) -> r.addProduct(c, amt));
 			allAutoRecipesSorted.add(r);
 		}
 		Logging.instance.log("Registered recipe type "+r);
 		allRecipes.put(r.id, r);
+	}
+
+	private static void tokenizeUERecipeString(String rec, BiConsumer<Consumable, Integer> user) {
+		if (Strings.isNullOrEmpty(rec))
+			return;
+		//old: rec.substring(2, rec.length()-2).split("\\),\\(")
+		while (rec.charAt(0) == '(') //trim wrapping parens
+			rec = rec.substring(1, rec.length()-1);
+		for (String s : rec.split("\\),\\(")) {
+			while (s.charAt(0) == '(') //trim wrapping parens
+				s = s.substring(1, s.length()-1);
+			String[] parts = s.split(",");
+			String id = parts[0].split("=")[1];
+			if (id.charAt(0) == '"') //trim wrapping "
+				id = id.substring(1, id.length()-1);
+			int idx1 = id.indexOf('\'');
+			int idx2 = id.lastIndexOf('\'');
+			if (idx2 > idx1)
+				id = id.substring(idx1+1, idx2);
+			Consumable c = lookupItem(parseID(id));
+			int amt = Integer.parseInt(parts[1].split("=")[1]);
+			if (c instanceof Fluid)
+				amt /= Constants.LIQUID_SCALAR; //they store fluids in mB
+			user.accept(c, amt);
+		}
+	}
+
+	private static CountMap<Consumable> tokenizeUERecipeString(String rec) {
+		CountMap<Consumable> map = new CountMap();
+		tokenizeUERecipeString(rec, (item, amt) -> map.set(item, amt));
+		return map;
 	}
 
 	private static void parseBuildingJSON(JSONObject obj) {
@@ -347,7 +371,7 @@ public class Database {
 		float suppl = Strings.isNullOrEmpty(sup) ? 0 : Float.parseFloat(sup);
 		Generator r = new Generator(id, disp, convertIDToIcon(id), Float.parseFloat(pwr), suppl);
 		if (fuels != null) {
-			String fuelForm = obj.getString("mFuelResourceForm");
+			//String fuelForm = obj.getString("mFuelResourceForm"); removed in 1.0
 			for (Object o : fuels) {
 				JSONObject fuel = (JSONObject)o;
 				String second = fuel.getString("mSupplementalResourceClass");
@@ -358,7 +382,7 @@ public class Database {
 				if (item.startsWith("Desc_")) {
 					Fuel f = new Fuel(r, lookupItem(item), secondItem, outItem, outItem == null ? 0 : fuel.getInt("mByproductAmount"));
 					r.addFuel(f);
-				}
+				}/* does not happen anymore with 1.0
 				else if (item.startsWith("FGItemDescriptor")) {
 					for (Consumable c : Consumable.getForClass(item)) {
 						if (c.energyValue > 0 && ((fuelForm.equalsIgnoreCase("RF_SOLID") && c instanceof Item) || (fuelForm.equalsIgnoreCase("RF_FLUID") && c instanceof Fluid))) {
@@ -366,7 +390,7 @@ public class Database {
 							r.addFuel(f);
 						}
 					}
-				}
+				}*/
 			}
 		}
 		allBuildings.put(r.id, r);
@@ -674,12 +698,12 @@ public class Database {
 				try {
 					JSONObject obj = new JSONObject(FileUtils.readFileToString(f2, Charsets.UTF_8));
 					String form = obj.getString("Form");
-					boolean gas = form.equalsIgnoreCase("gas");
+					boolean gas = form.equalsIgnoreCase("gas") || form.equalsIgnoreCase("plasma");
 					boolean fluid = form.equalsIgnoreCase("liquid") || gas;
 					String disp = obj.getString("Name");
 					String desc = obj.getString("Description");
 					String id = obj.has("ID") ? obj.getString("ID") : f2.getName().replace("Item_", "");
-					String icon = obj.getString("Icon");
+					String icon = obj.has("Icon") ? obj.getString("Icon") : id;
 					String cat = obj.getString("Category");
 					float nrg = obj.getFloat("EnergyValue");
 					boolean resource = obj.has("ResourceItem");
@@ -730,7 +754,7 @@ public class Database {
 	}
 
 	public static enum ClassType {
-		ITEM("/Script/CoreUObject.Class'/Script/FactoryGame.FGItemDescriptor'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGItemDescriptorBiomass'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGItemDescriptorNuclearFuel'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGEquipmentDescriptor'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGConsumableDescriptor'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGAmmoTypeInstantHit'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGAmmoTypeProjectile'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGAmmoTypeSpreadshot'"),
+		ITEM("/Script/CoreUObject.Class'/Script/FactoryGame.FGItemDescriptor'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGItemDescriptorBiomass'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGItemDescriptorNuclearFuel'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGEquipmentDescriptor'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGConsumableDescriptor'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGAmmoTypeInstantHit'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGAmmoTypeProjectile'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGAmmoTypeSpreadshot'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGPowerShardDescriptor'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGItemDescriptorPowerBoosterFuel'"),
 		RESOURCE("/Script/CoreUObject.Class'/Script/FactoryGame.FGResourceDescriptor'"),
 		RECIPE("/Script/CoreUObject.Class'/Script/FactoryGame.FGRecipe'"),
 		GENERATOR("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableGeneratorFuel'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableGeneratorNuclear'"/*, "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableGeneratorGeoThermal'"*/),

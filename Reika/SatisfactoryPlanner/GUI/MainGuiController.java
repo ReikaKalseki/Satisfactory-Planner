@@ -13,6 +13,7 @@ import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.SearchableComboBox;
@@ -23,11 +24,14 @@ import Reika.SatisfactoryPlanner.FactoryListener;
 import Reika.SatisfactoryPlanner.InclusionPattern;
 import Reika.SatisfactoryPlanner.InternalIcons;
 import Reika.SatisfactoryPlanner.Main;
+import Reika.SatisfactoryPlanner.Setting;
+import Reika.SatisfactoryPlanner.Setting.InputInOutputOptions;
 import Reika.SatisfactoryPlanner.Data.Constants.ToggleableVisiblityGroup;
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Data.ExtractableResource;
 import Reika.SatisfactoryPlanner.Data.Factory;
+import Reika.SatisfactoryPlanner.Data.FromFactorySupply;
 import Reika.SatisfactoryPlanner.Data.Fuel;
 import Reika.SatisfactoryPlanner.Data.FunctionalBuilding;
 import Reika.SatisfactoryPlanner.Data.Generator;
@@ -105,6 +109,9 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 
 	@FXML
 	private Button addMineButton;
+
+	@FXML
+	private Button addFactoryInputButton;
 
 	@FXML
 	private SearchableComboBox<Consumable> addProductButton;
@@ -239,6 +246,18 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	private MenuItem zeroMenu;
 
 	@FXML
+	private Menu helpMenu;
+
+	@FXML
+	private MenuItem aboutMenu;
+
+	@FXML
+	private MenuItem guideMenu;
+
+	@FXML
+	private MenuItem bugMenu;
+
+	@FXML
 	private TextField factoryName;
 
 	@FXML
@@ -362,6 +381,28 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 
 		GuiUtil.setButtonEvent(addMineButton, () -> this.openChildWindow("Add Resource Node", "ResourceNodeDialog"));
 		GuiUtil.setButtonEvent(addInputButton, () -> this.openChildWindow("Add Logistic Supply", "LogisticSupplyDialog"));
+		GuiUtil.setButtonEvent(addFactoryInputButton, () -> {
+			File f = this.openFactoryFile();
+			if (f != null) {
+				AtomicReference<Factory> ref = new AtomicReference();
+				GuiUtil.queueTask("Parsing factory as input", (id) -> {
+					Future<Factory> fut = Factory.loadFactoryData(f);
+					while (!fut.isDone())
+						Thread.sleep(50);
+					ref.set(fut.get());
+				}, (id) -> { //this part needs to be done on JFX because adding to factory adds to UI
+					Factory fac = ref.get();
+					Collection<FromFactorySupply> li = new ArrayList();
+					for (Consumable c : fac.getDesiredProducts()) { //could also look at all produced items but this seems more right
+						float amt = fac.getTotalProduction(c)+fac.getExternalInput(c, false)-fac.getTotalConsumption(c);
+						if (amt > 0) {
+							li.add(new FromFactorySupply(c, amt, fac.name));
+						}
+					}
+					factory.addExternalSupplies(li);
+				});
+			}
+		});
 		/*
 		GuiUtil.setButtonEvent(refreshButton, () -> {
 			Logging.instance.log("Refresh @ "+System.currentTimeMillis());
@@ -388,10 +429,9 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		GuiUtil.setMenuEvent(reloadMenu, () -> factory.reload());
 		//GuiUtil.setMenuEvent(openMenu, () -> this.openFXMLDialog("Open Factory", "OpenMenuDialog"));
 		GuiUtil.setMenuEvent(openMenu, () -> {
-			File f = this.openFileDialog("Factory", Main.getRelativeFile("Factories"), new FileChooser.ExtensionFilter("Factory files (*.factory)", "*.factory"));
-			if (f != null && f.exists()) {
+			File f = this.openFactoryFile();
+			if (f != null)
 				Factory.loadFactory(f, this);
-			}
 		});
 		GuiUtil.setMenuEvent(clearMenu, () -> factory.clearRecipes());
 		GuiUtil.setMenuEvent(zeroMenu, () -> {
@@ -401,6 +441,15 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		});
 		GuiUtil.setMenuEvent(clearProductMenu, () -> factory.removeProducts(new ArrayList<Consumable>(factory.getDesiredProducts())));
 		GuiUtil.setMenuEvent(isolateMenu, () -> factory.removeExternalSupplies(new ArrayList<ResourceSupply>(factory.getSupplies())));
+
+		GuiUtil.setMenuEvent(aboutMenu, () -> this.openChildWindow("About This Application", "AboutPage"));
+		GuiUtil.setMenuEvent(guideMenu, () -> {/*
+			File f = File.createTempFile("sfcalc", "usage.pdf");
+			FileUtils.copyInputStreamToFile(Main.class.getResourceAsStream("Resources/Docs/Usage.pdf"), f);
+			GuiSystem.getHSVC().showDocument(f.toURI().toString());*/
+			GuiSystem.getHSVC().showDocument("https://reikakalseki.github.io/projects/sfcalc.html#text-block-usage");
+		});
+		GuiUtil.setMenuEvent(bugMenu, () -> GuiSystem.getHSVC().showDocument("https://github.com/ReikaKalseki/Satisfactory-Planner/issues"));
 		Logging.instance.log("Menu hooks initialized");
 
 		statisticsGrid.getRowConstraints().get(0).minHeightProperty().bind(buildingBar.minHeightProperty());
@@ -448,6 +497,11 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 
 		this.setupTierBar();
 		Logging.instance.log("Initialization complete");
+	}
+
+	private File openFactoryFile() {
+		File f = this.openFileDialog("Factory", Main.getRelativeFile("Factories"), new FileChooser.ExtensionFilter("Factory files (*.factory)", "*.factory"));
+		return f != null && f.exists() ? f : null;
 	}
 
 	private void setupTierBar() {
@@ -729,11 +783,19 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		if (production) {
 			netProductBar.getChildren().clear();
 			HashSet<Consumable> set = new HashSet(factory.getAllProducedItems());
-			set.addAll(factory.getAllMinedItems());
+			if (Setting.INOUT.getCurrentValue() != InputInOutputOptions.EXCLUDE)
+				set.addAll(factory.getAllMinedItems());
+			if (Setting.INOUT.getCurrentValue() == InputInOutputOptions.ALL)
+				set.addAll(factory.getAllSuppliedItems());
 			for (Consumable c : set) {
-				float amt = factory.getTotalProduction(c)+factory.getExternalInput(c, true)-factory.getTotalConsumption(c);
-				if (amt > 0)
-					GuiUtil.addIconCount(c, amt, 5, netProductBar);
+				float amt = factory.getTotalProduction(c)-factory.getTotalConsumption(c);
+				if (Setting.INOUT.getCurrentValue() != InputInOutputOptions.EXCLUDE)
+					amt += factory.getExternalInput(c, Setting.INOUT.getCurrentValue() == InputInOutputOptions.ALL ? false : true);
+				if (amt > 0) {
+					ItemCountController gui = GuiUtil.addIconCount(c, amt, 5, netProductBar).controller;
+					if (!factory.getDesiredProducts().contains(c))
+						gui.setWarning();
+				}
 			}
 		}
 
@@ -794,24 +856,29 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	@Override
 	public void onAddProduct(Consumable c) {
 		productGrid.getChildren().add(new ProductButton(c));
-		this.updateStats(true, false, false, false, false, false, false);
+		this.updateStats(true, false, true, false, false, false, false);
 	}
 
 	@Override
 	public void onRemoveProduct(Consumable c) {
 		productGrid.getChildren().remove(productButtons.get(c));
-		this.updateStats(true, false, false, false, false, false, false);
+		this.updateStats(true, false, true, false, false, false, false);
 	}
 
 	@Override
 	public void onRemoveProducts(Collection<Consumable> c) {
 		for (Consumable cc : c)
 			productGrid.getChildren().remove(productButtons.get(cc));
-		this.updateStats(true, false, false, false, false, false, false);
+		this.updateStats(true, false, true, false, false, false, false);
 	}
 
 	@Override
 	public void onAddSupply(ResourceSupply res) {
+		this.addResourceEntry(res);
+		this.updateStats(true, false, true, true, true, true, false);
+	}
+
+	private void addResourceEntry(ResourceSupply res) {
 		if (res instanceof WaterExtractor) {
 			this.addResourceEntry("WaterEntry", res);
 		}
@@ -824,6 +891,15 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		else if (res instanceof LogisticSupply) {
 			this.addResourceEntry("LogisticSupplyEntry", res);
 		}
+		else if (res instanceof FromFactorySupply) {
+			this.addResourceEntry("FactorySupplyEntry", res);
+		}
+	}
+
+	@Override
+	public void onAddSupplies(Collection<? extends ResourceSupply> c) {
+		for (ResourceSupply res : c)
+			this.addResourceEntry(res);
 		this.updateStats(true, false, true, true, true, true, false);
 	}
 
@@ -853,7 +929,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	}
 
 	@Override
-	public void onRemoveSupplies(Collection<ResourceSupply> c) {
+	public void onRemoveSupplies(Collection<? extends ResourceSupply> c) {
 		for (ResourceSupply s : c)
 			inputGrid.getChildren().remove(supplyEntries.get(s).rootNode);
 		this.updateStats(true, false, true, true, true, true, false);

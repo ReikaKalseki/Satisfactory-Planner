@@ -21,6 +21,7 @@ public enum InternalIcons implements NamedIcon {
 	INPUTOUTPUT2(16),
 	POWERTAB(16),
 	MATRICES(16),
+	FACTORY(32),
 	;
 
 	public final int defaultSize;

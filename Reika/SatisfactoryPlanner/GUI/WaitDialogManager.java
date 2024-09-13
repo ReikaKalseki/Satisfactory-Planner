@@ -83,7 +83,7 @@ public class WaitDialogManager {
 				return;
 			}
 
-			Logging.instance.log("All tasks complete. Loading wait UI");
+			Logging.instance.log("Loading wait UI");
 			VBox box = new VBox();
 			box.setSpacing(12);
 			box.setPadding(new Insets(8, 8, 8, 8));
@@ -92,6 +92,7 @@ public class WaitDialogManager {
 			taskList.setWrapText(true);
 			box.getChildren().add(taskList);
 			dialogBar = new ProgressBar();
+			dialogBar.setMinHeight(32);
 			dialogBar.setProgress(0);
 			box.getChildren().add(dialogBar);
 			for (Node n : box.getChildren()) {
