@@ -178,6 +178,11 @@ public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 		minimumTier = Math.min(minimumTier, m.getTier());
 	}
 
+	public void updateBuildingTier() {
+		if (productionBuilding != null)
+			minimumTier = Math.min(minimumTier, productionBuilding.getRecipe().getTier());
+	}
+
 	public int getTier() {
 		return Math.min(Milestone.getMaxTier(), minimumTier);
 	}

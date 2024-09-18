@@ -46,6 +46,29 @@ public class RecipeListCell extends DecoratedListCell<Recipe> {
 
 	@Override
 	protected Node createDecoration(Recipe r) {
+
+		HBox buildingBar = new HBox();
+		buildingBar.setAlignment(Pos.CENTER_LEFT);
+		buildingBar.setSpacing(12);
+		FunctionalBuilding b = r.productionBuilding;
+		buildingBar.getChildren().add(new ImageView(b.createIcon()));
+		buildingBar.getChildren().add(new Label(b.displayName));
+		buildingBar.setPrefWidth(160);
+		buildingBar.setMinWidth(Region.USE_PREF_SIZE);
+		buildingBar.setMaxWidth(Region.USE_PREF_SIZE);
+		HBox graphicBar = new HBox();
+		graphicBar.getChildren().add(buildIODisplay(r));
+		Rectangle rect = new Rectangle();
+		rect.setFill(UIConstants.FADE_COLOR);
+		rect.setWidth(4);
+		rect.setHeight(32);
+		graphicBar.getChildren().add(rect);
+		graphicBar.getChildren().add(buildingBar);
+		graphicBar.setSpacing(24);
+		return graphicBar;
+	}
+
+	public static Node buildIODisplay(Recipe r) {
 		HBox ingredients = new HBox();
 		HBox products = new HBox();
 		ingredients.setSpacing(8);
@@ -69,25 +92,7 @@ public class RecipeListCell extends DecoratedListCell<Recipe> {
 		itemBar.getChildren().add(img);
 		HBox.setMargin(img, new Insets(0, 4, 0, 4));
 		itemBar.getChildren().add(products);
-		HBox buildingBar = new HBox();
-		buildingBar.setAlignment(Pos.CENTER_LEFT);
-		buildingBar.setSpacing(12);
-		FunctionalBuilding b = r.productionBuilding;
-		buildingBar.getChildren().add(new ImageView(b.createIcon()));
-		buildingBar.getChildren().add(new Label(b.displayName));
-		buildingBar.setPrefWidth(160);
-		buildingBar.setMinWidth(Region.USE_PREF_SIZE);
-		buildingBar.setMaxWidth(Region.USE_PREF_SIZE);
-		HBox graphicBar = new HBox();
-		graphicBar.getChildren().add(itemBar);
-		Rectangle rect = new Rectangle();
-		rect.setFill(UIConstants.FADE_COLOR);
-		rect.setWidth(4);
-		rect.setHeight(32);
-		graphicBar.getChildren().add(rect);
-		graphicBar.getChildren().add(buildingBar);
-		graphicBar.setSpacing(24);
-		return graphicBar;
+		return itemBar;
 	}
 
 	public static void init() {/*

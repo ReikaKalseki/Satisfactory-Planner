@@ -104,6 +104,14 @@ public class Warning implements Comparable<Warning> {
 
 	}
 
+	public static class NoSurplusResourceWarning extends Warning {
+
+		public NoSurplusResourceWarning(Consumable c) {
+			super(WarningSeverity.SEVERE, String.format("All production of %s is consumed, with none left for output", c.displayName), new ResourceIconName(c));
+		}
+
+	}
+
 	public static class MultipleBeltsWarning extends Warning {
 
 		public MultipleBeltsWarning(Consumable c, float amt, RateLimitedSupplyLine lim) {

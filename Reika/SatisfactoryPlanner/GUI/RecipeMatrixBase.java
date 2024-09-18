@@ -86,7 +86,7 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 
 	public final Factory owner;
 
-	protected RecipeMatrixContainer gui;
+	protected RecipeMatrixContainer container;
 
 	private double[] contentWidths;
 
@@ -101,7 +101,7 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 	}
 
 	public final void setUI(RecipeMatrixContainer gui) {
-		this.gui = gui;
+		this.container = gui;
 	}
 
 	@Deprecated
@@ -391,7 +391,7 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 			grid.setMaxWidth(Double.POSITIVE_INFINITY);
 			grid.setPrefHeight(Region.USE_COMPUTED_SIZE);
 			grid.setPrefWidth(Region.USE_COMPUTED_SIZE);
-			GridPane current = gui.getMatrix(type);
+			GridPane current = container.getMatrix(type);
 			long gid = System.identityHashCode(grid);
 			if (grid == current)
 				throw new IllegalStateException("New "+type+" grid "+gid+" socketed too early!");
@@ -420,12 +420,12 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 		GuiUtil.runOnJFXThread(() -> {
 			long old = System.identityHashCode(grid);
 			grid = new GridPane();
-			Logging.instance.log("Beginning rebuild of "+type+" matrix: "+old+" > "+System.identityHashCode(grid)+" ["+System.identityHashCode(gui.getMatrix(type))+"]");
+			Logging.instance.log("Beginning rebuild of "+type+" matrix: "+old+" > "+System.identityHashCode(grid)+" ["+System.identityHashCode(container.getMatrix(type))+"]");
 			//gui.setMatrix(type, null); //leave old grid in place
 			GuiUtil.queueTask("Rebuilding "+type+" matrix UI", rebuild, (id) -> {
 				Logging.instance.log("Socketing new "+type+" matrix "+System.identityHashCode(grid));
 				WaitDialogManager.instance.setTaskProgress(id, 95);
-				gui.setMatrix(type, grid);
+				container.setMatrix(type, grid);
 				owner.setGridBuilt(type, true);
 				f.complete(null);
 			});

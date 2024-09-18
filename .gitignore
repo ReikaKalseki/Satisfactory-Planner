@@ -34,6 +34,8 @@ $RECYCLE.BIN/
 *.log
 /Logs
 /CustomDefinitions
+/Summaries
 
 Reika/SatisfactoryPlanner/Resources/Graphics/Icons/Game
 Reika/SatisfactoryPlanner/CustomDefinitions
+Reika/SatisfactoryPlanner/Summaries

@@ -19,7 +19,6 @@ public class Logging {
 
 	private final Thread loggingThread = new Thread(() -> this.runLogger(), "Logging");
 
-	private final SimpleDateFormat logTimeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 	private final Date dateInstance = new Date();
 	private final ConcurrentLinkedQueue<Byte> logQueue = new ConcurrentLinkedQueue();
 
@@ -88,7 +87,7 @@ public class Logging {
 
 	public void log(String msg, PrintStream buf) {
 		dateInstance.setTime(System.currentTimeMillis());
-		String log = "["+logTimeStamp.format(dateInstance)+"] [Thread "+Thread.currentThread().getName()+"]: "+msg;
+		String log = "["+Main.timeStampFormat.format(dateInstance)+"] [Thread "+Thread.currentThread().getName()+"]: "+msg;
 		buf.println(log);
 	}
 

@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.List;
 
@@ -18,6 +19,7 @@ import Reika.SatisfactoryPlanner.Setting.SettingRef;
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Data.Factory;
+import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem;
 import Reika.SatisfactoryPlanner.GUI.GuiUtil;
 import Reika.SatisfactoryPlanner.GUI.MainGuiController;
@@ -37,6 +39,8 @@ public class Main {
 
 	private static final boolean isCompiled = Main.class.getResource("Main.class").toString().startsWith("jrt:");
 	public static final Path executionLocation = Paths.get("").toAbsolutePath();
+
+	public static final SimpleDateFormat timeStampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
 	private static final File settingsFile = getRelativeFile("settings.dat");
 	private static final File recentFilesFile = getRelativeFile("recent.dat");
@@ -105,6 +109,12 @@ public class Main {
 		GuiSystem.setSplashProgress(70);
 		Database.loadCustomData();
 		GuiSystem.setSplashProgress(75);
+		for (Recipe r : Database.getAllRecipes()) {
+			r.updateBuildingTier();
+			for (Consumable c : r.getProductsPerMinute().keySet()) {
+				c.addRecipe(r);
+			}
+		}
 		Database.sort();
 		for (Consumable c : Database.getAllItems())
 			c.createIcon(); //cache default icon size

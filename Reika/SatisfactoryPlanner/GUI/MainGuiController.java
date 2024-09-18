@@ -4,11 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
@@ -24,8 +22,6 @@ import Reika.SatisfactoryPlanner.FactoryListener;
 import Reika.SatisfactoryPlanner.InclusionPattern;
 import Reika.SatisfactoryPlanner.InternalIcons;
 import Reika.SatisfactoryPlanner.Main;
-import Reika.SatisfactoryPlanner.Setting;
-import Reika.SatisfactoryPlanner.Setting.InputInOutputOptions;
 import Reika.SatisfactoryPlanner.Data.Constants.ToggleableVisiblityGroup;
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Database;
@@ -33,24 +29,18 @@ import Reika.SatisfactoryPlanner.Data.ExtractableResource;
 import Reika.SatisfactoryPlanner.Data.Factory;
 import Reika.SatisfactoryPlanner.Data.FromFactorySupply;
 import Reika.SatisfactoryPlanner.Data.Fuel;
-import Reika.SatisfactoryPlanner.Data.FunctionalBuilding;
 import Reika.SatisfactoryPlanner.Data.Generator;
-import Reika.SatisfactoryPlanner.Data.Item;
 import Reika.SatisfactoryPlanner.Data.LogisticSupply;
 import Reika.SatisfactoryPlanner.Data.Milestone;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.Data.ResourceSupply;
 import Reika.SatisfactoryPlanner.Data.SolidResourceNode;
-import Reika.SatisfactoryPlanner.Data.Warning;
 import Reika.SatisfactoryPlanner.Data.WaterExtractor;
-import Reika.SatisfactoryPlanner.GUI.GuiSystem.FontModifier;
 import Reika.SatisfactoryPlanner.GUI.GuiUtil.SearchableSelector;
-import Reika.SatisfactoryPlanner.Util.ColorUtil;
 import Reika.SatisfactoryPlanner.Util.CountMap;
 import Reika.SatisfactoryPlanner.Util.Logging;
 
 import fxexpansions.ExpandingTilePane;
-import fxexpansions.FXMLControllerBase;
 import fxexpansions.GuiInstance;
 import javafx.application.HostServices;
 import javafx.application.Platform;
@@ -85,9 +75,15 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
-public class MainGuiController extends FXMLControllerBase implements FactoryListener, RecipeMatrixContainer {
+public class MainGuiController extends FactoryStatisticsContainer implements FactoryListener, RecipeMatrixContainer {
 
 	private boolean hasLoaded;
+
+	@FXML
+	protected VBox root;
+
+	@FXML
+	protected TitledPane netGridContainer;
 
 	@FXML
 	private ScrollPane overviewScroll;
@@ -120,28 +116,16 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	private ExpandingTilePane<ItemCountController> localSupplyTotals;
 
 	@FXML
-	private ExpandingTilePane<ItemCountController> buildingBar;
-
-	@FXML
-	private ExpandingTilePane<ItemCountController> netProductBar;
-
-	@FXML
 	private MenuItem clearMenu;
 
 	@FXML
 	private MenuItem clearProductMenu;
 
 	@FXML
+	private MenuItem summaryMenu;
+
+	@FXML
 	private Menu controlMenu;
-
-	@FXML
-	private ExpandingTilePane<ItemCountController> buildCostBar;
-
-	@FXML
-	private ExpandingTilePane<ItemCountController> netConsumptionBar;
-
-	@FXML
-	private ExpandingTilePane<TierLampController> tierBar;
 
 	@FXML
 	private Tab craftingTab;
@@ -180,9 +164,6 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	private MenuBar menu;
 
 	@FXML
-	private TitledPane netGridContainer;
-
-	@FXML
 	private MenuItem newMenu;
 
 	@FXML
@@ -193,9 +174,6 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 
 	@FXML
 	private Tab overviewTab;
-
-	@FXML
-	private Label powerProduction;
 
 	@FXML
 	private Tab powerTab;
@@ -213,9 +191,6 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	private SearchableComboBox<Recipe> recipeDropdown;
 
 	@FXML
-	private VBox root;
-
-	@FXML
 	private MenuItem saveMenu;
 
 	@FXML
@@ -228,19 +203,10 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	private MenuItem settingsMenu;
 
 	@FXML
-	private GridPane statisticsGrid;
-
-	@FXML
 	private TitledPane statsPanel;
 
 	@FXML
 	private TabPane tabs;
-
-	@FXML
-	private VBox warningList;
-
-	@FXML
-	private TitledPane warningPanel;
 
 	@FXML
 	private MenuItem zeroMenu;
@@ -275,14 +241,13 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 	//@FXML
 	//private Button refreshButton;
 
-	private Factory factory;
+	private boolean matrixOptionsActive = true;
 
 	private final EnumMap<ToggleableVisiblityGroup, CheckBox> toggleFilters = new EnumMap(ToggleableVisiblityGroup.class);
 	private final HashMap<Generator, GuiInstance<GeneratorRowController>> generators = new HashMap();
 	private final HashMap<Consumable, ProductButton> productButtons = new HashMap();
 	private final HashMap<ResourceSupply, GuiInstance<? extends ResourceSupplyEntryController>> supplyEntries = new HashMap();
 	private final HashMap<Node, GuiInstance<? extends ResourceSupplyEntryController>> supplyEntryNodes = new HashMap();
-	private GuiInstance<TierLampController>[] tierLamps = null;
 	private int maxAllowedTier = 999;
 
 	private final Comparator<Node> supplySorter = new Comparator<Node>() {
@@ -359,8 +324,11 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 
 		tierFilter.valueProperty().addListener((val, old, nnew) -> {
 			int old2 = maxAllowedTier;
-			maxAllowedTier = ((Double)nnew).intValue();
-			if (old2 != maxAllowedTier) {
+			maxAllowedTier = (int)Math.round(((Double)nnew).doubleValue());
+		});
+
+		tierFilter.valueChangingProperty().addListener((val, old, nnew) -> {
+			if (old && !nnew) {
 				this.rebuildLists(true, false);
 			}
 		});
@@ -441,6 +409,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		});
 		GuiUtil.setMenuEvent(clearProductMenu, () -> factory.removeProducts(new ArrayList<Consumable>(factory.getDesiredProducts())));
 		GuiUtil.setMenuEvent(isolateMenu, () -> factory.removeExternalSupplies(new ArrayList<ResourceSupply>(factory.getSupplies())));
+		GuiUtil.setMenuEvent(summaryMenu, () -> this.openChildWindow("Factory Summary", "SummaryView", g -> ((SummaryViewController)g.controller).setFactory(factory)));
 
 		GuiUtil.setMenuEvent(aboutMenu, () -> this.openChildWindow("About This Application", "AboutPage"));
 		GuiUtil.setMenuEvent(guideMenu, () -> {/*
@@ -495,7 +464,8 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		netConsumptionBar.minRowHeight = 32;
 		netProductBar.minRowHeight = 32;
 
-		this.setupTierBar();
+		super.init(services);
+		this.rebuildTierSet(true);
 		Logging.instance.log("Initialization complete");
 	}
 
@@ -504,30 +474,18 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		return f != null && f.exists() ? f : null;
 	}
 
-	private void setupTierBar() {
-		tierBar.getChildren().clear();
-		tierLamps = new GuiInstance[Milestone.getMaxTier()+1];
-		for (int i = 0; i < tierLamps.length; i++) {
-			TierLampController c = new TierLampController(i);
-			GuiInstance<TierLampController> gui = new GuiInstance<TierLampController>(c.getRootNode(), c);
-			tierBar.addEntry(gui);
-			tierLamps[i] = gui;
-		}
-
+	protected void rebuildTierSet(boolean resetValue) {
+		this.setupTierBar();
 		tierFilter.setMax(Milestone.getMaxTier());
-		tierFilter.setValue(tierFilter.getMax());
+		if (resetValue)
+			tierFilter.setValue(tierFilter.getMax());
 	}
 
-	public Factory getFactory() {
-		return factory;
-	}
-
-	private boolean matrixOptionsActive = true;
-
+	@Override
 	public void setFactory(Factory f) {
 		if (factory != null)
 			factory.prepareDisposal();
-		factory = f;
+		super.setFactory(f);
 		factory.addCallback(this);
 
 		GuiUtil.runOnJFXThread(() -> factory.setUI(this));
@@ -625,7 +583,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 			recipeDropdown.setDisable(li2.isEmpty());
 		}
 
-		this.setupTierBar();
+		this.rebuildTierSet(false);
 	}
 
 	public void buildRecentList() {
@@ -685,120 +643,9 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 		this.layout();
 	}
 
-	private void updateWarnings() {
-		ArrayList<Warning> li = new ArrayList();
-		factory.getWarnings(w -> li.add(w));
-		boolean any = !li.isEmpty();
-		Collections.sort(li);
-		warningList.getChildren().clear();
-		for (Warning w : li) {
-			warningList.getChildren().add(w.createUI());
-		}
-		if (!any) {
-			Label lb = new Label("None - Your Factory Is Perfectly Efficient!");
-			lb.setFont(GuiSystem.getFont());
-			lb.setStyle("-fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.OKAY_COLOR)+";");
-			warningList.getChildren().add(lb);
-		}
-	}
-
-	public void updateStats(boolean all) {
-		this.updateStats(all, all, all, all, all, all, all);
-	}
-
+	@Override
 	public void updateStats(boolean warnings, boolean buildings, boolean production, boolean consuming, boolean local, boolean power, boolean tier) {
-		if (warnings)
-			this.updateWarnings();
-
-		if (buildings) {
-			buildCostBar.getChildren().clear();
-			buildingBar.getChildren().clear();
-
-			CountMap<Item> cost = new CountMap();
-			CountMap<FunctionalBuilding> bc = factory.getBuildings();
-			for (FunctionalBuilding b : bc.keySet()) {
-
-				int amt = bc.get(b);
-				GuiUtil.addIconCount(b, amt, 5, buildingBar);
-
-				for (Entry<Item, Integer> e : b.getConstructionCost().entrySet()) {
-					cost.increment(e.getKey(), e.getValue()*amt);
-				}
-			}
-
-			for (Item i : cost.keySet()) {
-				GuiUtil.addIconCount(i, cost.get(i), 5, buildCostBar);
-			}
-		}
-
-		if (tier) {
-			int max = factory.getMaxTier();
-			for (int i = 0; i < tierLamps.length; i++) {
-				tierLamps[i].controller.setState(i <= max);
-			}
-		}
-
-		if (power) {
-			float[] avgMinMax = new float[3];
-			factory.computeNetPowerProduction(avgMinMax);
-			String text = String.format("%.2fMW", avgMinMax[0]);
-			if (Math.abs(avgMinMax[1]-avgMinMax[2]) > 0.1) {
-				text = String.format("%s average (%.2fMW to %.2fMW range)", text, avgMinMax[1], avgMinMax[2]);
-			}
-			powerProduction.setText(text);
-			if (avgMinMax[0] > 0) {
-				powerProduction.setStyle(GuiSystem.getFontStyle(FontModifier.BOLD)+" -fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.OKAY_COLOR)+";");
-			}
-			else if (avgMinMax[0] < 0) {
-				powerProduction.setStyle(GuiSystem.getFontStyle(FontModifier.BOLD)+" -fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.WARN_COLOR)+";");
-			}
-			else {
-				powerProduction.setStyle("");
-			}
-		}
-
-		/*
-		if (consuming || production) {
-			Collection<Consumable> all = factory.getAllRelevantItems();
-			if (consuming)
-				netConsumptionBar.getChildren().clear();
-			if (production)
-				netProductBar.getChildren().clear();
-			for (Consumable c : all) {
-				float amt = factory.getFlow(c).getNetYield();
-				if (amt < 0 && consuming)
-					GuiUtil.addIconCount(netConsumptionBar, c, -amt);
-				if (amt > 0 && consuming)
-					GuiUtil.addIconCount(netProductBar, c, amt);
-			}
-		}*/
-		if (consuming) {
-			netConsumptionBar.getChildren().clear();
-			for (Consumable c : factory.getAllIngredients()) {
-				float amt = factory.getTotalConsumption(c)-factory.getTotalProduction(c)-factory.getExternalInput(c, true);
-				if (amt > 0)
-					GuiUtil.addIconCount(c, amt, 5, netConsumptionBar);
-			}
-		}
-		if (production) {
-			netProductBar.getChildren().clear();
-			HashSet<Consumable> set = new HashSet(factory.getAllProducedItems());
-			if (Setting.INOUT.getCurrentValue() != InputInOutputOptions.EXCLUDE)
-				set.addAll(factory.getAllMinedItems());
-			if (Setting.INOUT.getCurrentValue() == InputInOutputOptions.ALL)
-				set.addAll(factory.getAllSuppliedItems());
-			for (Consumable c : set) {
-				float amt = factory.getTotalProduction(c)-factory.getTotalConsumption(c);
-				if (Setting.INOUT.getCurrentValue() != InputInOutputOptions.EXCLUDE)
-					amt += factory.getExternalInput(c, Setting.INOUT.getCurrentValue() == InputInOutputOptions.ALL ? false : true);
-				if (amt > 0) {
-					ItemCountController gui = GuiUtil.addIconCount(c, amt, 5, netProductBar).controller;
-					if (!factory.getDesiredProducts().contains(c))
-						gui.setWarning();
-				}
-			}
-		}
-
+		super.updateStats(warnings, buildings, production, consuming, local, power, tier);
 		if (local) {
 			localSupplyTotals.getChildren().clear();
 			CountMap<Consumable> totalSupply = new CountMap();
@@ -809,6 +656,7 @@ public class MainGuiController extends FXMLControllerBase implements FactoryList
 				GuiUtil.addIconCount(c, totalSupply.get(c), 5, localSupplyTotals);
 			}
 		}
+
 		root.layout();
 	}
 

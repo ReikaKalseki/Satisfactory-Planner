@@ -169,7 +169,7 @@ public class Constants {
 		BIOMASS(false, "Biomass", i -> i.isBiomass, r -> r.isSoleProduct(i -> i.isBiomass)),
 		FICSMAS(true, "Ficsmas", i -> i.isFicsmas, r -> r.isFicsmas),
 		ALTERNATE(true, "Alternates", i -> false, r -> r.isAlternate),
-		FINDABLE(false, "Findable-Only", i -> i.isFindables(), r -> r.isFindables()),
+		FINDABLE(false, "Findable-Only", i -> i.isFindable, r -> r.isFindables()),
 		PACKAGING(true, "Packaging", i -> false, r -> r.isPackaging()),
 		UNPACKAGING(false, "Unpackaging", i -> false, r -> r.isUnpackaging()),
 		;

@@ -30,6 +30,7 @@ import Reika.SatisfactoryPlanner.Data.Constants.ToggleableVisiblityGroup;
 import Reika.SatisfactoryPlanner.Data.Warning.ExcessResourceWarning;
 import Reika.SatisfactoryPlanner.Data.Warning.InsufficientResourceWarning;
 import Reika.SatisfactoryPlanner.Data.Warning.MultipleBeltsWarning;
+import Reika.SatisfactoryPlanner.Data.Warning.NoSurplusResourceWarning;
 import Reika.SatisfactoryPlanner.Data.Warning.ResourceIconName;
 import Reika.SatisfactoryPlanner.Data.Warning.WarningSeverity;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem;
@@ -73,7 +74,7 @@ public class Factory {
 
 	private final EnumSet<ToggleableVisiblityGroup> toggles = EnumSet.allOf(ToggleableVisiblityGroup.class);
 
-	public String name;
+	public String name = "";
 
 	private boolean skipNotify;
 	private boolean loading;
@@ -562,14 +563,16 @@ public class Factory {
 			}
 		}
 		for (Consumable c : this.getAllProducedItems()) {
-			if (desiredProducts.contains(c))
-				continue;
 			float prod = this.getTotalProduction(c);
 			float sup = this.getExternalInput(c, false);
 			float has = prod+sup;
 			float need = this.getTotalConsumption(c);
-			if (has > need) {
+			boolean wanted = desiredProducts.contains(c);
+			if (has > need && !wanted) {
 				call.accept(new ExcessResourceWarning(c, need, has));
+			}
+			else if (wanted && Math.abs(has-need) < 0.1) {
+				call.accept(new NoSurplusResourceWarning(c));
 			}
 			RateLimitedSupplyLine lim = c instanceof Fluid ? PipeTier.TWO : BeltTier.SIX;
 			if (has > lim.getMaxThroughput())
@@ -635,30 +638,30 @@ public class Factory {
 	public void save(File f) {
 		GuiUtil.queueTask("Saving "+f.getAbsolutePath(), (id) -> {
 			JSONObject root = new JSONObject();
-			JSONArray recipes = new JSONArray();
-			JSONArray generators = new JSONArray();
+			JSONArray rec = new JSONArray();
+			JSONArray gens = new JSONArray();
 			JSONArray resources = new JSONArray();
 			JSONArray products = new JSONArray();
-			JSONArray toggles = new JSONArray();
+			JSONArray toggs = new JSONArray();
 			root.put("name", name);
 
 			for (Recipe r : recipeList) {
 				JSONObject block = new JSONObject();
 				block.put("id", r.id);
-				block.put("count", String.format("%.3f", this.recipes.get(r)));
-				recipes.put(block);
+				block.put("count", String.format("%.3f", recipes.get(r)));
+				rec.put(block);
 			}
-			root.put("recipes", recipes);
+			root.put("recipes", rec);
 
-			for (Generator g : this.generators.keySet()) {
+			for (Generator g : generators.keySet()) {
 				JSONObject block = new JSONObject();
 				block.put("id", g.id);
 				for (Fuel ff : g.getFuels()) {
-					block.put("count_"+ff.item.id, this.generators.get(g).getCount(ff));
+					block.put("count_"+ff.item.id, generators.get(g).getCount(ff));
 				}
-				generators.put(block);
+				gens.put(block);
 			}
-			root.put("generators", generators);
+			root.put("generators", gens);
 
 			for (ResourceSupply r : resourceSources.allValues(false)) {
 				JSONObject block = new JSONObject();
@@ -673,10 +676,10 @@ public class Factory {
 			}
 			root.put("products", products);
 
-			for (ToggleableVisiblityGroup c : this.toggles) {
-				toggles.put(c.name());
+			for (ToggleableVisiblityGroup c : toggles) {
+				toggs.put(c.name());
 			}
-			root.put("toggles", toggles);
+			root.put("toggles", toggs);
 
 			JSONUtil.saveFile(f, root);
 			this.setCurrentFile(f);
@@ -700,13 +703,13 @@ public class Factory {
 		WaitDialogManager.instance.setTaskProgress(taskID, 15);
 		name = root.getString("name");
 
-		JSONArray recipes = root.getJSONArray("recipes");
-		JSONArray generators = root.getJSONArray("generators");
+		JSONArray rec = root.getJSONArray("recipes");
+		JSONArray gens = root.getJSONArray("generators");
 		JSONArray resources = root.getJSONArray("resources");
 		JSONArray products = root.getJSONArray("products");
-		JSONArray toggles = root.has("toggles") ? root.getJSONArray("toggles") : null;
+		JSONArray toggs = root.has("toggles") ? root.getJSONArray("toggles") : null;
 		WaitDialogManager.instance.setTaskProgress(taskID, 20);
-		for (Object o : recipes) {
+		for (Object o : rec) {
 			JSONObject block = (JSONObject)o;
 			Recipe r = Database.lookupRecipe(block.getString("id"));
 			/*
@@ -717,7 +720,7 @@ public class Factory {
 			this.setCount(r, block.getFloat("count"));
 		}
 		WaitDialogManager.instance.setTaskProgress(taskID, 50);
-		for (Object o : generators) {
+		for (Object o : gens) {
 			JSONObject block = (JSONObject)o;
 			String id = block.getString("id");
 			if (id.equalsIgnoreCase("Build_GeneratorBiomass_C"))
@@ -726,7 +729,7 @@ public class Factory {
 			for (Fuel ff : r.getFuels()) {
 				String key = "count_"+ff.item.id;
 				if (block.has(key))
-					this.generators.get(r).setCount(ff, block.getInt(key));
+					generators.get(r).setCount(ff, block.getInt(key));
 			}
 		}
 		WaitDialogManager.instance.setTaskProgress(taskID, 60);
@@ -741,15 +744,15 @@ public class Factory {
 			desiredProducts.add(Database.lookupItem((String)o));
 		}
 		WaitDialogManager.instance.setTaskProgress(taskID, 80);
-		if (toggles == null) {
-			this.toggles.addAll(EnumSet.allOf(ToggleableVisiblityGroup.class));
+		if (toggs == null) {
+			toggles.addAll(EnumSet.allOf(ToggleableVisiblityGroup.class));
 		}
 		else {
-			for (Object o : toggles) {
+			for (Object o : toggs) {
 				String s = (String)o;
 				if (s.equalsIgnoreCase("POST10")) //ignore removed group
 					continue;
-				this.toggles.add(ToggleableVisiblityGroup.valueOf(s));
+				toggles.add(ToggleableVisiblityGroup.valueOf(s));
 			}
 		}
 		WaitDialogManager.instance.setTaskProgress(taskID, 90);

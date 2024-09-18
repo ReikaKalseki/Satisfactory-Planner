@@ -20,4 +20,5 @@ module satisfactoryplanner {
 	requires org.json;
 	requires org.controlsfx.controls;
 	requires javafx.base;
+	requires javafx.swing;
 }

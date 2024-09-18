@@ -150,6 +150,22 @@ public class GuiUtil {
 		node.setMinWidth(getWidth(node));
 	}
 
+	public static String splitToWidth(String s, double maxWidth, String regex, Font f) {
+		double currentWidth = 0;
+		String[] parts = s.split(regex);
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < parts.length; i++) {
+			double w = getWidth(parts[i], f);
+			if (currentWidth+w > maxWidth) {
+				sb.append("\n");
+				currentWidth = 0;
+			}
+			sb.append(parts[i]);
+			currentWidth += w;
+		}
+		return sb.toString();
+	}
+
 	public static ColumnConstraints addColumnToGridPane(GridPane gp, int at) {
 		ColumnConstraints rc = new ColumnConstraints();
 		gp.getColumnConstraints().add(at, rc);
@@ -172,6 +188,32 @@ public class GuiUtil {
 			}
 		}
 		return rc;
+	}
+
+	public static void setWidth(ColumnConstraints r, double width) {
+		r.setPrefWidth(width);
+		r.setMinWidth(Region.USE_PREF_SIZE);
+		r.setMaxWidth(Region.USE_PREF_SIZE);
+		r.setHgrow(Priority.NEVER);
+	}
+
+	public static void setHeight(RowConstraints r, double height) {
+		r.setPrefHeight(height);
+		r.setMinHeight(Region.USE_PREF_SIZE);
+		r.setMaxHeight(Region.USE_PREF_SIZE);
+		r.setVgrow(Priority.NEVER);
+	}
+
+	public static void setWidth(Region r, double width) {
+		r.setPrefWidth(width);
+		r.setMinWidth(Region.USE_PREF_SIZE);
+		r.setMaxWidth(Region.USE_PREF_SIZE);
+	}
+
+	public static void setHeight(Region r, double height) {
+		r.setPrefHeight(height);
+		r.setMinHeight(Region.USE_PREF_SIZE);
+		r.setMaxHeight(Region.USE_PREF_SIZE);
 	}
 
 	public static void setupCounter(Spinner<Integer> spinner, int min, int max, int init, boolean allowEdit) {
@@ -313,7 +355,7 @@ public class GuiUtil {
 			if (msg != null) {
 				a.getDialogPane().setHeaderText(msg);
 			}
-		}, 600, ButtonType.OK);
+		}, 1000, ButtonType.OK);
 	}
 
 	public static <E> void setupAddSelector(SearchableComboBox<E> sb, Consumer<E> onSelect, boolean clearOnSelect) {

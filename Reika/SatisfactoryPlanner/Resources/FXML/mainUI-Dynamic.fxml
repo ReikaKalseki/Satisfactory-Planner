@@ -86,6 +86,7 @@
                   <MenuItem fx:id="zeroMenu" mnemonicParsing="false" text="Zero Crafting Counts" />
                   <MenuItem fx:id="isolateMenu" mnemonicParsing="false" text="Remove External Supply" />
                   <MenuItem fx:id="clearProductMenu" mnemonicParsing="false" text="Clear Desired Products" />
+                  <MenuItem fx:id="summaryMenu" mnemonicParsing="false" text="View Summary" />
                </items>
             </Menu>
             <Menu fx:id="helpMenu" mnemonicParsing="false" text="Help">
@@ -146,7 +147,7 @@
                                       <rowConstraints>
                                         <RowConstraints maxHeight="1.7976931348623157E308" minHeight="32.0" valignment="CENTER" vgrow="SOMETIMES" />
                                         <RowConstraints maxHeight="1.7976931348623157E308" minHeight="32.0" valignment="CENTER" vgrow="SOMETIMES" />
-                                        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="32.0" valignment="CENTER" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="32.0" valignment="CENTER" vgrow="SOMETIMES" />
                                           <RowConstraints maxHeight="1.7976931348623157E308" minHeight="32.0" valignment="CENTER" vgrow="SOMETIMES" />
                                           <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" prefHeight="32.0" vgrow="SOMETIMES" />
                                           <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" prefHeight="32.0" vgrow="SOMETIMES" />
@@ -158,9 +159,9 @@
                                           <Label fx:id="powerProduction" layoutX="20.0" layoutY="100.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="0 MW" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                                           <ExpandingTilePane fx:id="buildCostBar" hgap="16.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" tileAlignment="CENTER_LEFT" vgap="8.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                           <ExpandingTilePane fx:id="buildingBar" hgap="16.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" tileAlignment="CENTER_LEFT" vgap="8.0" GridPane.columnIndex="1" />
-                                          <Label layoutX="20.0" layoutY="100.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Net Required Input" GridPane.rowIndex="2" />
+                                          <Label layoutX="20.0" layoutY="100.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Net Input Per Minute" wrapText="true" GridPane.rowIndex="2" />
                                           <ExpandingTilePane fx:id="netProductBar" hgap="16.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" tileAlignment="CENTER_LEFT" vgap="8.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                                          <Label layoutX="20.0" layoutY="172.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" text="Net Output" GridPane.rowIndex="3" />
+                                          <Label layoutX="20.0" layoutY="172.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" text="Net Output Per Minute" GridPane.rowIndex="3" />
                                           <ExpandingTilePane fx:id="netConsumptionBar" hgap="16.0" layoutX="140.0" layoutY="128.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" tileAlignment="CENTER_LEFT" vgap="8.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                           <Label layoutX="20.0" layoutY="164.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" text="Required Tiers" GridPane.rowIndex="5" />
                                           <ExpandingTilePane fx:id="tierBar" layoutX="152.0" layoutY="128.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" tileAlignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="5" />

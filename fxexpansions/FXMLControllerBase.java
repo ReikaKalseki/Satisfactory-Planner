@@ -86,20 +86,20 @@ public abstract class FXMLControllerBase extends ControllerBase  {
 
 	}
 
-	public final <C extends FXMLControllerBase> GuiInstance<C> loadNestedFXML(String fxml, Pane container) throws IOException {
-		return this.loadNestedFXML(fxml, inner -> container.getChildren().add(inner.rootNode));
+	public final <C extends FXMLControllerBase> GuiInstance<C> loadNestedFXML(String fxml, Pane parent) throws IOException {
+		return this.loadNestedFXML(fxml, inner -> parent.getChildren().add(inner.rootNode));
 	}
 
-	public final <C extends FXMLControllerBase> GuiInstance<C> loadNestedFXML(String fxml, TabPane container) throws IOException {
-		return this.loadNestedFXML(fxml, inner -> {Tab t = new Tab(); t.setContent(inner.rootNode); container.getTabs().add(t);});
+	public final <C extends FXMLControllerBase> GuiInstance<C> loadNestedFXML(String fxml, TabPane parent) throws IOException {
+		return this.loadNestedFXML(fxml, inner -> {Tab t = new Tab(); t.setContent(inner.rootNode); parent.getTabs().add(t);});
 	}
 
-	public final <C extends FXMLControllerBase> GuiInstance<C> loadNestedFXML(String fxml, Tab container) throws IOException {
-		return this.loadNestedFXML(fxml, inner -> {container.setContent(inner.rootNode);});
+	public final <C extends FXMLControllerBase> GuiInstance<C> loadNestedFXML(String fxml, Tab parent) throws IOException {
+		return this.loadNestedFXML(fxml, inner -> {parent.setContent(inner.rootNode);});
 	}
 
-	public final <C extends FXMLControllerBase> GuiInstance<C> loadNestedFXML(String fxml, GridPane container, int col, int row) throws IOException {
-		return this.loadNestedFXML(fxml, inner -> container.add(inner.rootNode, col, row));
+	public final <C extends FXMLControllerBase> GuiInstance<C> loadNestedFXML(String fxml, GridPane parent, int col, int row) throws IOException {
+		return this.loadNestedFXML(fxml, inner -> parent.add(inner.rootNode, col, row));
 	}
 
 	public final <C extends FXMLControllerBase> GuiInstance<C> loadNestedFXML(String fxml, Consumer<GuiInstance> acceptor) throws IOException {

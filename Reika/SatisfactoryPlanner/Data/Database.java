@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -115,12 +116,28 @@ public class Database {
 		return Collections.unmodifiableList(allBuildingRecipesSorted);
 	}
 
+	public static Collection<Recipe> getAllRecipes() {
+		return Collections.unmodifiableCollection(allRecipes.values());
+	}
+
 	public static List<Item> getMineables() {
 		return Collections.unmodifiableList(mineableItems);
 	}
 
 	public static List<Fluid> getFrackables() {
 		return Collections.unmodifiableList(frackableFluids);
+	}
+
+	public static boolean areRecipesLoaded() {
+		return !allRecipes.isEmpty();
+	}
+
+	public static boolean areItemsLoaded() {
+		return !allItems.isEmpty();
+	}
+
+	public static boolean areMilestonesLoaded() {
+		return !allMilestones.isEmpty();
 	}
 
 	public static void sort() {
@@ -131,6 +148,8 @@ public class Database {
 		Collections.sort(allBuildingsSorted);
 		Collections.sort(allGeneratorsSorted);
 		Collections.sort(allVehiclesSorted);
+		Collections.sort(mineableItems);
+		Collections.sort(frackableFluids);
 	}
 
 	public static void parseGameJSON() throws IOException {
