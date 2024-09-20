@@ -78,11 +78,11 @@ public class GuiUtil {
 		new Timeline(new KeyFrame(Duration.millis(millis), e -> {call.run();})).play();
 	}
 
-	public static void setTooltip(Node n, String msg) {
-		setTooltip(n, msg, 250);
+	public static Tooltip setTooltip(Node n, String msg) {
+		return setTooltip(n, msg, 250);
 	}
 
-	public static void setTooltip(Node n, String msg, int delay) {
+	public static Tooltip setTooltip(Node n, String msg, int delay) {
 		Tooltip t = new Tooltip(msg);
 		t.setStyle("-fx-font-size: 12; "+GuiSystem.getFontStyle());
 		t.setShowDelay(Duration.millis(delay));
@@ -90,6 +90,7 @@ public class GuiUtil {
 			((Control)n).setTooltip(t);
 		else
 			Tooltip.install(n, t);
+		return t;
 	}
 
 	public static HBox createSpacedHBox(Node left, Node ctr, Node right) {

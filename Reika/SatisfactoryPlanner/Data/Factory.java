@@ -571,7 +571,7 @@ public class Factory {
 			if (has > need && !wanted) {
 				call.accept(new ExcessResourceWarning(c, need, has));
 			}
-			else if (wanted && Math.abs(has-need) < 0.1) {
+			else if (wanted && Math.abs(has-need) < 0.1 && has > 0 && need > 0) {
 				call.accept(new NoSurplusResourceWarning(c));
 			}
 			RateLimitedSupplyLine lim = c instanceof Fluid ? PipeTier.TWO : BeltTier.SIX;

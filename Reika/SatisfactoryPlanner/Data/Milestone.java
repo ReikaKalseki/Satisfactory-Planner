@@ -6,7 +6,7 @@ import java.util.List;
 
 import Reika.SatisfactoryPlanner.Util.Logging;
 
-public class Milestone {
+public class Milestone implements Comparable<Milestone> {
 
 	private final ArrayList<Milestone> dependencies = new ArrayList();
 	private final ArrayList<Recipe> associatedRecipes = new ArrayList();
@@ -56,6 +56,13 @@ public class Milestone {
 
 	public static void resetTiers() {
 		maxTier = 0;
+	}
+
+	@Override
+	public int compareTo(Milestone o) {
+		int t1 = this.getTier();
+		int t2 = o.getTier();
+		return t1 == t2 ? String.CASE_INSENSITIVE_ORDER.compare(displayName, o.displayName) : Integer.compare(t1, t2);
 	}
 
 }

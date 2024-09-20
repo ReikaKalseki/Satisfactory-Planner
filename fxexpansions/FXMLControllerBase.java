@@ -106,7 +106,8 @@ public abstract class FXMLControllerBase extends ControllerBase  {
 		if (container == null)
 			throw new RuntimeException("You can only load nested FXML in post-init, after the window is initialized!");
 		GuiInstance<C> ret = GuiInstance.loadFXML(fxml, container);
-		acceptor.accept(ret);
+		if (acceptor != null)
+			acceptor.accept(ret);
 		ret.controller.owner = this;
 		return ret;
 	}

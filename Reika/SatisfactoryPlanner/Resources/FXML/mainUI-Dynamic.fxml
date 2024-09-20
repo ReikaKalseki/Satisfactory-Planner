@@ -64,6 +64,8 @@
       <menus>
             <Menu fx:id="controlMenu" mnemonicParsing="false" text="Program">
               <items>
+                  <MenuItem fx:id="customRecipeMenu" mnemonicParsing="false" text="Define Custom Recipe" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
             <MenuItem fx:id="settingsMenu" mnemonicParsing="false" text="Settings" />
             <SeparatorMenuItem mnemonicParsing="false" />
             <MenuItem fx:id="quitMenu" mnemonicParsing="false" text="Quit" />

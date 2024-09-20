@@ -203,6 +203,9 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	private MenuItem settingsMenu;
 
 	@FXML
+	private MenuItem customRecipeMenu;
+
+	@FXML
 	private TitledPane statsPanel;
 
 	@FXML
@@ -378,6 +381,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 		});
 		 */
 		GuiUtil.setMenuEvent(settingsMenu, () -> this.openChildWindow("Application Settings", "Settings"));
+		GuiUtil.setMenuEvent(customRecipeMenu, () -> this.openChildWindow("Custom Recipe Definition", "CustomRecipeDefinitionDialog"));
 		GuiUtil.setMenuEvent(quitMenu, () -> this.close());
 		GuiUtil.setMenuEvent(newMenu, () -> {
 			GuiUtil.queueTask("Loading new factory", (id) -> {

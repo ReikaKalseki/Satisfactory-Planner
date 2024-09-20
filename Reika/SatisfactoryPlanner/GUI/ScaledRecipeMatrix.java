@@ -15,10 +15,13 @@ import Reika.SatisfactoryPlanner.GUI.RecipeMatrixContainer.MatrixType;
 
 import fxexpansions.GuiInstance;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory.DoubleSpinnerValueFactory;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 
 public class ScaledRecipeMatrix extends RecipeMatrixBase {
@@ -173,6 +176,20 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 				}
 			});
 			this.getGrid().add(counter, countColumn, rowIndex.rowIndex);
+			Tooltip t = GuiUtil.setTooltip(counter, "");
+			HBox hb = new HBox();
+			hb.setPadding(new Insets(-4, -4, -4, -4));
+			hb.setAlignment(Pos.CENTER);
+			Label lb = new Label(r.getDisplayName());
+			//lb.setStyle("-fx-text-fill: black; -fx-font-size: 12px");
+			lb.setAlignment(Pos.CENTER_RIGHT);
+			hb.getChildren().add(lb);
+			hb.getChildren().add(RecipeListCell.buildIODisplay((Recipe)r, true, true));
+			hb.setSpacing(8);
+			//t.getStyleClass().add("widget");
+			//t.setStyle("-fx-background-color: transparent");
+			//hb.getStyleClass().add("panel");
+			t.setGraphic(hb);
 			recipeEntries.get(r).addChildNode(counter, "counter");
 		}
 		else if (r instanceof Fuel) {

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import org.controlsfx.control.SearchableComboBox?>
+
+
+<GridPane fx:id="root" hgap="4.0" styleClass="widget" stylesheets="@../CSS/style.css" vgap="8.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.IngredientDefinitionRowController">
+   <columnConstraints>
+      <ColumnConstraints hgrow="NEVER" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="72.0" />
+      <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" />
+      <ColumnConstraints halignment="CENTER" hgrow="NEVER" />
+      <ColumnConstraints halignment="CENTER" hgrow="NEVER" />
+      <ColumnConstraints halignment="CENTER" hgrow="NEVER" />
+      <ColumnConstraints halignment="CENTER" hgrow="NEVER" minWidth="85.0" />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints vgrow="SOMETIMES" />
+   </rowConstraints>
+   <children>
+      <Label fx:id="label" text="Ingredient 1" />
+      <SearchableComboBox fx:id="itemDropdown" prefHeight="32.0" promptText="Choose Item..." GridPane.columnIndex="1" />
+      <Spinner fx:id="countSpinner" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="64.0" GridPane.columnIndex="3" />
+      <Label text="x" GridPane.columnIndex="2" />
+      <Label layoutX="202.0" layoutY="28.0" text="=" GridPane.columnIndex="4" />
+      <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="5" />
+   </children>
+</GridPane>

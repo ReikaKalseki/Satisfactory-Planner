@@ -41,7 +41,7 @@
     -fx-background-insets: 3px;
 }
 
-.panel {
+.panel, .tooltip {
     -fx-color: "#7D7D7D";
     -fx-text-fill: "#ffffff";
 	-fx-border-color: "#373737";
@@ -57,6 +57,11 @@
 	-fx-border-style: solid;
 	-fx-border-radius: 8px;
 	-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 1.5, 0.1, 0.0, 5.0);
+}
+
+.tooltip * {
+    -fx-text-fill: black;
+    -fx-font-size: 12px;
 }
 
 .bolt-wrapper {
@@ -384,3 +389,13 @@
 	-fx-background-color: "#666666";
 	-fx-text-fill: "#FFFFFF";
 }
+/*
+.tooltip {
+    -fx-text-fill: black;
+    -fx-background-color: transparent;
+    -fx-background-radius: 6px;
+    -fx-background-insets: 0;
+    -fx-padding: 0.667em 0.75em 0.667em 0.75em; /* 10px *//*
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.5) , 10, 0.0 , 0 , 3 );
+    -fx-font-size: 0.85em;
+}*/

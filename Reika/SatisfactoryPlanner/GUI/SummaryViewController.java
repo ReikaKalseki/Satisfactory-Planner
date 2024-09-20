@@ -174,9 +174,11 @@ public class SummaryViewController extends FactoryStatisticsContainer {
 
 		i = 0;
 		for (Recipe r : factory.getRecipes()) {
+			if (factory.getCount(r) <= 0)
+				continue;
 			GuiUtil.addRowToGridPane(recipeGrid, i);
 			Label lb = new Label(r.displayName);
-			Node io = RecipeListCell.buildIODisplay(r);
+			Node io = RecipeListCell.buildIODisplay(r, false, false);
 			ImageView bld = r.productionBuilding.createImageView();
 			Label ct = new Label(String.format("x%.2f", factory.getCount(r)));
 			recipeGrid.add(lb, 0, i);

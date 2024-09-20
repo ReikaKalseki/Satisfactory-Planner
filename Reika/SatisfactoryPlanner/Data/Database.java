@@ -48,6 +48,7 @@ public class Database {
 	private static final ArrayList<Item> mineableItems = new ArrayList();
 	private static final ArrayList<Fluid> frackableFluids = new ArrayList();
 
+	private static final ArrayList<Milestone> allMilestonesSorted = new ArrayList();
 	private static final HashMap<String, Milestone> allMilestones = new HashMap();
 
 	private static final HashMap<String, ClassType> lookup = new HashMap();
@@ -120,6 +121,10 @@ public class Database {
 		return Collections.unmodifiableCollection(allRecipes.values());
 	}
 
+	public static List<Milestone> getAllMilestones() {
+		return Collections.unmodifiableList(allMilestonesSorted);
+	}
+
 	public static List<Item> getMineables() {
 		return Collections.unmodifiableList(mineableItems);
 	}
@@ -148,6 +153,7 @@ public class Database {
 		Collections.sort(allBuildingsSorted);
 		Collections.sort(allGeneratorsSorted);
 		Collections.sort(allVehiclesSorted);
+		Collections.sort(allMilestonesSorted);
 		Collections.sort(mineableItems);
 		Collections.sort(frackableFluids);
 	}
@@ -349,13 +355,13 @@ public class Database {
 		allBuildingsSorted.add(r);
 	}
 
-	private static void parseFunctionalBuildingJSON(JSONObject obj) {
+	private static void parseFunctionalBuildingJSON(JSONObject obj, boolean crafting) {
 		String id = obj.getString("ClassName");
 		Logging.instance.log("Parsing JSON elem "+id);
 		String disp = obj.getString("mDisplayName");
 		String pwr = obj.getString("mPowerConsumption");
 		String pwrExp = obj.getString("mPowerConsumptionExponent"); //FIXME handle this for overclock!
-		FunctionalBuilding r = new FunctionalBuilding(id, disp, convertIDToIcon(id), Float.parseFloat(pwr));
+		FunctionalBuilding r = crafting ? new CraftingBuilding(id, disp, convertIDToIcon(id), Float.parseFloat(pwr)) : new FunctionalBuilding(id, disp, convertIDToIcon(id), Float.parseFloat(pwr));
 		allBuildings.put(r.id, r);
 		allBuildingsSorted.add(r);
 	}
@@ -465,8 +471,10 @@ public class Database {
 				}
 			}
 		}
-		if (flag)
+		if (flag) {
 			allMilestones.put(id, m);
+			allMilestonesSorted.add(m);
+		}
 	}
 
 	public static void loadVanillaData() {
@@ -535,7 +543,7 @@ public class Database {
 				try {
 					Logging.instance.log("Loading building file "+f2);
 					JSONObject data = new JSONObject(FileUtils.readFileToString(f2, Charsets.UTF_8));
-					FunctionalBuilding r = new FunctionalBuilding(data.getString("ID"), data.getString("Name"), data.getString("Icon"), data.getInt("PowerCost"));
+					CraftingBuilding r = new CraftingBuilding(data.getString("ID"), data.getString("Name"), data.getString("Icon"), data.getInt("PowerCost"));
 					/*JSONArray ing = data.getJSONArray("Ingredients");
 				for (Object o : ing) {
 					JSONObject inner = (JSONObject)o;
@@ -592,8 +600,10 @@ public class Database {
 							m.addRecipe(lookupRecipe(ulock));
 						}
 					}
-					if (flag)
+					if (flag) {
 						allMilestones.put(obj.getString("ID"), m);
+						allMilestonesSorted.add(m);
+					}
 				}
 				catch (Exception e) {
 					Logging.instance.log("Failed to parse custom milestone definition file "+f2.getAbsolutePath());
@@ -767,6 +777,7 @@ public class Database {
 		mineableItems.clear();
 		frackableFluids.clear();
 		allMilestones.clear();
+		allMilestonesSorted.clear();
 		Milestone.resetTiers();
 		Resource.resetIconCheck();
 		//Logging.instance.log(String.format("Cleared data with %d items, %d recipes, %d building recipes, %d buildings, %d generators, and %d vehicles", allItemsSorted.size(), allAutoRecipesSorted.size(), allBuildingRecipesSorted.size(), allBuildingsSorted.size(), allGeneratorsSorted.size(), allVehiclesSorted.size()));
@@ -816,13 +827,13 @@ public class Database {
 					parseGeneratorJSON(obj);
 					break;
 				case CRAFTER:
-					parseFunctionalBuildingJSON(obj);
+					parseFunctionalBuildingJSON(obj, true);
 					break;
 				case MINER:
-					parseFunctionalBuildingJSON(obj);
+					parseFunctionalBuildingJSON(obj, false);
 					break;
 				case STATION:
-					parseFunctionalBuildingJSON(obj);
+					parseFunctionalBuildingJSON(obj, false);
 					break;
 				case BELT:
 					parseBeltJSON(obj);
