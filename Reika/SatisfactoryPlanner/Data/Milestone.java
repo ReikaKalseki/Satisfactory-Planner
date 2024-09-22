@@ -13,11 +13,13 @@ public class Milestone implements Comparable<Milestone> {
 
 	private int tier = 0;
 
+	public final String id;
 	public final String displayName;
 
 	private static int maxTier;
 
-	public Milestone(int t, String dis) {
+	public Milestone(String id, int t, String dis) {
+		this.id = id;
 		tier = t;
 		displayName = dis;
 		Logging.instance.log("Registered milestone "+this);

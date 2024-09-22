@@ -1,5 +1,6 @@
 package Reika.SatisfactoryPlanner.Data;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -24,6 +25,7 @@ public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 	private boolean usesFluids;
 
 	private final TreeMap<Consumable, Integer> costsRaw = new TreeMap();
+	private final TreeMap<Consumable, Integer> productsRaw = new TreeMap();
 	private final TreeMap<Consumable, Float> costsPerMinute = new TreeMap();
 	private final TreeMap<Consumable, Float> productPerMinute = new TreeMap();
 
@@ -81,6 +83,7 @@ public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 	}
 
 	public Recipe addProduct(Consumable i, int amt) {
+		productsRaw.put(i, amt);
 		productPerMinute.put(i, amt*timeCoefficient);
 		maxProducts = Math.max(productPerMinute.size(), maxProducts);
 		usesFluids |= i instanceof Fluid;
@@ -134,6 +137,10 @@ public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 		return Collections.unmodifiableMap(costsRaw);
 	}
 
+	public Map<Consumable, Integer> getDirectProducts() {
+		return Collections.unmodifiableMap(productsRaw);
+	}
+
 	public Map<Consumable, Float> getIngredientsPerMinute() {
 		return Collections.unmodifiableMap(costsPerMinute);
 	}
@@ -179,8 +186,10 @@ public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 	}
 
 	public void updateBuildingTier() {
-		if (productionBuilding != null)
-			minimumTier = Math.min(minimumTier, productionBuilding.getRecipe().getTier());
+		if (productionBuilding != null) {
+			int bt = productionBuilding.getRecipe().getTier();
+			minimumTier = minimumTier == 999 ? bt : Math.max(minimumTier, bt); //INCREASE to since cannot produce with
+		}
 	}
 
 	public int getTier() {
@@ -208,6 +217,10 @@ public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 
 	public float getMaxPowerCost() {
 		return powerOverride != null ? powerOverride.getPeakPower() : productionBuilding.basePowerCostMW;
+	}
+
+	public Collection<Milestone> getMilestones() {
+		return Collections.unmodifiableCollection(unlocks);
 	}
 
 }

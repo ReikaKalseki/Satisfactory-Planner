@@ -8,13 +8,14 @@ import java.util.Map.Entry;
 
 import Reika.SatisfactoryPlanner.Setting;
 import Reika.SatisfactoryPlanner.Setting.InputInOutputOptions;
+import Reika.SatisfactoryPlanner.Data.Building;
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Factory;
-import Reika.SatisfactoryPlanner.Data.FunctionalBuilding;
 import Reika.SatisfactoryPlanner.Data.Item;
 import Reika.SatisfactoryPlanner.Data.Milestone;
 import Reika.SatisfactoryPlanner.Data.Warning;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.FontModifier;
+import Reika.SatisfactoryPlanner.GUI.ItemRateController.WarningState;
 import Reika.SatisfactoryPlanner.Util.ColorUtil;
 import Reika.SatisfactoryPlanner.Util.CountMap;
 
@@ -23,9 +24,13 @@ import fxexpansions.FXMLControllerBase;
 import fxexpansions.GuiInstance;
 import javafx.application.HostServices;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 
 public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
@@ -37,10 +42,13 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 	protected ExpandingTilePane<ItemCountController> buildingBar;
 
 	@FXML
-	protected ExpandingTilePane<ItemCountController> netConsumptionBar;
+	protected ExpandingTilePane<ItemRateController> netConsumptionBar;
 
 	@FXML
-	protected ExpandingTilePane<ItemCountController> netProductBar;
+	protected ExpandingTilePane<ItemRateController> netProductBar;
+
+	@FXML
+	protected ExpandingTilePane<ItemRateController> deficiencyBar;
 
 	@FXML
 	protected Label powerProduction;
@@ -75,6 +83,25 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 	@Override
 	public void init(HostServices services) throws IOException {
 		this.setupTierBar();
+
+		this.bindRowHeight(2, netConsumptionBar);
+		this.bindRowHeight(3, netProductBar);
+		this.bindRowHeight(4, deficiencyBar);
+
+		buildingBar.minRowHeight = 40;
+		buildCostBar.minRowHeight = 40;
+		netConsumptionBar.minRowHeight = 40;
+		netProductBar.minRowHeight = 40;
+		deficiencyBar.minRowHeight = 40;
+	}
+
+	private void bindRowHeight(int idx, ExpandingTilePane p) {
+		RowConstraints rc = statisticsGrid.getRowConstraints().get(idx);
+		rc.prefHeightProperty().bind(p.heightProperty());
+		rc.minHeightProperty().bind(rc.prefHeightProperty());
+		rc.maxHeightProperty().bind(rc.prefHeightProperty());
+		rc.setValignment(VPos.CENTER);
+		p.setAlignment(Pos.CENTER_LEFT);
 	}
 
 	protected final void setupTierBar() {
@@ -118,8 +145,8 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 			buildingBar.getChildren().clear();
 
 			CountMap<Item> cost = new CountMap();
-			CountMap<FunctionalBuilding> bc = factory.getBuildings();
-			for (FunctionalBuilding b : bc.keySet()) {
+			CountMap<Building> bc = factory.getBuildings();
+			for (Building b : bc.keySet()) {
 
 				int amt = bc.get(b);
 				GuiUtil.addIconCount(b, amt, 5, buildingBar);
@@ -177,10 +204,17 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 		}*/
 		if (consuming) {
 			netConsumptionBar.getChildren().clear();
+			deficiencyBar.getChildren().clear();
+
 			for (Consumable c : factory.getAllIngredients()) {
-				float amt = factory.getTotalConsumption(c)-factory.getTotalProduction(c)-factory.getExternalInput(c, true);
-				if (amt > 0)
-					GuiUtil.addIconCount(c, amt, 5, netConsumptionBar);
+				float ship = factory.getExternalInput(c, false)-factory.getTotalProduction(c);
+				if (ship > 0) {
+					this.center(netConsumptionBar, GuiUtil.createItemView(c, ship, netConsumptionBar));
+				}
+				float deficiency = factory.getTotalConsumption(c)-factory.getTotalProduction(c)-factory.getExternalInput(c, false);
+				if (deficiency > 0) {
+					this.center(deficiencyBar, GuiUtil.createItemView(c, deficiency, deficiencyBar)).controller.setState(WarningState.INSUFFICIENT);
+				}
 			}
 		}
 		if (production) {
@@ -195,14 +229,19 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 				if (Setting.INOUT.getCurrentValue() != InputInOutputOptions.EXCLUDE)
 					amt += factory.getExternalInput(c, Setting.INOUT.getCurrentValue() == InputInOutputOptions.ALL ? false : true);
 				if (amt > 0) {
-					ItemCountController gui = GuiUtil.addIconCount(c, amt, 5, netProductBar).controller;
+					GuiInstance<ItemRateController> gui = this.center(netProductBar, GuiUtil.createItemView(c, amt, netProductBar));
 					if (!factory.getDesiredProducts().contains(c))
-						gui.setWarning();
+						gui.controller.setState(WarningState.LEFTOVER);
 				}
 			}
 		}
 
 		this.getRootNode().layout();
+	}
+
+	private GuiInstance<ItemRateController> center(ExpandingTilePane exp, GuiInstance<ItemRateController> gui) {
+		exp.setMargin(gui.rootNode, new Insets(-8, -4, -8, 4));
+		return gui;
 	}
 }
 

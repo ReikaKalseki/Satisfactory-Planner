@@ -45,7 +45,7 @@ public class IngredientDefinitionRowController extends FXMLControllerBase {
 				root.getChildren().remove(rateDisplay.getRootNode());
 			rateDisplay = null;
 			if (nnew != null) {
-				rateDisplay = new ItemRateController(nnew, countSpinner.getValue());
+				rateDisplay = new ItemRateController(nnew, countSpinner.getValue(), false);
 				root.add(rateDisplay.getRootNode(), 5, 0);
 			}
 		});
@@ -87,6 +87,14 @@ public class IngredientDefinitionRowController extends FXMLControllerBase {
 	public void setFluid(boolean fluid) {
 		itemDropdown.getSelectionModel().clearSelection();
 		itemDropdown.setItems(FXCollections.observableArrayList(Database.getAllItems().stream().filter(c -> (c instanceof Fluid) == fluid).toList()));
+	}
+
+	public Consumable getItem() {
+		return itemDropdown.getSelectionModel().getSelectedItem();
+	}
+
+	public int getAmount() {
+		return countSpinner.getValue();
 	}
 
 }

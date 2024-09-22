@@ -40,7 +40,7 @@ public class ItemRateController extends SizedControllerBase {
 
 	private final StackPane itemBox;
 
-	public ItemRateController(Consumable c, float amt) {
+	public ItemRateController(Consumable c, float amt, boolean table) {
 		item = c;
 		baseAmount = amt;
 
@@ -62,12 +62,17 @@ public class ItemRateController extends SizedControllerBase {
 		divider.setStrokeType(StrokeType.CENTERED);
 		divider.setStrokeLineCap(StrokeLineCap.ROUND);
 
-		itemBox = GuiUtil.createItemDisplay(c, 32, true);
+		itemBox = GuiUtil.createItemDisplay(c, 32, !table);
 		mainPanel.getChildren().add(itemBox);
 		mainPanel.getChildren().add(countContainer);
 		countContainer.getChildren().add(amount);
 		countContainer.getChildren().add(divider);
 		countContainer.getChildren().add(minLabel);
+
+		if (table) {
+			mainPanel.setPadding(new Insets(-4, -4, -4, -4));
+			mainPanel.setMargin(itemBox, new Insets(0, -4, 0, 0));
+		}
 
 		this.setAmountText(amt);
 
@@ -77,19 +82,21 @@ public class ItemRateController extends SizedControllerBase {
 		this.setTextStyle(GuiSystem.getFontStyle(FontModifier.SEMIBOLD));
 
 		mainPanel.minWidthProperty().bind(countContainer.widthProperty().add(mainPanel.spacingProperty()).add(32));
+		mainPanel.setMinHeight(32);
 		GuiUtil.sizeToContent(minLabel);
 	}
 
-	public void setAmount(float amt) {
+	public ItemRateController setAmount(float amt) {
 		baseAmount = amt;
 		this.setAmountText(amt);
+		return this;
 	}
 
-	public void setScale(float scale) {
-		this.setAmountText(baseAmount*scale);
+	public ItemRateController setScale(float scale) {
+		return this.setAmountText(baseAmount*scale);
 	}
 
-	private void setAmountText(float amt) {
+	private ItemRateController setAmountText(float amt) {
 		String txt = GuiUtil.formatProductionDecimal(amt);
 		amount.setText(txt);
 
@@ -97,6 +104,7 @@ public class ItemRateController extends SizedControllerBase {
 			minimumWidth = txt;
 		//GuiUtil.sizeToContent(amount);
 		amount.setMinWidth(GuiUtil.getWidth(minimumWidth, GuiSystem.getFont(FontModifier.BOLD)));
+		return this;
 	}
 
 	@Override
@@ -109,18 +117,21 @@ public class ItemRateController extends SizedControllerBase {
 		return amount.getMinWidth()+mainPanel.getSpacing()+32;
 	}
 
-	public void setState(WarningState st) {
+	public ItemRateController setState(WarningState st) {
 		st.applyStyles.accept(this);
+		return this;
 	}
 
-	private void setTextStyle(String style) {
+	private ItemRateController setTextStyle(String style) {
 		amount.setStyle(style);
 		minLabel.setStyle(style);
+		return this;
 	}
 
-	private void setLineStyle(Color c, double thick) {
+	private ItemRateController setLineStyle(Color c, double thick) {
 		divider.setStroke(c);
 		divider.setStrokeWidth(thick);
+		return this;
 	}
 
 	public static enum WarningState {

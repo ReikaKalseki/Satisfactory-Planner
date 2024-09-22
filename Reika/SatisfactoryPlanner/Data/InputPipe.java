@@ -61,4 +61,9 @@ public class InputPipe extends LogisticSupply<Fluid> {
 		return 1;
 	}
 
+	@Override
+	public Building getBuilding() {
+		return tier.getBuilding();
+	}
+
 }

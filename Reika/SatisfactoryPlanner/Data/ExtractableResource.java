@@ -5,7 +5,6 @@ public interface ExtractableResource<R extends Consumable> extends Overclockable
 
 	public float getClockSpeed();
 	public void setClockSpeed(float spd);
-	public FunctionalBuilding getBuilding();
 	public default Resource getLocationIcon() { return this.getBuilding(); }
 
 }

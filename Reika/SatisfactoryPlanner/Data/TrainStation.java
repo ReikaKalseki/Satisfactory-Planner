@@ -68,4 +68,14 @@ public class TrainStation<R extends Consumable> extends LogisticSupply<R> {
 		return 3;
 	}
 
+	@Override
+	public int getBuildingCount() {
+		return numberBuildings;
+	}
+
+	@Override
+	public Building getBuilding() {
+		return Database.lookupBuilding(isFluid ? "Desc_TrainDockingStationLiquid_C" : "Desc_TrainDockingStation_C");
+	}
+
 }

@@ -99,4 +99,8 @@ public class FrackingCluster implements ExtractableResource<Fluid> {
 		return 3;
 	}
 
+	public int getNodeCount() {
+		return pureCount+normalCount+impureCount;
+	}
+
 }

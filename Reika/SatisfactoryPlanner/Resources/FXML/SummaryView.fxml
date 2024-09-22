@@ -47,39 +47,41 @@
 <?import javafx.scene.layout.TilePane?>
 <?import javafx.scene.layout.VBox?>
 
-
 <ScrollPane fx:id="root" hbarPolicy="ALWAYS" pannable="true" styleClass="widget" stylesheets="@../CSS/style.css" vbarPolicy="ALWAYS" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.SummaryViewController">
    <content>
       <VBox fx:id="mainContent" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="800.0" spacing="12.0" styleClass="widget" stylesheets="@../CSS/style.css">
         <children>
             <TitledPane fx:id="wrapperPanel" collapsible="false" styleClass="panel" text="Factory &quot;&quot;" VBox.vgrow="NEVER">
                <content>
-                  <GridPane fx:id="statisticsGrid" hgap="4.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vgap="4.0">
-                    <columnConstraints>
-                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="140.0" />
-                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" />
-                    </columnConstraints>
-                    <rowConstraints>
-                      <RowConstraints maxHeight="1.7976931348623157E308" minHeight="32.0" valignment="CENTER" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="1.7976931348623157E308" minHeight="32.0" valignment="CENTER" vgrow="SOMETIMES" />
-                      <RowConstraints minHeight="32.0" valignment="CENTER" vgrow="SOMETIMES" />
-                        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="32.0" valignment="CENTER" vgrow="SOMETIMES" />
+                  <GridPane fx:id="statisticsGrid" hgap="4.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="widget" stylesheets="@../CSS/style.css" vgap="4.0">
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="140.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" valignment="CENTER" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" valignment="CENTER" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="40.0" valignment="CENTER" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" valignment="CENTER" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
                         <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" prefHeight="32.0" vgrow="SOMETIMES" />
                         <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" prefHeight="32.0" vgrow="SOMETIMES" />
-                    </rowConstraints>
+                     </rowConstraints>
                      <children>
                         <Label layoutX="20.0" layoutY="37.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Required Buildings" />
                         <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" text="Construction Cost" GridPane.rowIndex="1" />
-                        <Label layoutX="20.0" layoutY="20.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Net Power Production" GridPane.rowIndex="4" />
-                        <Label fx:id="powerProduction" layoutX="20.0" layoutY="100.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="0 MW" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                        <Label layoutX="20.0" layoutY="20.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" text="Net Power Production" GridPane.rowIndex="5" />
+                        <Label fx:id="powerProduction" layoutX="20.0" layoutY="100.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" text="0 MW" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                         <ExpandingTilePane fx:id="buildCostBar" hgap="16.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" tileAlignment="CENTER_LEFT" vgap="8.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                         <ExpandingTilePane fx:id="buildingBar" hgap="16.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" tileAlignment="CENTER_LEFT" vgap="8.0" GridPane.columnIndex="1" />
-                        <Label layoutX="20.0" layoutY="100.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Net Input Per Minute" wrapText="true" GridPane.rowIndex="2" />
+                        <Label layoutX="20.0" layoutY="100.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Net Input" wrapText="true" GridPane.rowIndex="2" />
                         <ExpandingTilePane fx:id="netProductBar" hgap="16.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" tileAlignment="CENTER_LEFT" vgap="8.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                        <Label layoutX="20.0" layoutY="172.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" text="Net Output Per Minute" GridPane.rowIndex="3" />
+                        <Label layoutX="20.0" layoutY="172.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" text="Net Output" GridPane.rowIndex="3" />
                         <ExpandingTilePane fx:id="netConsumptionBar" hgap="16.0" layoutX="140.0" layoutY="128.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" tileAlignment="CENTER_LEFT" vgap="8.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                        <Label layoutX="20.0" layoutY="164.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" text="Required Tiers" GridPane.rowIndex="5" />
-                        <ExpandingTilePane fx:id="tierBar" layoutX="152.0" layoutY="128.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" tileAlignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                        <Label layoutX="20.0" layoutY="164.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Required Tiers" GridPane.rowIndex="6" />
+                        <ExpandingTilePane fx:id="tierBar" layoutX="152.0" layoutY="128.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" tileAlignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                        <Label layoutX="20.0" layoutY="128.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Deficiencies" GridPane.rowIndex="4" />
+                        <ExpandingTilePane fx:id="deficiencyBar" hgap="16.0" layoutX="164.0" layoutY="128.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" tileAlignment="CENTER_LEFT" vgap="8.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                      </children>
                   </GridPane>
                </content>

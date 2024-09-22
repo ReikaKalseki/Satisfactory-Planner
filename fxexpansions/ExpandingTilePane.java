@@ -6,6 +6,7 @@ import java.util.List;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.TilePane;
 
 public class ExpandingTilePane<C extends SizedControllerBase> extends TilePane {
@@ -62,7 +63,12 @@ public class ExpandingTilePane<C extends SizedControllerBase> extends TilePane {
 		height += maxRowH;
 		System.out.println("Net H="+height);
 		this.setMinHeight(height);*/
-		this.setMinHeight(Math.max(minRowHeight, this.computePrefHeight(w0)));
+		double min = minRowHeight;
+		if (nodes.size() > 0)
+			min = Math.max(min, nodes.values().iterator().next().controller.getHeight());
+		this.setPrefHeight(Math.max(min, this.computePrefHeight(w0)));
+		this.setMinHeight(Region.USE_PREF_SIZE);
+		this.setMaxHeight(Region.USE_PREF_SIZE);
 	}
 
 }

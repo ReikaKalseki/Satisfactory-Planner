@@ -463,11 +463,6 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 		});
 		Logging.instance.log("Matrix options set up");
 
-		buildingBar.minRowHeight = 32;
-		buildCostBar.minRowHeight = 32;
-		netConsumptionBar.minRowHeight = 32;
-		netProductBar.minRowHeight = 32;
-
 		super.init(services);
 		this.rebuildTierSet(true);
 		Logging.instance.log("Initialization complete");

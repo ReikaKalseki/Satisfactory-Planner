@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 
 import org.apache.commons.io.FileUtils;
@@ -25,6 +26,7 @@ import Reika.SatisfactoryPlanner.Setting;
 import Reika.SatisfactoryPlanner.Data.PowerOverride.LinearIncreasePower;
 import Reika.SatisfactoryPlanner.Util.CountMap;
 import Reika.SatisfactoryPlanner.Util.Errorable.ErrorableWithArgument;
+import Reika.SatisfactoryPlanner.Util.JSONUtil;
 import Reika.SatisfactoryPlanner.Util.Logging;
 
 import javafx.scene.paint.Color;
@@ -51,6 +53,8 @@ public class Database {
 	private static final ArrayList<Milestone> allMilestonesSorted = new ArrayList();
 	private static final HashMap<String, Milestone> allMilestones = new HashMap();
 
+	private static final ArrayList<String> modList = new ArrayList();
+
 	private static final HashMap<String, ClassType> lookup = new HashMap();
 
 	private static boolean gameJSONFound;
@@ -70,6 +74,8 @@ public class Database {
 	}
 
 	public static Building lookupBuilding(String name) {
+		if (name.startsWith("Desc_"))
+			name = "Build_"+name.substring(5);
 		Building c = allBuildings.get(name);
 		if (c == null)
 			throw new IllegalArgumentException("No such building '"+name+"'");
@@ -156,6 +162,7 @@ public class Database {
 		Collections.sort(allMilestonesSorted);
 		Collections.sort(mineableItems);
 		Collections.sort(frackableFluids);
+		Collections.sort(modList);
 	}
 
 	public static void parseGameJSON() throws IOException {
@@ -440,7 +447,7 @@ public class Database {
 		int tier = Integer.parseInt(obj.getString("mTechTier"));
 		JSONArray unlocks = obj.getJSONArray("mUnlocks");
 		JSONArray deps = obj.getJSONArray("mSchematicDependencies");
-		Milestone m = new Milestone(tier, disp);
+		Milestone m = new Milestone(id, tier, disp);
 		for (Object o : deps) {
 			JSONObject ulock = (JSONObject)o;
 			String type = ulock.getString("Class");
@@ -513,17 +520,20 @@ public class Database {
 			return;
 		Logging.instance.log("Loading mod data");
 		for (File mod : Main.getModsFolder().listFiles()) {
-			String name = mod.getName();
-			Logging.instance.log("Checking mod "+name);
-			File f = new File(mod, "ContentLib");
-			if (f.exists()) {
-				loadCustomItemFolder(new File(f, "Items"), name, null);
-				//loadCustomBuildingFolder(new File(f, "CustomBuildings"), name, null);
-				loadCustomRecipeFolder(new File(f, "Recipes"), name, null);
-				loadCustomMilestoneFolder(new File(f, "Schematics"), name, null);
-			}
-			else {
-				Logging.instance.log("No ContentLib. Skipping.");
+			if (mod.isDirectory()) {
+				String name = mod.getName();
+				modList.add(name);
+				Logging.instance.log("Checking mod "+name);
+				File f = new File(mod, "ContentLib");
+				if (f.exists()) {
+					loadCustomItemFolder(new File(f, "Items"), name, null);
+					//loadCustomBuildingFolder(new File(f, "CustomBuildings"), name, null);
+					loadCustomRecipeFolder(new File(f, "Recipes"), name, null);
+					loadCustomMilestoneFolder(new File(f, "Schematics"), name, null);
+				}
+				else {
+					Logging.instance.log("No ContentLib. Skipping.");
+				}
 			}
 		}
 	}
@@ -582,7 +592,8 @@ public class Database {
 					Logging.instance.log("Loading milestone file "+f2);
 					JSONObject obj = new JSONObject(FileUtils.readFileToString(f2, Charsets.UTF_8));
 
-					Milestone m = new Milestone(obj.getInt("Tier"), obj.getString("Name"));
+					String id = obj.has("ID") ? obj.getString("ID") : f2.getName().replace("Schematic_", "");
+					Milestone m = new Milestone(id, obj.getInt("Tier"), obj.getString("Name"));
 					//TODO "Cost" field?
 					if (obj.has("DependsOn")) {
 						for (Object o : obj.getJSONArray("DependsOn")) {
@@ -762,6 +773,50 @@ public class Database {
 		}
 	}
 
+	public static File exportCustomRecipe(Recipe r, String mod) throws Exception {
+		File dir = Main.getRelativeFile("CustomDefinitions/Recipes");
+		if (!Strings.isNullOrEmpty(mod) && modList.contains(mod))
+			dir = new File(Main.getModsFolder(), mod+"/ContentLib/Recipes");
+		dir.mkdirs();
+		File f = new File(dir, r.id+".json");
+
+		JSONObject root = new JSONObject();
+		JSONArray ingredients = new JSONArray();
+		JSONArray products = new JSONArray();
+		JSONArray milestones = new JSONArray();
+		root.put("ID", r.id);
+		root.put("Name", r.displayName);
+		root.put("ManufacturingDuration", r.craftingTime);
+		JSONArray arr = new JSONArray();
+		arr.put(r.productionBuilding.id.replaceAll("_C$", ""));
+		root.put("ProducedIn", arr);
+
+		for (Entry<Consumable, Integer> e : r.getDirectCost().entrySet()) {
+			JSONObject block = new JSONObject();
+			block.put("Item", e.getKey().id.replaceAll("_C$", ""));
+			block.put("Amount", e.getValue());
+			ingredients.put(block);
+		}
+		root.put("Ingredients", ingredients);
+
+		for (Entry<Consumable, Integer> e : r.getDirectProducts().entrySet()) {
+			JSONObject block = new JSONObject();
+			block.put("Item", e.getKey().id.replaceAll("_C$", ""));
+			block.put("Amount", e.getValue());
+			products.put(block);
+		}
+		root.put("Products", products);
+
+		for (Milestone m : r.getMilestones())
+			milestones.put(m.id.replaceAll("_C$", ""));
+		root.put("UnlockedBy", milestones);
+
+		JSONUtil.saveFile(f, root);
+
+		Main.parseGameData();
+		return f;
+	}
+
 	public static void clear() {
 		gameJSONFound = false;
 		allBuildings.clear();
@@ -778,9 +833,14 @@ public class Database {
 		frackableFluids.clear();
 		allMilestones.clear();
 		allMilestonesSorted.clear();
+		modList.clear();
 		Milestone.resetTiers();
 		Resource.resetIconCheck();
 		//Logging.instance.log(String.format("Cleared data with %d items, %d recipes, %d building recipes, %d buildings, %d generators, and %d vehicles", allItemsSorted.size(), allAutoRecipesSorted.size(), allBuildingRecipesSorted.size(), allBuildingsSorted.size(), allGeneratorsSorted.size(), allVehiclesSorted.size()));
+	}
+
+	public static List<String> getModList() {
+		return Collections.unmodifiableList(modList);
 	}
 
 	public static enum ClassType {

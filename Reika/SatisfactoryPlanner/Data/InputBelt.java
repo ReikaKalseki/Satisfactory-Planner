@@ -61,4 +61,9 @@ public class InputBelt extends LogisticSupply<Item> {
 		return 0;
 	}
 
+	@Override
+	public Building getBuilding() {
+		return tier.getBuilding();
+	}
+
 }

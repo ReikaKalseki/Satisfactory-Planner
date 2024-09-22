@@ -144,7 +144,7 @@ public class SummaryViewController extends FactoryStatisticsContainer {
 			Region io = this.buildResourceSummaryRow(r);
 			supplyGrid.add(bld, 0, i);
 			supplyGrid.add(io, 1, i);
-			GuiInstance<ItemCountController> ct = GuiUtil.addIconCount(r.getResource(), r.getYield(), 4, supplyGrid, 2, i);
+			GuiInstance<ItemRateController> ct = GuiUtil.createItemView(r.getResource(), r.getYield(), supplyGrid, 2, i);
 			io.setMaxWidth(Double.MAX_VALUE);
 			io.setMaxHeight(Double.MAX_VALUE);
 			GuiUtil.setHeight(supplyGrid.getRowConstraints().get(i), 40);

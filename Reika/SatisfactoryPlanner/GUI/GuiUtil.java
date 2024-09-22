@@ -404,26 +404,31 @@ public class GuiUtil {
 		return df.format(amt);
 	}
 
+	public static final GuiInstance<ItemRateController> createItemView(Consumable c, float baseAmount, ExpandingTilePane container) {
+		return createItemView(c, baseAmount, true, inner -> container.addEntry(inner));
+	}
+
 	public static final GuiInstance<ItemRateController> createItemView(Consumable c, float baseAmount, Pane container) {
-		return createItemView(c, baseAmount, inner -> container.getChildren().add(inner));
+		return createItemView(c, baseAmount, false, inner -> container.getChildren().add(inner.rootNode));
 	}
 
 	public static final GuiInstance<ItemRateController> createItemView(Consumable c, float baseAmount, TabPane container) {
-		return createItemView(c, baseAmount, inner -> {Tab t = new Tab(); t.setContent(inner); container.getTabs().add(t);});
+		return createItemView(c, baseAmount, false, inner -> {Tab t = new Tab(); t.setContent(inner.rootNode); container.getTabs().add(t);});
 	}
 
 	public static final GuiInstance<ItemRateController> createItemView(Consumable c, float baseAmount, Tab container) {
-		return createItemView(c, baseAmount, inner -> {container.setContent(inner);});
+		return createItemView(c, baseAmount, false, inner -> {container.setContent(inner.rootNode);});
 	}
 
 	public static final GuiInstance<ItemRateController> createItemView(Consumable c, float baseAmount, GridPane container, int col, int row) {
-		return createItemView(c, baseAmount, inner -> container.add(inner, col, row));
+		return createItemView(c, baseAmount, false, inner -> container.add(inner.rootNode, col, row));
 	}
 
-	public static GuiInstance<ItemRateController> createItemView(Consumable c, float baseAmount, Consumer<Parent> acceptor) {
-		ItemRateController view = new ItemRateController(c, baseAmount);
-		acceptor.accept(view.getRootNode());
-		return new GuiInstance<ItemRateController>(view.getRootNode(), view);
+	public static GuiInstance<ItemRateController> createItemView(Consumable c, float baseAmount, boolean table, Consumer<GuiInstance<ItemRateController>> acceptor) {
+		ItemRateController view = new ItemRateController(c, baseAmount, table);
+		GuiInstance<ItemRateController> gui = new GuiInstance<ItemRateController>(view.getRootNode(), view);
+		acceptor.accept(gui);
+		return gui;
 	}
 
 	public static final GuiInstance<ItemCountController> addIconCount(Resource c, float amt, int digits, ExpandingTilePane container) {

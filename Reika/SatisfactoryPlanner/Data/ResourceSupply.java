@@ -30,10 +30,15 @@ public interface ResourceSupply<R extends Consumable> extends ItemConsumerProduc
 
 	public void save(JSONObject block);
 
+	public Building getBuilding();
 	public ResourceSupplyType getType();
 	public ResourceSupply<R> duplicate();
 
 	public void getWarnings(Consumer<Warning> c);
+
+	public default int getBuildingCount() {
+		return 1;
+	}
 
 	public default String getDescriptiveName() {
 		return this.getDisplayName()+" ["+this.getResource().displayName+"]";

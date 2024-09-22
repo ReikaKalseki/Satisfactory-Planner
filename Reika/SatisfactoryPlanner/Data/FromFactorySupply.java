@@ -71,4 +71,9 @@ public class FromFactorySupply<R extends Consumable> implements ResourceSupply<R
 
 	}
 
+	@Override
+	public Building getBuilding() {
+		return null;
+	}
+
 }

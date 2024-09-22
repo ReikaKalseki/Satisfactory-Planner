@@ -22,7 +22,7 @@ public class DroneStation extends LogisticSupply<Item> {
 
 	@Override
 	public Resource getLocationIcon() {
-		return Database.lookupVehicle("Desc_DroneTransport_C");// Database.lookupBuilding("Desc_TrainDockingStation_C");
+		return Database.lookupVehicle("Desc_DroneTransport_C");// ;
 	}
 
 	@Override
@@ -43,6 +43,11 @@ public class DroneStation extends LogisticSupply<Item> {
 	@Override
 	public int getSubSortIndex() {
 		return 4;
+	}
+
+	@Override
+	public Building getBuilding() {
+		return Database.lookupBuilding("Desc_DroneStation_C");
 	}
 
 }

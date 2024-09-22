@@ -82,4 +82,9 @@ public class WaterExtractor implements ExtractableResource<Fluid> {
 		return 1;
 	}
 
+	@Override
+	public int getBuildingCount() {
+		return numberExtractors;
+	}
+
 }

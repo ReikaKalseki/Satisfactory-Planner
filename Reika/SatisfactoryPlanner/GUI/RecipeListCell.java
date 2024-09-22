@@ -95,13 +95,13 @@ public class RecipeListCell extends DecoratedListCell<Recipe> {
 
 		for (Entry<Consumable, Float> e : r.getIngredientsPerMinute().entrySet()) {
 			if (rates)
-				ingredients.getChildren().add(new ItemRateController(e.getKey(), e.getValue()).getRootNode());
+				ingredients.getChildren().add(new ItemRateController(e.getKey(), e.getValue(), false).getRootNode());
 			else
 				ingredients.getChildren().add(new ImageView(e.getKey().createIcon()));
 		}
 		for (Entry<Consumable, Float> e : r.getProductsPerMinute().entrySet()) {
 			if (rates)
-				products.getChildren().add(new ItemRateController(e.getKey(), e.getValue()).getRootNode());
+				products.getChildren().add(new ItemRateController(e.getKey(), e.getValue(), false).getRootNode());
 			else
 				products.getChildren().add(new ImageView(e.getKey().createIcon()));
 		}

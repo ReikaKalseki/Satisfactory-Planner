@@ -45,4 +45,9 @@ public class TruckStation extends LogisticSupply<Item> {
 		return 2;
 	}
 
+	@Override
+	public Building getBuilding() {
+		return Database.lookupBuilding("Desc_TruckStation_C");
+	}
+
 }

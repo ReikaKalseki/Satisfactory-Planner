@@ -45,194 +45,19 @@
                   <Label layoutX="20.0" layoutY="108.0" text="Crafting Time" GridPane.rowIndex="4" />
                   <Spinner fx:id="timeSpinner" maxWidth="1.7976931348623157E308" prefHeight="32.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                   <Label layoutX="20.0" layoutY="68.0" text="Source Mod" GridPane.rowIndex="2" />
-                  <TextField fx:id="modField" layoutX="180.0" layoutY="60.0" prefHeight="32.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                  <SearchableComboBox fx:id="modDropdown" prefHeight="32.0" promptText="Choose Mod (optional)..." GridPane.columnIndex="1" GridPane.rowIndex="2" />
                </children>
             </GridPane>
          </content>
       </TitledPane>
       <TitledPane collapsible="false" contentDisplay="RIGHT" layoutX="14.0" layoutY="14.0" styleClass="panel" text="Ingredients">
          <content>
-            <VBox>
-               <children>
-                  <GridPane fx:id="root" hgap="4.0" styleClass="widget" stylesheets="@../CSS/style.css" vgap="8.0">
-                     <columnConstraints>
-                        <ColumnConstraints hgrow="NEVER" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="72.0" />
-                        <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" minWidth="85.0" />
-                     </columnConstraints>
-                     <rowConstraints>
-                        <RowConstraints vgrow="SOMETIMES" />
-                     </rowConstraints>
-                     <children>
-                        <Label fx:id="label" text="Ingredient 1" />
-                        <SearchableComboBox fx:id="itemDropdown" prefHeight="32.0" promptText="Choose Item..." GridPane.columnIndex="1" />
-                        <Spinner fx:id="countSpinner" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="64.0" GridPane.columnIndex="3" />
-                        <Label text="x" GridPane.columnIndex="2" />
-                        <Label layoutX="202.0" layoutY="28.0" text="=" GridPane.columnIndex="4" />
-                        <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="5" />
-                     </children>
-                  </GridPane>
-                  <GridPane fx:id="root1" hgap="4.0" layoutX="20.0" layoutY="20.0" styleClass="widget" stylesheets="@../CSS/style.css" vgap="8.0">
-                     <columnConstraints>
-                        <ColumnConstraints hgrow="NEVER" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="72.0" />
-                        <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" minWidth="85.0" />
-                     </columnConstraints>
-                     <rowConstraints>
-                        <RowConstraints vgrow="SOMETIMES" />
-                     </rowConstraints>
-                     <children>
-                        <Label fx:id="label1" text="Ingredient 1" />
-                        <SearchableComboBox fx:id="itemDropdown1" prefHeight="32.0" promptText="Choose Item..." GridPane.columnIndex="1" />
-                        <Spinner fx:id="countSpinner1" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="64.0" GridPane.columnIndex="3" />
-                        <Label text="x" GridPane.columnIndex="2" />
-                        <Label layoutX="202.0" layoutY="28.0" text="=" GridPane.columnIndex="4" />
-                        <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="5" />
-                     </children>
-                  </GridPane>
-                  <GridPane fx:id="root11" hgap="4.0" layoutX="20.0" layoutY="52.0" styleClass="widget" stylesheets="@../CSS/style.css" vgap="8.0">
-                     <columnConstraints>
-                        <ColumnConstraints hgrow="NEVER" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="72.0" />
-                        <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" minWidth="85.0" />
-                     </columnConstraints>
-                     <rowConstraints>
-                        <RowConstraints vgrow="SOMETIMES" />
-                     </rowConstraints>
-                     <children>
-                        <Label fx:id="label11" text="Ingredient 1" />
-                        <SearchableComboBox fx:id="itemDropdown11" prefHeight="32.0" promptText="Choose Item..." GridPane.columnIndex="1" />
-                        <Spinner fx:id="countSpinner11" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="64.0" GridPane.columnIndex="3" />
-                        <Label text="x" GridPane.columnIndex="2" />
-                        <Label layoutX="202.0" layoutY="28.0" text="=" GridPane.columnIndex="4" />
-                        <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="5" />
-                     </children>
-                  </GridPane>
-                  <GridPane fx:id="root111" hgap="4.0" layoutX="20.0" layoutY="84.0" styleClass="widget" stylesheets="@../CSS/style.css" vgap="8.0">
-                     <columnConstraints>
-                        <ColumnConstraints hgrow="NEVER" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="72.0" />
-                        <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" minWidth="85.0" />
-                     </columnConstraints>
-                     <rowConstraints>
-                        <RowConstraints vgrow="SOMETIMES" />
-                     </rowConstraints>
-                     <children>
-                        <Label fx:id="label111" text="Ingredient 1" />
-                        <SearchableComboBox fx:id="itemDropdown111" prefHeight="32.0" promptText="Choose Item..." GridPane.columnIndex="1" />
-                        <Spinner fx:id="countSpinner111" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="64.0" GridPane.columnIndex="3" />
-                        <Label text="x" GridPane.columnIndex="2" />
-                        <Label layoutX="202.0" layoutY="28.0" text="=" GridPane.columnIndex="4" />
-                        <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="5" />
-                     </children>
-                  </GridPane>
-               </children>
-            </VBox>
+            <VBox fx:id="ingredientList" />
          </content>
       </TitledPane>
       <TitledPane collapsible="false" contentDisplay="RIGHT" layoutX="14.0" layoutY="132.0" styleClass="panel" text="Products">
          <content>
-            <VBox>
-               <children>
-                  <VBox fx:id="productList" />
-                  <GridPane fx:id="root2" hgap="4.0" styleClass="widget" stylesheets="@../CSS/style.css" vgap="8.0">
-                     <columnConstraints>
-                        <ColumnConstraints hgrow="NEVER" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="72.0" />
-                        <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" minWidth="85.0" />
-                     </columnConstraints>
-                     <rowConstraints>
-                        <RowConstraints vgrow="SOMETIMES" />
-                     </rowConstraints>
-                     <children>
-                        <Label fx:id="label2" text="Ingredient 1" />
-                        <SearchableComboBox fx:id="itemDropdown2" prefHeight="32.0" promptText="Choose Item..." GridPane.columnIndex="1" />
-                        <Spinner fx:id="countSpinner2" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="64.0" GridPane.columnIndex="3" />
-                        <Label text="x" GridPane.columnIndex="2" />
-                        <Label layoutX="202.0" layoutY="28.0" text="=" GridPane.columnIndex="4" />
-                        <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="5" />
-                     </children>
-                  </GridPane>
-                  <GridPane fx:id="root21" hgap="4.0" layoutX="20.0" layoutY="20.0" styleClass="widget" stylesheets="@../CSS/style.css" vgap="8.0">
-                     <columnConstraints>
-                        <ColumnConstraints hgrow="NEVER" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="72.0" />
-                        <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" minWidth="85.0" />
-                     </columnConstraints>
-                     <rowConstraints>
-                        <RowConstraints vgrow="SOMETIMES" />
-                     </rowConstraints>
-                     <children>
-                        <Label fx:id="label21" text="Ingredient 1" />
-                        <SearchableComboBox fx:id="itemDropdown21" prefHeight="32.0" promptText="Choose Item..." GridPane.columnIndex="1" />
-                        <Spinner fx:id="countSpinner21" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="64.0" GridPane.columnIndex="3" />
-                        <Label text="x" GridPane.columnIndex="2" />
-                        <Label layoutX="202.0" layoutY="28.0" text="=" GridPane.columnIndex="4" />
-                        <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="5" />
-                     </children>
-                  </GridPane>
-                  <GridPane fx:id="root211" hgap="4.0" layoutX="20.0" layoutY="52.0" styleClass="widget" stylesheets="@../CSS/style.css" vgap="8.0">
-                     <columnConstraints>
-                        <ColumnConstraints hgrow="NEVER" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="72.0" />
-                        <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" minWidth="85.0" />
-                     </columnConstraints>
-                     <rowConstraints>
-                        <RowConstraints vgrow="SOMETIMES" />
-                     </rowConstraints>
-                     <children>
-                        <Label fx:id="label211" text="Ingredient 1" />
-                        <SearchableComboBox fx:id="itemDropdown211" prefHeight="32.0" promptText="Choose Item..." GridPane.columnIndex="1" />
-                        <Spinner fx:id="countSpinner211" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="64.0" GridPane.columnIndex="3" />
-                        <Label text="x" GridPane.columnIndex="2" />
-                        <Label layoutX="202.0" layoutY="28.0" text="=" GridPane.columnIndex="4" />
-                        <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="5" />
-                     </children>
-                  </GridPane>
-                  <GridPane fx:id="root2111" hgap="4.0" layoutX="20.0" layoutY="84.0" styleClass="widget" stylesheets="@../CSS/style.css" vgap="8.0">
-                     <columnConstraints>
-                        <ColumnConstraints hgrow="NEVER" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="72.0" />
-                        <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" />
-                        <ColumnConstraints halignment="CENTER" hgrow="NEVER" minWidth="85.0" />
-                     </columnConstraints>
-                     <rowConstraints>
-                        <RowConstraints vgrow="SOMETIMES" />
-                     </rowConstraints>
-                     <children>
-                        <Label fx:id="label2111" text="Ingredient 1" />
-                        <SearchableComboBox fx:id="itemDropdown2111" prefHeight="32.0" promptText="Choose Item..." GridPane.columnIndex="1" />
-                        <Spinner fx:id="countSpinner2111" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="64.0" GridPane.columnIndex="3" />
-                        <Label text="x" GridPane.columnIndex="2" />
-                        <Label layoutX="202.0" layoutY="28.0" text="=" GridPane.columnIndex="4" />
-                        <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="5" />
-                     </children>
-                  </GridPane>
-               </children>
-            </VBox>
+            <VBox fx:id="productList" />
          </content></TitledPane>
       <TitledPane collapsible="false" contentDisplay="RIGHT" layoutX="14.0" layoutY="410.0" styleClass="panel" text="Unlocked By">
          <content>

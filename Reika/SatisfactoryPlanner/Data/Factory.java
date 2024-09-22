@@ -481,15 +481,19 @@ public class Factory {
 		return f;
 	}
 	 */
-	public CountMap<FunctionalBuilding> getBuildings() {
-		CountMap<FunctionalBuilding> map = new CountMap();
+	public CountMap<Building> getBuildings() {
+		CountMap<Building> map = new CountMap();
 		for (Recipe r : recipeList)
 			map.increment(r.productionBuilding, (int)Math.ceil(this.getCount(r)));
 		for (FuelChoices f : generators.values())
 			map.increment(f.generator, f.getTotal());
 		for (ResourceSupply res : resourceSources.allValues(false)) {
-			if (res instanceof ExtractableResource)
-				map.increment(((ExtractableResource)res).getBuilding(), 1);
+			Building b = res.getBuilding();
+			if (b != null)
+				map.increment(b, res.getBuildingCount());
+			if (res instanceof FrackingCluster) {
+				map.increment(Database.lookupBuilding("Desc_FrackingExtractor_C"), ((FrackingCluster)res).getNodeCount());
+			}
 		}
 		return map;
 	}
