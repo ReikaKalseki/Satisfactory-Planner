@@ -5,7 +5,7 @@ import Reika.SatisfactoryPlanner.Util.Logging;
 
 public class Vehicle extends HandBuildable implements Comparable<Vehicle> {
 
-	private final CountMap<Item> constructionCost = new CountMap();
+	private final CountMap<Consumable> constructionCost = new CountMap();
 
 	public Vehicle(String id, String dis, String icon) {
 		super(id, dis, icon);

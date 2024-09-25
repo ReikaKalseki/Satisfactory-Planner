@@ -722,7 +722,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	@Override
 	public void onAddSupply(ResourceSupply res) {
 		this.addResourceEntry(res);
-		this.updateStats(true, false, true, true, true, true, false);
+		this.updateStats(true, true, true, true, true, true, false);
 	}
 
 	private void addResourceEntry(ResourceSupply res) {
@@ -747,7 +747,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	public void onAddSupplies(Collection<? extends ResourceSupply> c) {
 		for (ResourceSupply res : c)
 			this.addResourceEntry(res);
-		this.updateStats(true, false, true, true, true, true, false);
+		this.updateStats(true, true, true, true, true, true, false);
 	}
 
 	private <C extends ResourceSupplyEntryController, R extends ResourceSupply> void addResourceEntry(String fxml, R res) {
@@ -772,14 +772,14 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	@Override
 	public void onRemoveSupply(ResourceSupply s) {
 		inputGrid.getChildren().remove(supplyEntries.get(s).rootNode);
-		this.updateStats(true, false, true, true, true, true, false);
+		this.updateStats(true, true, true, true, true, true, false);
 	}
 
 	@Override
 	public void onRemoveSupplies(Collection<? extends ResourceSupply> c) {
 		for (ResourceSupply s : c)
 			inputGrid.getChildren().remove(supplyEntries.get(s).rootNode);
-		this.updateStats(true, false, true, true, true, true, false);
+		this.updateStats(true, true, true, true, true, true, false);
 	}
 
 	@Override
@@ -795,7 +795,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 
 	@Override
 	public void onUpdateIO() {
-		this.updateStats(true, false, true, true, true, true, false);
+		this.updateStats(true, true, true, true, true, true, false);
 	}
 
 	@Override

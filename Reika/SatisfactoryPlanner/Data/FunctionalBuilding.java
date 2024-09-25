@@ -1,6 +1,6 @@
 package Reika.SatisfactoryPlanner.Data;
 
-public class FunctionalBuilding extends Building {
+public abstract class FunctionalBuilding extends Building {
 
 	public final float basePowerCostMW;
 
@@ -11,12 +11,10 @@ public class FunctionalBuilding extends Building {
 
 	@Override
 	public int compareTo(Building o) {
-		if (o instanceof FunctionalBuilding) {
-			return Float.compare(basePowerCostMW, ((FunctionalBuilding)o).basePowerCostMW); //loosely correlates with tier/advancement
-		}
-		else {
-			return super.compareTo(o);
-		}
+		int ret = super.compareTo(o);
+		if (o instanceof FunctionalBuilding)
+			ret += (int)Math.signum(Float.compare(basePowerCostMW, ((FunctionalBuilding)o).basePowerCostMW))*100;
+		return ret;
 	}
 
 }

@@ -1,10 +1,13 @@
 package fxexpansions;
 
+import static javafx.geometry.Orientation.HORIZONTAL;
+
 import java.util.HashMap;
 import java.util.List;
 
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.TilePane;
@@ -31,6 +34,11 @@ public class ExpandingTilePane<C extends SizedControllerBase> extends TilePane {
 			needsResize = true;
 			Platform.runLater(() -> this.recomputeSize(this.getWidth()));
 		});
+	}
+
+	public void clear() {
+		this.getChildren().clear();
+		nodes.clear();
 	}
 
 	public void addEntry(GuiInstance<C> g) {
@@ -64,11 +72,54 @@ public class ExpandingTilePane<C extends SizedControllerBase> extends TilePane {
 		System.out.println("Net H="+height);
 		this.setMinHeight(height);*/
 		double min = minRowHeight;
-		if (nodes.size() > 0)
+		if (nodes.size() > 0) {
 			min = Math.max(min, nodes.values().iterator().next().controller.getHeight());
+		}
 		this.setPrefHeight(Math.max(min, this.computePrefHeight(w0)));
 		this.setMinHeight(Region.USE_PREF_SIZE);
 		this.setMaxHeight(Region.USE_PREF_SIZE);
+	}
+
+	@Override
+	protected double computePrefHeight(double forWidth) {
+		final Insets insets = this.getInsets();
+		int prefRows = 0;
+		if (forWidth != -1) {
+			int prefCols = this.computeColumns(forWidth - this.snapSpaceX(insets.getLeft()) - this.snapSpaceX(insets.getRight()), this.getTileWidth());
+			prefRows = this.computeOther(nodes.size(), prefCols);
+		}
+		else {
+			prefRows = this.getOrientation() == HORIZONTAL? this.computeOther(nodes.size(), this.getPrefColumns()) : this.getPrefRows();
+		}
+		return this.snapSpaceY(insets.getTop()) + this.computeContentHeight(prefRows, this.getRealTileHeight()) + this.snapSpaceY(insets.getBottom());
+	}
+
+	private double getRealTileHeight() {
+		double max = 0;
+		for (GuiInstance<C> gui : nodes.values()) {
+			max = Math.max(max, gui.controller.getHeight());
+		}
+		return max;
+	}
+
+	private double computeContentHeight(int rows, double tileheight) {
+		if (rows == 0) return 0;
+		return rows * tileheight + (rows - 1) * this.snapSpaceY(this.getVgap());
+	}
+
+	private int computeOther(int numNodes, int numCells) {
+		double other = (double)numNodes/(double)Math.max(1, numCells);
+		return (int)Math.ceil(other);
+	}
+
+	private int computeColumns(double width, double tilewidth) {
+		double snappedHgap = this.snapSpaceX(this.getHgap());
+		return Math.max(1,(int)((width + snappedHgap) / (tilewidth + snappedHgap)));
+	}
+
+	private int computeRows(double height, double tileheight) {
+		double snappedVgap = this.snapSpaceY(this.getVgap());
+		return Math.max(1, (int)((height + snappedVgap) / (tileheight + snappedVgap)));
 	}
 
 }

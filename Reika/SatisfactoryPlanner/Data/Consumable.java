@@ -19,11 +19,13 @@ public abstract class Consumable extends Resource implements Comparable<Consumab
 	public final boolean isEquipment;
 	public final boolean isBiomass;
 	public final boolean isFicsmas;
+	public final boolean isAlien;
 	public final boolean isRawResource;
 
 	private static final ArrayList<String> findableOrder = new ArrayList();
 	private static final HashSet<String> remainsIDs = new HashSet();
 	private static final ArrayList<String> oreOrder = new ArrayList();
+	private static final ArrayList<String> alienOrder = new ArrayList();
 
 	private static final MultiMap<String, Consumable> byCategory = new MultiMap();
 
@@ -47,6 +49,16 @@ public abstract class Consumable extends Resource implements Comparable<Consumab
 		findableOrder.add("Desc_Gift_C");
 
 		//findableIDs.add("Desc_Mycelia_C");
+
+		alienOrder.add("Desc_WAT1_C");
+		alienOrder.add("Desc_WAT2_C");
+		alienOrder.add("Desc_SAM_C");
+		alienOrder.add("Desc_SAMIngot_C");
+		alienOrder.add("Desc_SAMFluctuator_C");
+		alienOrder.add("Desc_FicsiteIngot_C");
+		alienOrder.add("Desc_FicsiteMesh_C");
+		alienOrder.add("Desc_Ficsonium_C");
+		alienOrder.add("Desc_FicsoniumFuelRod_C");
 
 		remainsIDs.add("Desc_HogParts_C");
 		remainsIDs.add("Desc_SpitterParts_C");
@@ -73,6 +85,7 @@ public abstract class Consumable extends Resource implements Comparable<Consumab
 		isRawResource = cat.equalsIgnoreCase("FGResourceDescriptor");
 		isEquipment = cat.equalsIgnoreCase("FGEquipmentDescriptor");
 		isFindable = findableOrder.contains(id);
+		isAlien = alienOrder.contains(id);
 		isBiomass = (cat.equalsIgnoreCase("FGItemDescriptorBiomass") && energyValue > 0) || remainsIDs.contains(id) || id.equalsIgnoreCase("Desc_AlienProtein_C") || id.equalsIgnoreCase("Desc_AlienDNACapsule_C");
 		isFicsmas = id.startsWith("Desc_Xmas") || id.equalsIgnoreCase("Desc_Snow_C") || displayName.startsWith("FICSMAS") || id.startsWith("Desc_Fireworks_Projectile");
 		byCategory.addValue(cat, this);
@@ -101,14 +114,28 @@ public abstract class Consumable extends Resource implements Comparable<Consumab
 		if (this.getTier() != c.getTier())
 			return Integer.compare(this.getTier(), c.getTier());
 		int ret = String.CASE_INSENSITIVE_ORDER.compare(id, c.id);
+		int nrgComp = Float.compare(energyValue, c.energyValue);
+		if (nrgComp != 0)
+			ret = nrgComp;
 		int group1 = this.getSortGroup();
 		int group2 = c.getSortGroup();
+
 		if (group1 != group2)
 			return Integer.compare(group1, group2);
+
 		if (isRawResource)
-			return this.subsort(c, oreOrder, ret);
+			return c.isRawResource ? this.subsort(c, oreOrder, ret) : -1;
+		else if (c.isRawResource)
+			return 1;
+
+		if (isAlien)
+			return c.isAlien ? this.subsort(c, alienOrder, ret) : 1;
+		else if (c.isAlien)
+			return -1;
+
 		if (isFindable)
 			return this.subsort(c, findableOrder, ret);
+
 		return ret;
 	}
 

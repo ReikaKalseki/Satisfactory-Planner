@@ -2,7 +2,7 @@ package Reika.SatisfactoryPlanner.Data;
 
 import Reika.SatisfactoryPlanner.Util.Logging;
 
-public class Building extends HandBuildable implements Comparable<Building> {
+public abstract class Building extends HandBuildable implements Comparable<Building> {
 
 	public Building(String id, String dis, String icon) {
 		super(id, dis, icon);
@@ -16,7 +16,31 @@ public class Building extends HandBuildable implements Comparable<Building> {
 
 	@Override
 	public int compareTo(Building o) {
-		return String.CASE_INSENSITIVE_ORDER.compare(id, o.id);
+		BuildingCategory s1 = this.getCategory();
+		BuildingCategory s2 = o.getCategory();
+		return (int)Math.signum(String.CASE_INSENSITIVE_ORDER.compare(id, o.id))+s1.compareTo(s2)*10000;
+	}
+	/*
+	@Override
+	public final int compareTo(Building o) {
+		int ret = Integer.compare(this.getSortIndex(), o.getSortIndex());
+		if (ret == 0)
+			ret = String.CASE_INSENSITIVE_ORDER.compare(id, o.id);
+		return ret;
+	}
+
+	protected int getSortIndex() {
+		return this.getCategory().ordinal();
+	}
+	 */
+	public abstract BuildingCategory getCategory();
+
+	public static enum BuildingCategory {
+		CRAFTER,
+		LINE,
+		MINER,
+		LOGISTIC,
+		GENERATOR
 	}
 
 }

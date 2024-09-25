@@ -82,7 +82,9 @@ public class ItemRateController extends SizedControllerBase {
 		this.setTextStyle(GuiSystem.getFontStyle(FontModifier.SEMIBOLD));
 
 		mainPanel.minWidthProperty().bind(countContainer.widthProperty().add(mainPanel.spacingProperty()).add(32));
-		mainPanel.setMinHeight(32);
+		mainPanel.setPrefHeight(32);
+		mainPanel.setMinHeight(mainPanel.getPrefHeight());
+		mainPanel.setMaxHeight(mainPanel.getPrefHeight());
 		GuiUtil.sizeToContent(minLabel);
 	}
 
@@ -99,7 +101,11 @@ public class ItemRateController extends SizedControllerBase {
 	private ItemRateController setAmountText(float amt) {
 		String txt = GuiUtil.formatProductionDecimal(amt);
 		amount.setText(txt);
+		this.setMinWidth(txt);
+		return this;
+	}
 
+	public ItemRateController setMinWidth(String txt) {
 		if (GuiUtil.getWidth(txt, amount.getFont()) > GuiUtil.getWidth(minimumWidth, amount.getFont()))
 			minimumWidth = txt;
 		//GuiUtil.sizeToContent(amount);
@@ -109,12 +115,12 @@ public class ItemRateController extends SizedControllerBase {
 
 	@Override
 	public double getHeight() {
-		return Math.max(32, mainPanel.getHeight());
+		return Math.max(40, mainPanel.getHeight());
 	}
 
 	@Override
 	public double getWidth() {
-		return amount.getMinWidth()+mainPanel.getSpacing()+32;
+		return amount.getMinWidth()+mainPanel.getSpacing()+40;
 	}
 
 	public ItemRateController setState(WarningState st) {

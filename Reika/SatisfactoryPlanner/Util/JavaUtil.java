@@ -11,6 +11,7 @@ package Reika.SatisfactoryPlanner.Util;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -229,5 +230,17 @@ public final class JavaUtil {
 
 	public static void stopThreads() {
 		threader.shutdown();
+	}
+
+	public static <E extends Comparable<E>> List<E> sorted(Collection<E> c) {
+		ArrayList<E> li = new ArrayList(c);
+		Collections.sort(li);
+		return li;
+	}
+
+	public static <E> List<E> sorted(Collection<E> c, Comparator<E> comp) {
+		ArrayList<E> li = new ArrayList(c);
+		Collections.sort(li, comp);
+		return li;
 	}
 }

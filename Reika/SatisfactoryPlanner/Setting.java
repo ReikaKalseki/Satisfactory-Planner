@@ -16,6 +16,7 @@ public class Setting<S> {
 	public static final Setting<File> GAMEDIR = new Setting<File>(new File("C:/Program Files (x86)/Steam/steamapps/common/Satisfactory"), FileConverter.instance).addChangeCallback(() -> Main.parseGameData());
 	public static final Setting<Boolean> ALLOWDECIMAL = new Setting<Boolean>(false, BoolConverter.instance);
 	public static final Setting<InputInOutputOptions> INOUT = new Setting<InputInOutputOptions>(InputInOutputOptions.MINES, new EnumConverter(InputInOutputOptions.class)).addChangeCallback(() -> Main.updateMainUI());
+	public static final Setting<Float> IOTHRESH = new Setting<Float>(0F, FloatConverter.instance).addChangeCallback(() -> Main.updateMainUI());
 
 	public final S defaultValue;
 	private S currentValue;

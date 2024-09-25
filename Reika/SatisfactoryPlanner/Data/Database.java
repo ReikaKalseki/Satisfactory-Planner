@@ -23,6 +23,7 @@ import com.google.common.base.Strings;
 
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Setting;
+import Reika.SatisfactoryPlanner.Data.Building.BuildingCategory;
 import Reika.SatisfactoryPlanner.Data.PowerOverride.LinearIncreasePower;
 import Reika.SatisfactoryPlanner.Util.CountMap;
 import Reika.SatisfactoryPlanner.Util.Errorable.ErrorableWithArgument;
@@ -352,7 +353,7 @@ public class Database {
 		tokenizeUERecipeString(rec, (item, amt) -> map.set(item, amt));
 		return map;
 	}
-
+	/*
 	private static void parseBuildingJSON(JSONObject obj) {
 		String id = obj.getString("ClassName");
 		Logging.instance.log("Parsing JSON elem "+id);
@@ -361,14 +362,27 @@ public class Database {
 		allBuildings.put(r.id, r);
 		allBuildingsSorted.add(r);
 	}
-
-	private static void parseFunctionalBuildingJSON(JSONObject obj, boolean crafting) {
+	 */
+	private static void parseFunctionalBuildingJSON(JSONObject obj, BuildingCategory cat) {
 		String id = obj.getString("ClassName");
 		Logging.instance.log("Parsing JSON elem "+id);
 		String disp = obj.getString("mDisplayName");
 		String pwr = obj.getString("mPowerConsumption");
 		String pwrExp = obj.getString("mPowerConsumptionExponent"); //FIXME handle this for overclock!
-		FunctionalBuilding r = crafting ? new CraftingBuilding(id, disp, convertIDToIcon(id), Float.parseFloat(pwr)) : new FunctionalBuilding(id, disp, convertIDToIcon(id), Float.parseFloat(pwr));
+		FunctionalBuilding r;
+		switch(cat) {
+			case CRAFTER:
+				r = new CraftingBuilding(id, disp, convertIDToIcon(id), Float.parseFloat(pwr));
+				break;
+			case MINER:
+				r = new ResourceMiner(id, disp, convertIDToIcon(id), Float.parseFloat(pwr));
+				break;
+			case LOGISTIC:
+				r = new LogisticBuilding(id, disp, convertIDToIcon(id), Float.parseFloat(pwr));
+				break;
+			default:
+				throw new IllegalArgumentException(cat.toString());
+		}
 		allBuildings.put(r.id, r);
 		allBuildingsSorted.add(r);
 	}
@@ -378,7 +392,7 @@ public class Database {
 		Logging.instance.log("Parsing JSON elem "+id);
 		String disp = obj.getString("mDisplayName");
 		String spd = obj.getString("mSpeed"); //TODO is 2x item transfer rate/min
-		Building r = new Building(id, disp, convertIDToIcon(id));
+		Building r = new TransportLine(id, disp, convertIDToIcon(id));
 		allBuildings.put(r.id, r);
 		allBuildingsSorted.add(r);
 	}
@@ -388,7 +402,7 @@ public class Database {
 		Logging.instance.log("Parsing JSON elem "+id);
 		String disp = obj.getString("mDisplayName");
 		String spd = obj.getString("mFlowLimit"); //TODO is per second, so x60 for /min
-		Building r = new Building(id, disp, convertIDToIcon(id));
+		Building r = new TransportLine(id, disp, convertIDToIcon(id));
 		allBuildings.put(r.id, r);
 		allBuildingsSorted.add(r);
 	}
@@ -488,6 +502,9 @@ public class Database {
 		Logging.instance.log("Loading vanilla data");
 		ClassType.RESOURCE.parsePending();
 		ClassType.ITEM.parsePending();
+		Item i = new Item("Desc_HardDrive_C", "Hard Drive", convertIDToIcon("Desc_HardDrive_C"), "", "Hardcoded", 0); //missing from json???
+		allItems.put(i.id, i);
+		allItemsSorted.add(i);
 		ClassType.CRAFTER.parsePending();
 		ClassType.MINER.parsePending();
 		ClassType.GENERATOR.parsePending();
@@ -887,13 +904,13 @@ public class Database {
 					parseGeneratorJSON(obj);
 					break;
 				case CRAFTER:
-					parseFunctionalBuildingJSON(obj, true);
+					parseFunctionalBuildingJSON(obj, BuildingCategory.CRAFTER);
 					break;
 				case MINER:
-					parseFunctionalBuildingJSON(obj, false);
+					parseFunctionalBuildingJSON(obj, BuildingCategory.MINER);
 					break;
 				case STATION:
-					parseFunctionalBuildingJSON(obj, false);
+					parseFunctionalBuildingJSON(obj, BuildingCategory.LOGISTIC);
 					break;
 				case BELT:
 					parseBeltJSON(obj);

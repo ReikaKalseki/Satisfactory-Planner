@@ -38,6 +38,7 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -63,6 +64,8 @@
                   <RowConstraints vgrow="SOMETIMES" />
                   <RowConstraints vgrow="SOMETIMES" />
                   <RowConstraints vgrow="SOMETIMES" />
+                  <RowConstraints vgrow="SOMETIMES" />
+                  <RowConstraints vgrow="SOMETIMES" />
                </rowConstraints>
                <children>
                   <Label text="Game Install Directory" wrapText="true" />
@@ -76,6 +79,15 @@
                         <RadioButton fx:id="excludeInRadio" mnemonicParsing="false" text="Exclude" />
                         <RadioButton fx:id="mineOnlyRadio" layoutX="10.0" layoutY="19.0" mnemonicParsing="false" text="Mines Only" />
                         <RadioButton fx:id="allInRadio" layoutX="87.0" layoutY="19.0" mnemonicParsing="false" text="All Inputs" />
+                     </children>
+                  </HBox>
+                  <Label layoutX="18.0" layoutY="63.0" text="Automatically Recompute Statistics" wrapText="true" GridPane.rowIndex="3" />
+                  <CheckBox fx:id="autoRecompute" layoutX="158.0" layoutY="72.0" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                  <Label layoutX="18.0" layoutY="155.0" text="Surplus/Deficiency Display Threshold" wrapText="true" GridPane.rowIndex="4" />
+                  <HBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="12.0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4" GridPane.vgrow="ALWAYS">
+                     <children>
+                        <CheckBox fx:id="noSignificanceThreshold" mnemonicParsing="false" selected="true" text="Always Show" />
+                        <Spinner fx:id="displayThreshold" disable="true" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
                      </children>
                   </HBox>
                </children>

@@ -18,6 +18,7 @@ import Reika.SatisfactoryPlanner.GUI.GuiSystem.FontModifier;
 import Reika.SatisfactoryPlanner.GUI.ItemRateController.WarningState;
 import Reika.SatisfactoryPlanner.Util.ColorUtil;
 import Reika.SatisfactoryPlanner.Util.CountMap;
+import Reika.SatisfactoryPlanner.Util.JavaUtil;
 
 import fxexpansions.ExpandingTilePane;
 import fxexpansions.FXMLControllerBase;
@@ -88,6 +89,7 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 		this.bindRowHeight(3, netProductBar);
 		this.bindRowHeight(4, deficiencyBar);
 
+		tierBar.minRowHeight = 32;
 		buildingBar.minRowHeight = 40;
 		buildCostBar.minRowHeight = 40;
 		netConsumptionBar.minRowHeight = 40;
@@ -105,7 +107,7 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 	}
 
 	protected final void setupTierBar() {
-		tierBar.getChildren().clear();
+		tierBar.clear();
 		tierLamps = new GuiInstance[Milestone.getMaxTier()+1];
 		for (int i = 0; i < tierLamps.length; i++) {
 			TierLampController c = new TierLampController(i);
@@ -141,13 +143,12 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 			this.updateWarnings();
 
 		if (buildings) {
-			buildCostBar.getChildren().clear();
-			buildingBar.getChildren().clear();
+			buildCostBar.clear();
+			buildingBar.clear();
 
 			CountMap<Item> cost = new CountMap();
 			CountMap<Building> bc = factory.getBuildings();
-			for (Building b : bc.keySet()) {
-
+			for (Building b : JavaUtil.sorted(bc.keySet())) {
 				int amt = bc.get(b);
 				GuiUtil.addIconCount(b, amt, 5, buildingBar);
 
@@ -156,7 +157,7 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 				}
 			}
 
-			for (Item i : cost.keySet()) {
+			for (Item i : JavaUtil.sorted(cost.keySet(), (i1, i2) -> i1.compareTo(i2))) {
 				GuiUtil.addIconCount(i, cost.get(i), 5, buildCostBar);
 			}
 		}
@@ -203,32 +204,35 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 			}
 		}*/
 		if (consuming) {
-			netConsumptionBar.getChildren().clear();
-			deficiencyBar.getChildren().clear();
+			netConsumptionBar.clear();
+			deficiencyBar.clear();
 
 			for (Consumable c : factory.getAllIngredients()) {
-				float ship = factory.getExternalInput(c, false)-factory.getTotalProduction(c);
-				if (ship > 0) {
+				float sup = factory.getExternalInput(c, false);
+				float ship = sup-factory.getTotalProduction(c);
+				if (sup > 0 && ship > 0.0001 && ship >= Setting.IOTHRESH.getCurrentValue().floatValue()) {
 					this.center(netConsumptionBar, GuiUtil.createItemView(c, ship, netConsumptionBar));
 				}
 				float deficiency = factory.getTotalConsumption(c)-factory.getTotalProduction(c)-factory.getExternalInput(c, false);
-				if (deficiency > 0) {
+				if (deficiency > 0.0001 && deficiency >= Setting.IOTHRESH.getCurrentValue().floatValue()) {
 					this.center(deficiencyBar, GuiUtil.createItemView(c, deficiency, deficiencyBar)).controller.setState(WarningState.INSUFFICIENT);
 				}
 			}
 		}
 		if (production) {
-			netProductBar.getChildren().clear();
+			netProductBar.clear();
 			HashSet<Consumable> set = new HashSet(factory.getAllProducedItems());
 			if (Setting.INOUT.getCurrentValue() != InputInOutputOptions.EXCLUDE)
 				set.addAll(factory.getAllMinedItems());
 			if (Setting.INOUT.getCurrentValue() == InputInOutputOptions.ALL)
 				set.addAll(factory.getAllSuppliedItems());
-			for (Consumable c : set) {
+			ArrayList<Consumable> li = new ArrayList(set);
+			Collections.sort(li);
+			for (Consumable c : li) {
 				float amt = factory.getTotalProduction(c)-factory.getTotalConsumption(c);
 				if (Setting.INOUT.getCurrentValue() != InputInOutputOptions.EXCLUDE)
 					amt += factory.getExternalInput(c, Setting.INOUT.getCurrentValue() == InputInOutputOptions.ALL ? false : true);
-				if (amt > 0) {
+				if (amt > 0.0001 && amt >= Setting.IOTHRESH.getCurrentValue().floatValue()) {
 					GuiInstance<ItemRateController> gui = this.center(netProductBar, GuiUtil.createItemView(c, amt, netProductBar));
 					if (!factory.getDesiredProducts().contains(c))
 						gui.controller.setState(WarningState.LEFTOVER);
@@ -240,7 +244,9 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 	}
 
 	private GuiInstance<ItemRateController> center(ExpandingTilePane exp, GuiInstance<ItemRateController> gui) {
-		exp.setMargin(gui.rootNode, new Insets(-8, -4, -8, 4));
+		//exp.setMargin(gui.rootNode, new Insets(-8, -4, -8, 4));
+		//exp.setVgap(Math.max(exp.getVgap(), 16+8));
+		exp.setPadding(new Insets(0, 4, 0, 4));
 		return gui;
 	}
 }

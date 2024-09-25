@@ -1,5 +1,6 @@
 {
     "INOUT": "EXCLUDE",
     "ALLOWDECIMAL": "true",
+    "IOTHRESH": "0.000000",
     "GAMEDIR": "P:/SteamOverflow/steamapps/common/Satisfactory"
 }

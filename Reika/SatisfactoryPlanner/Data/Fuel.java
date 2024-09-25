@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class Fuel implements ItemConsumerProducer {
+public class Fuel implements ItemConsumerProducer, Comparable<Fuel> {
 
 	private static final ArrayList<Fuel> fuels = new ArrayList();
 
@@ -82,6 +82,11 @@ public class Fuel implements ItemConsumerProducer {
 	@Override
 	public Map<Consumable, Float> getProductsPerMinute() {
 		return byproduct == null ? Map.of() : Map.of(byproduct, this.getByproductRate());
+	}
+
+	@Override
+	public int compareTo(Fuel o) {
+		return item.compareTo(o.item);
 	}
 
 }

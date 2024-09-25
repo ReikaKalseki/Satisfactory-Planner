@@ -58,7 +58,7 @@ public class RecipeListCell extends DecoratedListCell<Recipe> {
 		buildingBar.setMinWidth(Region.USE_PREF_SIZE);
 		buildingBar.setMaxWidth(Region.USE_PREF_SIZE);
 		HBox graphicBar = new HBox();
-		graphicBar.getChildren().add(buildIODisplay(r, false, false));
+		graphicBar.getChildren().add(buildIODisplay(r, false, -1));
 		Rectangle rect = new Rectangle();
 		rect.setFill(UIConstants.FADE_COLOR);
 		rect.setWidth(4);
@@ -69,9 +69,10 @@ public class RecipeListCell extends DecoratedListCell<Recipe> {
 		return graphicBar;
 	}
 
-	public static Node buildIODisplay(Recipe r, boolean compact, boolean rates) {
+	public static Node buildIODisplay(Recipe r, boolean compact, float rateScale) {
 		HBox ingredients = new HBox();
 		HBox products = new HBox();
+		boolean rates = rateScale >= 0;
 		ingredients.setSpacing(8);
 		products.setSpacing(8);
 		if (compact) {
@@ -87,25 +88,26 @@ public class RecipeListCell extends DecoratedListCell<Recipe> {
 			ingredients.setMaxWidth(Region.USE_PREF_SIZE);
 			products.setMinWidth(Region.USE_PREF_SIZE);
 			products.setMaxWidth(Region.USE_PREF_SIZE);
-			ingredients.prefWidthProperty().bind(ingredients.spacingProperty().multiply(Recipe.getMaxIngredients()-1).add(Recipe.getMaxIngredients()*32));
-			products.prefWidthProperty().bind(products.spacingProperty().multiply(Recipe.getMaxProducts()-1).add(Recipe.getMaxProducts()*32));
+			ingredients.prefWidthProperty().bind(ingredients.spacingProperty().multiply(Recipe.getMaxIngredients()-1).add(Recipe.getMaxIngredients()*(rates ? 40 : 32)));
+			products.prefWidthProperty().bind(products.spacingProperty().multiply(Recipe.getMaxProducts()-1).add(Recipe.getMaxProducts()*(rates ? 40 : 32)));
 		}
 		ingredients.setAlignment(Pos.CENTER_RIGHT);
 		products.setAlignment(Pos.CENTER_LEFT);
 
 		for (Entry<Consumable, Float> e : r.getIngredientsPerMinute().entrySet()) {
 			if (rates)
-				ingredients.getChildren().add(new ItemRateController(e.getKey(), e.getValue(), false).getRootNode());
+				ingredients.getChildren().add(new ItemRateController(e.getKey(), e.getValue()*rateScale, false).setMinWidth("000.00").getRootNode());
 			else
 				ingredients.getChildren().add(new ImageView(e.getKey().createIcon()));
 		}
 		for (Entry<Consumable, Float> e : r.getProductsPerMinute().entrySet()) {
 			if (rates)
-				products.getChildren().add(new ItemRateController(e.getKey(), e.getValue(), false).getRootNode());
+				products.getChildren().add(new ItemRateController(e.getKey(), e.getValue()*rateScale, false).setMinWidth("000.00").getRootNode());
 			else
 				products.getChildren().add(new ImageView(e.getKey().createIcon()));
 		}
 		HBox itemBar = new HBox();
+		itemBar.setAlignment(Pos.CENTER);
 		itemBar.getChildren().add(ingredients);
 		ImageView img = new ImageView(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/arrow-right-small.png")));
 		itemBar.getChildren().add(img);

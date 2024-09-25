@@ -49,7 +49,7 @@
 
 <ScrollPane fx:id="root" hbarPolicy="ALWAYS" pannable="true" styleClass="widget" stylesheets="@../CSS/style.css" vbarPolicy="ALWAYS" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.SummaryViewController">
    <content>
-      <VBox fx:id="mainContent" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="800.0" spacing="12.0" styleClass="widget" stylesheets="@../CSS/style.css">
+      <VBox fx:id="mainContent" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="1000.0" spacing="12.0" styleClass="widget" stylesheets="@../CSS/style.css">
         <children>
             <TitledPane fx:id="wrapperPanel" collapsible="false" styleClass="panel" text="Factory &quot;&quot;" VBox.vgrow="NEVER">
                <content>
@@ -61,7 +61,7 @@
                      <rowConstraints>
                         <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" valignment="CENTER" vgrow="SOMETIMES" />
                         <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" valignment="CENTER" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="40.0" valignment="CENTER" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" valignment="CENTER" vgrow="SOMETIMES" />
                         <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" valignment="CENTER" vgrow="SOMETIMES" />
                         <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
                         <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" prefHeight="32.0" vgrow="SOMETIMES" />

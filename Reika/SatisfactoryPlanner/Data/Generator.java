@@ -49,4 +49,9 @@ public class Generator extends FunctionalBuilding {
 			return super.compareTo(o);
 	}
 
+	@Override
+	public BuildingCategory getCategory() {
+		return BuildingCategory.GENERATOR;
+	}
+
 }

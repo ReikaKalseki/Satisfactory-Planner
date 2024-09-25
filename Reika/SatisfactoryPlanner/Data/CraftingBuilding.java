@@ -26,18 +26,22 @@ public class CraftingBuilding extends FunctionalBuilding {
 
 	@Override
 	public int compareTo(Building o) {
+		int ret = super.compareTo(o);
 		if (o instanceof CraftingBuilding) {
 			int idx = crafterOrder.indexOf(id);
 			int idx2 = crafterOrder.indexOf(o.id);
-			if (idx == -1)
-				idx = 9999;
-			if (idx2 == -1)
-				idx2 = 9999;
-			return idx == idx2 ? super.compareTo(o) : Integer.compare(idx, idx2);
+			if (idx < 0)
+				idx = 999;
+			if (idx2 < 0)
+				idx2 = 999;
+			ret += (int)Math.signum(Integer.compare(idx, idx2))*1000;
 		}
-		else {
-			return 1;
-		}
+		return ret;
+	}
+
+	@Override
+	public BuildingCategory getCategory() {
+		return BuildingCategory.CRAFTER;
 	}
 
 }

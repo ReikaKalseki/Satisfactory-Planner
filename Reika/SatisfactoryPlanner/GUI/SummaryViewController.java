@@ -24,6 +24,8 @@ import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.Data.ResourceSupply;
 import Reika.SatisfactoryPlanner.Data.TrainStation;
 import Reika.SatisfactoryPlanner.Data.WaterExtractor;
+import Reika.SatisfactoryPlanner.Util.ColorUtil;
+import Reika.SatisfactoryPlanner.Util.Logging;
 
 import fxexpansions.GuiInstance;
 import javafx.application.HostServices;
@@ -45,6 +47,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
@@ -95,7 +98,12 @@ public class SummaryViewController extends FactoryStatisticsContainer {
 			buttonBar.setVisible(true);
 			buttonBar.setManaged(true);
 			this.setSize();
-			GuiUtil.raiseDialog(AlertType.INFORMATION, "Summary Saved", "Summary View saved to\n"+GuiUtil.splitToWidth(png.getCanonicalPath(), 400, "(?=[\\s\\\\]+)", GuiSystem.getDefaultFont()), ButtonType.OK);
+			Logging.instance.log("Exported summary for factory "+name+" to "+png.getCanonicalPath());
+			GuiUtil.raiseDialog(AlertType.INFORMATION, "Summary Saved", "Summary View saved to\n"+GuiUtil.splitToWidth(png.getCanonicalPath(), 400, "(?=[\\s\\\\]+)", GuiSystem.getDefaultFont()), a -> {
+				Button b = (Button)a.getDialogPane().lookupButton(ButtonType.NEXT);
+				b.setText("Show");
+				GuiUtil.setButtonEvent(b, () -> services.showDocument(png.toPath().toString()));
+			}, 600, ButtonType.NEXT, ButtonType.OK);
 		});
 
 		Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
@@ -140,9 +148,9 @@ public class SummaryViewController extends FactoryStatisticsContainer {
 		Collections.sort(li, ResourceSupply.globalSupplySorter);
 		for (ResourceSupply r : li) {
 			GuiUtil.addRowToGridPane(supplyGrid, i);
-			ImageView bld = r.getLocationIcon().createImageView();
 			Region io = this.buildResourceSummaryRow(r);
-			supplyGrid.add(bld, 0, i);
+			StackPane sp = GuiUtil.createItemDisplay(r.getLocationIcon(), 32, false);
+			supplyGrid.add(sp, 0, i);
 			supplyGrid.add(io, 1, i);
 			GuiInstance<ItemRateController> ct = GuiUtil.createItemView(r.getResource(), r.getYield(), supplyGrid, 2, i);
 			io.setMaxWidth(Double.MAX_VALUE);
@@ -150,7 +158,7 @@ public class SummaryViewController extends FactoryStatisticsContainer {
 			GuiUtil.setHeight(supplyGrid.getRowConstraints().get(i), 40);
 			if (i%2 == 1) {
 				io.getStyleClass().add("table-row-darken");
-				bld.getStyleClass().add("table-row-darken");
+				sp.getStyleClass().add("table-row-darken");
 				ct.rootNode.getStyleClass().add("table-row-darken");
 			}
 			i++;
@@ -160,7 +168,7 @@ public class SummaryViewController extends FactoryStatisticsContainer {
 		recipeGrid.getColumnConstraints().clear();
 		recipeGrid.getRowConstraints().clear();
 
-		GuiUtil.setWidth(GuiUtil.addColumnToGridPane(recipeGrid, 0), 200);
+		GuiUtil.setWidth(GuiUtil.addColumnToGridPane(recipeGrid, 0), 240);
 		cc = GuiUtil.addColumnToGridPane(recipeGrid, 1);
 		cc.setMaxWidth(Double.MAX_VALUE);
 		cc.setPrefWidth(Region.USE_COMPUTED_SIZE);
@@ -168,7 +176,7 @@ public class SummaryViewController extends FactoryStatisticsContainer {
 		cc.setHgrow(Priority.ALWAYS);
 		cc.setFillWidth(true);
 		cc.setHalignment(HPos.CENTER);
-		GuiUtil.setWidth(GuiUtil.addColumnToGridPane(recipeGrid, 2), 32);
+		GuiUtil.setWidth(GuiUtil.addColumnToGridPane(recipeGrid, 2), 40);
 		GuiUtil.setWidth(GuiUtil.addColumnToGridPane(recipeGrid, 3), 64);
 		recipeGrid.getColumnConstraints().get(recipeGrid.getColumnCount()-1).setHalignment(HPos.CENTER);
 
@@ -177,10 +185,16 @@ public class SummaryViewController extends FactoryStatisticsContainer {
 			if (factory.getCount(r) <= 0)
 				continue;
 			GuiUtil.addRowToGridPane(recipeGrid, i);
-			Label lb = new Label(r.displayName);
-			Node io = RecipeListCell.buildIODisplay(r, false, false);
-			ImageView bld = r.productionBuilding.createImageView();
-			Label ct = new Label(String.format("x%.2f", factory.getCount(r)));
+			Region lb = new Label(r.displayName);
+			if (r.isAlternate)
+				lb = GuiUtil.createSpacedHBox(lb, Database.lookupItem("Desc_HardDrive_C").createImageView(), null);
+			float amt = factory.getCount(r);
+			Node io = RecipeListCell.buildIODisplay(r, false, amt);
+			StackPane bld = GuiUtil.createItemDisplay(r.productionBuilding, 32, false);
+			Label ct = new Label(String.format("x%.2f", amt));
+			if (amt-(int)amt > 0.01)
+				ct.setStyle("-fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.WARN_COLOR));
+			lb.setPadding(new Insets(0, 4, 0, 4));
 			recipeGrid.add(lb, 0, i);
 			recipeGrid.add(io, 1, i);
 			recipeGrid.add(bld, 2, i);
@@ -190,7 +204,8 @@ public class SummaryViewController extends FactoryStatisticsContainer {
 			ct.setMaxWidth(Double.MAX_VALUE);
 			ct.setMaxHeight(Double.MAX_VALUE);
 			ct.setAlignment(Pos.CENTER);
-			GuiUtil.setHeight(recipeGrid.getRowConstraints().get(i), 32);
+
+			GuiUtil.setHeight(recipeGrid.getRowConstraints().get(i), 40);
 			if (i%2 == 1) {
 				lb.getStyleClass().add("table-row-darken");
 				io.getStyleClass().add("table-row-darken");

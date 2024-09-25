@@ -184,7 +184,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 			//lb.setStyle("-fx-text-fill: black; -fx-font-size: 12px");
 			lb.setAlignment(Pos.CENTER_RIGHT);
 			hb.getChildren().add(lb);
-			hb.getChildren().add(RecipeListCell.buildIODisplay((Recipe)r, true, true));
+			hb.getChildren().add(RecipeListCell.buildIODisplay((Recipe)r, true, -1));
 			hb.setSpacing(8);
 			//t.getStyleClass().add("widget");
 			//t.setStyle("-fx-background-color: transparent");

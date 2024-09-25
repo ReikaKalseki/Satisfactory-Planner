@@ -13,6 +13,7 @@ import java.util.function.Consumer;
 import org.controlsfx.control.SearchableComboBox;
 
 import Reika.SatisfactoryPlanner.Main;
+import Reika.SatisfactoryPlanner.NamedIcon;
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Resource;
 import Reika.SatisfactoryPlanner.Util.ColorUtil;
@@ -697,7 +698,7 @@ public class GuiUtil {
 		}
 	}
 
-	public static StackPane createItemDisplay(Resource c, int size, boolean compress) {
+	public static StackPane createItemDisplay(NamedIcon c, int size, boolean compress) {
 		StackPane sp = new StackPane();
 		ImageView bcg = createItemBCG(size+8);
 		sp.getChildren().add(bcg);
@@ -705,7 +706,7 @@ public class GuiUtil {
 			sp.setMargin(bcg, new Insets(-4, -4, -4, -4));
 		ImageView icon = c.createImageView();
 		sp.getChildren().add(icon);
-		GuiUtil.setTooltip(icon, c.displayName);
+		GuiUtil.setTooltip(icon, c.getDisplayName());
 		return sp;
 	}
 

@@ -1,8 +1,8 @@
 package Reika.SatisfactoryPlanner.GUI;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.TreeMap;
 
 import Reika.SatisfactoryPlanner.Data.Factory;
 import Reika.SatisfactoryPlanner.Data.Fuel;
@@ -39,7 +39,7 @@ public class GeneratorRowController extends FXMLControllerBase {
 
 	private Factory factory;
 
-	private final HashMap<Fuel, FuelBlock> fuels = new HashMap();
+	private final TreeMap<Fuel, FuelBlock> fuels = new TreeMap();
 
 	private final HashSet<Fuel> settingValue = new HashSet();
 

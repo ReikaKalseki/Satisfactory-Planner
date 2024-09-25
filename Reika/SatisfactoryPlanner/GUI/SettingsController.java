@@ -17,6 +17,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory.DoubleSpinnerValueFactory;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.ToggleGroup;
@@ -81,6 +83,15 @@ public class SettingsController extends FXMLControllerBase {
 
 	private final ToggleGroup includeInputOptions = new ToggleGroup();
 
+	@FXML
+	private CheckBox autoRecompute;
+
+	@FXML
+	private CheckBox noSignificanceThreshold;
+
+	@FXML
+	private Spinner<Double> displayThreshold;
+
 	@Override
 	public void init(HostServices services) throws IOException {/*
 		noLog.setToggleGroup(loggingOptions);
@@ -97,6 +108,14 @@ public class SettingsController extends FXMLControllerBase {
 		includeInputOptions.selectToggle(includeInputOptions.getToggles().get(Setting.INOUT.getCurrentValue().ordinal()));
 
 		includeInputOptions.selectedToggleProperty().addListener((val, old, nnew) -> Setting.INOUT.changeValue(InputInOutputOptions.values()[includeInputOptions.getToggles().indexOf(nnew)]));
+
+		GuiUtil.setupCounter(displayThreshold, 0, 999, Setting.IOTHRESH.getCurrentValue().doubleValue(), true);
+		((DoubleSpinnerValueFactory)displayThreshold.getValueFactory()).setAmountToStepBy(0.125);
+		displayThreshold.getValueFactory().valueProperty().addListener((val, old, nnew) -> {Setting.IOTHRESH.changeValue(nnew.floatValue());});
+		boolean any = Setting.IOTHRESH.getCurrentValue() <= 0;
+		noSignificanceThreshold.setSelected(any);
+		displayThreshold.setDisable(any);
+		noSignificanceThreshold.selectedProperty().addListener((val, old, nnew) -> {displayThreshold.setDisable(nnew); Setting.IOTHRESH.changeValue(nnew ? 0F : displayThreshold.getValue().floatValue());});
 	}
 
 	@Override

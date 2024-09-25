@@ -1,12 +1,12 @@
 package Reika.SatisfactoryPlanner.Data;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Set;
+import java.util.TreeMap;
 
 public class ItemAmountTracker {
 
-	private final HashMap<Consumable, Float> data = new HashMap();
+	private final TreeMap<Consumable, Float> data = new TreeMap();
 
 	public void add(Consumable c, float amt) {
 		data.put(c, this.get(c)+amt);
