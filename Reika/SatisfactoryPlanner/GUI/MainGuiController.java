@@ -22,6 +22,7 @@ import Reika.SatisfactoryPlanner.FactoryListener;
 import Reika.SatisfactoryPlanner.InclusionPattern;
 import Reika.SatisfactoryPlanner.InternalIcons;
 import Reika.SatisfactoryPlanner.Main;
+import Reika.SatisfactoryPlanner.Setting;
 import Reika.SatisfactoryPlanner.Data.Constants.ToggleableVisiblityGroup;
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Database;
@@ -241,6 +242,15 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	@FXML
 	private Slider tierFilter;
 
+	@FXML
+	private MenuItem appFolderMenu;
+
+	@FXML
+	private MenuItem sfFolderMenu;
+
+	@FXML
+	private Menu modContentLibMenu;
+
 	//@FXML
 	//private Button refreshButton;
 
@@ -423,6 +433,8 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 			GuiSystem.getHSVC().showDocument("https://reikakalseki.github.io/projects/sfcalc.html#text-block-usage");
 		});
 		GuiUtil.setMenuEvent(bugMenu, () -> GuiSystem.getHSVC().showDocument("https://github.com/ReikaKalseki/Satisfactory-Planner/issues"));
+		GuiUtil.setMenuEvent(appFolderMenu, () -> GuiSystem.getHSVC().showDocument(Main.getRelativeFile("").toPath().toString()));
+		GuiUtil.setMenuEvent(sfFolderMenu, () -> GuiSystem.getHSVC().showDocument(Setting.GAMEDIR.getCurrentValue().toPath().toString()));
 		Logging.instance.log("Menu hooks initialized");
 
 		statisticsGrid.getRowConstraints().get(0).minHeightProperty().bind(buildingBar.minHeightProperty());
@@ -465,6 +477,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 
 		super.init(services);
 		this.rebuildTierSet(true);
+		this.buildModMenu();
 		Logging.instance.log("Initialization complete");
 	}
 
@@ -583,6 +596,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 		}
 
 		this.rebuildTierSet(false);
+		this.buildModMenu();
 	}
 
 	public void buildRecentList() {
@@ -592,6 +606,19 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 			MenuItem mi = new MenuItem(n.substring(0, n.lastIndexOf('.')));
 			GuiUtil.setMenuEvent(mi, () -> Factory.loadFactory(f, this));
 			recentMenu.getItems().add(mi);
+		}
+	}
+
+	private void buildModMenu() {
+		modContentLibMenu.getItems().clear();
+		for (String s : Database.getModList()) {
+			File f = Database.getContentLibFolder(s);
+			if (f != null) {
+				String n = f.toPath().toString();
+				MenuItem mi = new MenuItem(s);
+				GuiUtil.setMenuEvent(mi, () -> GuiSystem.getHSVC().showDocument(n));
+				modContentLibMenu.getItems().add(mi);
+			}
 		}
 	}
 

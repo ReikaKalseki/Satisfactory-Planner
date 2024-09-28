@@ -44,7 +44,7 @@ public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 		this.id = id;
 		displayName = dn;
 		productionBuilding = b;
-		isAlternate = id.startsWith("Recipe_Alternate");
+		isAlternate = id.startsWith("Recipe_Alternate") && !id.equalsIgnoreCase("Recipe_Alternate_PolyesterFabric_C");
 		craftingTime = time;
 		timeCoefficient = 60F/craftingTime;
 

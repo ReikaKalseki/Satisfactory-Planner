@@ -91,6 +91,14 @@
                   <MenuItem fx:id="summaryMenu" mnemonicParsing="false" text="View Summary" />
                </items>
             </Menu>
+            <Menu fx:id="factoryMenu1" mnemonicParsing="false" text="Files &amp; Folders">
+               <items>
+                  <MenuItem fx:id="appFolderMenu" mnemonicParsing="false" text="Program Folder" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem fx:id="sfFolderMenu" mnemonicParsing="false" text="Satisfactory Install" />
+                  <Menu fx:id="modContentLibMenu" mnemonicParsing="false" text="Mod ContentLib" />
+               </items>
+            </Menu>
             <Menu fx:id="helpMenu" mnemonicParsing="false" text="Help">
                <items>
                   <MenuItem fx:id="aboutMenu" mnemonicParsing="false" text="About" />

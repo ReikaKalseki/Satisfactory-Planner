@@ -53,11 +53,7 @@ public class Main {
 		//System.out.println("Running with effective root of "+effectiveRoot.getCanonicalPath());
 		Logging.instance.log("Running in compiled environment: "+isCompiled+" @ "+executionLocation);
 		Logging.instance.log("Relative root: "+getRelativeFile(""));
-		if (recentFilesFile.exists()) {
-			for (String s : FileUtils.readLines(recentFilesFile, Charset.defaultCharset())) {
-				recentFiles.add(new File(s));
-			}
-		}
+		Logging.instance.log("JMX Settings: "+System.getProperty("com.sun.management.jmxremote")+" (port "+System.getProperty("com.sun.management.jmxremote.port")+")");
 		/*
 		File f = new File("debug.txt");
 		f.createNewFile();
@@ -68,6 +64,12 @@ public class Main {
 		for (SettingRef s : Setting.getSettings()) {
 			if (settings.has(s.name))
 				s.setting.parse(settings.getString(s.name));
+		}
+
+		if (recentFilesFile.exists()) {
+			for (String s : FileUtils.readLines(recentFilesFile, Charset.defaultCharset())) {
+				recentFiles.add(new File(s));
+			}
 		}
 
 		Platform.setImplicitExit(false);

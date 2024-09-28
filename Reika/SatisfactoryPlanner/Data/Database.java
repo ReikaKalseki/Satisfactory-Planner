@@ -11,6 +11,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.BiConsumer;
 
 import org.apache.commons.io.FileUtils;
@@ -54,7 +56,7 @@ public class Database {
 	private static final ArrayList<Milestone> allMilestonesSorted = new ArrayList();
 	private static final HashMap<String, Milestone> allMilestones = new HashMap();
 
-	private static final ArrayList<String> modList = new ArrayList();
+	private static final TreeMap<String, File> modList = new TreeMap();
 
 	private static final HashMap<String, ClassType> lookup = new HashMap();
 
@@ -163,7 +165,6 @@ public class Database {
 		Collections.sort(allMilestonesSorted);
 		Collections.sort(mineableItems);
 		Collections.sort(frackableFluids);
-		Collections.sort(modList);
 	}
 
 	public static void parseGameJSON() throws IOException {
@@ -539,7 +540,6 @@ public class Database {
 		for (File mod : Main.getModsFolder().listFiles()) {
 			if (mod.isDirectory()) {
 				String name = mod.getName();
-				modList.add(name);
 				Logging.instance.log("Checking mod "+name);
 				File f = new File(mod, "ContentLib");
 				if (f.exists()) {
@@ -550,7 +550,9 @@ public class Database {
 				}
 				else {
 					Logging.instance.log("No ContentLib. Skipping.");
+					f = null;
 				}
+				modList.put(name, f);
 			}
 		}
 	}
@@ -792,7 +794,7 @@ public class Database {
 
 	public static File exportCustomRecipe(Recipe r, String mod) throws Exception {
 		File dir = Main.getRelativeFile("CustomDefinitions/Recipes");
-		if (!Strings.isNullOrEmpty(mod) && modList.contains(mod))
+		if (!Strings.isNullOrEmpty(mod) && modList.containsKey(mod))
 			dir = new File(Main.getModsFolder(), mod+"/ContentLib/Recipes");
 		dir.mkdirs();
 		File f = new File(dir, r.id+".json");
@@ -856,8 +858,12 @@ public class Database {
 		//Logging.instance.log(String.format("Cleared data with %d items, %d recipes, %d building recipes, %d buildings, %d generators, and %d vehicles", allItemsSorted.size(), allAutoRecipesSorted.size(), allBuildingRecipesSorted.size(), allBuildingsSorted.size(), allGeneratorsSorted.size(), allVehiclesSorted.size()));
 	}
 
-	public static List<String> getModList() {
-		return Collections.unmodifiableList(modList);
+	public static Set<String> getModList() {
+		return Collections.unmodifiableSet(modList.keySet());
+	}
+
+	public static File getContentLibFolder(String mod) {
+		return modList.get(mod);
 	}
 
 	public static enum ClassType {
