@@ -48,7 +48,7 @@ public enum InternalIcons implements NamedIcon {
 
 	@Override
 	public String getDisplayName() {
-		return StringUtils.capitalize(this.name());
+		return StringUtils.capitalize(this.name().toLowerCase(Locale.ENGLISH));
 	}
 
 }

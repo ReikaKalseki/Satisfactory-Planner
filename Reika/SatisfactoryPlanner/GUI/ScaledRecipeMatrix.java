@@ -213,7 +213,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 
 	@Override
 	protected String getPrefixButtonIcon() {
-		return "reset";
+		return "button-reset-icon";
 	}
 
 	@Override

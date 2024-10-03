@@ -63,7 +63,7 @@ public class RecipeMatrix extends RecipeMatrixBase {
 
 	@Override
 	protected String getPrefixButtonIcon() {
-		return "delete";
+		return "button-cancel-icon";
 	}
 
 	@Override

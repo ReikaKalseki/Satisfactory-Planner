@@ -2,12 +2,9 @@ package Reika.SatisfactoryPlanner.GUI;
 
 import java.io.IOException;
 
-import Reika.SatisfactoryPlanner.InternalIcons;
-import Reika.SatisfactoryPlanner.NamedIcon;
 import Reika.SatisfactoryPlanner.Data.Factory;
 import Reika.SatisfactoryPlanner.Data.LogisticSupply;
 import Reika.SatisfactoryPlanner.Data.OverclockableResource;
-import Reika.SatisfactoryPlanner.Data.Resource;
 import Reika.SatisfactoryPlanner.Data.ResourceSupply;
 
 import fxexpansions.FXMLControllerBase;
@@ -54,8 +51,10 @@ public abstract class ResourceSupplyEntryController<R extends ResourceSupply> ex
 
 	protected void updateStats(boolean fullUpdate) {
 		//Logging.instance.log("Updating supply "+supply.getResource().displayName+"x"+supply.getYield()+": "+fullUpdate);
-		yieldDisplay.getChildren().clear();
-		GuiUtil.addIconCount(supply.getResource(), supply.getYield(), 4, yieldDisplay);
+		if (yieldDisplay != null) {
+			yieldDisplay.getChildren().clear();
+			GuiUtil.addIconCount(supply.getResource(), supply.getYield(), 4, yieldDisplay);
+		}
 		if (fullUpdate)
 			factory.updateResourceSupply(supply);
 	}
@@ -80,8 +79,7 @@ public abstract class ResourceSupplyEntryController<R extends ResourceSupply> ex
 		supply = res;
 		factory = f;
 		StackPane itemIco = GuiUtil.createItemDisplay(res.getResource(), 32, false);
-		NamedIcon fromIco = res.getLocationIcon();
-		HBox hb = GuiUtil.createSpacedHBox(itemIco, fromIco instanceof InternalIcons ? ((InternalIcons)fromIco).createImageView(32) : GuiUtil.createItemDisplay((Resource)fromIco, 32, false), this.getTopBarRightContent());
+		HBox hb = GuiUtil.createSpacedHBox(itemIco, GuiUtil.createItemDisplay(res, 32, false), this.getTopBarRightContent());
 		hb.setSpacing(4);
 		Node n = this.getTopBarContent(hb);
 		if (n != null)

@@ -699,14 +699,17 @@ public class GuiUtil {
 	}
 
 	public static StackPane createItemDisplay(NamedIcon c, int size, boolean compress) {
+		return createItemDisplay(c.createImageView(), c.getDisplayName(), size, compress);
+	}
+
+	public static StackPane createItemDisplay(ImageView icon, String tooltip, int size, boolean compress) {
 		StackPane sp = new StackPane();
 		ImageView bcg = createItemBCG(size+8);
 		sp.getChildren().add(bcg);
 		if (compress)
 			sp.setMargin(bcg, new Insets(-4, -4, -4, -4));
-		ImageView icon = c.createImageView();
 		sp.getChildren().add(icon);
-		GuiUtil.setTooltip(icon, c.getDisplayName());
+		GuiUtil.setTooltip(icon, tooltip);
 		return sp;
 	}
 

@@ -6,9 +6,12 @@ import java.util.function.Consumer;
 
 import org.json.JSONObject;
 
+import Reika.SatisfactoryPlanner.NamedIcon;
 import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
 
-public interface ResourceSupply<R extends Consumable> extends ItemConsumerProducer {
+import javafx.scene.image.Image;
+
+public interface ResourceSupply<R extends Consumable> extends ItemConsumerProducer, NamedIcon {
 
 	public static final Comparator<ResourceSupply> globalSupplySorter = new Comparator<ResourceSupply>() {
 
@@ -50,6 +53,11 @@ public interface ResourceSupply<R extends Consumable> extends ItemConsumerProduc
 
 	public default Map<Consumable, Float> getProductsPerMinute() {
 		return Map.of(this.getResource(), (float)this.getYield());
+	}
+
+	@Override
+	public default Image createIcon(int size) {
+		return this.getLocationIcon().createIcon(size);
 	}
 
 	public int getSubSortIndex();

@@ -101,7 +101,7 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 	}
 
 	public final void setUI(RecipeMatrixContainer gui) {
-		this.container = gui;
+		container = gui;
 	}
 
 	@Deprecated
@@ -214,7 +214,7 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 
 		if (r instanceof Recipe) {
 			Button b = new Button();
-			b.setGraphic(new ImageView(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/"+this.getPrefixButtonIcon()+".png"))));
+			b.setGraphic(new ImageView(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/"+this.getPrefixButtonIcon()+".png"), 32, 32, true, true)));
 			b.setPrefWidth(32);
 			b.setPrefHeight(32);
 			b.setMinHeight(Region.USE_PREF_SIZE);
@@ -522,8 +522,8 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 	@Override
 	public final void onRemoveProduct(Consumable c) {}
 
-	@Override
-	public final void onRemoveProducts(Collection<Consumable> c) {}
+	//@Override
+	//public final void onRemoveProducts(Collection<Consumable> c) {}
 
 	@Override
 	public final void onAddSupply(ResourceSupply s) {
@@ -531,28 +531,28 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 			this.rebuild(true);
 		}
 	}
-
+	/*
 	@Override
 	public final void onAddSupplies(Collection<? extends ResourceSupply> s) {
 		if (owner.resourceMatrixRule != InclusionPattern.EXCLUDE) {
 			this.rebuild(true);
 		}
 	}
-
+	 */
 	@Override
 	public final void onRemoveSupply(ResourceSupply s) {
 		if (owner.resourceMatrixRule != InclusionPattern.EXCLUDE) {
 			this.rebuild(true);
 		}
 	}
-
+	/*
 	@Override
 	public final void onRemoveSupplies(Collection<? extends ResourceSupply> c) {
 		if (owner.resourceMatrixRule != InclusionPattern.EXCLUDE) {
 			this.rebuild(true);
 		}
 	}
-
+	 */
 	@Override
 	public void onUpdateSupply(ResourceSupply r) {
 		switch (owner.resourceMatrixRule) {

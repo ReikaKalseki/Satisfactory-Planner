@@ -16,13 +16,13 @@
       <HBox fx:id="topBar" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
       <HBox fx:id="spacer" alignment="CENTER" layoutX="18.0" layoutY="18.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
       <HBox fx:id="yieldDisplay" alignment="CENTER_LEFT" spacing="4.0" />
-      <HBox maxWidth="1.7976931348623157E308">
+      <HBox maxWidth="1.7976931348623157E308" styleClass="button-bar">
          <children>
             <Button fx:id="duplicateButton" mnemonicParsing="false" HBox.hgrow="ALWAYS">
                <graphic>
                   <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="@../Graphics/Icons/duplicate.png" />
+                        <Image url="@../Graphics/Icons/duplicate-SFstyle.png" />
                      </image>
                   </ImageView>
                </graphic>
@@ -35,7 +35,7 @@
                <graphic>
                   <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="@../Graphics/Icons/delete.png" />
+                        <Image url="@../Graphics/Icons/button-cancel-icon.png" />
                      </image>
                   </ImageView>
                </graphic>
@@ -44,6 +44,9 @@
                </padding>
             </Button>
          </children>
+         <padding>
+            <Insets left="9.0" right="9.0" />
+         </padding>
       </HBox>
    </children>
    <styleClass>

@@ -1,5 +1,6 @@
 package Reika.SatisfactoryPlanner.Data;
 
+import java.io.File;
 import java.util.function.Consumer;
 
 import org.json.JSONObject;
@@ -13,15 +14,17 @@ public class FromFactorySupply<R extends Consumable> implements ResourceSupply<R
 	public final R item;
 	public final float amount;
 	public final String sourceFactory;
+	public final File sourceFactoryFile;
 
-	public FromFactorySupply(R c, float amt, String name) {
+	public FromFactorySupply(R c, float amt, String name, File f) {
 		item = c;
 		amount = amt;
 		sourceFactory = name;
+		sourceFactoryFile = f;
 	}
 
 	private FromFactorySupply(JSONObject obj) {
-		this((R)Database.lookupItem(obj.getString("item")), obj.getFloat("amount"), obj.getString("name"));
+		this((R)Database.lookupItem(obj.getString("item")), obj.getFloat("amount"), obj.getString("name"), new File(obj.getString("path")));
 	}
 
 	@Override
@@ -29,6 +32,7 @@ public class FromFactorySupply<R extends Consumable> implements ResourceSupply<R
 		block.put("item", item.id);
 		block.put("amount", amount);
 		block.put("name", sourceFactory);
+		block.put("path", sourceFactoryFile.getAbsolutePath());
 	}
 
 	@Override
@@ -43,7 +47,7 @@ public class FromFactorySupply<R extends Consumable> implements ResourceSupply<R
 
 	@Override
 	public String getDisplayName() {
-		return item.displayName;
+		return item.displayName+" from "+sourceFactory;
 	}
 
 	@Override

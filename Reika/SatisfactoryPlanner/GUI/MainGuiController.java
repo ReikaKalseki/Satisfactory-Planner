@@ -11,7 +11,6 @@ import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.SearchableComboBox;
@@ -364,25 +363,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 		GuiUtil.setButtonEvent(addInputButton, () -> this.openChildWindow("Add Logistic Supply", "LogisticSupplyDialog"));
 		GuiUtil.setButtonEvent(addFactoryInputButton, () -> {
 			File f = this.openFactoryFile();
-			if (f != null) {
-				AtomicReference<Factory> ref = new AtomicReference();
-				GuiUtil.queueTask("Parsing factory as input", (id) -> {
-					Future<Factory> fut = Factory.loadFactoryData(f);
-					while (!fut.isDone())
-						Thread.sleep(50);
-					ref.set(fut.get());
-				}, (id) -> { //this part needs to be done on JFX because adding to factory adds to UI
-					Factory fac = ref.get();
-					Collection<FromFactorySupply> li = new ArrayList();
-					for (Consumable c : fac.getDesiredProducts()) { //could also look at all produced items but this seems more right
-						float amt = fac.getTotalProduction(c)+fac.getExternalInput(c, false)-fac.getTotalConsumption(c);
-						if (amt > 0) {
-							li.add(new FromFactorySupply(c, amt, fac.name));
-						}
-					}
-					factory.addExternalSupplies(li);
-				});
-			}
+			factory.addFactorySupplies(f);
 		});
 		/*
 		GuiUtil.setButtonEvent(refreshButton, () -> {

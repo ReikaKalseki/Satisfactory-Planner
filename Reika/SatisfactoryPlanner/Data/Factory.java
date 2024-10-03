@@ -14,6 +14,7 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import org.json.JSONArray;
@@ -64,6 +65,7 @@ public class Factory {
 	private final EnumSet<MatrixType> invalidMatrices = EnumSet.noneOf(MatrixType.class);
 
 	private final MultiMap<Consumable, ResourceSupply> resourceSources = new MultiMap();
+	private final MultiMap<String, FromFactorySupply> factorySources = new MultiMap();
 	private final ArrayList<Consumable> desiredProducts = new ArrayList();
 
 	//private final HashMap<Consumable, ItemFlow> flow = new HashMap();
@@ -214,7 +216,7 @@ public class Factory {
 	}
 	 */
 	public void addExternalSupply(ResourceSupply res) {
-		resourceSources.addValue(res.getResource(), res);
+		this.registerSupply(res);
 		if (loading)
 			return;
 		this.rebuildFlows();
@@ -227,7 +229,7 @@ public class Factory {
 	public void addExternalSupplies(Collection<? extends ResourceSupply> c) {
 		HashSet<Consumable> set = new HashSet();
 		for (ResourceSupply res : c) {
-			resourceSources.addValue(res.getResource(), res);
+			this.registerSupply(res);
 			set.add(res.getResource());
 		}
 		if (loading)
@@ -240,8 +242,16 @@ public class Factory {
 			this.queueMatrixAlign();
 	}
 
+	private void registerSupply(ResourceSupply res) {
+		resourceSources.addValue(res.getResource(), res);
+		if (res instanceof FromFactorySupply) {
+			FromFactorySupply ffr = (FromFactorySupply)res;
+			factorySources.addValue(ffr.sourceFactory, ffr);
+		}
+	}
+
 	public void removeExternalSupply(ResourceSupply res) {
-		resourceSources.remove(res.getResource(), res);
+		this.unregisterSupply(res);
 		if (loading)
 			return;
 		this.rebuildFlows();
@@ -254,9 +264,8 @@ public class Factory {
 	public void removeExternalSupplies(Collection<? extends ResourceSupply> c) {
 		HashSet<Consumable> items = new HashSet();
 		for (ResourceSupply res : c) {
-			Consumable cc = res.getResource();
-			items.add(cc);
-			resourceSources.remove(cc, res);
+			items.add(res.getResource());
+			this.unregisterSupply(res);
 		}
 		if (loading)
 			return;
@@ -266,6 +275,80 @@ public class Factory {
 		this.notifyListeners(l -> l.onRemoveSupplies(c));
 		if (!skipNotify)
 			this.queueMatrixAlign();
+	}
+
+	private void changeExternalSupplies(Collection<? extends ResourceSupply> add, Collection<? extends ResourceSupply> remove) {
+		HashSet<Consumable> set = new HashSet();
+		for (ResourceSupply res : add) {
+			this.registerSupply(res);
+			set.add(res.getResource());
+		}
+
+		for (ResourceSupply res : remove) {
+			this.unregisterSupply(res);
+			set.add(res.getResource());
+		}
+
+		if (loading)
+			return;
+
+		this.rebuildFlows();
+		for (Consumable item : set)
+			this.updateMatrixStatus(item);
+
+		this.notifyListeners(l -> l.onAddSupplies(add));
+		this.notifyListeners(l -> l.onRemoveSupplies(remove));
+
+		if (!skipNotify)
+			this.queueMatrixAlign();
+	}
+
+	private void unregisterSupply(ResourceSupply res) {
+		resourceSources.remove(res.getResource(), res);
+		if (res instanceof FromFactorySupply) {
+			FromFactorySupply ffr = (FromFactorySupply)res;
+			factorySources.remove(ffr.sourceFactory, ffr);
+		}
+	}
+
+	public void addFactorySupplies(File f) {
+		if (f != null) {
+			this.handleFactoryFromFile(f, fac -> {
+				this.addFactorySupplies(f, fac);
+			});
+		}
+	}
+
+	private void addFactorySupplies(File f, Factory fac) {
+		Collection<FromFactorySupply> li = new ArrayList();
+		for (Consumable c : fac.getDesiredProducts()) { //could also look at all produced items but this seems more right
+			float amt = fac.getTotalProduction(c)+fac.getExternalInput(c, false)-fac.getTotalConsumption(c);
+			if (amt > 0) {
+				li.add(new FromFactorySupply(c, amt, fac.name, f));
+			}
+		}
+		this.addExternalSupplies(li);
+	}
+
+	public void updateFactorySupplies(File f) {
+		if (f != null) {
+			this.handleFactoryFromFile(f, fac -> {
+				this.removeExternalSupplies(factorySources.get(fac.name));
+				this.addFactorySupplies(f, fac);
+			});
+		}
+	}
+
+	private void handleFactoryFromFile(File f, Consumer<Factory> c) {
+		AtomicReference<Factory> ref = new AtomicReference();
+		GuiUtil.queueTask("Parsing factory as input", (id) -> {
+			Future<Factory> fut = Factory.loadFactoryData(f);
+			while (!fut.isDone())
+				Thread.sleep(50);
+			ref.set(fut.get());
+		}, (id) -> { //this part needs to be done on JFX because adding to factory adds to UI
+			c.accept(ref.get());
+		});
 	}
 
 	public Collection<ResourceSupply> getSupplies() {

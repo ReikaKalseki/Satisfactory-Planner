@@ -15,15 +15,26 @@
    <children>
       <HBox fx:id="topBar" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
       <HBox fx:id="spacer" alignment="CENTER" layoutX="18.0" layoutY="18.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
-      <HBox maxWidth="1.7976931348623157E308">
+      <HBox maxWidth="1.7976931348623157E308" styleClass="button-bar">
          <children>
-            <HBox fx:id="yieldDisplay" alignment="CENTER_LEFT" mouseTransparent="true" spacing="4.0" />
+            <Button fx:id="reloadButton" layoutX="112.0" layoutY="10.0" mnemonicParsing="false">
+               <graphic>
+                  <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../Graphics/Icons/button-reset-icon.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+               <padding>
+                  <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+               </padding>
+            </Button>
             <HBox maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
             <Button fx:id="deleteButton" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" HBox.hgrow="ALWAYS">
                <graphic>
                   <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="@../Graphics/Icons/delete.png" />
+                        <Image url="@../Graphics/Icons/button-cancel-icon.png" />
                      </image>
                   </ImageView>
                </graphic>
@@ -32,6 +43,9 @@
                </padding>
             </Button>
          </children>
+         <padding>
+            <Insets left="9.0" right="9.0" />
+         </padding>
       </HBox>
    </children>
    <styleClass>
