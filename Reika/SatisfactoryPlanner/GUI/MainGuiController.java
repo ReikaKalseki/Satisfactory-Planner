@@ -3,9 +3,9 @@ package Reika.SatisfactoryPlanner.GUI;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumMap;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map.Entry;
@@ -76,13 +76,6 @@ import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
 public class MainGuiController extends FactoryStatisticsContainer implements FactoryListener, RecipeMatrixContainer {
-
-	protected final ArrayList<Runnable> changeBuffer = new ArrayList();
-
-	private final EnumSet<StatType> statsToUpdate = EnumSet.noneOf(StatType.class);
-	private boolean uiRebuildQueued;
-	private boolean recipeListRebuildQueued;
-	private boolean productListRebuildQueued;
 
 	private boolean hasLoaded;
 
@@ -156,7 +149,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	private TitledPane infoPanel;
 
 	@FXML
-	private ExpandingTilePane inputGrid;
+	private TilePane inputGrid;
 
 	@FXML
 	private TitledPane inputPanel;
@@ -186,7 +179,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	private Tab powerTab;
 
 	@FXML
-	private ExpandingTilePane productGrid;
+	private TilePane productGrid;
 
 	@FXML
 	private MenuItem quitMenu;
@@ -430,9 +423,6 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 		statisticsGrid.getRowConstraints().get(2).minHeightProperty().bind(netConsumptionBar.minHeightProperty());
 		statisticsGrid.getRowConstraints().get(3).minHeightProperty().bind(netProductBar.minHeightProperty());
 
-		productGrid.minRowHeight = 64;
-		inputGrid.minRowHeight = 100;
-
 		generatorMatrixOptions.setItems(FXCollections.observableArrayList(InclusionPattern.values()));
 		resourceMatrixOptions.setItems(FXCollections.observableArrayList(InclusionPattern.values()));
 
@@ -661,9 +651,9 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	}
 
 	@Override
-	public void updateStats(EnumSet<StatType> stats) {
-		super.updateStats(stats);
-		if (stats.contains(StatType.LOCAL)) {
+	public void updateStats(boolean warnings, boolean buildings, boolean production, boolean consuming, boolean local, boolean power, boolean tier) {
+		super.updateStats(warnings, buildings, production, consuming, local, power, tier);
+		if (local) {
 			localSupplyTotals.getChildren().clear();
 			CountMap<Consumable> totalSupply = new CountMap();
 			for (ResourceSupply res : factory.getSupplies()) {
@@ -679,34 +669,25 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 
 	@Override
 	public void onAddRecipe(Recipe r) {
-		recipeListRebuildQueued = true;
-		this.queueFullStatUpdateExceptLocal();
-	}
-
-	private void queueFullStatUpdateExceptLocal() {
-		statsToUpdate.add(StatType.BUILDINGS);
-		statsToUpdate.add(StatType.CONSUMING);
-		statsToUpdate.add(StatType.PRODUCING);
-		statsToUpdate.add(StatType.POWER);
-		statsToUpdate.add(StatType.TIER);
-		statsToUpdate.add(StatType.WARNINGS);
+		this.rebuildLists(true, false);
+		this.updateStats(true, true, true, true, false, true, true);
 	}
 
 	@Override
 	public void onRemoveRecipe(Recipe r) {
-		recipeListRebuildQueued = true;
-		this.queueFullStatUpdateExceptLocal();
+		this.rebuildLists(true, false);
+		this.updateStats(true, true, true, true, false, true, true);
 	}
-	/*
+
 	@Override
 	public void onRemoveRecipes(Collection<Recipe> c) {
-		this.recipeListRebuildQueued = true;
-		queueFullStatUpdateExceptLocal();
+		this.rebuildLists(true, false);
+		this.updateStats(true, true, true, true, false, true, true);
 	}
-	 */
+
 	@Override
 	public void onSetCount(Recipe r, float count) {
-		this.queueFullStatUpdateExceptLocal();
+		this.updateStats(true, true, true, true, false, true, false);
 	}
 
 	@Override
@@ -724,35 +705,32 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 		for (GuiInstance<GeneratorRowController> gui : generators.values()) {
 			gui.controller.setWidths(count, count);
 		}*/
-		recipeListRebuildQueued = true;
-		this.queueFullStatUpdateExceptLocal();
+		this.updateStats(true, true, true, true, false, true, count == 0 || old == 0);
 	}
 
 	@Override
 	public void onAddProduct(Consumable c) {
-		changeBuffer.add(() -> productGrid.getChildren().add(new ProductButton(c)));
-		statsToUpdate.add(StatType.WARNINGS);
-		statsToUpdate.add(StatType.PRODUCING);
+		productGrid.getChildren().add(new ProductButton(c));
+		this.updateStats(true, false, true, false, false, false, false);
 	}
 
 	@Override
 	public void onRemoveProduct(Consumable c) {
-		changeBuffer.add(() -> productGrid.getChildren().remove(productButtons.get(c)));
-		statsToUpdate.add(StatType.WARNINGS);
-		statsToUpdate.add(StatType.PRODUCING);
+		productGrid.getChildren().remove(productButtons.get(c));
+		this.updateStats(true, false, true, false, false, false, false);
 	}
-	/*
+
 	@Override
 	public void onRemoveProducts(Collection<Consumable> c) {
 		for (Consumable cc : c)
 			productGrid.getChildren().remove(productButtons.get(cc));
 		this.updateStats(true, false, true, false, false, false, false);
 	}
-	 */
+
 	@Override
 	public void onAddSupply(ResourceSupply res) {
-		changeBuffer.add(() -> this.addResourceEntry(res));
-		statsToUpdate.addAll(EnumSet.allOf(StatType.class));
+		this.addResourceEntry(res);
+		this.updateStats(true, true, true, true, true, true, false);
 	}
 
 	private void addResourceEntry(ResourceSupply res) {
@@ -772,14 +750,14 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 			this.addResourceEntry("FactorySupplyEntry", res);
 		}
 	}
-	/*
+
 	@Override
 	public void onAddSupplies(Collection<? extends ResourceSupply> c) {
 		for (ResourceSupply res : c)
 			this.addResourceEntry(res);
 		this.updateStats(true, true, true, true, true, true, false);
 	}
-	 */
+
 	private <C extends ResourceSupplyEntryController, R extends ResourceSupply> void addResourceEntry(String fxml, R res) {
 		try {
 			this.loadNestedFXML(fxml, g -> {
@@ -801,44 +779,47 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 
 	@Override
 	public void onRemoveSupply(ResourceSupply s) {
-		changeBuffer.add(() -> inputGrid.getChildren().remove(supplyEntries.get(s).rootNode));
-		statsToUpdate.addAll(EnumSet.allOf(StatType.class));
+		inputGrid.getChildren().remove(supplyEntries.get(s).rootNode);
+		this.updateStats(true, true, true, true, true, true, false);
 	}
-	/*
+
 	@Override
 	public void onRemoveSupplies(Collection<? extends ResourceSupply> c) {
 		for (ResourceSupply s : c)
 			inputGrid.getChildren().remove(supplyEntries.get(s).rootNode);
 		this.updateStats(true, true, true, true, true, true, false);
 	}
-	 */
+
 	@Override
 	public void onUpdateSupply(ResourceSupply s) {
 		//do not need anything since update IO accomplishes
-		statsToUpdate.addAll(EnumSet.allOf(StatType.class));
 	}
 
 	@Override
 	public void onSetToggle(ToggleableVisiblityGroup tv, boolean active) {
 		toggleFilters.get(tv).setSelected(active);
-		recipeListRebuildQueued = true;
-		productListRebuildQueued = true;
+		this.rebuildLists(true, true);
 	}
 
 	@Override
 	public void onUpdateIO() {
-		statsToUpdate.addAll(EnumSet.allOf(StatType.class));
+		this.updateStats(true, true, true, true, true, true, false);
 	}
 
 	@Override
-	public void onLoaded() {
+	public Future<Void> onLoaded() {
 		this.onSetFile(factory.getFile());
-		uiRebuildQueued = true;
+		CompletableFuture<Void> f = new CompletableFuture();
+		GuiUtil.runOnJFXThread(() -> {
+			this.rebuildEntireUI();
+			f.complete(null);
+		});
+		return f;
 	}
 
 	@Override
 	public void onCleared() {
-		uiRebuildQueued = true;
+		GuiUtil.runOnJFXThread(() -> this.rebuildEntireUI());
 	}
 
 	@Override
@@ -846,37 +827,6 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 		boolean dis = !factory.hasExistingFile();
 		saveMenu.setDisable(dis);
 		reloadMenu.setDisable(dis);
-	}
-
-	@Override
-	public Future<Void> publishChanges() {
-		CompletableFuture<Void> fut = new CompletableFuture();
-		if (uiRebuildQueued) {
-			this.clearChangeBuffer();
-			GuiUtil.runOnJFXThread(() -> {
-				this.rebuildEntireUI();
-				fut.complete(null);
-			});
-			return fut;
-		}
-		for (Runnable mr : changeBuffer) {
-			mr.run();
-		}
-		if (recipeListRebuildQueued || productListRebuildQueued)
-			this.rebuildLists(recipeListRebuildQueued, productListRebuildQueued);
-		if (!statsToUpdate.isEmpty())
-			this.updateStats(statsToUpdate);
-		fut.complete(null);
-		this.clearChangeBuffer();
-		return fut;
-	}
-
-	private void clearChangeBuffer() {
-		changeBuffer.clear();
-		uiRebuildQueued = false;
-		productListRebuildQueued = false;
-		recipeListRebuildQueued = false;
-		statsToUpdate.clear();
 	}
 
 	@Override

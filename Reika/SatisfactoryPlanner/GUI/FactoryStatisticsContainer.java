@@ -3,7 +3,6 @@ package Reika.SatisfactoryPlanner.GUI;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Map.Entry;
 
@@ -136,14 +135,14 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 	}
 
 	public final void updateStats(boolean all) {
-		this.updateStats(all ? EnumSet.allOf(StatType.class) : EnumSet.noneOf(StatType.class));
+		this.updateStats(all, all, all, all, all, all, all);
 	}
 
-	public void updateStats(EnumSet<StatType> stats) {
-		if (stats.contains(StatType.WARNINGS))
+	public void updateStats(boolean warnings, boolean buildings, boolean production, boolean consuming, boolean local, boolean power, boolean tier) {
+		if (warnings)
 			this.updateWarnings();
 
-		if (stats.contains(StatType.BUILDINGS)) {
+		if (buildings) {
 			buildCostBar.clear();
 			buildingBar.clear();
 
@@ -163,14 +162,14 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 			}
 		}
 
-		if (stats.contains(StatType.TIER)) {
+		if (tier) {
 			int max = factory.getMaxTier();
 			for (int i = 0; i < tierLamps.length; i++) {
 				tierLamps[i].controller.setState(i <= max);
 			}
 		}
 
-		if (stats.contains(StatType.POWER)) {
+		if (power) {
 			float[] avgMinMax = new float[3];
 			factory.computeNetPowerProduction(avgMinMax);
 			String text = String.format("%.2fMW", avgMinMax[0]);
@@ -204,7 +203,7 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 					GuiUtil.addIconCount(netProductBar, c, amt);
 			}
 		}*/
-		if (stats.contains(StatType.CONSUMING)) {
+		if (consuming) {
 			netConsumptionBar.clear();
 			deficiencyBar.clear();
 
@@ -220,7 +219,7 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 				}
 			}
 		}
-		if (stats.contains(StatType.PRODUCING)) {
+		if (production) {
 			netProductBar.clear();
 			HashSet<Consumable> set = new HashSet(factory.getAllProducedItems());
 			if (Setting.INOUT.getCurrentValue() != InputInOutputOptions.EXCLUDE)
@@ -249,16 +248,6 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 		//exp.setVgap(Math.max(exp.getVgap(), 16+8));
 		exp.setPadding(new Insets(0, 4, 0, 4));
 		return gui;
-	}
-
-	protected static enum StatType {
-		BUILDINGS,
-		CONSUMING,
-		LOCAL,
-		PRODUCING,
-		POWER,
-		TIER,
-		WARNINGS,
 	}
 }
 

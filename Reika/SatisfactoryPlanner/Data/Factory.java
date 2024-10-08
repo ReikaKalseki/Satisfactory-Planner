@@ -78,7 +78,6 @@ public class Factory {
 
 	public String name = "";
 
-	private boolean isPublishing;
 	private boolean skipNotify;
 	private boolean loading;
 
@@ -88,8 +87,6 @@ public class Factory {
 
 	public InclusionPattern generatorMatrixRule = InclusionPattern.INDIVIDUAL;
 	public InclusionPattern resourceMatrixRule = InclusionPattern.MERGE;
-
-	//private final ArrayList<FactoryChange> changeBuffer = new ArrayList();
 
 	static {
 		saveDir.mkdirs();
@@ -135,7 +132,6 @@ public class Factory {
 			return;
 		this.rebuildFlows();
 		this.notifyListeners(c -> c.onAddRecipe(r));
-		this.publishListenerChanges();
 		if (!skipNotify)
 			this.queueMatrixAlign();
 	}
@@ -147,7 +143,6 @@ public class Factory {
 			if (!loading) {
 				this.rebuildFlows();
 				this.notifyListeners(c -> c.onRemoveRecipe(r));
-				this.publishListenerChanges();
 				if (!skipNotify)
 					this.queueMatrixAlign();
 			}
@@ -155,17 +150,18 @@ public class Factory {
 	}
 
 	public void removeRecipes(Collection<Recipe> c) {
+		skipNotify = true;
 		for (Recipe r : c) {
 			if (recipeList.remove(r)) {
 				recipeLoops.removeIf(p -> p.recipe1.equals(r) || p.recipe2.equals(r));
 				recipes.remove(r);
-				this.notifyListeners(l -> l.onRemoveRecipe(r));
 			}
 		}
-		this.publishListenerChanges();
+		skipNotify = false;
 		if (loading)
 			return;
 		this.rebuildFlows();
+		this.notifyListeners(l -> l.onRemoveRecipes(c));
 		this.queueMatrixAlign();
 	}
 
@@ -176,18 +172,9 @@ public class Factory {
 	public void rebuildMatrices(boolean updateIO) {
 		if (matrix == null) //non-UI factory
 			return;
-		CompletableFuture<Void> f1 = new CompletableFuture();
-		CompletableFuture<Void> f2 = new CompletableFuture();
-		matrix.rebuild(updateIO, f1);
-		scaleMatrix.rebuild(updateIO, f2);/* DO NOT WAIT
-		while (!f1.isDone() || !f2.isDone()) {
-			try {
-				Thread.sleep(20);
-			}
-			catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}*/
+		matrix.rebuild(updateIO);
+		scaleMatrix.rebuild(updateIO);
+
 		this.alignMatrices();
 	}
 
@@ -232,9 +219,9 @@ public class Factory {
 		this.registerSupply(res);
 		if (loading)
 			return;
-		this.publishListenerChanges();
 		this.rebuildFlows();
 		this.updateMatrixStatus(res.getResource());
+		this.notifyListeners(c -> c.onAddSupply(res));
 		if (!skipNotify)
 			this.queueMatrixAlign();
 	}
@@ -247,17 +234,16 @@ public class Factory {
 		}
 		if (loading)
 			return;
-		this.publishListenerChanges();
 		this.rebuildFlows();
 		for (Consumable item : set)
 			this.updateMatrixStatus(item);
+		this.notifyListeners(l -> l.onAddSupplies(c));
 		if (!skipNotify)
 			this.queueMatrixAlign();
 	}
 
 	private void registerSupply(ResourceSupply res) {
 		resourceSources.addValue(res.getResource(), res);
-		this.notifyListeners(l -> l.onAddSupply(res));
 		if (res instanceof FromFactorySupply) {
 			FromFactorySupply ffr = (FromFactorySupply)res;
 			factorySources.addValue(ffr.sourceFactory, ffr);
@@ -268,9 +254,9 @@ public class Factory {
 		this.unregisterSupply(res);
 		if (loading)
 			return;
-		this.publishListenerChanges();
 		this.rebuildFlows();
 		this.updateMatrixStatus(res.getResource());
+		this.notifyListeners(c -> c.onRemoveSupply(res));
 		if (!skipNotify)
 			this.queueMatrixAlign();
 	}
@@ -283,10 +269,10 @@ public class Factory {
 		}
 		if (loading)
 			return;
-		this.publishListenerChanges();
 		this.rebuildFlows();
 		for (Consumable cc : items)
 			this.updateMatrixStatus(cc);
+		this.notifyListeners(l -> l.onRemoveSupplies(c));
 		if (!skipNotify)
 			this.queueMatrixAlign();
 	}
@@ -306,10 +292,12 @@ public class Factory {
 		if (loading)
 			return;
 
-		this.publishListenerChanges();
 		this.rebuildFlows();
 		for (Consumable item : set)
 			this.updateMatrixStatus(item);
+
+		this.notifyListeners(l -> l.onAddSupplies(add));
+		this.notifyListeners(l -> l.onRemoveSupplies(remove));
 
 		if (!skipNotify)
 			this.queueMatrixAlign();
@@ -317,7 +305,6 @@ public class Factory {
 
 	private void unregisterSupply(ResourceSupply res) {
 		resourceSources.remove(res.getResource(), res);
-		this.notifyListeners(l -> l.onRemoveSupply(res));
 		if (res instanceof FromFactorySupply) {
 			FromFactorySupply ffr = (FromFactorySupply)res;
 			factorySources.remove(ffr.sourceFactory, ffr);
@@ -343,11 +330,11 @@ public class Factory {
 		this.addExternalSupplies(li);
 	}
 
-	public void updateFactorySupply(File f, FromFactorySupply res) {
+	public void updateFactorySupplies(File f) {
 		if (f != null) {
 			this.handleFactoryFromFile(f, fac -> {
-				res.amount = fac.getTotalProduction(res.getResource());
-				this.updateResourceSupply(res);
+				this.removeExternalSupplies(factorySources.get(fac.name));
+				this.addFactorySupplies(f, fac);
 			});
 		}
 	}
@@ -380,7 +367,6 @@ public class Factory {
 			return;
 		this.updateMatrixStatus(c);
 		this.notifyListeners(l -> l.onAddProduct(c));
-		this.publishListenerChanges();
 	}
 
 	public void removeProduct(Consumable c) {
@@ -388,7 +374,6 @@ public class Factory {
 			if (!loading) {
 				this.updateMatrixStatus(c);
 				this.notifyListeners(l -> l.onRemoveProduct(c));
-				this.publishListenerChanges();
 			}
 		}
 	}
@@ -397,10 +382,8 @@ public class Factory {
 		if (desiredProducts.removeAll(c)) {
 			if (!loading) {
 				for (Consumable cc : c)
-					this.notifyListeners(l -> l.onRemoveProduct(cc));
-				this.publishListenerChanges();
-				for (Consumable cc : c)
 					this.updateMatrixStatus(cc);
+				this.notifyListeners(l -> l.onRemoveProducts(c));
 			}
 		}
 	}
@@ -487,7 +470,6 @@ public class Factory {
 		this.rebuildFlows();
 		if (invalidMatrices.isEmpty())
 			this.notifyListeners(c -> c.onSetCount(r, amt));
-		this.publishListenerChanges();
 		if (!skipNotify)
 			this.queueMatrixAlign();
 	}
@@ -510,7 +492,6 @@ public class Factory {
 			return;
 		this.rebuildFlows();
 		this.notifyListeners(c -> c.onSetCount(g, f, old, amt));
-		this.publishListenerChanges();
 		if (!skipNotify)
 			this.queueMatrixAlign();
 	}
@@ -525,7 +506,6 @@ public class Factory {
 			return;
 		this.notifyListeners(c -> c.onUpdateSupply(r));
 		this.updateIO();
-		this.publishListenerChanges();
 	}
 
 	private void rebuildFlows() {
@@ -708,14 +688,6 @@ public class Factory {
 			c.accept(rr);
 	}
 
-	private void publishListenerChanges() {
-		if (isPublishing)
-			return;
-		isPublishing = true;
-		this.notifyListeners(l -> l.publishChanges());
-		isPublishing = false;
-	}
-
 	public void clear() {
 		boolean wasBulk = skipNotify;
 		skipNotify = true;
@@ -731,7 +703,6 @@ public class Factory {
 		skipNotify = wasBulk;
 		if (!skipNotify)
 			this.notifyListeners(c -> c.onCleared());
-		this.publishListenerChanges();
 	}
 
 	public File getDefaultFile() {
@@ -883,10 +854,8 @@ public class Factory {
 		skipNotify = true;
 		WaitDialogManager.instance.setTaskProgress(taskID, pct);
 		ArrayList<Future<Void>> waits = new ArrayList();
-		for (FactoryListener rr : changeCallback) {
-			rr.onLoaded();
-			waits.add(rr.publishChanges());
-		}
+		for (FactoryListener rr : changeCallback)
+			waits.add(rr.onLoaded());
 		double each = (98-pct)/waits.size();
 		while (!waits.isEmpty()) {
 			while (!waits.get(0).isDone()) {
@@ -905,7 +874,6 @@ public class Factory {
 	private void setCurrentFile(File f) {
 		currentFile = f;
 		this.notifyListeners(c -> c.onSetFile(f));
-		this.publishListenerChanges();
 		Main.addRecentFile(f);
 		GuiSystem.getMainGUI().controller.buildRecentList();
 	}

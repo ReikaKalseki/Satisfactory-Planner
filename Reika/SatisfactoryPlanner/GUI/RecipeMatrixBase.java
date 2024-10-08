@@ -13,7 +13,6 @@ import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.google.common.base.Strings;
@@ -56,15 +55,6 @@ import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 
 public abstract class RecipeMatrixBase implements FactoryListener {
-
-	protected final ArrayList<MatrixChange> changeBuffer = new ArrayList();
-
-	protected static final MatrixChange REBUILD_MATRIX = new MatrixChange() {
-		@Override
-		public void accept(RecipeMatrixBase r) {
-			//no op because of special handling
-		}
-	};
 
 	protected int titlesRow;
 	protected int titleGapRow;
@@ -386,7 +376,8 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 		return Integer.MIN_VALUE;
 	}
 
-	public final void rebuild(boolean updateIO, CompletableFuture<Void> callback) {
+	public final Future<Void> rebuild(boolean updateIO) {
+		CompletableFuture<Void> f = new CompletableFuture();
 		Logging.instance.log("Rebuilding grid "+type);
 		//Thread.dumpStack();
 		owner.setGridBuilt(type, false);
@@ -436,10 +427,10 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 				WaitDialogManager.instance.setTaskProgress(id, 95);
 				container.setMatrix(type, grid);
 				owner.setGridBuilt(type, true);
-				if (callback != null)
-					callback.complete(null);
+				f.complete(null);
 			});
 		});
+		return f;
 	}
 
 	private void initializeWidths() {
@@ -495,33 +486,33 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 
 	@Override
 	public final void onAddRecipe(Recipe r) {
-		changeBuffer.add(REBUILD_MATRIX);
+		this.rebuild(true);
 	}
-	/*
+
 	@Override
 	public final void onRemoveRecipes(Collection<Recipe> c) {
-		changeBuffer.add(REBUILD_MATRIX);
+		this.rebuild(true);
 	}
-	 */
+
 	@Override
 	public final void onRemoveRecipe(Recipe r) {
-		changeBuffer.add(REBUILD_MATRIX);
+		this.rebuild(true);
 	}
 
 	@Override
 	public final void onCleared() {
-		changeBuffer.add(REBUILD_MATRIX);
+		this.rebuild(false);
 	}
 
 	@Override
-	public final void onLoaded() {
-		changeBuffer.add(REBUILD_MATRIX);
+	public final Future<Void> onLoaded() {
+		return this.rebuild(false);
 	}
 
 	@Override
 	public void onSetCount(Generator g, Fuel fuel, int old, int count) {
 		if ((old <= 0 && count > 0) || (count <= 0 && old > 0)) {
-			changeBuffer.add(REBUILD_MATRIX);
+			this.rebuild(true);
 		}
 	}
 
@@ -537,34 +528,49 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 	@Override
 	public final void onAddSupply(ResourceSupply s) {
 		if (owner.resourceMatrixRule != InclusionPattern.EXCLUDE) {
-			changeBuffer.add(REBUILD_MATRIX);
+			this.rebuild(true);
 		}
 	}
 	/*
 	@Override
 	public final void onAddSupplies(Collection<? extends ResourceSupply> s) {
 		if (owner.resourceMatrixRule != InclusionPattern.EXCLUDE) {
-			changeBuffer.add(REBUILD_MATRIX);
+			this.rebuild(true);
 		}
 	}
 	 */
 	@Override
 	public final void onRemoveSupply(ResourceSupply s) {
 		if (owner.resourceMatrixRule != InclusionPattern.EXCLUDE) {
-			changeBuffer.add(REBUILD_MATRIX);
+			this.rebuild(true);
 		}
 	}
 	/*
 	@Override
 	public final void onRemoveSupplies(Collection<? extends ResourceSupply> c) {
 		if (owner.resourceMatrixRule != InclusionPattern.EXCLUDE) {
-			changeBuffer.add(REBUILD_MATRIX);
+			this.rebuild(true);
 		}
 	}
 	 */
 	@Override
 	public void onUpdateSupply(ResourceSupply r) {
-		changeBuffer.add(new SupplyUpdate(r));
+		switch (owner.resourceMatrixRule) {
+			case EXCLUDE:
+				break;
+			case MERGE:
+				Consumable item = r.getResource();
+				int sum = 0;
+				for (ResourceSupply r2 : owner.getSupplies()) {
+					if (r2.getResource() == item)
+						sum += r2.getYield();
+				}
+				recipeEntries.get(supplyGroup).setAmount(item, sum, false, true);
+				break;
+			case INDIVIDUAL:
+				recipeEntries.get(r).setAmount(r.getResource(), r.getYield(), false, true);
+				break;
+		}
 	}
 
 	@Override
@@ -575,28 +581,6 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 
 	public void updateStatuses(Consumable c) {
 
-	}
-
-	@Override
-	public final Future<Void> publishChanges() {
-		CompletableFuture<Void> fut = new CompletableFuture();
-		for (MatrixChange mr : changeBuffer) {
-			if (mr == REBUILD_MATRIX) {
-				this.clearChangeBuffer();
-				this.rebuild(true, fut);
-				return fut;
-			}
-		}
-		for (MatrixChange mr : changeBuffer) {
-			mr.accept(this);
-		}
-		fut.complete(null);
-		this.clearChangeBuffer();
-		return fut;
-	}
-
-	private void clearChangeBuffer() {
-		changeBuffer.clear();
 	}
 
 	public double getWidth(int col) {
@@ -844,37 +828,4 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 		}
 
 	}*/
-
-	protected static abstract class MatrixChange implements Consumer<RecipeMatrixBase> {
-
-	}
-
-	protected static class SupplyUpdate extends MatrixChange {
-
-		public final ResourceSupply supply;
-
-		public SupplyUpdate(ResourceSupply s) {
-			supply = s;
-		}
-
-		@Override
-		public void accept(RecipeMatrixBase r) {
-			switch (r.owner.resourceMatrixRule) {
-				case EXCLUDE:
-					break;
-				case MERGE:
-					Consumable item = supply.getResource();
-					int sum = 0;
-					for (ResourceSupply r2 : r.owner.getSupplies()) {
-						if (r2.getResource() == item)
-							sum += r2.getYield();
-					}
-					r.recipeEntries.get(r.supplyGroup).setAmount(item, sum, false, true);
-					break;
-				case INDIVIDUAL:
-					r.recipeEntries.get(r).setAmount(supply.getResource(), supply.getYield(), false, true);
-					break;
-			}
-		}
-	}
 }
