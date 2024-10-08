@@ -7,6 +7,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.EnumSet;
 
 import javax.imageio.ImageIO;
 
@@ -19,6 +20,7 @@ import Reika.SatisfactoryPlanner.Data.Constants.Purity;
 import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Data.Factory;
 import Reika.SatisfactoryPlanner.Data.FrackingCluster;
+import Reika.SatisfactoryPlanner.Data.FromFactorySupply;
 import Reika.SatisfactoryPlanner.Data.OverclockableResource;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.Data.ResourceSupply;
@@ -123,8 +125,8 @@ public class SummaryViewController extends FactoryStatisticsContainer {
 	}
 
 	@Override
-	public void updateStats(boolean warnings, boolean buildings, boolean production, boolean consuming, boolean local, boolean power, boolean tier) {
-		super.updateStats(warnings, buildings, production, consuming, local, power, tier);
+	public void updateStats(EnumSet<StatType> stats) {
+		super.updateStats(stats);
 
 		wrapperPanel.setText("Factory \""+factory.name+"\"");
 
@@ -242,6 +244,9 @@ public class SummaryViewController extends FactoryStatisticsContainer {
 		}
 		if (r instanceof TrainStation) {
 			ret.getChildren().add(new Label(((TrainStation)r).numberBuildings+" Cars"));
+		}
+		if (r instanceof FromFactorySupply) {
+			ret.getChildren().add(new Label(((FromFactorySupply)r).sourceFactory));
 		}
 		if (r instanceof FrackingCluster) {
 			FrackingCluster fc = (FrackingCluster)r;

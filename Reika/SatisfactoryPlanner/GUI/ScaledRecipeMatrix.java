@@ -228,19 +228,13 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 
 	@Override
 	public void onSetCount(Recipe r, float amt) {
-		RecipeRow rr = recipeEntries.get(r);
-		rr.setScale(amt);
-		if (!settingValue && !buildingGrid && this.isGridBuilt())
-			this.zeroRecipeRow(rr);
-		this.updateStatuses(r);
+		changeBuffer.add(new RecipeCountUpdate(r, amt));
 	}
 
 	@Override
 	public void onSetCount(Generator g, Fuel fuel, int old, int count) {
 		super.onSetCount(g, fuel, old, count);
-		if (count > 0 && recipeEntries.containsKey(fuel))
-			recipeEntries.get(fuel).setScale(count);
-		this.updateStatuses(fuel);
+		changeBuffer.add(new FuelCountUpdate(fuel, old, count));
 	}
 
 	public void onUpdateIO() {
@@ -276,6 +270,49 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 		for (RecipeRow rr : recipeEntries.values()) {
 			((DoubleSpinnerValueFactory)((Spinner<Double>)rr.getChildNode("counter")).getValueFactory()).setAmountToStepBy(amount);
 		}
+	}
+
+	protected static class RecipeCountUpdate extends MatrixChange {
+
+		public final Recipe recipe;
+		public final float count;
+
+		public RecipeCountUpdate(Recipe r, float c) {
+			recipe = r;
+			count = c;
+		}
+
+		@Override
+		public void accept(RecipeMatrixBase t) {
+			RecipeRow rr = t.recipeEntries.get(recipe);
+			rr.setScale(count);
+			ScaledRecipeMatrix st = (ScaledRecipeMatrix)t;
+			if (!st.settingValue && !st.buildingGrid && st.isGridBuilt())
+				st.zeroRecipeRow(rr);
+			st.updateStatuses(recipe);
+		}
+
+	}
+
+	protected static class FuelCountUpdate extends MatrixChange {
+
+		public final Fuel fuel;
+		public final int oldCount;
+		public final int newCount;
+
+		public FuelCountUpdate(Fuel f, int old, int nnew) {
+			fuel = f;
+			oldCount = old;
+			newCount = nnew;
+		}
+
+		@Override
+		public void accept(RecipeMatrixBase t) {
+			if (newCount > 0 && t.recipeEntries.containsKey(fuel))
+				t.recipeEntries.get(fuel).setScale(newCount);
+			((ScaledRecipeMatrix)t).updateStatuses(fuel);
+		}
+
 	}
 
 }

@@ -32,14 +32,44 @@ public interface FactoryListener extends Comparable<FactoryListener> {
 	public void onUpdateSupply(ResourceSupply s);
 	public void onSetToggle(ToggleableVisiblityGroup grp, boolean active);
 	public void onUpdateIO();
-	public Future<Void> onLoaded();
+	public void onLoaded();
 	public void onCleared();
 	public void onSetFile(File f);
 
-	public void publishChanges();
+	public Future<Void> publishChanges();
 
 	public default int compareTo(FactoryListener f) {
 		return Integer.compare(this.getSortIndex(), f.getSortIndex());
 	}
+	/*
+	public abstract class FactoryChange {
 
+	}
+
+	public abstract class AddOrRemoveChange<C> extends FactoryChange {
+
+		public final C item;
+		public final boolean isAdd;
+
+		public AddOrRemoveChange(C c, boolean add) {
+			item = c;
+			isAdd = add;
+		}
+
+	}
+
+	public abstract class CountChange<C extends ItemConsumerProducer> extends FactoryChange {
+
+		public final C item;
+		public final float oldCount;
+		public final float newCount;
+
+		public CountChange(C c, float old, float nnew) {
+			item = c;
+			oldCount = old;
+			newCount = nnew;
+		}
+
+	}
+	 */
 }
