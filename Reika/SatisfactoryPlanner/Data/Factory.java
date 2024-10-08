@@ -330,11 +330,11 @@ public class Factory {
 		this.addExternalSupplies(li);
 	}
 
-	public void updateFactorySupplies(File f) {
+	public void updateFactorySupply(File f, FromFactorySupply res) {
 		if (f != null) {
 			this.handleFactoryFromFile(f, fac -> {
-				this.removeExternalSupplies(factorySources.get(fac.name));
-				this.addFactorySupplies(f, fac);
+				res.amount = fac.getTotalProduction(res.getResource());
+				this.updateResourceSupply(res);
 			});
 		}
 	}

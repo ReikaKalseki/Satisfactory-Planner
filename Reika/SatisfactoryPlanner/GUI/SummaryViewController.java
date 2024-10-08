@@ -19,6 +19,7 @@ import Reika.SatisfactoryPlanner.Data.Constants.Purity;
 import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Data.Factory;
 import Reika.SatisfactoryPlanner.Data.FrackingCluster;
+import Reika.SatisfactoryPlanner.Data.FromFactorySupply;
 import Reika.SatisfactoryPlanner.Data.OverclockableResource;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.Data.ResourceSupply;
@@ -242,6 +243,9 @@ public class SummaryViewController extends FactoryStatisticsContainer {
 		}
 		if (r instanceof TrainStation) {
 			ret.getChildren().add(new Label(((TrainStation)r).numberBuildings+" Cars"));
+		}
+		if (r instanceof FromFactorySupply) {
+			ret.getChildren().add(new Label(((FromFactorySupply)r).sourceFactory));
 		}
 		if (r instanceof FrackingCluster) {
 			FrackingCluster fc = (FrackingCluster)r;

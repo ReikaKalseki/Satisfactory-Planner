@@ -149,7 +149,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	private TitledPane infoPanel;
 
 	@FXML
-	private TilePane inputGrid;
+	private ExpandingTilePane inputGrid;
 
 	@FXML
 	private TitledPane inputPanel;
@@ -179,7 +179,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	private Tab powerTab;
 
 	@FXML
-	private TilePane productGrid;
+	private ExpandingTilePane productGrid;
 
 	@FXML
 	private MenuItem quitMenu;
@@ -422,6 +422,9 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 		statisticsGrid.getRowConstraints().get(1).minHeightProperty().bind(buildCostBar.minHeightProperty());
 		statisticsGrid.getRowConstraints().get(2).minHeightProperty().bind(netConsumptionBar.minHeightProperty());
 		statisticsGrid.getRowConstraints().get(3).minHeightProperty().bind(netProductBar.minHeightProperty());
+
+		productGrid.minRowHeight = 64;
+		inputGrid.minRowHeight = 100;
 
 		generatorMatrixOptions.setItems(FXCollections.observableArrayList(InclusionPattern.values()));
 		resourceMatrixOptions.setItems(FXCollections.observableArrayList(InclusionPattern.values()));
