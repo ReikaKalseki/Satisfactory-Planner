@@ -40,6 +40,7 @@ public class Warning implements Comparable<Warning> {
 		Label lb = new Label(warningText);
 		lb.setFont(GuiSystem.getFont(severity.getFont()));
 		lb.setStyle(severity.getStyle());
+		lb.setWrapText(true);
 		Node root = lb;
 		if (iconProvider != null) {
 			ImageView img = new ImageView(iconProvider.get());
@@ -124,6 +125,14 @@ public class Warning implements Comparable<Warning> {
 
 		public PortThroughputWarning(String desc, int amt, RateLimitedSupplyLine max, int count) {
 			super(WarningSeverity.SEVERE, desc+": Flow rate ("+amt+") exceeds maximum throughput ("+max.getMaxThroughput()*count+") of possible "+max.getDesc().toLowerCase(Locale.ENGLISH)+"s ("+count+")", THROUGHPUT_BOTTLENECK);
+		}
+
+	}
+
+	public static class DroneThroughputWarning extends Warning {
+
+		public DroneThroughputWarning(DroneStation s) {
+			super(WarningSeverity.SEVERE, "Drone port supplying "+s.getYield()+"/min of "+s.getResource().displayName+" may not be able to keep up due to travel times", THROUGHPUT_BOTTLENECK);
 		}
 
 	}

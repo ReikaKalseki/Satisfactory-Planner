@@ -216,7 +216,7 @@
                                  <content>
                                     <VBox spacing="8.0">
                                        <children>
-                                          <TilePane fx:id="inputGrid" minHeight="200.0" styleClass="dark-pane" VBox.vgrow="ALWAYS" />
+                                          <ExpandingTilePane fx:id="inputGrid" minHeight="200.0" styleClass="dark-pane" VBox.vgrow="ALWAYS" />
                                           <HBox alignment="CENTER" spacing="64.0" styleClass="button-bar" VBox.vgrow="NEVER">
                                              <children>
                                                 <Button fx:id="addMineButton" graphicTextGap="12.0" maxWidth="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefWidth="256.0" styleClass="widget" text="Add Local Resource Mine">
@@ -268,11 +268,11 @@
                                     <VBox spacing="4.0">
                                        <children>
                                           <SearchableComboBox fx:id="addProductButton" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="32.0" promptText="Choose Item..." styleClass="widget" />
-                                          <TilePane fx:id="productGrid" hgap="4.0" vgap="4.0">
+                                          <ExpandingTilePane fx:id="productGrid" hgap="4.0" vgap="4.0">
                                              <padding>
                                                 <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
                                              </padding>
-                                          </TilePane>
+                                          </ExpandingTilePane>
                                        </children>
                                     </VBox>
                                  </content>

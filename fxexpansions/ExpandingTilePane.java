@@ -86,10 +86,10 @@ public class ExpandingTilePane<C extends SizedControllerBase> extends TilePane {
 		int prefRows = 0;
 		if (forWidth != -1) {
 			int prefCols = this.computeColumns(forWidth - this.snapSpaceX(insets.getLeft()) - this.snapSpaceX(insets.getRight()), this.getTileWidth());
-			prefRows = this.computeOther(nodes.size(), prefCols);
+			prefRows = this.computeOther(this.getChildren().size(), prefCols);
 		}
 		else {
-			prefRows = this.getOrientation() == HORIZONTAL? this.computeOther(nodes.size(), this.getPrefColumns()) : this.getPrefRows();
+			prefRows = this.getOrientation() == HORIZONTAL? this.computeOther(this.getChildren().size(), this.getPrefColumns()) : this.getPrefRows();
 		}
 		return this.snapSpaceY(insets.getTop()) + this.computeContentHeight(prefRows, this.getRealTileHeight()) + this.snapSpaceY(insets.getBottom());
 	}
@@ -98,6 +98,10 @@ public class ExpandingTilePane<C extends SizedControllerBase> extends TilePane {
 		double max = 0;
 		for (GuiInstance<C> gui : nodes.values()) {
 			max = Math.max(max, gui.controller.getHeight());
+		}
+		for (Node n : this.getChildren()) {
+			if (n instanceof Region)
+				max = Math.max(max, ((Region)n).getHeight());
 		}
 		return max;
 	}

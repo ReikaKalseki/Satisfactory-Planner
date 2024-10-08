@@ -222,11 +222,35 @@ public class Database {
 				frackableFluids.add(f);
 		}
 		else {
-			Item i = new Item(id, disp, ico, desc, obj.getString("NativeClass"), obj.getFloat("mEnergyValue"));
+			int stack = getStackSize(obj);
+			Item i = new Item(id, disp, ico, desc, obj.getString("NativeClass"), obj.getFloat("mEnergyValue"), stack);
 			allItems.put(i.id, i);
 			allItemsSorted.add(i);
 			if (resource)
 				mineableItems.add(i);
+		}
+	}
+
+	private static int getStackSize(JSONObject obj) {
+		String id = obj.has("StackSize") ? obj.getString("StackSize") : obj.getString("mStackSize");
+		switch(id.toLowerCase(Locale.ENGLISH)) {
+			case "one":
+			case "ss_one":
+				return 1;
+			case "small":
+			case "ss_small":
+				return 50;
+			case "medium":
+			case "ss_medium":
+				return 100;
+			case "big":
+			case "ss_big":
+				return 200;
+			case "huge":
+			case "ss_huge":
+				return 500;
+			default:
+				return 0;
 		}
 	}
 
@@ -503,7 +527,7 @@ public class Database {
 		Logging.instance.log("Loading vanilla data");
 		ClassType.RESOURCE.parsePending();
 		ClassType.ITEM.parsePending();
-		Item i = new Item("Desc_HardDrive_C", "Hard Drive", convertIDToIcon("Desc_HardDrive_C"), "", "Hardcoded", 0); //missing from json???
+		Item i = new Item("Desc_HardDrive_C", "Hard Drive", convertIDToIcon("Desc_HardDrive_C"), "", "Hardcoded", 0, 50); //missing from json???
 		allItems.put(i.id, i);
 		allItemsSorted.add(i);
 		ClassType.CRAFTER.parsePending();
@@ -765,6 +789,7 @@ public class Database {
 					String icon = obj.has("Icon") ? obj.getString("Icon") : id;
 					String cat = obj.getString("Category");
 					float nrg = obj.getFloat("EnergyValue");
+					int stack = getStackSize(obj);
 					boolean resource = obj.has("ResourceItem");
 					if (fluid) {
 						String clr = obj.has("Color") ? obj.getString("Color") : null;
@@ -776,7 +801,7 @@ public class Database {
 							frackableFluids.add(f);
 					}
 					else {
-						Item i = new Item(id, disp, icon, desc, cat, nrg);
+						Item i = new Item(id, disp, icon, desc, cat, nrg, stack);
 						i.markModded(mod);
 						allItems.put(i.id, i);
 						allItemsSorted.add(i);

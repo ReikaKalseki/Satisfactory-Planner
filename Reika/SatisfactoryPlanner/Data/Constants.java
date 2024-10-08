@@ -18,6 +18,8 @@ public class Constants {
 	public static final int TRAIN_STATION_PORTS = 2;
 	public static final int DRONE_STOP_PORTS = 1;
 
+	public static final int DRONE_CAPACITY = 9; //slots
+
 	public static final int BASE_SOLID_YIELD = 60;
 	public static final int BASE_OIL_YIELD = 120;
 	public static final int BASE_FRACKING_YIELD = 60;

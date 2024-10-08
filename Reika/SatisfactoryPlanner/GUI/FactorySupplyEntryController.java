@@ -28,7 +28,7 @@ public class FactorySupplyEntryController extends ResourceSupplyEntryController<
 	protected void onSetSupply(Factory f, FromFactorySupply res) {
 		f.updateMatrixStatus(res.getResource());
 		reloadButton.setOnAction(e -> {
-			f.updateFactorySupplies(res.sourceFactoryFile);
+			f.updateFactorySupply(res.sourceFactoryFile, res);
 		});
 	}
 

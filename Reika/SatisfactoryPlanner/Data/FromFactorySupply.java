@@ -12,7 +12,7 @@ import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
 public class FromFactorySupply<R extends Consumable> implements ResourceSupply<R> {
 
 	public final R item;
-	public final float amount;
+	public float amount;
 	public final String sourceFactory;
 	public final File sourceFactoryFile;
 
@@ -52,7 +52,7 @@ public class FromFactorySupply<R extends Consumable> implements ResourceSupply<R
 
 	@Override
 	public int getSubSortIndex() {
-		return 2;
+		return -1;
 	}
 
 	@Override
