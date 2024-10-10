@@ -24,6 +24,9 @@ public class Constants {
 	public static final int BASE_OIL_YIELD = 120;
 	public static final int BASE_FRACKING_YIELD = 60;
 
+	public static final float DEFAULT_OVERCLOCK_EXPONENT = 1.321929F;
+	public static final float DEFAULT_SOMERSLOOP_EXPONENT = 2F;
+
 	public static final int LIQUID_SCALAR = 1000; //all fluid amounts are multiplied by this internally relative to UI values
 
 	public static enum Purity {
@@ -56,6 +59,8 @@ public class Constants {
 	public static interface BuildingTier {
 
 		public Building getBuilding();
+
+		public String name();
 
 	}
 

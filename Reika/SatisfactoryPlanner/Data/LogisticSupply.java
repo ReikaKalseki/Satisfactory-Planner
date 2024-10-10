@@ -9,7 +9,7 @@ import Reika.SatisfactoryPlanner.Data.Constants.PipeTier;
 import Reika.SatisfactoryPlanner.Data.Constants.RateLimitedSupplyLine;
 import Reika.SatisfactoryPlanner.Data.Warning.PortThroughputWarning;
 
-public abstract class LogisticSupply<R extends Consumable> implements ResourceSupply<R> {
+public abstract class LogisticSupply<S extends LogisticSupply<S, R>, R extends Consumable> implements ResourceSupply<S, R> {
 
 	public final R resource;
 
@@ -53,6 +53,11 @@ public abstract class LogisticSupply<R extends Consumable> implements ResourceSu
 		if (this.isBottlenecked()) {
 			c.accept(new PortThroughputWarning(this.getDescriptiveName(), chosenThroughput, this.getMaximumPortFlow(), this.getPortCount()));
 		}
+	}
+
+	@Override
+	public int fineCompare(LogisticSupply r) {
+		return Integer.compare(chosenThroughput, r.chosenThroughput);
 	}
 
 }

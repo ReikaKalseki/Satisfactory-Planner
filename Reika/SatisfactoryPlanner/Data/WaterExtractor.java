@@ -6,7 +6,7 @@ import org.json.JSONObject;
 
 import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
 
-public class WaterExtractor implements ExtractableResource<Fluid> {
+public class WaterExtractor implements ExtractableResource<WaterExtractor, Fluid> {
 
 	public int numberExtractors = 1;
 
@@ -61,7 +61,7 @@ public class WaterExtractor implements ExtractableResource<Fluid> {
 	}
 
 	@Override
-	public ResourceSupply<Fluid> duplicate() {
+	public WaterExtractor duplicate() {
 		WaterExtractor w = new WaterExtractor();
 		w.numberExtractors = numberExtractors;
 		return w;
@@ -85,6 +85,11 @@ public class WaterExtractor implements ExtractableResource<Fluid> {
 	@Override
 	public int getBuildingCount() {
 		return numberExtractors;
+	}
+
+	@Override
+	public int fineCompare(WaterExtractor r) {
+		return Integer.compare(numberExtractors, r.numberExtractors);
 	}
 
 }

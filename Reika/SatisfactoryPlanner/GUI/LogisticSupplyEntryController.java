@@ -10,7 +10,7 @@ import javafx.scene.control.Spinner;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
-public class LogisticSupplyEntryController extends ResourceSupplyEntryController<LogisticSupply> {
+public class LogisticSupplyEntryController<S extends LogisticSupply> extends ResourceSupplyEntryController<S> {
 
 	@FXML
 	private Spinner<Integer> amount;
@@ -26,14 +26,14 @@ public class LogisticSupplyEntryController extends ResourceSupplyEntryController
 
 		amount.valueProperty().addListener((val, old, nnew) -> {
 			supply.setAmount(nnew);
-			this.updateStats(true);
+			this.updateStats();
 		});
 		//amount.getEditor().setVisible(false);
 	}
 
 	@Override
-	protected void updateStats(boolean fullUpdate) {
-		super.updateStats(fullUpdate);
+	protected void updateStats() {
+		super.updateStats();
 		yieldDisplay.getChildren().clear();
 		//icon.setImage(supply.resource.createIcon());
 	}

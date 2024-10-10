@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import org.controlsfx.control.SearchableComboBox?>
+
+
+<VBox prefWidth="1100.0" spacing="24.0" styleClass="widget" stylesheets="@../CSS/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.RecipeCatalogController">
+   <children>
+      <TitledPane collapsible="false" contentDisplay="RIGHT" styleClass="panel" text="Item Lookup">
+         <content>
+            <VBox spacing="4.0">
+               <children>
+                  <SearchableComboBox fx:id="itemDropdown" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="32.0" promptText="Choose Item..." VBox.vgrow="NEVER" />
+                  <Label styleClass="table-header" text="Recipes Making" VBox.vgrow="NEVER">
+                     <VBox.margin>
+                        <Insets top="12.0" />
+                     </VBox.margin>
+                  </Label>
+                  <ScrollPane fx:id="makingScroller" fitToWidth="true" hbarPolicy="NEVER" pannable="true" prefViewportHeight="160.0" style="-fx-border-color: #ccc; -fx-border-width: 1; -fx-border-radius: 8;" vbarPolicy="ALWAYS" VBox.vgrow="ALWAYS">
+                     <content>
+                        <GridPane fx:id="makingRecipeList" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="160.0" vgap="4.0">
+                           <columnConstraints>
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="240.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" />
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="128.0" />
+                           </columnConstraints>
+                        </GridPane>
+                     </content>
+                     <padding>
+                        <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                     </padding>
+                  </ScrollPane>
+                  <Label styleClass="table-header" text="Recipes Using" VBox.vgrow="NEVER">
+                     <VBox.margin>
+                        <Insets top="12.0" />
+                     </VBox.margin>
+                  </Label>
+                  <ScrollPane fx:id="usingScroller" fitToWidth="true" hbarPolicy="NEVER" pannable="true" prefViewportHeight="160.0" style="-fx-border-color: #ccc; -fx-border-width: 1; -fx-border-radius: 8;" vbarPolicy="ALWAYS" VBox.vgrow="ALWAYS">
+                     <content>
+                        <GridPane fx:id="usingRecipeList" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="160.0" vgap="4.0">
+                           <columnConstraints>
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="240.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" />
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="128.0" />
+                           </columnConstraints>
+                        </GridPane>
+                     </content>
+                     <padding>
+                        <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                     </padding>
+                  </ScrollPane>
+               </children>
+               <padding>
+                  <Insets bottom="4.0" left="8.0" right="8.0" top="4.0" />
+               </padding>
+            </VBox>
+         </content>
+      </TitledPane>
+      <TitledPane animated="false" collapsible="false" contentDisplay="RIGHT" styleClass="panel" text="Recipe Preview">
+         <content>
+            <VBox maxWidth="1.7976931348623157E308" spacing="4.0">
+               <padding>
+                  <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+               </padding>
+               <children>
+                  <SearchableComboBox fx:id="recipeDropdown" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="32.0" promptText="Add Recipes..." VBox.vgrow="NEVER" />
+                  <ScrollPane fx:id="recipeScroller" fitToWidth="true" hbarPolicy="NEVER" pannable="true" prefViewportHeight="160.0" style="-fx-border-color: #ccc; -fx-border-width: 1; -fx-border-radius: 8;" vbarPolicy="ALWAYS" VBox.vgrow="ALWAYS">
+                     <content>
+                        <GridPane fx:id="generalRecipeList" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="160.0" vgap="4.0">
+                           <columnConstraints>
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="240.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" />
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="40.0" />
+                           </columnConstraints>
+                        </GridPane>
+                     </content>
+                     <padding>
+                        <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                     </padding>
+                  </ScrollPane>
+               </children>
+            </VBox>
+         </content>
+      </TitledPane>
+      <HBox alignment="CENTER" styleClass="button-bar">
+         <children>
+            <Button fx:id="addButton" alignment="CENTER" graphicTextGap="12.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" mnemonicParsing="false" prefHeight="32.0" text="Add Previewed Recipes To Factory">
+               <graphic>
+                  <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../Graphics/Icons/button-plus-icon.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Button>
+         </children>
+      </HBox>
+   </children>
+   <padding>
+      <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+   </padding>
+</VBox>

@@ -35,6 +35,7 @@ import Reika.SatisfactoryPlanner.Data.Milestone;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.Data.ResourceSupply;
 import Reika.SatisfactoryPlanner.Data.SolidResourceNode;
+import Reika.SatisfactoryPlanner.Data.TieredLogisticSupply;
 import Reika.SatisfactoryPlanner.Data.WaterExtractor;
 import Reika.SatisfactoryPlanner.GUI.GuiUtil.SearchableSelector;
 import Reika.SatisfactoryPlanner.Util.CountMap;
@@ -201,6 +202,9 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 
 	@FXML
 	private MenuItem settingsMenu;
+
+	@FXML
+	private MenuItem neiMenu;
 
 	@FXML
 	private MenuItem customRecipeMenu;
@@ -372,6 +376,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 		});
 		 */
 		GuiUtil.setMenuEvent(settingsMenu, () -> this.openChildWindow("Application Settings", "Settings"));
+		GuiUtil.setMenuEvent(neiMenu, () -> this.openChildWindow("Recipe Catalogue", "RecipeCatalog"));
 		GuiUtil.setMenuEvent(customRecipeMenu, () -> this.openChildWindow("Custom Recipe Definition", "CustomRecipeDefinitionDialog"));
 		GuiUtil.setMenuEvent(quitMenu, () -> this.close());
 		GuiUtil.setMenuEvent(newMenu, () -> {
@@ -677,6 +682,12 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	}
 
 	@Override
+	public void onAddRecipes(Collection<Recipe> c) {
+		this.rebuildLists(true, false);
+		this.updateStats(true, true, true, true, false, true, true);
+	}
+
+	@Override
 	public void onRemoveRecipe(Recipe r) {
 		this.rebuildLists(true, false);
 		this.updateStats(true, true, true, true, false, true, true);
@@ -745,6 +756,9 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 		}
 		else if (res instanceof ExtractableResource) {
 			this.addResourceEntry("ResourceMineEntry", res);
+		}
+		else if (res instanceof TieredLogisticSupply) {
+			this.addResourceEntry("TieredLogisticSupplyEntry", res);
 		}
 		else if (res instanceof LogisticSupply) {
 			this.addResourceEntry("LogisticSupplyEntry", res);

@@ -8,7 +8,7 @@ import Reika.SatisfactoryPlanner.Data.Constants.Purity;
 import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
 
 
-public class SolidResourceNode extends BaseResourceNode<Item> {
+public class SolidResourceNode extends BaseResourceNode<SolidResourceNode, Item> {
 
 	public MinerTier minerLevel;
 
@@ -50,7 +50,7 @@ public class SolidResourceNode extends BaseResourceNode<Item> {
 	}
 
 	@Override
-	public ResourceSupply<Item> duplicate() {
+	public SolidResourceNode duplicate() {
 		SolidResourceNode ret = new SolidResourceNode(resource, purityLevel);
 		ret.minerLevel = minerLevel;
 		return ret;
@@ -64,6 +64,11 @@ public class SolidResourceNode extends BaseResourceNode<Item> {
 	@Override
 	public int getSubSortIndex() {
 		return 0;
+	}
+
+	@Override
+	public int fineCompare(SolidResourceNode r) {
+		return super.fineCompare(r)*1000+minerLevel.compareTo(r.minerLevel);
 	}
 
 }

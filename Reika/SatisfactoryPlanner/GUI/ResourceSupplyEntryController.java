@@ -49,14 +49,13 @@ public abstract class ResourceSupplyEntryController<R extends ResourceSupply> ex
 		GuiUtil.initWidgets(this);
 	}
 
-	protected void updateStats(boolean fullUpdate) {
+	protected void updateStats() {
 		//Logging.instance.log("Updating supply "+supply.getResource().displayName+"x"+supply.getYield()+": "+fullUpdate);
 		if (yieldDisplay != null) {
 			yieldDisplay.getChildren().clear();
 			GuiUtil.addIconCount(supply.getResource(), supply.getYield(), 4, yieldDisplay);
 		}
-		if (fullUpdate)
-			factory.updateResourceSupply(supply);
+		factory.updateResourceSupply(supply);
 	}
 
 	protected final R getSupply() {
@@ -84,7 +83,7 @@ public abstract class ResourceSupplyEntryController<R extends ResourceSupply> ex
 		Node n = this.getTopBarContent(hb);
 		if (n != null)
 			topBar.getChildren().add(n);
-		this.updateStats(true);
+		this.updateStats();
 		deleteButton.setOnAction(e -> {
 			f.removeExternalSupply(res);
 		});

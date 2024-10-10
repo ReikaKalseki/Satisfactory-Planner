@@ -9,7 +9,7 @@ import Reika.SatisfactoryPlanner.Data.Constants.PipeTier;
 import Reika.SatisfactoryPlanner.Data.Constants.Purity;
 import Reika.SatisfactoryPlanner.Data.Warning.PortThroughputWarning;
 
-public abstract class BaseResourceNode<R extends Consumable> implements ExtractableResource<R> {
+public abstract class BaseResourceNode<S extends BaseResourceNode<S, R>, R extends Consumable> implements ExtractableResource<S, R> {
 
 	public final Purity purityLevel;
 	public final R resource;
@@ -60,6 +60,11 @@ public abstract class BaseResourceNode<R extends Consumable> implements Extracta
 		if (yield > max) {
 			c.accept(new PortThroughputWarning(this.getDescriptiveName(), yield, resource instanceof Fluid ? PipeTier.TWO : BeltTier.SIX, 1));
 		}
+	}
+
+	@Override
+	public int fineCompare(BaseResourceNode r) {
+		return purityLevel.compareTo(r.purityLevel);
 	}
 
 }

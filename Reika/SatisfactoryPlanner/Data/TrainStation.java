@@ -7,7 +7,7 @@ import org.json.JSONObject;
 import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
 import Reika.SatisfactoryPlanner.Data.Warning.WarningSeverity;
 
-public class TrainStation<R extends Consumable> extends LogisticSupply<R> {
+public class TrainStation<R extends Consumable> extends LogisticSupply<TrainStation<R>, R> {
 
 	public final int numberBuildings;
 
@@ -46,7 +46,7 @@ public class TrainStation<R extends Consumable> extends LogisticSupply<R> {
 	}
 
 	@Override
-	public ResourceSupply<R> duplicate() {
+	public TrainStation duplicate() {
 		return new TrainStation(resource, numberBuildings);
 	}
 

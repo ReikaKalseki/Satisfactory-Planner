@@ -7,7 +7,7 @@ import org.json.JSONObject;
 import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
 import Reika.SatisfactoryPlanner.Data.Warning.DroneThroughputWarning;
 
-public class DroneStation extends LogisticSupply<Item> {
+public class DroneStation extends LogisticSupply<DroneStation, Item> {
 
 	public DroneStation(Item c) {
 		super(c);
@@ -34,7 +34,7 @@ public class DroneStation extends LogisticSupply<Item> {
 	}
 
 	@Override
-	public ResourceSupply<Item> duplicate() {
+	public DroneStation duplicate() {
 		return new DroneStation(resource);
 	}
 

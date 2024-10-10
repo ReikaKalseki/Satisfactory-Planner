@@ -4,7 +4,7 @@ import org.json.JSONObject;
 
 import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
 
-public class TruckStation extends LogisticSupply<Item> {
+public class TruckStation extends LogisticSupply<TruckStation, Item> {
 
 	public TruckStation(Item c) {
 		super(c);
@@ -31,7 +31,7 @@ public class TruckStation extends LogisticSupply<Item> {
 	}
 
 	@Override
-	public ResourceSupply<Item> duplicate() {
+	public TruckStation duplicate() {
 		return new TruckStation(resource);
 	}
 

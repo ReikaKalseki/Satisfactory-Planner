@@ -5,7 +5,7 @@ import Reika.SatisfactoryPlanner.Data.Constants.Purity;
 import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
 
 
-public class FrackingNode extends BaseResourceNode<Fluid> {
+public class FrackingNode extends BaseResourceNode<FrackingNode, Fluid> {
 
 	public FrackingNode(Fluid c, Purity p) {
 		super(c, p);
@@ -27,7 +27,7 @@ public class FrackingNode extends BaseResourceNode<Fluid> {
 	}
 
 	@Override
-	public ResourceSupply<Fluid> duplicate() {
+	public FrackingNode duplicate() {
 		return new FrackingNode(resource, purityLevel);
 	}
 

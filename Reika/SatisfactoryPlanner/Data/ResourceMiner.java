@@ -2,8 +2,8 @@ package Reika.SatisfactoryPlanner.Data;
 
 public class ResourceMiner extends FunctionalBuilding {
 
-	public ResourceMiner(String id, String dis, String icon, float mw) {
-		super(id, dis, icon, mw);
+	public ResourceMiner(String id, String dis, String icon, float mw, float exp, float sexp, int sslots) {
+		super(id, dis, icon, mw, exp, sexp, sslots);
 	}
 
 	@Override

@@ -9,7 +9,7 @@ import Reika.SatisfactoryPlanner.InternalIcons;
 import Reika.SatisfactoryPlanner.NamedIcon;
 import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
 
-public class FromFactorySupply<R extends Consumable> implements ResourceSupply<R> {
+public class FromFactorySupply<R extends Consumable> implements ResourceSupply<FromFactorySupply<R>, R> {
 
 	public final R item;
 	public float amount;
@@ -78,6 +78,11 @@ public class FromFactorySupply<R extends Consumable> implements ResourceSupply<R
 	@Override
 	public Building getBuilding() {
 		return null;
+	}
+
+	@Override
+	public int fineCompare(FromFactorySupply r) {
+		return String.CASE_INSENSITIVE_ORDER.compare(sourceFactory, r.sourceFactory);
 	}
 
 }

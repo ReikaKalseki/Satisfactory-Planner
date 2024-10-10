@@ -490,6 +490,11 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 	}
 
 	@Override
+	public final void onAddRecipes(Collection<Recipe> c) {
+		this.rebuild(true);
+	}
+
+	@Override
 	public final void onRemoveRecipes(Collection<Recipe> c) {
 		this.rebuild(true);
 	}

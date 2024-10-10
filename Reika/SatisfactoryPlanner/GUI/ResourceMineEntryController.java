@@ -72,7 +72,7 @@ public class ResourceMineEntryController<R extends ExtractableResource> extends 
 			supply.setClockSpeed(v/100F);
 			if (full)
 				f.updateMatrixStatus(supply.getResource());
-			this.updateStats(full);
+			this.updateStats();
 		});
 	}
 

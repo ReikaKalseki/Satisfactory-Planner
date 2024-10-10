@@ -20,8 +20,12 @@ public class CraftingBuilding extends FunctionalBuilding {
 		crafterOrder.add("Build_QuantumEncoder_C");
 	}
 
-	public CraftingBuilding(String id, String dis, String icon, float mw) {
-		super(id, dis, icon, mw);
+	public CraftingBuilding(String id, String dis, String icon, float mw, int sslots) {
+		super(id, dis, icon, mw, sslots);
+	}
+
+	public CraftingBuilding(String id, String dis, String icon, float mw, float exp, float sexp, int sslots) {
+		super(id, dis, icon, mw, exp, sexp, sslots);
 	}
 
 	@Override

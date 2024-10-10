@@ -19,6 +19,7 @@ public interface FactoryListener extends Comparable<FactoryListener> {
 	public void setFactory(Factory f);
 
 	public void onAddRecipe(Recipe r);
+	public void onAddRecipes(Collection<Recipe> cc);
 	public void onRemoveRecipe(Recipe r);
 	public void onRemoveRecipes(Collection<Recipe> c);
 	public void onSetCount(Recipe r, float count);

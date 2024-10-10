@@ -13,7 +13,7 @@ public class Generator extends FunctionalBuilding {
 	private final TreeMap<Consumable, Fuel> fuels = new TreeMap();
 
 	public Generator(String id, String dis, String icon, float mw, float sup) {
-		super(id, dis, icon, 0);
+		super(id, dis, icon, 0, 0, 0, 0);
 		powerGenerationMW = mw;
 		supplementalRatio = sup;
 	}

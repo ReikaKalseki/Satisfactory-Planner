@@ -69,7 +69,7 @@ public class RecipeListCell extends DecoratedListCell<Recipe> {
 		return graphicBar;
 	}
 
-	public static Node buildIODisplay(Recipe r, boolean compact, float rateScale) {
+	public static HBox buildIODisplay(Recipe r, boolean compact, float rateScale) {
 		HBox ingredients = new HBox();
 		HBox products = new HBox();
 		boolean rates = rateScale >= 0;

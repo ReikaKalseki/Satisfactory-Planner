@@ -392,18 +392,20 @@ public class Database {
 		String id = obj.getString("ClassName");
 		Logging.instance.log("Parsing JSON elem "+id);
 		String disp = obj.getString("mDisplayName");
-		String pwr = obj.getString("mPowerConsumption");
-		String pwrExp = obj.getString("mPowerConsumptionExponent"); //FIXME handle this for overclock!
+		float pwr = Float.parseFloat(obj.getString("mPowerConsumption"));
+		float pwrExp = Float.parseFloat(obj.getString("mPowerConsumptionExponent")); //FIXME handle this for overclock!
+		float smrExp = Float.parseFloat(obj.getString("mProductionBoostPowerConsumptionExponent")); //FIXME handle this for overclock!
+		int somerslots = obj.has("mProductionShardSlotSize") ? Integer.parseInt(obj.getString("mProductionShardSlotSize")) : 0;
 		FunctionalBuilding r;
 		switch(cat) {
 			case CRAFTER:
-				r = new CraftingBuilding(id, disp, convertIDToIcon(id), Float.parseFloat(pwr));
+				r = new CraftingBuilding(id, disp, convertIDToIcon(id), pwr, pwrExp, smrExp, somerslots);
 				break;
 			case MINER:
-				r = new ResourceMiner(id, disp, convertIDToIcon(id), Float.parseFloat(pwr));
+				r = new ResourceMiner(id, disp, convertIDToIcon(id), pwr, pwrExp, smrExp, somerslots);
 				break;
 			case LOGISTIC:
-				r = new LogisticBuilding(id, disp, convertIDToIcon(id), Float.parseFloat(pwr));
+				r = new LogisticBuilding(id, disp, convertIDToIcon(id), pwr, pwrExp, smrExp, somerslots);
 				break;
 			default:
 				throw new IllegalArgumentException(cat.toString());
@@ -596,7 +598,8 @@ public class Database {
 				try {
 					Logging.instance.log("Loading building file "+f2);
 					JSONObject data = new JSONObject(FileUtils.readFileToString(f2, Charsets.UTF_8));
-					CraftingBuilding r = new CraftingBuilding(data.getString("ID"), data.getString("Name"), data.getString("Icon"), data.getInt("PowerCost"));
+					int somerslots = data.has("SomersloopSlots") ? Integer.parseInt(data.getString("SomersloopSlots")) : 0;
+					CraftingBuilding r = new CraftingBuilding(data.getString("ID"), data.getString("Name"), data.getString("Icon"), data.getInt("PowerCost"), somerslots);
 					/*JSONArray ing = data.getJSONArray("Ingredients");
 				for (Object o : ing) {
 					JSONObject inner = (JSONObject)o;

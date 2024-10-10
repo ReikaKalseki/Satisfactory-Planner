@@ -1,5 +1,6 @@
 package Reika.SatisfactoryPlanner.Data;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -221,6 +222,24 @@ public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 
 	public Collection<Milestone> getMilestones() {
 		return Collections.unmodifiableCollection(unlocks);
+	}
+
+	public static Collection<Recipe> getAllRecipesMaking(Consumable c) {
+		ArrayList<Recipe> li = new ArrayList();
+		for (Recipe r : Database.getAllAutoRecipes()) {
+			if (r.productsRaw.containsKey(c))
+				li.add(r);
+		}
+		return li;
+	}
+
+	public static Collection<Recipe> getAllRecipesUsing(Consumable c) {
+		ArrayList<Recipe> li = new ArrayList();
+		for (Recipe r : Database.getAllAutoRecipes()) {
+			if (r.costsRaw.containsKey(c))
+				li.add(r);
+		}
+		return li;
 	}
 
 }

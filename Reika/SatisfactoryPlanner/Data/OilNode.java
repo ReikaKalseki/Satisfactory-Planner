@@ -7,7 +7,7 @@ import Reika.SatisfactoryPlanner.Data.Constants.Purity;
 import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
 
 
-public class OilNode extends BaseResourceNode<Fluid> {
+public class OilNode extends BaseResourceNode<OilNode, Fluid> {
 
 	public OilNode(Purity p) {
 		super((Fluid)Database.lookupItem("Desc_LiquidOil_C"), p);
@@ -34,7 +34,7 @@ public class OilNode extends BaseResourceNode<Fluid> {
 	}
 
 	@Override
-	public ResourceSupply<Fluid> duplicate() {
+	public OilNode duplicate() {
 		return new OilNode(purityLevel);
 	}
 

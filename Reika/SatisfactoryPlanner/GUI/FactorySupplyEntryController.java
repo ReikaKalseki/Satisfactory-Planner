@@ -7,9 +7,13 @@ import Reika.SatisfactoryPlanner.Data.FromFactorySupply;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
 public class FactorySupplyEntryController extends ResourceSupplyEntryController<FromFactorySupply> {
+
+	@FXML
+	private Label nameText;
 
 	@FXML
 	private Button reloadButton;
@@ -20,13 +24,14 @@ public class FactorySupplyEntryController extends ResourceSupplyEntryController<
 	}
 
 	@Override
-	protected void updateStats(boolean fullUpdate) {
-		super.updateStats(fullUpdate);
+	protected void updateStats() {
+		super.updateStats();
 	}
 
 	@Override
 	protected void onSetSupply(Factory f, FromFactorySupply res) {
 		f.updateMatrixStatus(res.getResource());
+		nameText.setText(res.sourceFactory);
 		reloadButton.setOnAction(e -> {
 			f.updateFactorySupply(res.sourceFactoryFile, res);
 		});

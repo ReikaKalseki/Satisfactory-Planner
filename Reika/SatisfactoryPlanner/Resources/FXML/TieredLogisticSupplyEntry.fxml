@@ -3,28 +3,54 @@
 <?import java.lang.String?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Spinner?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<VBox fx:id="root" alignment="TOP_CENTER" prefWidth="150.0" spacing="8.0" stylesheets="@../CSS/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.FactorySupplyEntryController">
+<VBox fx:id="root" prefWidth="150.0" spacing="8.0" stylesheets="@../CSS/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.TieredLogisticSupplyEntryController">
    <padding>
       <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
    </padding>
    <children>
       <HBox fx:id="topBar" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
-      <Label fx:id="nameText" text="Label" />
       <HBox fx:id="spacer" alignment="CENTER" layoutX="18.0" layoutY="18.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
-      <HBox fx:id="yieldDisplay" alignment="CENTER_LEFT" spacing="4.0" />
+      <HBox alignment="CENTER_LEFT" layoutX="16.0" layoutY="32.0" spacing="2.0">
+         <children>
+            <ComboBox fx:id="tier" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="32.0" HBox.hgrow="ALWAYS" />
+         </children>
+         <padding>
+            <Insets left="2.0" right="2.0" />
+         </padding>
+      </HBox>
+      <HBox fx:id="countRow" alignment="CENTER_LEFT" spacing="2.0">
+         <children>
+            <Label text="x">
+               <font>
+                  <Font size="14.0" />
+               </font>
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+               <padding>
+                  <Insets left="2.0" right="2.0" />
+               </padding>
+            </Label>
+            <Spinner fx:id="amount" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
+            <HBox fx:id="yieldDisplay" alignment="CENTER_LEFT" mouseTransparent="true" spacing="4.0" />
+         </children>
+      </HBox>
       <HBox maxWidth="1.7976931348623157E308" styleClass="button-bar">
          <children>
-            <Button fx:id="reloadButton" layoutX="112.0" layoutY="10.0" mnemonicParsing="false">
+            <Button fx:id="duplicateButton" mnemonicParsing="false" HBox.hgrow="ALWAYS">
                <graphic>
                   <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="@../Graphics/Icons/button-reset-icon.png" />
+                        <Image url="@../Graphics/Icons/duplicate-SFstyle.png" />
                      </image>
                   </ImageView>
                </graphic>

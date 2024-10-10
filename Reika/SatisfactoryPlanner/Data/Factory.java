@@ -136,6 +136,27 @@ public class Factory {
 			this.queueMatrixAlign();
 	}
 
+	public void addRecipes(Collection<Recipe> cc) {
+		for (Recipe r : cc) {
+			if (r == null || recipes.containsKey(r))
+				continue;
+			for (Recipe r2 : recipeList) {
+				RecipeProductLoop c = r.loopsWith(r2);
+				if (c != null)
+					recipeLoops.add(c);
+			}
+			recipeList.add(r);
+			recipes.put(r, 0F);
+		}
+		Collections.sort(recipeList);
+		if (loading)
+			return;
+		this.rebuildFlows();
+		this.notifyListeners(c -> c.onAddRecipes(cc));
+		if (!skipNotify)
+			this.queueMatrixAlign();
+	}
+
 	public void removeRecipe(Recipe r) {
 		recipeLoops.removeIf(p -> p.recipe1.equals(r) || p.recipe2.equals(r));
 		if (recipeList.remove(r)) {
@@ -602,6 +623,9 @@ public class Factory {
 		for (Generator g : generators.keySet()) {
 			avgMinMax[0] += g.powerGenerationMW*this.getCount(g);
 		}
+		for (ResourceSupply r : resourceSources.allValues(false)) {
+			avgMinMax[0] -= r.getPowerCost();
+		}
 		avgMinMax[1] = avgMinMax[0];
 		avgMinMax[2] = avgMinMax[0];
 		for (Recipe r : recipeList) {
@@ -788,59 +812,63 @@ public class Factory {
 
 		JSONObject root = JSONUtil.readFile(f);
 		WaitDialogManager.instance.setTaskProgress(taskID, 15);
-		name = root.getString("name");
-
-		JSONArray rec = root.getJSONArray("recipes");
-		JSONArray gens = root.getJSONArray("generators");
-		JSONArray resources = root.getJSONArray("resources");
-		JSONArray products = root.getJSONArray("products");
-		JSONArray toggs = root.has("toggles") ? root.getJSONArray("toggles") : null;
-		WaitDialogManager.instance.setTaskProgress(taskID, 20);
-		for (Object o : rec) {
-			JSONObject block = (JSONObject)o;
-			Recipe r = Database.lookupRecipe(block.getString("id"));
-			/*
+		try {
+			name = root.getString("name");
+			JSONArray rec = root.getJSONArray("recipes");
+			JSONArray gens = root.getJSONArray("generators");
+			JSONArray resources = root.getJSONArray("resources");
+			JSONArray products = root.getJSONArray("products");
+			JSONArray toggs = root.has("toggles") ? root.getJSONArray("toggles") : null;
+			WaitDialogManager.instance.setTaskProgress(taskID, 20);
+			for (Object o : rec) {
+				JSONObject block = (JSONObject)o;
+				Recipe r = Database.lookupRecipe(block.getString("id"));
+				/*
 			recipeList.add(r);
 			this.recipes.set(r, block.getInt("count"));
-			 */
-			this.addRecipe(r);
-			this.setCount(r, block.getFloat("count"));
-		}
-		WaitDialogManager.instance.setTaskProgress(taskID, 50);
-		for (Object o : gens) {
-			JSONObject block = (JSONObject)o;
-			String id = block.getString("id");
-			if (id.equalsIgnoreCase("Build_GeneratorBiomass_C"))
-				id = "Build_GeneratorBiomass_Automated_C";
-			Generator r = (Generator)Database.lookupBuilding(id);
-			for (Fuel ff : r.getFuels()) {
-				String key = "count_"+ff.item.id;
-				if (block.has(key))
-					generators.get(r).setCount(ff, block.getInt(key));
+				 */
+				this.addRecipe(r);
+				this.setCount(r, block.getFloat("count"));
+			}
+			WaitDialogManager.instance.setTaskProgress(taskID, 50);
+			for (Object o : gens) {
+				JSONObject block = (JSONObject)o;
+				String id = block.getString("id");
+				if (id.equalsIgnoreCase("Build_GeneratorBiomass_C"))
+					id = "Build_GeneratorBiomass_Automated_C";
+				Generator r = (Generator)Database.lookupBuilding(id);
+				for (Fuel ff : r.getFuels()) {
+					String key = "count_"+ff.item.id;
+					if (block.has(key))
+						generators.get(r).setCount(ff, block.getInt(key));
+				}
+			}
+			WaitDialogManager.instance.setTaskProgress(taskID, 60);
+			for (Object o : resources) {
+				JSONObject block = (JSONObject)o;
+				ResourceSupplyType type = ResourceSupplyType.valueOf(block.getString("type"));
+				ResourceSupply res = type.construct(block);
+				resourceSources.addValue(res.getResource(), res);
+			}
+			WaitDialogManager.instance.setTaskProgress(taskID, 75);
+			for (Object o : products) {
+				desiredProducts.add(Database.lookupItem((String)o));
+			}
+			WaitDialogManager.instance.setTaskProgress(taskID, 80);
+			if (toggs == null) {
+				toggles.addAll(EnumSet.allOf(ToggleableVisiblityGroup.class));
+			}
+			else {
+				for (Object o : toggs) {
+					String s = (String)o;
+					if (s.equalsIgnoreCase("POST10")) //ignore removed group
+						continue;
+					toggles.add(ToggleableVisiblityGroup.valueOf(s));
+				}
 			}
 		}
-		WaitDialogManager.instance.setTaskProgress(taskID, 60);
-		for (Object o : resources) {
-			JSONObject block = (JSONObject)o;
-			ResourceSupplyType type = ResourceSupplyType.valueOf(block.getString("type"));
-			ResourceSupply res = type.construct(block);
-			resourceSources.addValue(res.getResource(), res);
-		}
-		WaitDialogManager.instance.setTaskProgress(taskID, 75);
-		for (Object o : products) {
-			desiredProducts.add(Database.lookupItem((String)o));
-		}
-		WaitDialogManager.instance.setTaskProgress(taskID, 80);
-		if (toggs == null) {
-			toggles.addAll(EnumSet.allOf(ToggleableVisiblityGroup.class));
-		}
-		else {
-			for (Object o : toggs) {
-				String s = (String)o;
-				if (s.equalsIgnoreCase("POST10")) //ignore removed group
-					continue;
-				toggles.add(ToggleableVisiblityGroup.valueOf(s));
-			}
+		catch (Exception e) {
+			throw new IllegalStateException("Could not load factory from file "+f, e);
 		}
 		WaitDialogManager.instance.setTaskProgress(taskID, 90);
 

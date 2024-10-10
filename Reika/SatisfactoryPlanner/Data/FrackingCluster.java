@@ -8,7 +8,7 @@ import org.json.JSONObject;
 import Reika.SatisfactoryPlanner.Data.Constants.Purity;
 import Reika.SatisfactoryPlanner.Data.Constants.ResourceSupplyType;
 
-public class FrackingCluster implements ExtractableResource<Fluid> {
+public class FrackingCluster implements ExtractableResource<FrackingCluster, Fluid> {
 
 	private final ArrayList<FrackingNode> nodes = new ArrayList();
 
@@ -80,7 +80,7 @@ public class FrackingCluster implements ExtractableResource<Fluid> {
 	}
 
 	@Override
-	public ResourceSupply<Fluid> duplicate() {
+	public FrackingCluster duplicate() {
 		return new FrackingCluster(resource, pureCount, normalCount, impureCount);
 	}
 
@@ -101,6 +101,15 @@ public class FrackingCluster implements ExtractableResource<Fluid> {
 
 	public int getNodeCount() {
 		return pureCount+normalCount+impureCount;
+	}
+
+	@Override
+	public int fineCompare(FrackingCluster r) {
+		return Integer.compare(this.getCountSort(), r.getCountSort());
+	}
+
+	private int getCountSort() {
+		return pureCount*3+normalCount*2+impureCount;
 	}
 
 }

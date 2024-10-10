@@ -64,8 +64,6 @@
       <menus>
             <Menu fx:id="controlMenu" mnemonicParsing="false" text="Program">
               <items>
-                  <MenuItem fx:id="customRecipeMenu" mnemonicParsing="false" text="Define Custom Recipe" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
             <MenuItem fx:id="settingsMenu" mnemonicParsing="false" text="Settings" />
             <SeparatorMenuItem mnemonicParsing="false" />
             <MenuItem fx:id="quitMenu" mnemonicParsing="false" text="Quit" />
@@ -91,7 +89,13 @@
                   <MenuItem fx:id="summaryMenu" mnemonicParsing="false" text="View Summary" />
                </items>
             </Menu>
-            <Menu fx:id="factoryMenu1" mnemonicParsing="false" text="Files &amp; Folders">
+            <Menu fx:id="recipeMenu" mnemonicParsing="false" text="Recipes">
+               <items>
+                  <MenuItem fx:id="neiMenu" mnemonicParsing="false" text="Recipe Catalogue" />
+                  <MenuItem fx:id="customRecipeMenu" mnemonicParsing="false" text="Define Custom Recipe" />
+               </items>
+            </Menu>
+            <Menu fx:id="dirsMenu" mnemonicParsing="false" text="Files &amp; Folders">
                <items>
                   <MenuItem fx:id="appFolderMenu" mnemonicParsing="false" text="Program Folder" />
                   <SeparatorMenuItem mnemonicParsing="false" />

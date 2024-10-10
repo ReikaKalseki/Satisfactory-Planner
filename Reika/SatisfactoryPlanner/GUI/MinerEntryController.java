@@ -23,7 +23,7 @@ public class MinerEntryController extends ResourceMineEntryController<SolidResou
 		miner.setCellFactory(c -> new TierListCell<MinerTier>("", false));
 		miner.getSelectionModel().selectedItemProperty().addListener((val, old, nnew) -> {
 			supply.minerLevel = nnew;
-			this.updateStats(true);
+			this.updateStats();
 		});
 	}
 
