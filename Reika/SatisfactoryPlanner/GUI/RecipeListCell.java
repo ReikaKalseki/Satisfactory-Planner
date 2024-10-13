@@ -70,6 +70,10 @@ public class RecipeListCell extends DecoratedListCell<Recipe> {
 	}
 
 	public static HBox buildIODisplay(Recipe r, boolean compact, float rateScale) {
+		return buildIODisplay(r, compact, rateScale, null);
+	}
+
+	public static HBox buildIODisplay(Recipe r, boolean compact, float rateScale, Consumable keyItem) {
 		HBox ingredients = new HBox();
 		HBox products = new HBox();
 		boolean rates = rateScale >= 0;
@@ -95,16 +99,20 @@ public class RecipeListCell extends DecoratedListCell<Recipe> {
 		products.setAlignment(Pos.CENTER_LEFT);
 
 		for (Entry<Consumable, Float> e : r.getIngredientsPerMinute().entrySet()) {
-			if (rates)
-				ingredients.getChildren().add(new ItemRateController(e.getKey(), e.getValue()*rateScale, false).setMinWidth("000.00").getRootNode());
-			else
-				ingredients.getChildren().add(new ImageView(e.getKey().createIcon()));
+			if (keyItem != null && e.getKey() == keyItem)
+				continue;
+			ingredients.getChildren().add(createItemNode(e, rateScale, rates));
 		}
 		for (Entry<Consumable, Float> e : r.getProductsPerMinute().entrySet()) {
-			if (rates)
-				products.getChildren().add(new ItemRateController(e.getKey(), e.getValue()*rateScale, false).setMinWidth("000.00").getRootNode());
-			else
-				products.getChildren().add(new ImageView(e.getKey().createIcon()));
+			if (keyItem != null && e.getKey() == keyItem)
+				continue;
+			products.getChildren().add(createItemNode(e, rateScale, rates));
+		}
+		if (keyItem != null) {
+			if (r.getIngredientsPerMinute().containsKey(keyItem))
+				ingredients.getChildren().add(createItemNode(keyItem, r.getIngredientsPerMinute().get(keyItem), rateScale, rates));
+			if (r.getProductsPerMinute().containsKey(keyItem))
+				products.getChildren().add(0, createItemNode(keyItem, r.getProductsPerMinute().get(keyItem), rateScale, rates));
 		}
 		HBox itemBar = new HBox();
 		itemBar.setAlignment(Pos.CENTER);
@@ -114,6 +122,17 @@ public class RecipeListCell extends DecoratedListCell<Recipe> {
 		HBox.setMargin(img, new Insets(0, 4, 0, 4));
 		itemBar.getChildren().add(products);
 		return itemBar;
+	}
+
+	private static Node createItemNode(Entry<Consumable, Float> e, float rateScale, boolean rates) {
+		return createItemNode(e.getKey(), e.getValue(), rateScale, rates);
+	}
+
+	private static Node createItemNode(Consumable c, float amt, float rateScale, boolean rates) {
+		if (rates)
+			return new ItemRateController(c, amt*rateScale, false).setMinWidth("000.00").getRootNode();
+		else
+			return new ImageView(c.createIcon());
 	}
 
 	public static void init() {/*

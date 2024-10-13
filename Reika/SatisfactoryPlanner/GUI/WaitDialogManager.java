@@ -3,6 +3,9 @@ package Reika.SatisfactoryPlanner.GUI;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.nativejavafx.taskbar.TaskbarProgressbar;
+import com.nativejavafx.taskbar.TaskbarProgressbarFactory;
+
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Util.Logging;
 
@@ -29,6 +32,7 @@ public class WaitDialogManager {
 	private Stage dialog;
 	private ProgressBar dialogBar;
 	private Label taskList;
+	private TaskbarProgressbar taskbarLink;
 
 	private WaitDialogManager() {
 
@@ -108,6 +112,9 @@ public class WaitDialogManager {
 			dialog.setScene(new Scene(box, 500, 192));
 			dialog.getScene().getStylesheets().add(Main.class.getResource("Resources/CSS/style.css").toString());
 			box.layout();
+			taskbarLink = TaskbarProgressbarFactory.getTaskbarProgressbar(dialog);
+			if (taskbarLink == null)
+				Logging.instance.log("Could not set up Win7+ taskbar progress link");
 			dialog.show();
 			dialog.setAlwaysOnTop(true);
 			Logging.instance.log("Wait UI shown");
@@ -123,7 +130,14 @@ public class WaitDialogManager {
 
 			Logging.instance.log("Closing wait UI");
 			PauseTransition timer = new PauseTransition(Duration.millis(50)); //let screen stick for just long enough to show more progress
-			timer.setOnFinished(e -> {dialogBar = null; dialog.close(); dialog = null; enclosingTask = null;});
+			timer.setOnFinished(e -> {
+				dialogBar = null;
+				if (taskbarLink != null)
+					taskbarLink.stopProgress();
+				dialog.close();
+				dialog = null;
+				enclosingTask = null;
+			});
 			timer.play();
 		});
 	}
@@ -134,8 +148,13 @@ public class WaitDialogManager {
 		WaitTask w = currentTasks.get(id);
 		w.percentageComplete = pct;
 		Logging.instance.log("Stepping task "+w.description+" to "+pct+"%");
-		if (id.equals(enclosingTask))
-			GuiUtil.runOnJFXThread(() -> dialogBar.setProgress(pct/100D));
+		if (id.equals(enclosingTask)) {
+			GuiUtil.runOnJFXThread(() -> {
+				dialogBar.setProgress(pct/100D);
+				//TaskbarProgressbar.showCustomProgress(GuiSystem.getMainStage(), pct/100D, TaskbarProgressbar.Type.NORMAL);
+				TaskbarProgressbar.showCustomProgress(dialog, pct/100D, TaskbarProgressbar.Type.NORMAL);
+			});
+		}
 	}
 
 	private class WaitTask {

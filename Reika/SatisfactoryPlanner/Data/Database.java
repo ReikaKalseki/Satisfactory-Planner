@@ -70,6 +70,8 @@ public class Database {
 	}
 
 	public static Milestone lookupMilestone(String name) {
+		if (name.endsWith("_C_C"))
+			name = name.substring(0, name.length()-2);
 		Milestone c = allMilestones.get(name);
 		if (c == null)
 			throw new IllegalArgumentException("No such milestone '"+name+"'");
@@ -77,6 +79,8 @@ public class Database {
 	}
 
 	public static Building lookupBuilding(String name) {
+		if (name.endsWith("_C_C"))
+			name = name.substring(0, name.length()-2);
 		if (name.startsWith("Desc_"))
 			name = "Build_"+name.substring(5);
 		Building c = allBuildings.get(name);
@@ -86,6 +90,8 @@ public class Database {
 	}
 
 	public static Consumable lookupItem(String name) {
+		if (name.endsWith("_C_C"))
+			name = name.substring(0, name.length()-2);
 		Consumable c = allItems.get(name);
 		if (c == null)
 			throw new IllegalArgumentException("No such item '"+name+"'");
@@ -93,6 +99,8 @@ public class Database {
 	}
 
 	public static Recipe lookupRecipe(String name) {
+		if (name.endsWith("_C_C"))
+			name = name.substring(0, name.length()-2);
 		Recipe c = allRecipes.get(name);
 		if (c == null)
 			throw new IllegalArgumentException("No such recipe '"+name+"'");

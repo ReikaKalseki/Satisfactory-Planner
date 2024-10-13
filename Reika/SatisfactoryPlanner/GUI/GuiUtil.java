@@ -12,6 +12,8 @@ import java.util.function.Consumer;
 
 import org.controlsfx.control.SearchableComboBox;
 
+import com.nativejavafx.taskbar.TaskbarProgressbar;
+
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.NamedIcon;
 import Reika.SatisfactoryPlanner.Data.Consumable;
@@ -290,7 +292,7 @@ public class GuiUtil {
 	}
 
 	public static void raiseUserErrorDialog(String title, String text) {
-		raiseDialog(AlertType.INFORMATION, title, text, ButtonType.OK);
+		raiseDialog(AlertType.ERROR, title, text, ButtonType.OK);
 	}
 
 	public static boolean getConfirmation(String text) {
@@ -311,7 +313,14 @@ public class GuiUtil {
 		Alert a = createDialog(type, title, text, width, buttons);
 		if (modifier != null)
 			modifier.accept(a);
+		boolean flag = false;
+		if (type == AlertType.ERROR && TaskbarProgressbar.isSupported()) {
+			flag = true;
+			TaskbarProgressbar.showFullErrorProgress(GuiSystem.getMainStage());
+		}
 		Optional<ButtonType> b = a.showAndWait();
+		if (flag)
+			TaskbarProgressbar.stopProgress(GuiSystem.getMainStage());
 		return b.isPresent() ? b.get() : null;
 	}
 

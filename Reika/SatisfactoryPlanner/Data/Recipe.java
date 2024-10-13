@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Predicate;
 
+import Reika.SatisfactoryPlanner.Util.JavaUtil;
+
 public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 
 	private static int maxIngredients;
@@ -240,6 +242,13 @@ public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 				li.add(r);
 		}
 		return li;
+	}
+
+	public void resort() {
+		JavaUtil.resort(costsRaw);
+		JavaUtil.resort(costsPerMinute);
+		JavaUtil.resort(productsRaw);
+		JavaUtil.resort(productPerMinute);
 	}
 
 }

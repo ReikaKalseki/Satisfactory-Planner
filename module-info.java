@@ -12,6 +12,7 @@ module satisfactoryplanner {
 	opens Reika.SatisfactoryPlanner.Util to javafx.graphics, javafx.fxml;
 
 	requires java.desktop;
+	requires java.management;
 	requires com.google.common;
 	requires org.apache.commons.io;
 	requires org.apache.commons.cli;
@@ -21,4 +22,6 @@ module satisfactoryplanner {
 	requires org.controlsfx.controls;
 	requires javafx.base;
 	requires javafx.swing;
+	requires nativejavafx.taskbar;
+	//requires transitive bridj;
 }

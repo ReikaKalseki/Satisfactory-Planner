@@ -164,6 +164,10 @@ public class ResourceNodeController extends RadioTitledPaneSection {
 
 		addButton.setOnAction(e -> {
 			Toggle b = radioButtons.getSelectedToggle();
+			if (b == null) {
+				GuiUtil.raiseUserErrorDialog("Resource Supply Invalid", "No supply type selected.");
+				return;
+			}
 			if (!purity.isDisabled() && purity.getSelectionModel().getSelectedItem() == null) {
 				GuiUtil.raiseUserErrorDialog("Resource Supply Invalid", "No purity selected.");
 				return;

@@ -136,6 +136,10 @@ public class LogisticSupplyController extends RadioTitledPaneSection {
 
 		addButton.setOnAction(e -> {
 			Toggle b = radioButtons.getSelectedToggle();
+			if (b == null) {
+				GuiUtil.raiseUserErrorDialog("Resource Supply Invalid", "No supply type selected.");
+				return;
+			}
 			Consumable c = itemDropdown.getSelectionModel().getSelectedItem();
 			if (c == null) {
 				GuiUtil.raiseUserErrorDialog("Resource Supply Invalid", "No item selected.");

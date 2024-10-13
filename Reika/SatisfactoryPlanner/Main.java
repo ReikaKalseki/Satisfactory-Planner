@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.management.ManagementFactory;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -53,6 +54,7 @@ public class Main {
 		//System.out.println("Running with effective root of "+effectiveRoot.getCanonicalPath());
 		Logging.instance.log("Running in compiled environment: "+isCompiled+" @ "+executionLocation);
 		Logging.instance.log("Relative root: "+getRelativeFile(""));
+		Logging.instance.log("JVM Args: "+ManagementFactory.getRuntimeMXBean().getInputArguments());
 		Logging.instance.log("JMX Settings: "+System.getProperty("com.sun.management.jmxremote")+" (port "+System.getProperty("com.sun.management.jmxremote.port")+")");
 		/*
 		File f = new File("debug.txt");
@@ -116,6 +118,9 @@ public class Main {
 			for (Consumable c : r.getProductsPerMinute().keySet()) {
 				c.addRecipe(r);
 			}
+		}
+		for (Recipe r : Database.getAllRecipes()) {
+			r.resort();
 		}
 		Database.sort();
 		for (Consumable c : Database.getAllItems())

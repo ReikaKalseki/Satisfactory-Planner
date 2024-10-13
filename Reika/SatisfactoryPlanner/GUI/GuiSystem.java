@@ -208,4 +208,8 @@ public class GuiSystem extends Application {
 	public static GuiInstance<MainGuiController> getMainGUI() {
 		return mainGui;
 	}
+
+	public static Stage getMainStage() {
+		return primaryStage;
+	}
 }

@@ -75,10 +75,10 @@ public class RecipeCatalogController extends FXMLControllerBase {
 			this.clear(usingRecipeList, usingNodes);
 			if (nnew != null) {
 				for (Recipe r : Recipe.getAllRecipesMaking(nnew)) {
-					makingNodes.put(r, this.createCellContent(makingRecipeList, r, this.getAddRecipeButton(r)));
+					makingNodes.put(r, this.createCellContent(makingRecipeList, r, this.getAddRecipeButton(r), nnew));
 				}
 				for (Recipe r : Recipe.getAllRecipesUsing(nnew)) {
-					usingNodes.put(r, this.createCellContent(usingRecipeList, r, this.getAddRecipeButton(r)));
+					usingNodes.put(r, this.createCellContent(usingRecipeList, r, this.getAddRecipeButton(r), nnew));
 				}
 			}
 			((Region)makingScroller.lookup("ScrollPane .viewport")).setCache(false);
@@ -129,13 +129,13 @@ public class RecipeCatalogController extends FXMLControllerBase {
 		GuiUtil.initWidgets(this);
 	}
 
-	private RecipeRow createCellContent(GridPane gp, Recipe item, Button b) {
+	private RecipeRow createCellContent(GridPane gp, Recipe item, Button b, Consumable ref) {
 		if (item == null)
 			return null;
 		int row = gp.getRowCount();
 		RowConstraints rc = new RowConstraints();
 		Label lb = new Label(item.displayName);
-		HBox io = RecipeListCell.buildIODisplay(item, false, 1);
+		HBox io = RecipeListCell.buildIODisplay(item, false, 1, ref);
 		rc.setMinHeight(40);
 		gp.getRowConstraints().add(rc);
 		gp.add(lb, 0, row);
@@ -167,7 +167,7 @@ public class RecipeCatalogController extends FXMLControllerBase {
 		b.setGraphic(InternalIcons.DELETE.createImageView());
 		b.setMinWidth(40);
 		b.setOnAction((e) -> this.removeRecipe(item));
-		RecipeRow r = this.createCellContent(generalRecipeList, item, b);
+		RecipeRow r = this.createCellContent(generalRecipeList, item, b, null);
 		recipeNodes.put(item, r);
 		r = makingNodes.get(item);
 		if (r != null)

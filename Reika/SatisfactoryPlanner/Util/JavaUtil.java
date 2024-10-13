@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -242,5 +243,11 @@ public final class JavaUtil {
 		ArrayList<E> li = new ArrayList(c);
 		Collections.sort(li, comp);
 		return li;
+	}
+
+	public static <K, V> void resort(TreeMap<K, V> map) {
+		HashMap<K, V> temp = new HashMap(map); //not treemap since it will try to preserve the old sort
+		map.clear();
+		map.putAll(temp);
 	}
 }
