@@ -145,6 +145,7 @@ public class Constants {
 	}
 
 	public static enum ResourceSupplyType {
+		SIMPLEPROD(SimpleProductionSupply.class),
 		MINER(SolidResourceNode.class),
 		WATER(WaterExtractor.class),
 		OIL(OilNode.class),

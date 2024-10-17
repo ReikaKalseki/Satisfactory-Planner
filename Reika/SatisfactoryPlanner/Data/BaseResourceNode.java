@@ -55,7 +55,7 @@ public abstract class BaseResourceNode<S extends BaseResourceNode<S, R>, R exten
 
 	@Override
 	public void getWarnings(Consumer<Warning> c) {
-		int yield = this.getYield();
+		float yield = this.getYield();
 		int max = this.getMaximumThroughput();
 		if (yield > max) {
 			c.accept(new PortThroughputWarning(this.getDescriptiveName(), yield, resource instanceof Fluid ? PipeTier.TWO : BeltTier.SIX, 1));

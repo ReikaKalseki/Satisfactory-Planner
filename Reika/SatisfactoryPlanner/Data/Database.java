@@ -404,22 +404,26 @@ public class Database {
 		float pwrExp = Float.parseFloat(obj.getString("mPowerConsumptionExponent")); //FIXME handle this for overclock!
 		float smrExp = Float.parseFloat(obj.getString("mProductionBoostPowerConsumptionExponent")); //FIXME handle this for overclock!
 		int somerslots = obj.has("mProductionShardSlotSize") ? Integer.parseInt(obj.getString("mProductionShardSlotSize")) : 0;
-		FunctionalBuilding r;
-		switch(cat) {
-			case CRAFTER:
-				r = new CraftingBuilding(id, disp, convertIDToIcon(id), pwr, pwrExp, smrExp, somerslots);
-				break;
-			case MINER:
-				r = new ResourceMiner(id, disp, convertIDToIcon(id), pwr, pwrExp, smrExp, somerslots);
-				break;
-			case LOGISTIC:
-				r = new LogisticBuilding(id, disp, convertIDToIcon(id), pwr, pwrExp, smrExp, somerslots);
-				break;
-			default:
-				throw new IllegalArgumentException(cat.toString());
-		}
+		FunctionalBuilding r = constructBuilding(cat, id, disp, convertIDToIcon(id), pwr, pwrExp, smrExp, somerslots);
+		if (r instanceof SimpleProductionBuilding)
+			((SimpleProductionBuilding)r).setDelay(obj.getFloat("mTimeToProduceItem"));
 		allBuildings.put(r.id, r);
 		allBuildingsSorted.add(r);
+	}
+
+	private static FunctionalBuilding constructBuilding(BuildingCategory cat, String id, String disp, String string, float pwr, float pwrExp, float smrExp, int somerslots) {
+		switch(cat) {
+			case CRAFTER:
+				return new CraftingBuilding(id, disp, convertIDToIcon(id), pwr, pwrExp, smrExp, somerslots);
+			case SIMPLEPROD:
+				return new SimpleProductionBuilding(id, disp, convertIDToIcon(id), pwr, pwrExp, smrExp, somerslots);
+			case MINER:
+				return new ResourceMiner(id, disp, convertIDToIcon(id), pwr, pwrExp, smrExp, somerslots);
+			case LOGISTIC:
+				return new LogisticBuilding(id, disp, convertIDToIcon(id), pwr, pwrExp, smrExp, somerslots);
+			default:
+				throw new IllegalArgumentException("Unrecognized building type: "+cat);
+		}
 	}
 
 	private static void parseBeltJSON(JSONObject obj) {
@@ -540,6 +544,7 @@ public class Database {
 		Item i = new Item("Desc_HardDrive_C", "Hard Drive", convertIDToIcon("Desc_HardDrive_C"), "", "Hardcoded", 0, 50); //missing from json???
 		allItems.put(i.id, i);
 		allItemsSorted.add(i);
+		ClassType.SIMPLEPROD.parsePending();
 		ClassType.CRAFTER.parsePending();
 		ClassType.MINER.parsePending();
 		ClassType.GENERATOR.parsePending();
@@ -607,7 +612,12 @@ public class Database {
 					Logging.instance.log("Loading building file "+f2);
 					JSONObject data = new JSONObject(FileUtils.readFileToString(f2, Charsets.UTF_8));
 					int somerslots = data.has("SomersloopSlots") ? Integer.parseInt(data.getString("SomersloopSlots")) : 0;
-					CraftingBuilding r = new CraftingBuilding(data.getString("ID"), data.getString("Name"), data.getString("Icon"), data.getInt("PowerCost"), somerslots);
+					String type = data.has("BuildingType") ? data.getString("BuildingType") : BuildingCategory.CRAFTER.name();
+					float pwrExp = data.has("OverlockingPowerExponent") ? data.getFloat("OverclockingPowerExponent") : Constants.DEFAULT_OVERCLOCK_EXPONENT;
+					float smrExp = data.has("SomersloopPowerExponent") ? data.getFloat("SomersloopPowerExponent") : Constants.DEFAULT_SOMERSLOOP_EXPONENT;
+					FunctionalBuilding r = constructBuilding(BuildingCategory.valueOf("type"), data.getString("ID"), data.getString("Name"), data.getString("Icon"), data.getInt("PowerCost"), pwrExp, smrExp, somerslots);
+					if (r instanceof SimpleProductionBuilding)
+						((SimpleProductionBuilding)r).setDelay(data.getFloat("ProductionInterval"));
 					/*JSONArray ing = data.getJSONArray("Ingredients");
 				for (Object o : ing) {
 					JSONObject inner = (JSONObject)o;
@@ -624,7 +634,7 @@ public class Database {
 				}
 				catch (Exception e) {
 					Logging.instance.log("Failed to parse custom building definition file "+f2.getAbsolutePath());
-					e.printStackTrace();
+					Logging.instance.log(e);
 				}
 			}
 		}
@@ -672,7 +682,7 @@ public class Database {
 				}
 				catch (Exception e) {
 					Logging.instance.log("Failed to parse custom milestone definition file "+f2.getAbsolutePath());
-					e.printStackTrace();
+					Logging.instance.log(e);
 				}
 			}
 		}
@@ -771,7 +781,7 @@ public class Database {
 				}
 				catch (Exception e) {
 					Logging.instance.log("Failed to parse custom recipe definition file "+f2.getAbsolutePath());
-					e.printStackTrace();
+					Logging.instance.log(e);
 				}
 			}
 		}
@@ -822,7 +832,7 @@ public class Database {
 				}
 				catch (Exception e) {
 					Logging.instance.log("Failed to parse custom item definition file "+f2.getAbsolutePath());
-					e.printStackTrace();
+					Logging.instance.log(e);
 				}
 			}
 		}
@@ -908,6 +918,7 @@ public class Database {
 		RECIPE("/Script/CoreUObject.Class'/Script/FactoryGame.FGRecipe'"),
 		GENERATOR("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableGeneratorFuel'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableGeneratorNuclear'"/*, "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableGeneratorGeoThermal'"*/),
 		CRAFTER("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableManufacturer'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableManufacturerVariablePower'"),
+		SIMPLEPROD("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableFactorySimpleProducer'"),
 		MINER("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableResourceExtractor'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableWaterPump'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableFrackingActivator'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableFrackingExtractor'"),
 		STATION("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableDockingStation'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableTrainPlatformCargo'", "/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableDroneStation'"),
 		BELT("/Script/CoreUObject.Class'/Script/FactoryGame.FGBuildableConveyorBelt'"),
@@ -947,6 +958,9 @@ public class Database {
 					break;
 				case CRAFTER:
 					parseFunctionalBuildingJSON(obj, BuildingCategory.CRAFTER);
+					break;
+				case SIMPLEPROD:
+					parseFunctionalBuildingJSON(obj, BuildingCategory.SIMPLEPROD);
 					break;
 				case MINER:
 					parseFunctionalBuildingJSON(obj, BuildingCategory.MINER);

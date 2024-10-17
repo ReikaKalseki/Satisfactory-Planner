@@ -61,7 +61,7 @@ public class FromFactorySupply<R extends Consumable> implements ResourceSupply<F
 	}
 
 	@Override
-	public int getYield() {
+	public float getYield() {
 		return (int)amount;
 	}
 

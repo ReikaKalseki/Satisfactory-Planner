@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 
 import Reika.SatisfactoryPlanner.GUI.GuiSystem;
 import Reika.SatisfactoryPlanner.GUI.GuiUtil;
+import Reika.SatisfactoryPlanner.Util.Logging;
 
 import javafx.application.HostServices;
 import javafx.fxml.FXML;
@@ -38,7 +39,7 @@ public abstract class FXMLControllerBase extends ControllerBase  {
 			this.init(GuiSystem.getHSVC());
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			Logging.instance.log(e);
 		}
 	}
 

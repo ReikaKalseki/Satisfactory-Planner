@@ -93,7 +93,7 @@ public abstract class ResourceSupplyEntryController<R extends ResourceSupply> ex
 				if (r instanceof OverclockableResource)
 					((OverclockableResource)r).setClockSpeed(((OverclockableResource)res).getClockSpeed());
 				if (r instanceof LogisticSupply)
-					((LogisticSupply)r).setAmount(((LogisticSupply)res).getYield());
+					((LogisticSupply)r).setAmount((int)((LogisticSupply)res).getYield());
 				f.addExternalSupply(r);
 			});
 		}

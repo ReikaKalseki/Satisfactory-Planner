@@ -3,11 +3,11 @@ package Reika.SatisfactoryPlanner.Util;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+import org.apache.commons.io.FileUtils;
 
 import Reika.SatisfactoryPlanner.Main;
 
@@ -20,11 +20,9 @@ public class Logging {
 	private final Thread loggingThread = new Thread(() -> this.runLogger(), "Logging");
 
 	private final Date dateInstance = new Date();
-	private final ConcurrentLinkedQueue<Byte> logQueue = new ConcurrentLinkedQueue();
+	private final ConcurrentLinkedQueue<String> logQueue = new ConcurrentLinkedQueue();
 
 	private Logging() {
-		System.setOut(new LogDiversionStream(System.out));
-		System.setErr(new LogDiversionStream(System.err));
 		try {
 			this.updateLogPath();
 		}
@@ -56,23 +54,24 @@ public class Logging {
 		if (currentLogFile != null) {
 			this.flushLog();
 		}
-		currentLogFile = /*Setting.LOG.getCurrentValue()*/LogOptions.RUNTIME.getOrCreateLogFile();
+		currentLogFile = this.getOrCreateLogFile();
 		if (currentLogFile != null) {
 			if (!currentLogFile.exists())
 				currentLogFile.createNewFile();
 		}
 	}
 
+	private File getOrCreateLogFile() {
+		if (!Main.isCompiled())
+			return null;
+		File f = Main.getRelativeFile("Logs/"+new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date())+".log");
+		f.getParentFile().mkdirs();
+		return f;
+	}
+
 	public void flushLog() throws IOException {
-		if (currentLogFile != null) {
-			byte[] raw = new byte[logQueue.size()];
-			int idx = 0;
-			for (Byte b : logQueue) {
-				raw[idx] = b;
-				idx++;
-			}
-			Files.write(currentLogFile.toPath(), raw, StandardOpenOption.APPEND);
-		}
+		if (currentLogFile != null)
+			FileUtils.writeLines(currentLogFile, logQueue, true);
 		logQueue.clear();
 	}
 
@@ -88,44 +87,9 @@ public class Logging {
 	public void log(String msg, PrintStream buf) {
 		dateInstance.setTime(System.currentTimeMillis());
 		String log = "["+Main.timeStampFormat.format(dateInstance)+"] [Thread "+Thread.currentThread().getName()+"]: "+msg;
-		buf.println(log);
-	}
-
-	public static enum LogOptions {
-		//NONE,
-		//COMMON,
-		RUNTIME;
-
-		public File getOrCreateLogFile() {
-			switch(this) {/*
-				case NONE:
-				default:
-					return null;
-				case COMMON:
-					return Main.getRelativeFile("SharedLog.log");*/default:
-					case RUNTIME:
-						if (!Main.isCompiled())
-							return null;
-						File f = Main.getRelativeFile("Logs/"+new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date())+".log");
-						f.getParentFile().mkdirs();
-						return f;
-			}
-		}
-	}
-
-	private class LogDiversionStream extends PrintStream {
-
-		public LogDiversionStream(PrintStream wrapped) {
-			super(wrapped);
-		}
-
-		@Override
-		public void write(byte buf[], int off, int len) {
-			super.write(buf, off, len);
-			int to = off+len;
-			for (int i = off; i < to; i++) {
-				logQueue.add(buf[i]);
-			}
+		logQueue.add(log);
+		synchronized (buf) {
+			buf.println(log);
 		}
 	}
 

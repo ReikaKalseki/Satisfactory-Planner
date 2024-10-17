@@ -123,8 +123,8 @@ public class Warning implements Comparable<Warning> {
 
 	public static class PortThroughputWarning extends Warning {
 
-		public PortThroughputWarning(String desc, int amt, RateLimitedSupplyLine max, int count) {
-			super(WarningSeverity.SEVERE, desc+": Flow rate ("+amt+") exceeds maximum throughput ("+max.getMaxThroughput()*count+") of possible "+max.getDesc().toLowerCase(Locale.ENGLISH)+"s ("+count+")", THROUGHPUT_BOTTLENECK);
+		public PortThroughputWarning(String desc, float amt, RateLimitedSupplyLine max, int count) {
+			super(WarningSeverity.SEVERE, String.format("%s: Flow rate (%.0f) exceeds maximum throughput (%d) of possible %ss (%d)", desc, amt, max.getMaxThroughput()*count, max.getDesc().toLowerCase(Locale.ENGLISH), count), THROUGHPUT_BOTTLENECK);
 		}
 
 	}

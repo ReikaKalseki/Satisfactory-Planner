@@ -96,6 +96,7 @@ public class Main {
 		Platform.exit();
 		Logging.instance.log("Closing Application");
 		Logging.instance.flushLog();
+		//LogManager.shutdown();
 	}
 
 	public static void parseGameData() throws Exception {
@@ -139,7 +140,7 @@ public class Main {
 			Thread.sleep(50); //let splash screen catch up
 		}
 		catch (InterruptedException e) {
-			e.printStackTrace();
+			Logging.instance.log(e);
 		}
 		Logging.instance.log("===================");
 		Logging.instance.log("Recipe/Item Data Parsed");
@@ -160,7 +161,7 @@ public class Main {
 			FileUtils.writeLines(recentFilesFile, recentFiles);
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			Logging.instance.log(e);
 		}
 	}
 

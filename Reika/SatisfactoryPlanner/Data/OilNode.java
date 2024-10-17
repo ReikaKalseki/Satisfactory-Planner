@@ -19,7 +19,7 @@ public class OilNode extends BaseResourceNode<OilNode, Fluid> {
 	}
 
 	@Override
-	public int getYield() {
+	public float getYield() {
 		return purityLevel == null ? 0 : (int)(purityLevel.getOilYield()*this.getClockSpeed());
 	}
 

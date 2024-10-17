@@ -23,5 +23,7 @@ module satisfactoryplanner {
 	requires javafx.base;
 	requires javafx.swing;
 	requires nativejavafx.taskbar;
+	//requires org.apache.logging.log4j;
+	//requires org.apache.logging.log4j.core;
 	//requires transitive bridj;
 }

@@ -12,7 +12,7 @@ public class FrackingNode extends BaseResourceNode<FrackingNode, Fluid> {
 	}
 
 	@Override
-	public int getYield() {
+	public float getYield() {
 		return purityLevel == null ? 0 : (int)(purityLevel.getFrackingYield()*this.getClockSpeed());
 	}
 

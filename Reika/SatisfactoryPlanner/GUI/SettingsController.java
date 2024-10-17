@@ -9,6 +9,7 @@ import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Setting;
 import Reika.SatisfactoryPlanner.Setting.InputInOutputOptions;
 import Reika.SatisfactoryPlanner.Setting.SettingRef;
+import Reika.SatisfactoryPlanner.Util.Logging;
 import Reika.SatisfactoryPlanner.Util.StringUtil;
 
 import fxexpansions.FXMLControllerBase;
@@ -176,7 +177,7 @@ public class SettingsController extends FXMLControllerBase {
 			allowFractional.setSelected(Setting.ALLOWDECIMAL.getCurrentValue());
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Logging.instance.log(e);
 			GuiUtil.showException(e, "Error setting game directory field");
 		}
 	}

@@ -29,7 +29,7 @@ public class SolidResourceNode extends BaseResourceNode<SolidResourceNode, Item>
 	}
 
 	@Override
-	public int getYield() {
+	public float getYield() {
 		return purityLevel == null || minerLevel == null ? 0 : (int)(purityLevel.getSolidYield()*minerLevel.speedMultiplier*this.getClockSpeed());
 	}
 

@@ -26,7 +26,7 @@ public class WaterExtractor implements ExtractableResource<WaterExtractor, Fluid
 	}
 
 	@Override
-	public int getYield() {
+	public float getYield() {
 		return (int)(Constants.WATER_PUMP_PRODUCTION*clockSpeed)*numberExtractors;
 	}
 

@@ -36,6 +36,7 @@ public abstract class Building extends HandBuildable implements Comparable<Build
 	public abstract BuildingCategory getCategory();
 
 	public static enum BuildingCategory {
+		SIMPLEPROD,
 		CRAFTER,
 		LINE,
 		MINER,

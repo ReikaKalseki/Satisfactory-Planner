@@ -9,6 +9,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
@@ -34,11 +35,12 @@ import Reika.SatisfactoryPlanner.Data.LogisticSupply;
 import Reika.SatisfactoryPlanner.Data.Milestone;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.Data.ResourceSupply;
+import Reika.SatisfactoryPlanner.Data.SimpleProductionBuilding;
+import Reika.SatisfactoryPlanner.Data.SimpleProductionSupply;
 import Reika.SatisfactoryPlanner.Data.SolidResourceNode;
 import Reika.SatisfactoryPlanner.Data.TieredLogisticSupply;
 import Reika.SatisfactoryPlanner.Data.WaterExtractor;
 import Reika.SatisfactoryPlanner.GUI.GuiUtil.SearchableSelector;
-import Reika.SatisfactoryPlanner.Util.CountMap;
 import Reika.SatisfactoryPlanner.Util.Logging;
 
 import fxexpansions.ExpandingTilePane;
@@ -109,6 +111,9 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 
 	@FXML
 	private Button addFactoryInputButton;
+
+	@FXML
+	private SearchableComboBox<SimpleProductionBuilding> simpleProducerButton;
 
 	@FXML
 	private SearchableComboBox<Consumable> addProductButton;
@@ -205,6 +210,9 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 
 	@FXML
 	private MenuItem neiMenu;
+
+	@FXML
+	private MenuItem itemViewerMenu;
 
 	@FXML
 	private MenuItem customRecipeMenu;
@@ -334,6 +342,35 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 
 		Logging.instance.log("Product list compiled");
 
+		GuiUtil.setupAddSelector(simpleProducerButton, new SearchableSelector<SimpleProductionBuilding>(){
+			@Override
+			public void accept(SimpleProductionBuilding t) {
+				//Logging.instance.log("Adding simple producer "+t);
+				SimpleProductionSupply res = new SimpleProductionSupply(t);
+				factory.addExternalSupply(res);
+			}
+
+			@Override
+			public DecoratedListCell<SimpleProductionBuilding> createListCell(String text, boolean button) {
+				return new BuildingListCell(text, button);
+			}
+
+			@Override
+			public String getEntryTypeName() {
+				return "Simple Producer";
+			}
+
+			@Override
+			public String getActionName() {
+				return "Add";
+			}
+
+			@Override
+			public boolean clearOnSelect() {
+				return true;
+			}
+		});
+
 		factoryName.textProperty().addListener((val, old, nnew) -> {
 			factory.name = nnew;
 		});
@@ -345,7 +382,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 
 		tierFilter.valueChangingProperty().addListener((val, old, nnew) -> {
 			if (old && !nnew) {
-				this.rebuildLists(true, false);
+				this.rebuildLists(true, false, true);
 			}
 		});
 
@@ -377,6 +414,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 		 */
 		GuiUtil.setMenuEvent(settingsMenu, () -> this.openChildWindow("Application Settings", "Settings"));
 		GuiUtil.setMenuEvent(neiMenu, () -> this.openChildWindow("Recipe Catalogue", "RecipeCatalog"));
+		GuiUtil.setMenuEvent(itemViewerMenu, () -> this.openChildWindow("Item Catalogue", "ItemCatalog"));
 		GuiUtil.setMenuEvent(customRecipeMenu, () -> this.openChildWindow("Custom Recipe Definition", "CustomRecipeDefinitionDialog"));
 		GuiUtil.setMenuEvent(quitMenu, () -> this.close());
 		GuiUtil.setMenuEvent(newMenu, () -> {
@@ -566,7 +604,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 		Logging.instance.log("Postinit complete");
 	}
 
-	public void rebuildLists(boolean recipe, boolean products) {
+	public void rebuildLists(boolean recipe, boolean products, boolean buildings) {
 		if (products) {
 			addProductButton.getSelectionModel().clearSelection();
 			ArrayList<Consumable> li = new ArrayList(Database.getAllItems());
@@ -576,12 +614,19 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 
 		if (recipe) {
 			recipeDropdown.getSelectionModel().clearSelection();
-			ArrayList<Recipe> li2 = new ArrayList(Database.getAllAutoRecipes());
+			ArrayList<Recipe> li = new ArrayList(Database.getAllAutoRecipes());
 			if (factory != null)
-				li2.removeIf(r -> !this.isRecipeValid(r) || factory.getRecipes().contains(r));
+				li.removeIf(r -> !this.isRecipeValid(r) || factory.getRecipes().contains(r));
 
-			recipeDropdown.setItems(FXCollections.observableList(li2));
-			recipeDropdown.setDisable(li2.isEmpty());
+			recipeDropdown.setItems(FXCollections.observableList(li));
+			recipeDropdown.setDisable(li.isEmpty());
+		}
+
+		if (buildings) {
+			simpleProducerButton.getSelectionModel().clearSelection();
+			ArrayList<SimpleProductionBuilding> li = new ArrayList(Database.getAllBuildings().stream().filter(b -> b instanceof SimpleProductionBuilding).toList());
+			simpleProducerButton.setItems(FXCollections.observableList(li));
+			simpleProducerButton.setDisable(li.isEmpty());
 		}
 
 		this.rebuildTierSet(false);
@@ -630,7 +675,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	}
 
 	public void rebuildEntireUI() {
-		this.rebuildLists(true, true);
+		this.rebuildLists(true, true, true);
 
 		factoryName.setText(factory.name);
 		for (ToggleableVisiblityGroup tv : ToggleableVisiblityGroup.values()) {
@@ -663,9 +708,11 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 		super.updateStats(warnings, buildings, production, consuming, local, power, tier);
 		if (local) {
 			localSupplyTotals.getChildren().clear();
-			CountMap<Consumable> totalSupply = new CountMap();
+			TreeMap<Consumable, Float> totalSupply = new TreeMap();
 			for (ResourceSupply res : factory.getSupplies()) {
-				totalSupply.increment(res.getResource(), res.getYield());
+				Float has = totalSupply.get(res.getResource());
+				float put = (has == null ? 0 : has.floatValue())+res.getYield();
+				totalSupply.put(res.getResource(), put);
 			}
 			for (Consumable c : totalSupply.keySet()) {
 				GuiUtil.addIconCount(c, totalSupply.get(c), 5, localSupplyTotals);
@@ -677,25 +724,25 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 
 	@Override
 	public void onAddRecipe(Recipe r) {
-		this.rebuildLists(true, false);
+		this.rebuildLists(true, false, false);
 		this.updateStats(true, true, true, true, false, true, true);
 	}
 
 	@Override
 	public void onAddRecipes(Collection<Recipe> c) {
-		this.rebuildLists(true, false);
+		this.rebuildLists(true, false, false);
 		this.updateStats(true, true, true, true, false, true, true);
 	}
 
 	@Override
 	public void onRemoveRecipe(Recipe r) {
-		this.rebuildLists(true, false);
+		this.rebuildLists(true, false, false);
 		this.updateStats(true, true, true, true, false, true, true);
 	}
 
 	@Override
 	public void onRemoveRecipes(Collection<Recipe> c) {
-		this.rebuildLists(true, false);
+		this.rebuildLists(true, false, false);
 		this.updateStats(true, true, true, true, false, true, true);
 	}
 
@@ -744,6 +791,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	@Override
 	public void onAddSupply(ResourceSupply res) {
 		this.addResourceEntry(res);
+		this.rebuildLists(false, false, true);
 		this.updateStats(true, true, true, true, true, true, false);
 	}
 
@@ -765,6 +813,9 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 		}
 		else if (res instanceof FromFactorySupply) {
 			this.addResourceEntry("FactorySupplyEntry", res);
+		}
+		else if (res instanceof SimpleProductionSupply) {
+			this.addResourceEntry("SimpleProductionEntry", res);
 		}
 	}
 
@@ -815,7 +866,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	@Override
 	public void onSetToggle(ToggleableVisiblityGroup tv, boolean active) {
 		toggleFilters.get(tv).setSelected(active);
-		this.rebuildLists(true, true);
+		this.rebuildLists(true, true, false);
 	}
 
 	@Override

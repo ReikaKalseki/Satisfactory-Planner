@@ -27,10 +27,12 @@ import Reika.SatisfactoryPlanner.Util.Logging;
 import fxexpansions.ControllerBase;
 import fxexpansions.ExpandingTilePane;
 import fxexpansions.GuiInstance;
+import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
@@ -55,6 +57,8 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -72,6 +76,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
+import javafx.stage.PopupWindow.AnchorLocation;
 import javafx.stage.Screen;
 import javafx.util.Duration;
 
@@ -89,10 +94,13 @@ public class GuiUtil {
 		Tooltip t = new Tooltip(msg);
 		t.setStyle("-fx-font-size: 12; "+GuiSystem.getFontStyle());
 		t.setShowDelay(Duration.millis(delay));
-		if (n instanceof Control)
+		if (n instanceof Control) {
 			((Control)n).setTooltip(t);
-		else
+		}
+		else {
 			Tooltip.install(n, t);
+			t.getProperties().put("tooltip", t);
+		}
 		return t;
 	}
 
@@ -286,7 +294,7 @@ public class GuiUtil {
 			e.run();
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();
+			Logging.instance.log(ex);
 			showException(ex);
 		}
 	}
@@ -511,7 +519,7 @@ public class GuiUtil {
 			}
 			catch (Exception ex) {
 				Logging.instance.log("Task '"+desc+"' ["+id+"] threw exception:");
-				ex.printStackTrace();
+				Logging.instance.log(ex);
 				Platform.runLater(() -> showException(ex));
 			}
 			Logging.instance.log("Task '"+desc+"' ["+id+"] complete, queuing JFX post-action if any");
@@ -521,7 +529,7 @@ public class GuiUtil {
 						jfxActionWhenDone.run(id);
 					}
 					catch (Exception ex) {
-						ex.printStackTrace();
+						Logging.instance.log(ex);
 					}
 				}
 				if (id != null)
@@ -739,6 +747,58 @@ public class GuiUtil {
 			}
 		}
 		li.add(0, n); //smaller than every entry, add to beginning
+	}
+
+	public static void setClipboard(Labeled lb) {
+		setClipboard(lb.getText(), lb);
+	}
+
+	public static void setClipboard(String text, Node ref) {
+		Clipboard clipboard = Clipboard.getSystemClipboard();
+		ClipboardContent content = new ClipboardContent();
+		content.putString(text);
+		clipboard.setContent(content);
+		if (ref != null) {
+			//Tooltip prev = ref instanceof Control ? ((Control)ref).getTooltip() : (Tooltip)ref.getProperties().get("tooltip");
+			Bounds pos = ref.localToScreen(ref.getBoundsInLocal());
+			//setTooltip(ref, "'"+text+"' copied to clipboard", 0).show(ref, pos.getCenterX(), pos.getMinY()-32);
+			Tooltip popup = new Tooltip("'"+text+"' copied to clipboard");
+			popup.setShowDelay(Duration.ZERO);
+			//Tooltip.install(ref, popup);
+			popup.setAnchorLocation(AnchorLocation.WINDOW_TOP_RIGHT);
+			double rootX = pos.getCenterX()-popup.getWidth()/2D;
+			double rootY = pos.getMinY();
+			popup.show(ref, rootX, rootY);
+			int dur = 1500;
+			int fadeStart = 750;
+			int fadeLen = dur-fadeStart;
+			long start = System.nanoTime();
+			long end = start+dur*1000000;
+
+			AnimationTimer timer = new AnimationTimer() {
+				@Override
+				public void handle(long now) {
+					long millis = (now-start)/1000000;
+					popup.setX(rootX);
+					double offset = 0;
+					if (millis > fadeStart) {
+						double alpha = 1D-((millis-fadeStart)/(double)fadeLen);
+						//Logging.instance.log(now +" > "+millis+" > "+alpha);
+						popup.setOpacity(Math.max(0, Math.min(1, alpha)));
+						offset = 0.000000075*(now-start-fadeStart*1000000);
+					}
+					popup.setY(rootY-offset);
+				}
+			};
+			doWithDelay(dur, () -> {
+				popup.hide();
+				timer.stop();
+				//Tooltip.uninstall(ref, popup);
+			});
+			timer.start();
+			//if (prev != null)
+			//	setTooltip(ref, prev.getText());
+		}
 	}
 
 }

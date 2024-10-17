@@ -34,7 +34,7 @@ public interface ResourceSupply<S extends ResourceSupply<S, R>, R extends Consum
 
 	};
 
-	public int getYield();
+	public float getYield();
 	public R getResource();
 
 	public void save(JSONObject block);

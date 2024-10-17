@@ -8,6 +8,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
@@ -237,7 +238,8 @@ public class Factory {
 	}
 	 */
 	public void addExternalSupply(ResourceSupply res) {
-		this.registerSupply(res);
+		if (!this.registerSupply(res))
+			return;
 		if (loading)
 			return;
 		this.rebuildFlows();
@@ -263,12 +265,24 @@ public class Factory {
 			this.queueMatrixAlign();
 	}
 
-	private void registerSupply(ResourceSupply res) {
+	private boolean registerSupply(ResourceSupply res) {
+		if (res instanceof SimpleProductionSupply && this.hasSimpleProducer((SimpleProductionSupply)res))
+			return false;
 		resourceSources.addValue(res.getResource(), res);
 		if (res instanceof FromFactorySupply) {
 			FromFactorySupply ffr = (FromFactorySupply)res;
 			factorySources.addValue(ffr.sourceFactory, ffr);
 		}
+		return true;
+	}
+
+	private boolean hasSimpleProducer(SimpleProductionSupply prod) {
+		Collection<ResourceSupply> c = resourceSources.get(prod.getResource());
+		for (ResourceSupply r : c) {
+			if (r instanceof SimpleProductionSupply && ((SimpleProductionSupply)r).producer.equals(prod.getBuilding()))
+				return true;
+		}
+		return false;
 	}
 
 	public void removeExternalSupply(ResourceSupply res) {
@@ -616,22 +630,42 @@ public class Factory {
 		return map;
 	}*/
 
-	public void computeNetPowerProduction(float[] avgMinMax) {
+	public void computeNetPowerProduction(float[] avgMinMax, Map<FunctionalBuilding, Float> breakdown) {
 		avgMinMax[0] = 0;
 		avgMinMax[1] = 0;
 		avgMinMax[2] = 0;
 		for (Generator g : generators.keySet()) {
-			avgMinMax[0] += g.powerGenerationMW*this.getCount(g);
+			float amt = g.powerGenerationMW*this.getCount(g);
+			avgMinMax[0] += amt;
+			if (breakdown != null && Math.abs(amt) > 0.01)
+				breakdown.put(g, amt);
 		}
 		for (ResourceSupply r : resourceSources.allValues(false)) {
 			avgMinMax[0] -= r.getPowerCost();
+			if (breakdown != null) {
+				Building b = r.getBuilding();
+				if (b instanceof FunctionalBuilding && Math.abs(((FunctionalBuilding)b).basePowerCostMW) > 0.01) {
+					Float has = breakdown.get(b);
+					float val = has == null ? 0 : has.floatValue();
+					breakdown.put((FunctionalBuilding)b, val-r.getPowerCost());
+				}
+			}
 		}
 		avgMinMax[1] = avgMinMax[0];
 		avgMinMax[2] = avgMinMax[0];
 		for (Recipe r : recipeList) {
-			avgMinMax[0] -= r.getPowerCost()*this.getCount(r);
+			float amt = r.getPowerCost()*this.getCount(r);
+			avgMinMax[0] -= amt;
 			avgMinMax[1] -= r.getMinPowerCost()*this.getCount(r);
 			avgMinMax[2] -= r.getMaxPowerCost()*this.getCount(r);
+			if (breakdown != null) {
+				FunctionalBuilding b = r.productionBuilding;
+				if (Math.abs(b.basePowerCostMW) > 0.01) {
+					Float has = breakdown.get(b);
+					float val = has == null ? 0 : has.floatValue();
+					breakdown.put(b, val-amt);
+				}
+			}
 		}
 	}
 
@@ -793,7 +827,7 @@ public class Factory {
 			root.put("toggles", toggs);
 
 			JSONUtil.saveFile(f, root);
-			this.setCurrentFile(f);
+			this.setCurrentFile(f, true);
 		});
 	}
 
@@ -806,7 +840,7 @@ public class Factory {
 		loading = true;
 		this.clear();
 
-		this.setCurrentFile(f);
+		this.setCurrentFile(f, false);
 
 		WaitDialogManager.instance.setTaskProgress(taskID, 5);
 
@@ -899,10 +933,11 @@ public class Factory {
 		loading = false;
 	}
 
-	private void setCurrentFile(File f) {
+	private void setCurrentFile(File f, boolean addRecent) {
 		currentFile = f;
 		this.notifyListeners(c -> c.onSetFile(f));
-		Main.addRecentFile(f);
+		if (addRecent)
+			Main.addRecentFile(f);
 		GuiSystem.getMainGUI().controller.buildRecentList();
 	}
 

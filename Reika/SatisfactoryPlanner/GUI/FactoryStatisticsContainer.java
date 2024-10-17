@@ -5,12 +5,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import Reika.SatisfactoryPlanner.Setting;
 import Reika.SatisfactoryPlanner.Setting.InputInOutputOptions;
 import Reika.SatisfactoryPlanner.Data.Building;
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Factory;
+import Reika.SatisfactoryPlanner.Data.FunctionalBuilding;
 import Reika.SatisfactoryPlanner.Data.Item;
 import Reika.SatisfactoryPlanner.Data.Milestone;
 import Reika.SatisfactoryPlanner.Data.Warning;
@@ -55,6 +57,9 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 	protected Label powerProduction;
 
 	@FXML
+	protected ExpandingTilePane<PowerBreakdownEntryController> powerBreakdown;
+
+	@FXML
 	protected GridPane statisticsGrid;
 
 	@FXML
@@ -90,6 +95,8 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 		this.bindRowHeight(4, deficiencyBar);
 
 		tierBar.minRowHeight = 32;
+		if (powerBreakdown != null)
+			powerBreakdown.minRowHeight = 32;
 		buildingBar.minRowHeight = 40;
 		buildCostBar.minRowHeight = 40;
 		netConsumptionBar.minRowHeight = 40;
@@ -171,20 +178,31 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 
 		if (power) {
 			float[] avgMinMax = new float[3];
-			factory.computeNetPowerProduction(avgMinMax);
+			TreeMap<FunctionalBuilding, Float> breakdown = powerBreakdown == null ? null : new TreeMap();
+			factory.computeNetPowerProduction(avgMinMax, breakdown);
 			String text = String.format("%.2fMW", avgMinMax[0]);
 			if (Math.abs(avgMinMax[1]-avgMinMax[2]) > 0.1) {
 				text = String.format("%s average (%.2fMW to %.2fMW range)", text, avgMinMax[1], avgMinMax[2]);
 			}
-			powerProduction.setText(text);
-			if (avgMinMax[0] > 0) {
-				powerProduction.setStyle(GuiSystem.getFontStyle(FontModifier.BOLD)+" -fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.OKAY_COLOR)+";");
+			if (powerProduction != null) {
+				powerProduction.setText(text);
+				if (avgMinMax[0] > 0) {
+					powerProduction.setStyle(GuiSystem.getFontStyle(FontModifier.BOLD)+" -fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.OKAY_COLOR)+";");
+				}
+				else if (avgMinMax[0] < 0) {
+					powerProduction.setStyle(GuiSystem.getFontStyle(FontModifier.BOLD)+" -fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.WARN_COLOR)+";");
+				}
+				else {
+					powerProduction.setStyle("");
+				}
 			}
-			else if (avgMinMax[0] < 0) {
-				powerProduction.setStyle(GuiSystem.getFontStyle(FontModifier.BOLD)+" -fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.WARN_COLOR)+";");
-			}
-			else {
-				powerProduction.setStyle("");
+			if (powerBreakdown != null) {
+				powerBreakdown.getChildren().clear();
+				for (Entry<FunctionalBuilding, Float> e : breakdown.entrySet()) {
+					PowerBreakdownEntryController c = new PowerBreakdownEntryController(e.getKey(), e.getValue());
+					GuiInstance<PowerBreakdownEntryController> gui = new GuiInstance<PowerBreakdownEntryController>(c.getRootNode(), c);
+					powerBreakdown.addEntry(gui);
+				}
 			}
 		}
 

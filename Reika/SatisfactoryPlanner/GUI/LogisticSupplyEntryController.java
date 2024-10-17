@@ -40,7 +40,7 @@ public class LogisticSupplyEntryController<S extends LogisticSupply> extends Res
 
 	@Override
 	protected void onSetSupply(Factory f, LogisticSupply res) {
-		amount.getValueFactory().setValue(res.getYield());
+		amount.getValueFactory().setValue((int)res.getYield());
 		f.updateMatrixStatus(res.getResource());
 		countRow.getChildren().add(0, GuiUtil.createItemDisplay(supply.getResource(), 32, false));
 	}

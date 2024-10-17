@@ -92,7 +92,7 @@ public class GuiSystem extends Application {
 							GuiInstance.loadFXMLWindow("Settings", put, loadingStage, "Application Settings");
 						}
 						catch (IOException e1) {
-							e1.printStackTrace();
+							Logging.instance.log(e1);
 						}
 						put.sizeToScene();
 						put.showAndWait();

@@ -38,7 +38,7 @@ public class FrackingCluster implements ExtractableResource<FrackingCluster, Flu
 		this.setClockSpeed(obj.getFloat("clock"));
 	}
 
-	public int getYield() {
+	public float getYield() {
 		int ret = 0;
 		for (FrackingNode n : nodes)
 			ret += n.getYield();
