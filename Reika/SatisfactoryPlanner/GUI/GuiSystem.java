@@ -6,7 +6,8 @@ import java.util.concurrent.CompletableFuture;
 
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Data.Database;
-import Reika.SatisfactoryPlanner.Data.Resource;
+import Reika.SatisfactoryPlanner.Data.Objects.Resource;
+import Reika.SatisfactoryPlanner.GUI.Windows.SplashScreenController;
 import Reika.SatisfactoryPlanner.Util.BitflagMap;
 import Reika.SatisfactoryPlanner.Util.JavaUtil;
 import Reika.SatisfactoryPlanner.Util.Logging;

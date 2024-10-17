@@ -5,12 +5,12 @@ import java.util.Collection;
 import java.util.concurrent.Future;
 
 import Reika.SatisfactoryPlanner.Data.Constants.ToggleableVisiblityGroup;
-import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Factory;
-import Reika.SatisfactoryPlanner.Data.Fuel;
-import Reika.SatisfactoryPlanner.Data.Generator;
-import Reika.SatisfactoryPlanner.Data.Recipe;
-import Reika.SatisfactoryPlanner.Data.ResourceSupply;
+import Reika.SatisfactoryPlanner.Data.Objects.Consumable;
+import Reika.SatisfactoryPlanner.Data.Objects.Fuel;
+import Reika.SatisfactoryPlanner.Data.Objects.Recipe;
+import Reika.SatisfactoryPlanner.Data.Objects.Buildables.Generator;
+import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.ResourceSupply;
 
 public interface FactoryListener extends Comparable<FactoryListener> {
 

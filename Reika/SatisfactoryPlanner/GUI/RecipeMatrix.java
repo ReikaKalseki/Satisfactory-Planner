@@ -5,7 +5,7 @@ import java.util.List;
 
 import Reika.SatisfactoryPlanner.Data.Factory;
 import Reika.SatisfactoryPlanner.Data.ItemConsumerProducer;
-import Reika.SatisfactoryPlanner.Data.Recipe;
+import Reika.SatisfactoryPlanner.Data.Objects.Recipe;
 import Reika.SatisfactoryPlanner.GUI.RecipeMatrixContainer.MatrixType;
 
 public class RecipeMatrix extends RecipeMatrixBase {

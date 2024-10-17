@@ -17,14 +17,14 @@ import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 
 import Reika.SatisfactoryPlanner.Setting.SettingRef;
-import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Data.Factory;
-import Reika.SatisfactoryPlanner.Data.Recipe;
+import Reika.SatisfactoryPlanner.Data.Objects.Consumable;
+import Reika.SatisfactoryPlanner.Data.Objects.Recipe;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem;
 import Reika.SatisfactoryPlanner.GUI.GuiUtil;
 import Reika.SatisfactoryPlanner.GUI.MainGuiController;
-import Reika.SatisfactoryPlanner.GUI.RecipeListCell;
+import Reika.SatisfactoryPlanner.GUI.Components.ListCells.RecipeListCell;
 import Reika.SatisfactoryPlanner.Util.FixedList;
 import Reika.SatisfactoryPlanner.Util.JSONUtil;
 import Reika.SatisfactoryPlanner.Util.JavaUtil;

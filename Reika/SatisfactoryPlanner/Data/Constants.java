@@ -7,6 +7,22 @@ import java.util.function.Predicate;
 import org.json.JSONObject;
 
 import Reika.SatisfactoryPlanner.Main;
+import Reika.SatisfactoryPlanner.Data.Objects.Consumable;
+import Reika.SatisfactoryPlanner.Data.Objects.Fluid;
+import Reika.SatisfactoryPlanner.Data.Objects.Recipe;
+import Reika.SatisfactoryPlanner.Data.Objects.Buildables.Building;
+import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.DroneStation;
+import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.FrackingCluster;
+import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.FromFactorySupply;
+import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.InputBelt;
+import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.InputPipe;
+import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.OilNode;
+import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.ResourceSupply;
+import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.SimpleProductionSupply;
+import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.SolidResourceNode;
+import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.TrainStation;
+import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.TruckStation;
+import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.WaterExtractor;
 
 import javafx.scene.image.Image;
 

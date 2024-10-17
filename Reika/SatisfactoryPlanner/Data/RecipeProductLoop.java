@@ -2,6 +2,9 @@ package Reika.SatisfactoryPlanner.Data;
 
 import Reika.SatisfactoryPlanner.Data.Warning.ResourceIconName;
 import Reika.SatisfactoryPlanner.Data.Warning.WarningSeverity;
+import Reika.SatisfactoryPlanner.Data.Objects.Consumable;
+import Reika.SatisfactoryPlanner.Data.Objects.Fluid;
+import Reika.SatisfactoryPlanner.Data.Objects.Recipe;
 
 public class RecipeProductLoop {
 

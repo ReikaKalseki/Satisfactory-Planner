@@ -1,5 +1,7 @@
 package Reika.SatisfactoryPlanner.Data;
 
+import Reika.SatisfactoryPlanner.Data.Objects.Fuel;
+import Reika.SatisfactoryPlanner.Data.Objects.Buildables.Generator;
 import Reika.SatisfactoryPlanner.Util.CountMap;
 
 public class FuelChoices {

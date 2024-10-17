@@ -5,12 +5,14 @@ import java.util.HashMap;
 import java.util.List;
 
 import Reika.SatisfactoryPlanner.InclusionPattern;
-import Reika.SatisfactoryPlanner.Data.Consumable;
-import Reika.SatisfactoryPlanner.Data.Fuel;
-import Reika.SatisfactoryPlanner.Data.Generator;
 import Reika.SatisfactoryPlanner.Data.ItemConsumerProducer;
-import Reika.SatisfactoryPlanner.Data.Recipe;
-import Reika.SatisfactoryPlanner.GUI.ItemRateController.WarningState;
+import Reika.SatisfactoryPlanner.Data.Objects.Consumable;
+import Reika.SatisfactoryPlanner.Data.Objects.Fuel;
+import Reika.SatisfactoryPlanner.Data.Objects.Recipe;
+import Reika.SatisfactoryPlanner.Data.Objects.Buildables.Generator;
+import Reika.SatisfactoryPlanner.GUI.Components.ItemRateController;
+import Reika.SatisfactoryPlanner.GUI.Components.ItemRateController.WarningState;
+import Reika.SatisfactoryPlanner.GUI.Components.ListCells.RecipeListCell;
 import Reika.SatisfactoryPlanner.GUI.RecipeMatrixContainer.MatrixType;
 
 import fxexpansions.GuiInstance;

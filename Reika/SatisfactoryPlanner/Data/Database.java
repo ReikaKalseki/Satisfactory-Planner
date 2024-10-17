@@ -25,8 +25,24 @@ import com.google.common.base.Strings;
 
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Setting;
-import Reika.SatisfactoryPlanner.Data.Building.BuildingCategory;
 import Reika.SatisfactoryPlanner.Data.PowerOverride.LinearIncreasePower;
+import Reika.SatisfactoryPlanner.Data.Objects.Consumable;
+import Reika.SatisfactoryPlanner.Data.Objects.Fluid;
+import Reika.SatisfactoryPlanner.Data.Objects.Fuel;
+import Reika.SatisfactoryPlanner.Data.Objects.Item;
+import Reika.SatisfactoryPlanner.Data.Objects.Milestone;
+import Reika.SatisfactoryPlanner.Data.Objects.Recipe;
+import Reika.SatisfactoryPlanner.Data.Objects.Resource;
+import Reika.SatisfactoryPlanner.Data.Objects.Buildables.Building;
+import Reika.SatisfactoryPlanner.Data.Objects.Buildables.Building.BuildingCategory;
+import Reika.SatisfactoryPlanner.Data.Objects.Buildables.CraftingBuilding;
+import Reika.SatisfactoryPlanner.Data.Objects.Buildables.FunctionalBuilding;
+import Reika.SatisfactoryPlanner.Data.Objects.Buildables.Generator;
+import Reika.SatisfactoryPlanner.Data.Objects.Buildables.LogisticBuilding;
+import Reika.SatisfactoryPlanner.Data.Objects.Buildables.SimpleProductionBuilding;
+import Reika.SatisfactoryPlanner.Data.Objects.Buildables.Vehicle;
+import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.ResourceMiner;
+import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.TransportLine;
 import Reika.SatisfactoryPlanner.Util.CountMap;
 import Reika.SatisfactoryPlanner.Util.Errorable.ErrorableWithArgument;
 import Reika.SatisfactoryPlanner.Util.JSONUtil;
@@ -402,7 +418,7 @@ public class Database {
 		float pwr = Float.parseFloat(obj.getString("mPowerConsumption"));
 		float pwrExp = Float.parseFloat(obj.getString("mPowerConsumptionExponent")); //FIXME handle this for overclock!
 		float smrExp = Float.parseFloat(obj.getString("mProductionBoostPowerConsumptionExponent")); //FIXME handle this for overclock!
-		int somerslots = obj.has("mProductionShardSlotSize") ? Integer.parseInt(obj.getString("mProductionShardSlotSize")) : 0;
+		int somerslots = JSONUtil.getInt(obj, "mProductionShardSlotSize", 0);
 		FunctionalBuilding r = constructBuilding(cat, id, disp, convertIDToIcon(id), pwr, pwrExp, smrExp, somerslots);
 		if (r instanceof SimpleProductionBuilding)
 			((SimpleProductionBuilding)r).setDelay(obj.getFloat("mTimeToProduceItem"));
@@ -450,9 +466,8 @@ public class Database {
 		Logging.instance.log("Parsing JSON elem "+id);
 		String disp = obj.getString("mDisplayName");
 		String pwr = obj.getString("mPowerProduction");
-		String sup = obj.has("mSupplementalToPowerRatio") ? obj.getString("mSupplementalToPowerRatio") : null;
-		JSONArray fuels = obj.has("mFuel") ? obj.getJSONArray("mFuel") : null;
-		float suppl = Strings.isNullOrEmpty(sup) ? 0 : Float.parseFloat(sup);
+		float suppl = JSONUtil.getFloat(obj, "mSupplementalToPowerRatio", 0);
+		JSONArray fuels = JSONUtil.getArray(obj, "mFuel", null);
 		Generator r = new Generator(id, disp, convertIDToIcon(id), Float.parseFloat(pwr), suppl);
 		if (fuels != null) {
 			//String fuelForm = obj.getString("mFuelResourceForm"); removed in 1.0
@@ -610,10 +625,10 @@ public class Database {
 				try {
 					Logging.instance.log("Loading building file "+f2);
 					JSONObject data = new JSONObject(FileUtils.readFileToString(f2, Charsets.UTF_8));
-					int somerslots = data.has("SomersloopSlots") ? Integer.parseInt(data.getString("SomersloopSlots")) : 0;
-					String type = data.has("BuildingType") ? data.getString("BuildingType") : BuildingCategory.CRAFTER.name();
-					float pwrExp = data.has("OverlockingPowerExponent") ? data.getFloat("OverclockingPowerExponent") : Constants.DEFAULT_OVERCLOCK_EXPONENT;
-					float smrExp = data.has("SomersloopPowerExponent") ? data.getFloat("SomersloopPowerExponent") : Constants.DEFAULT_SOMERSLOOP_EXPONENT;
+					int somerslots = JSONUtil.getInt(data, "SomersloopSlots", 0);
+					String type = JSONUtil.getString(data, "BuildingType", BuildingCategory.CRAFTER.name());
+					float pwrExp = JSONUtil.getFloat(data, "OverclockingPowerExponent", Constants.DEFAULT_OVERCLOCK_EXPONENT);
+					float smrExp = JSONUtil.getFloat(data, "SomersloopPowerExponent", Constants.DEFAULT_SOMERSLOOP_EXPONENT);
 					FunctionalBuilding r = constructBuilding(BuildingCategory.valueOf("type"), data.getString("ID"), data.getString("Name"), data.getString("Icon"), data.getInt("PowerCost"), pwrExp, smrExp, somerslots);
 					if (r instanceof SimpleProductionBuilding)
 						((SimpleProductionBuilding)r).setDelay(data.getFloat("ProductionInterval"));
@@ -655,7 +670,7 @@ public class Database {
 					Logging.instance.log("Loading milestone file "+f2);
 					JSONObject obj = new JSONObject(FileUtils.readFileToString(f2, Charsets.UTF_8));
 
-					String id = obj.has("ID") ? obj.getString("ID") : f2.getName().replace("Schematic_", "");
+					String id = JSONUtil.getString(obj, "ID", f2.getName().replace("Schematic_", ""));
 					Milestone m = new Milestone(id, obj.getInt("Tier"), obj.getString("Name"));
 					//TODO "Cost" field?
 					if (obj.has("DependsOn")) {
@@ -713,11 +728,11 @@ public class Database {
 					Logging.instance.log("Loading recipe file "+f2);
 					JSONObject obj = new JSONObject(FileUtils.readFileToString(f2, Charsets.UTF_8));
 					String disp = obj.getString("Name");
-					String id = obj.has("ID") ? obj.getString("ID") : f2.getName().replace("Recipe_", "");
+					String id = JSONUtil.getString(obj, "ID", f2.getName().replace("Recipe_", ""));
 					Recipe old = allRecipes.get(id);
 					boolean isDelta = false;
 					if (old != null) {
-						isDelta = obj.has("Delta") && obj.getBoolean("Delta");
+						isDelta = JSONUtil.getBoolean(obj, "Delta");
 						if (isDelta)
 							Logging.instance.log("Found a custom recipe definition for ID '"+id+"', marked as a delta to "+old+".");
 						else
@@ -740,7 +755,7 @@ public class Database {
 					else {
 						r.markModded(mod);
 					}
-					JSONArray ing = obj.has("Ingredients") ? obj.getJSONArray("Ingredients") : null;
+					JSONArray ing = JSONUtil.getArray(obj, "Ingredients", null);
 					if (ing == null && !isDelta)
 						throw new IllegalArgumentException("Invalid recipe definition - is not a delta but lacks ingredients");
 					if (ing != null && isDelta)
@@ -753,7 +768,7 @@ public class Database {
 							amt /= Constants.LIQUID_SCALAR;
 						r.addIngredient(c, amt);
 					}
-					JSONArray prod = obj.has("Products") ? obj.getJSONArray("Products") : null;
+					JSONArray prod = JSONUtil.getArray(obj, "Products", null);
 					if (prod == null && !isDelta)
 						throw new IllegalArgumentException("Invalid recipe definition - is not a delta but lacks products");
 					if (prod != null && isDelta)
@@ -805,13 +820,13 @@ public class Database {
 					boolean fluid = form.equalsIgnoreCase("liquid") || gas;
 					String disp = obj.getString("Name");
 					String desc = obj.getString("Description");
-					String id = obj.has("ID") ? obj.getString("ID") : f2.getName().replace("Item_", "");
-					String icon = obj.has("Icon") ? obj.getString("Icon") : id;
+					String id = JSONUtil.getString(obj, "ID", f2.getName().replace("Item_", ""));
+					String icon = JSONUtil.getString(obj, "Icon", id);
 					String cat = obj.getString("Category");
-					float nrg = obj.getFloat("EnergyValue");
+					float nrg = JSONUtil.getFloat(obj, "EnergyValue", 0);
 					boolean resource = obj.has("ResourceItem");
 					if (fluid) {
-						String clr = obj.has("Color") ? obj.getString("Color") : null;
+						String clr = JSONUtil.getString(obj, "Color", null);
 						Fluid f = new Fluid(id, disp, icon, desc, cat, nrg, clr == null ? Color.BLACK : parseColor(clr), gas);
 						f.markModded(mod);
 						allItems.put(f.id, f);
@@ -820,7 +835,7 @@ public class Database {
 							frackableFluids.add(f);
 					}
 					else {
-						Item i = new Item(id, disp, icon, desc, cat, nrg, getStackSize(obj), obj.getInt("ResourceSinkPoints"), obj.getFloat("RadioactiveDecay"));
+						Item i = new Item(id, disp, icon, desc, cat, nrg, getStackSize(obj), JSONUtil.getInt(obj, "ResourceSinkPoints", 0), JSONUtil.getFloat(obj, "RadioactiveDecay", 0));
 						i.markModded(mod);
 						allItems.put(i.id, i);
 						allItemsSorted.add(i);

@@ -5,6 +5,9 @@ import java.util.function.Supplier;
 
 import Reika.SatisfactoryPlanner.InternalIcons;
 import Reika.SatisfactoryPlanner.Data.Constants.RateLimitedSupplyLine;
+import Reika.SatisfactoryPlanner.Data.Objects.Consumable;
+import Reika.SatisfactoryPlanner.Data.Objects.Resource;
+import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.DroneStation;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem.FontModifier;
 import Reika.SatisfactoryPlanner.GUI.GuiUtil;

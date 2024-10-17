@@ -16,8 +16,11 @@ import com.nativejavafx.taskbar.TaskbarProgressbar;
 
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.NamedIcon;
-import Reika.SatisfactoryPlanner.Data.Consumable;
-import Reika.SatisfactoryPlanner.Data.Resource;
+import Reika.SatisfactoryPlanner.Data.Objects.Consumable;
+import Reika.SatisfactoryPlanner.Data.Objects.Resource;
+import Reika.SatisfactoryPlanner.GUI.Components.ItemCountController;
+import Reika.SatisfactoryPlanner.GUI.Components.ItemRateController;
+import Reika.SatisfactoryPlanner.GUI.Components.ListCells.DecoratedListCell;
 import Reika.SatisfactoryPlanner.Util.ColorUtil;
 import Reika.SatisfactoryPlanner.Util.Errorable;
 import Reika.SatisfactoryPlanner.Util.Errorable.ErrorableWithArgument;

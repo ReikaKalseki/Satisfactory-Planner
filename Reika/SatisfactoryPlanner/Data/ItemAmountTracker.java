@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.TreeMap;
 
+import Reika.SatisfactoryPlanner.Data.Objects.Consumable;
+
 public class ItemAmountTracker {
 
 	private final TreeMap<Consumable, Float> data = new TreeMap();

@@ -35,6 +35,18 @@ import Reika.SatisfactoryPlanner.Data.Warning.MultipleBeltsWarning;
 import Reika.SatisfactoryPlanner.Data.Warning.NoSurplusResourceWarning;
 import Reika.SatisfactoryPlanner.Data.Warning.ResourceIconName;
 import Reika.SatisfactoryPlanner.Data.Warning.WarningSeverity;
+import Reika.SatisfactoryPlanner.Data.Objects.Consumable;
+import Reika.SatisfactoryPlanner.Data.Objects.Fluid;
+import Reika.SatisfactoryPlanner.Data.Objects.Fuel;
+import Reika.SatisfactoryPlanner.Data.Objects.Recipe;
+import Reika.SatisfactoryPlanner.Data.Objects.Buildables.Building;
+import Reika.SatisfactoryPlanner.Data.Objects.Buildables.FunctionalBuilding;
+import Reika.SatisfactoryPlanner.Data.Objects.Buildables.Generator;
+import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.ExtractableResource;
+import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.FrackingCluster;
+import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.FromFactorySupply;
+import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.ResourceSupply;
+import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.SimpleProductionSupply;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem;
 import Reika.SatisfactoryPlanner.GUI.GuiUtil;
 import Reika.SatisfactoryPlanner.GUI.RecipeMatrix;
@@ -867,7 +879,7 @@ public class Factory {
 			JSONArray gens = root.getJSONArray("generators");
 			JSONArray resources = root.getJSONArray("resources");
 			JSONArray products = root.getJSONArray("products");
-			JSONArray toggs = root.has("toggles") ? root.getJSONArray("toggles") : null;
+			JSONArray toggs = JSONUtil.getArray(root, "toggles", null);
 			WaitDialogManager.instance.setTaskProgress(taskID, 20);
 			for (Object o : rec) {
 				JSONObject block = (JSONObject)o;

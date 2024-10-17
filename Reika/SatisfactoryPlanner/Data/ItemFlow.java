@@ -1,5 +1,7 @@
 package Reika.SatisfactoryPlanner.Data;
 
+import Reika.SatisfactoryPlanner.Data.Objects.Consumable;
+
 @Deprecated
 public class ItemFlow {
 
