@@ -223,15 +223,14 @@ public class Database {
 		String ico = convertIDToIcon(id);
 		if (fluid) {
 			String clr = obj.getString(gas ? "mGasColor" : "mFluidColor");
-			Fluid f = new Fluid(id, disp, ico, desc, obj.getString("NativeClass"), obj.getFloat("mEnergyValue"), parseColor(clr));
+			Fluid f = new Fluid(id, disp, ico, desc, obj.getString("NativeClass"), obj.getFloat("mEnergyValue"), parseColor(clr), gas);
 			allItems.put(f.id, f);
 			allItemsSorted.add(f);
 			if (resource)
 				frackableFluids.add(f);
 		}
 		else {
-			int stack = getStackSize(obj);
-			Item i = new Item(id, disp, ico, desc, obj.getString("NativeClass"), obj.getFloat("mEnergyValue"), stack);
+			Item i = new Item(id, disp, ico, desc, obj.getString("NativeClass"), obj.getFloat("mEnergyValue"), getStackSize(obj), obj.getInt("mResourceSinkPoints"), obj.getFloat("mRadioactiveDecay"));
 			allItems.put(i.id, i);
 			allItemsSorted.add(i);
 			if (resource)
@@ -541,7 +540,7 @@ public class Database {
 		Logging.instance.log("Loading vanilla data");
 		ClassType.RESOURCE.parsePending();
 		ClassType.ITEM.parsePending();
-		Item i = new Item("Desc_HardDrive_C", "Hard Drive", convertIDToIcon("Desc_HardDrive_C"), "", "Hardcoded", 0, 50); //missing from json???
+		Item i = new Item("Desc_HardDrive_C", "Hard Drive", convertIDToIcon("Desc_HardDrive_C"), "", "Hardcoded", 0, 50, 0, 0); //missing from json???
 		allItems.put(i.id, i);
 		allItemsSorted.add(i);
 		ClassType.SIMPLEPROD.parsePending();
@@ -810,11 +809,10 @@ public class Database {
 					String icon = obj.has("Icon") ? obj.getString("Icon") : id;
 					String cat = obj.getString("Category");
 					float nrg = obj.getFloat("EnergyValue");
-					int stack = getStackSize(obj);
 					boolean resource = obj.has("ResourceItem");
 					if (fluid) {
 						String clr = obj.has("Color") ? obj.getString("Color") : null;
-						Fluid f = new Fluid(id, disp, icon, desc, cat, nrg, clr == null ? Color.BLACK : parseColor(clr));
+						Fluid f = new Fluid(id, disp, icon, desc, cat, nrg, clr == null ? Color.BLACK : parseColor(clr), gas);
 						f.markModded(mod);
 						allItems.put(f.id, f);
 						allItemsSorted.add(f);
@@ -822,7 +820,7 @@ public class Database {
 							frackableFluids.add(f);
 					}
 					else {
-						Item i = new Item(id, disp, icon, desc, cat, nrg, stack);
+						Item i = new Item(id, disp, icon, desc, cat, nrg, getStackSize(obj), obj.getInt("ResourceSinkPoints"), obj.getFloat("RadioactiveDecay"));
 						i.markModded(mod);
 						allItems.put(i.id, i);
 						allItemsSorted.add(i);

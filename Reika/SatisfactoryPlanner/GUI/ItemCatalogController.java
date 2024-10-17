@@ -7,6 +7,7 @@ import org.controlsfx.control.SearchableComboBox;
 import Reika.SatisfactoryPlanner.Data.Consumable;
 import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Data.Fluid;
+import Reika.SatisfactoryPlanner.Data.Item;
 import Reika.SatisfactoryPlanner.Util.ColorUtil;
 
 import fxexpansions.FXMLControllerBase;
@@ -56,15 +57,25 @@ public class ItemCatalogController extends FXMLControllerBase {
 	private Button copyClass;
 
 	@FXML
+	private Button copySink;
+
+	@FXML
 	private Label raw;
 
 	@FXML
 	private Label fluid;
 
+	@FXML
+	private Label sinkPoints;
+
+	@FXML
+	private Label radioactivity;
+
 	@Override
 	public void init(HostServices services) throws IOException {
 		GuiUtil.setButtonEvent(copyID, () -> GuiUtil.setClipboard(itemID));
 		GuiUtil.setButtonEvent(copyClass, () -> GuiUtil.setClipboard(nativeClass));
+		GuiUtil.setButtonEvent(copySink, () -> GuiUtil.setClipboard(sinkPoints));
 
 		itemDropdown.setButtonCell(new ItemListCell("Choose Item...", true));
 		itemDropdown.setCellFactory(c -> new ItemListCell("", false));
@@ -80,6 +91,25 @@ public class ItemCatalogController extends FXMLControllerBase {
 		itemDesc.setText(nnew == null ? "" : nnew.description);
 		nativeClass.setText(nnew == null ? "" : nnew.nativeClass);
 		energyValue.setText(nnew == null ? "0" : String.format("%.2f MJ", nnew.energyValue));
+		sinkPoints.setText(nnew instanceof Item && ((Item)nnew).sinkValue > 0 ? String.valueOf(((Item)nnew).sinkValue) : "N/A");
+		if (nnew instanceof Item) {
+			Item ii = (Item)nnew;
+			radioactivity.setText(String.format("%.0f", ii.radioactivity));
+			radioactivity.setStyle("-fx-text-fill: "+ColorUtil.getCSSHex(ii.radioactivity > 0 ? UIConstants.SEVERE_COLOR : UIConstants.OKAY_COLOR)+"; -fx-font-weight: "+(ii.radioactivity > 0 ? "bold" : "normal")+";");
+		}
+		else {
+			radioactivity.setText("N/A");
+			radioactivity.setStyle("-fx-text-fill: #000; -fx-font-weight: normal;");
+		}
+		if (nnew instanceof Fluid) {
+			boolean gas = ((Fluid)nnew).isGas;
+			fluid.setText(gas ? "Gas" : "Liquid");
+			fluid.setStyle("-fx-background-color: "+ColorUtil.getCSSHex(gas ? UIConstants.OKAY_COLOR : UIConstants.WARN_COLOR)+";");
+		}
+		else {
+			fluid.setText("No");
+			fluid.setStyle("-fx-background-color: #ccc;");
+		}
 		if (nnew != null) {
 			this.setFlag(raw, nnew.isRawResource);
 			this.setFlag(biomass, nnew.isBiomass);
@@ -87,7 +117,6 @@ public class ItemCatalogController extends FXMLControllerBase {
 			this.setFlag(ficsmas, nnew.isFicsmas);
 			this.setFlag(findable, nnew.isFindable);
 			this.setFlag(alien, nnew.isAlien);
-			this.setFlag(fluid, nnew instanceof Fluid);
 			this.getWindow().sizeToScene();
 		}
 	}

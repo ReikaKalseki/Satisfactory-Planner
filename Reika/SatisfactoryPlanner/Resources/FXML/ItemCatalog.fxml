@@ -29,6 +29,8 @@
                       <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" vgrow="SOMETIMES" />
                       <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" vgrow="SOMETIMES" />
                         <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" prefHeight="30.0" vgrow="SOMETIMES" />
                         <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" vgrow="SOMETIMES" />
                         <RowConstraints vgrow="SOMETIMES" />
                     </rowConstraints>
@@ -37,8 +39,8 @@
                         <Label layoutX="10.0" layoutY="17.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" text="Description" GridPane.rowIndex="1" />
                         <Label layoutX="10.0" layoutY="47.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Native Class" GridPane.rowIndex="2" />
                         <Label layoutX="10.0" layoutY="77.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" text="Energy Value" GridPane.rowIndex="3" />
-                        <Label layoutX="10.0" layoutY="107.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Flags" GridPane.rowIndex="4" />
-                        <GridPane GridPane.columnIndex="1" GridPane.rowIndex="4">
+                        <Label layoutX="10.0" layoutY="107.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Flags" GridPane.rowIndex="6" />
+                        <GridPane GridPane.columnIndex="1" GridPane.rowIndex="6">
                           <columnConstraints>
                               <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" percentWidth="14.286" />
                               <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" percentWidth="14.286" prefWidth="100.0" />
@@ -99,6 +101,19 @@
                            </graphic>
                         </Button>
                         <Button fx:id="copyClass" layoutX="718.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
+                           <graphic>
+                              <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../Graphics/Icons/copypaste.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                        </Button>
+                        <Label layoutX="10.0" layoutY="130.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Sink Points" GridPane.rowIndex="4" />
+                        <Label layoutX="10.0" layoutY="170.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" text="Radioactivity" GridPane.rowIndex="5" />
+                        <Label fx:id="sinkPoints" layoutX="106.0" layoutY="130.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                        <Label fx:id="radioactivity" layoutX="10.0" layoutY="210.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" text="???" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                        <Button fx:id="copySink" layoutX="638.0" layoutY="90.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="4">
                            <graphic>
                               <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
                                  <image>

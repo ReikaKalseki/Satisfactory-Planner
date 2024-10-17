@@ -69,6 +69,7 @@
             <MenuItem fx:id="quitMenu" mnemonicParsing="false" text="Quit" />
               </items>
             </Menu>
+            <Menu id="menu-separator" mnemonicParsing="false" styleClass="menu-separator" />
         <Menu fx:id="factoryMenu" mnemonicParsing="false" text="Factories">
           <items>
             <MenuItem fx:id="newMenu" mnemonicParsing="false" text="New" />
@@ -86,16 +87,19 @@
                   <MenuItem fx:id="zeroMenu" mnemonicParsing="false" text="Zero Crafting Counts" />
                   <MenuItem fx:id="isolateMenu" mnemonicParsing="false" text="Remove External Supply" />
                   <MenuItem fx:id="clearProductMenu" mnemonicParsing="false" text="Clear Desired Products" />
+                  <MenuItem fx:id="cleanupMenu" mnemonicParsing="false" text="Clean Up" />
                   <MenuItem fx:id="summaryMenu" mnemonicParsing="false" text="View Summary" />
                </items>
             </Menu>
-            <Menu fx:id="recipeMenu" mnemonicParsing="false" text="Recipes">
+            <Menu id="menu-separator" mnemonicParsing="false" styleClass="menu-separator" />
+            <Menu fx:id="recipeMenu" mnemonicParsing="false" text="Items And Recipes">
                <items>
                   <MenuItem fx:id="neiMenu" mnemonicParsing="false" text="Recipe Catalogue" />
-                  <MenuItem fx:id="customRecipeMenu" mnemonicParsing="false" text="Define Custom Recipe" />
                   <MenuItem fx:id="itemViewerMenu" mnemonicParsing="false" text="Item Catalogue" />
+                  <MenuItem fx:id="customRecipeMenu" mnemonicParsing="false" text="Define Custom Recipe" />
                </items>
             </Menu>
+            <Menu id="menu-separator" mnemonicParsing="false" styleClass="menu-separator" />
             <Menu fx:id="dirsMenu" mnemonicParsing="false" text="Files &amp; Folders">
                <items>
                   <MenuItem fx:id="appFolderMenu" mnemonicParsing="false" text="Program Folder" />

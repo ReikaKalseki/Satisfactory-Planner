@@ -366,10 +366,16 @@ public class Factory {
 	}
 
 	public void updateFactorySupply(File f, FromFactorySupply res) {
+		this.updateFactorySupply(f, res, null);
+	}
+
+	public void updateFactorySupply(File f, FromFactorySupply res, Runnable callback) {
 		if (f != null) {
 			this.handleFactoryFromFile(f, fac -> {
 				res.amount = fac.getTotalProduction(res.getResource());
 				this.updateResourceSupply(res);
+				if (callback != null)
+					callback.run();
 			});
 		}
 	}
@@ -421,6 +427,15 @@ public class Factory {
 				this.notifyListeners(l -> l.onRemoveProducts(c));
 			}
 		}
+	}
+
+	public void cleanup() {
+		ArrayList<Recipe> li = new ArrayList(recipeList);
+		li.removeIf(r -> this.getCount(r) > 0);
+		this.removeRecipes(li);
+		Collection<ResourceSupply> c = new ArrayList(this.getSupplies()); //wrap to allow removable
+		c.removeIf(r -> r.getYield() > 0);
+		this.removeExternalSupplies(c);
 	}
 
 	public List<Consumable> getDesiredProducts() {

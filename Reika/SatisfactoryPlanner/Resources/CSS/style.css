@@ -122,12 +122,17 @@
     -fx-text-fill: "#ffffff";
 }
 
-.widget.menu-bar, .widget .container > .menu-button, .widget .context-menu, .widget .context-menu:hover {
+.widget.menu-bar {
+	-fx-background-color: "#383838";
+}
+
+.widget .container > .menu-button, .widget .context-menu, .widget .context-menu:hover {
 	-fx-background-color: "#3F3F3F";
 }
 
 .widget .menu-item, .widget .menu {
 	-fx-background-color: "#7D7D7D";
+	-fx-padding: 4 12 4 12;
 }
 
 .widget .context-menu, .widget .context-menu:hover, .widget .context-menu:selected, .widget .context-menu:disabled {
@@ -161,7 +166,7 @@
 	-fx-background-color: "#585858";
 	-fx-background-insets: 0;
 	-fx-background-radius: 0;
-	-fx-min-width: 92px;
+	-fx-min-width: 120px;
 	-fx-font-size: 14px;
 	-fx-font-weight: 500;
 	-fx-padding: 4 8 4 8;
@@ -376,6 +381,11 @@
     -fx-font-family: "Open Sans";
 	-fx-font-weight: bold;
 	-fx-font-size: 14px;
+}
+
+#menu-separator {
+	-fx-background-color: "#383838" !important;
+	-fx-min-width: 48px;
 }
 
 .button-bar {

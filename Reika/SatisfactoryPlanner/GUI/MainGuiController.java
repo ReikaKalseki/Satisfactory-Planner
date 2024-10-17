@@ -167,6 +167,9 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	private MenuItem isolateMenu;
 
 	@FXML
+	private MenuItem cleanupMenu;
+
+	@FXML
 	private MenuBar menu;
 
 	@FXML
@@ -266,6 +269,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	//private Button refreshButton;
 
 	private boolean matrixOptionsActive = true;
+	private String lastNameSavedWith = null;
 
 	private final EnumMap<ToggleableVisiblityGroup, CheckBox> toggleFilters = new EnumMap(ToggleableVisiblityGroup.class);
 	private final HashMap<Generator, GuiInstance<GeneratorRowController>> generators = new HashMap();
@@ -425,10 +429,18 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 				factory.init(pct, id);
 			}, (id) -> this.rebuildEntireUI());
 		});
-		GuiUtil.setMenuEvent(saveMenu, () -> factory.save());
+		GuiUtil.setMenuEvent(saveMenu, () -> {
+			if (!factory.name.equals(lastNameSavedWith)) {
+				if (!GuiUtil.getConfirmation("Factory name changed but you are saving to the original file ("+lastNameSavedWith+"). Do you really want to overwrite?"))
+					return;
+			}
+			lastNameSavedWith = factory.name;
+			factory.save();
+		});
 		GuiUtil.setMenuEvent(saveAsMenu, () -> {
 			File f = this.openSaveAsDialog(factory.name+".factory", Main.getRelativeFile("Factories"));
 			if (f != null) {
+				lastNameSavedWith = factory.name;
 				factory.save(f);
 			}
 		});
@@ -447,6 +459,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 		});
 		GuiUtil.setMenuEvent(clearProductMenu, () -> factory.removeProducts(new ArrayList<Consumable>(factory.getDesiredProducts())));
 		GuiUtil.setMenuEvent(isolateMenu, () -> factory.removeExternalSupplies(new ArrayList<ResourceSupply>(factory.getSupplies())));
+		GuiUtil.setMenuEvent(cleanupMenu, () -> factory.cleanup());
 		GuiUtil.setMenuEvent(summaryMenu, () -> this.openChildWindow("Factory Summary", "SummaryView", g -> ((SummaryViewController)g.controller).setFactory(factory)));
 
 		GuiUtil.setMenuEvent(aboutMenu, () -> this.openChildWindow("About This Application", "AboutPage"));
@@ -525,6 +538,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 		if (factory != null)
 			factory.prepareDisposal();
 		super.setFactory(f);
+		lastNameSavedWith = factory == null ? null : factory.name;
 		factory.addCallback(this);
 
 		GuiUtil.runOnJFXThread(() -> factory.setUI(this));
@@ -877,6 +891,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	@Override
 	public Future<Void> onLoaded() {
 		this.onSetFile(factory.getFile());
+		lastNameSavedWith = factory.name;
 		CompletableFuture<Void> f = new CompletableFuture();
 		GuiUtil.runOnJFXThread(() -> {
 			this.rebuildEntireUI();

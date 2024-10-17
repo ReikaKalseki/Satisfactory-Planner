@@ -1,53 +1,93 @@
 {
     "recipes": [
         {
-            "count": 7,
-            "id": "Recipe_Cable_C"
-        },
-        {
-            "count": 22,
-            "id": "Recipe_Wire_C"
-        },
-        {
-            "count": 3,
+            "count": "3.000",
             "id": "Recipe_IngotIron_C"
         },
         {
-            "count": 4,
-            "id": "Recipe_Alternate_CopperAlloyIngot_C"
+            "count": "7.000",
+            "id": "Recipe_Cable_C"
         },
         {
-            "count": 4,
+            "count": "22.000",
+            "id": "Recipe_Wire_C"
+        },
+        {
+            "count": "4.000",
             "id": "Recipe_SteelPipe_C"
         },
         {
-            "count": 2,
-            "id": "Recipe_Alternate_Rotor_C"
+            "count": "4.000",
+            "id": "Recipe_Alternate_CopperAlloyIngot_C"
         },
         {
-            "count": 1,
+            "count": "1.000",
             "id": "Recipe_Motor_C"
         },
         {
-            "count": 4,
+            "count": "4.000",
             "id": "Recipe_SpaceElevatorPart_3_C"
         },
         {
-            "count": 4,
+            "count": "4.000",
             "id": "Recipe_Stator_C"
         },
         {
-            "count": 2,
+            "count": "2.000",
+            "id": "Recipe_Alternate_Rotor_C"
+        },
+        {
+            "count": "2.000",
             "id": "Recipe_Alternate_IngotSteel_1_C"
         }
     ],
+    "toggles": [
+        "FLUID",
+        "EQUIPMENT",
+        "BIOMASS",
+        "FICSMAS",
+        "ALTERNATE",
+        "FINDABLE",
+        "PACKAGING",
+        "UNPACKAGING"
+    ],
     "name": "motorexample",
-    "generators": [],
+    "generators": [
+        {
+            "count_Desc_IonizedFuel_C": 0,
+            "count_Desc_LiquidTurboFuel_C": 0,
+            "count_Desc_LiquidBiofuel_C": 0,
+            "count_Desc_LiquidFuel_C": 0,
+            "id": "Build_GeneratorFuel_C",
+            "count_Desc_RocketFuel_C": 0
+        },
+        {
+            "count_Desc_FicsoniumFuelRod_C": 0,
+            "count_Desc_NuclearFuelRod_C": 0,
+            "id": "Build_GeneratorNuclear_C",
+            "count_Desc_PlutoniumFuelRod_C": 0
+        },
+        {
+            "count_Desc_Coal_C": 0,
+            "count_Desc_CompactedCoal_C": 0,
+            "count_Desc_PetroleumCoke_C": 0,
+            "id": "Build_GeneratorCoal_C"
+        },
+        {
+            "count_Desc_Leaves_C": 0,
+            "count_Desc_Mycelia_C": 0,
+            "count_Desc_Biofuel_C": 0,
+            "id": "Build_GeneratorBiomass_Automated_C",
+            "count_Desc_GenericBiomass_C": 0,
+            "count_Desc_Wood_C": 0,
+            "count_Desc_PackagedBiofuel_C": 0
+        }
+    ],
     "resources": [
         {
-            "item": "Desc_OreIron_C",
+            "item": "Desc_OreCopper_C",
             "purity": "NORMAL",
-            "clock": 1,
+            "clock": 1.5,
             "type": "MINER",
             "miner": "TWO"
         },
@@ -60,21 +100,21 @@
         },
         {
             "item": "Desc_OreIron_C",
-            "purity": "PURE",
+            "purity": "NORMAL",
             "clock": 1,
             "type": "MINER",
             "miner": "TWO"
         },
         {
-            "item": "Desc_OreCopper_C",
-            "purity": "NORMAL",
-            "clock": 1.5,
+            "item": "Desc_OreIron_C",
+            "purity": "PURE",
+            "clock": 1,
             "type": "MINER",
             "miner": "TWO"
         }
     ],
     "products": [
-		"Desc_Motor_C",
-		"Desc_SpaceElevatorPart_3_C"
-	]
+        "Desc_Motor_C",
+        "Desc_SpaceElevatorPart_3_C"
+    ]
 }

@@ -24,16 +24,11 @@ public class FactorySupplyEntryController extends ResourceSupplyEntryController<
 	}
 
 	@Override
-	protected void updateStats() {
-		super.updateStats();
-	}
-
-	@Override
 	protected void onSetSupply(Factory f, FromFactorySupply res) {
 		f.updateMatrixStatus(res.getResource());
 		nameText.setText(res.sourceFactory);
 		reloadButton.setOnAction(e -> {
-			f.updateFactorySupply(res.sourceFactoryFile, res);
+			f.updateFactorySupply(res.sourceFactoryFile, res, () -> this.updateStats(false));
 		});
 	}
 

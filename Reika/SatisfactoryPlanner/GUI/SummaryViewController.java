@@ -23,6 +23,7 @@ import Reika.SatisfactoryPlanner.Data.FromFactorySupply;
 import Reika.SatisfactoryPlanner.Data.OverclockableResource;
 import Reika.SatisfactoryPlanner.Data.Recipe;
 import Reika.SatisfactoryPlanner.Data.ResourceSupply;
+import Reika.SatisfactoryPlanner.Data.SimpleProductionSupply;
 import Reika.SatisfactoryPlanner.Data.TrainStation;
 import Reika.SatisfactoryPlanner.Data.WaterExtractor;
 import Reika.SatisfactoryPlanner.Util.ColorUtil;
@@ -240,6 +241,9 @@ public class SummaryViewController extends FactoryStatisticsContainer {
 		}
 		if (r instanceof WaterExtractor) {
 			ret.getChildren().add(new Label("x"+((WaterExtractor)r).numberExtractors));
+		}
+		if (r instanceof SimpleProductionSupply) {
+			ret.getChildren().add(new Label("x"+((SimpleProductionSupply)r).count));
 		}
 		if (r instanceof TrainStation) {
 			ret.getChildren().add(new Label(((TrainStation)r).numberBuildings+" Cars"));
