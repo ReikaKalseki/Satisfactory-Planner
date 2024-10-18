@@ -9,7 +9,7 @@
 <?import org.controlsfx.control.SearchableComboBox?>
 
 
-<GridPane fx:id="root" hgap="4.0" styleClass="widget" stylesheets="@../CSS/style.css" vgap="8.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.IngredientDefinitionRowController">
+<GridPane fx:id="root" hgap="4.0" styleClass="widget" stylesheets="@../CSS/style.css" vgap="8.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.Components.IngredientDefinitionRowController">
    <columnConstraints>
       <ColumnConstraints hgrow="NEVER" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="72.0" />
       <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" />

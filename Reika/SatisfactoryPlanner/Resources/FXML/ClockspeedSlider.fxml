@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="CENTER" spacing="2.0" styleClass="widget" stylesheets="@../CSS/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.ClockspeedSliderController">
+<VBox alignment="CENTER" spacing="2.0" styleClass="widget" stylesheets="@../CSS/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.Components.ClockspeedSliderController">
    <children>
       <Slider fx:id="slider" blockIncrement="1.0" majorTickUnit="50.0" max="250.0" minorTickCount="5" showTickLabels="true" showTickMarks="true" value="100.0" />
       <StackPane>

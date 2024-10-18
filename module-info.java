@@ -5,9 +5,17 @@ module satisfactoryplanner {
 
 	exports Reika.SatisfactoryPlanner;
 	exports Reika.SatisfactoryPlanner.GUI;
+	exports Reika.SatisfactoryPlanner.GUI.Supplies;
+	exports Reika.SatisfactoryPlanner.GUI.Components;
+	exports Reika.SatisfactoryPlanner.GUI.Components.ListCells;
+	exports Reika.SatisfactoryPlanner.GUI.Windows;
 	exports fxexpansions;
 	opens Reika.SatisfactoryPlanner to javafx.graphics, javafx.fxml;
 	opens Reika.SatisfactoryPlanner.GUI to javafx.graphics, javafx.fxml;
+	opens Reika.SatisfactoryPlanner.GUI.Supplies to javafx.graphics, javafx.fxml;
+	opens Reika.SatisfactoryPlanner.GUI.Components to javafx.graphics, javafx.fxml;
+	opens Reika.SatisfactoryPlanner.GUI.Components.ListCells to javafx.graphics, javafx.fxml;
+	opens Reika.SatisfactoryPlanner.GUI.Windows to javafx.graphics, javafx.fxml;
 	opens fxexpansions to javafx.graphics, javafx.fxml;
 	opens Reika.SatisfactoryPlanner.Util to javafx.graphics, javafx.fxml;
 

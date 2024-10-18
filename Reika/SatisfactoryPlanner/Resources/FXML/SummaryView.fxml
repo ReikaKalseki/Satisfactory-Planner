@@ -47,7 +47,7 @@
 <?import javafx.scene.layout.TilePane?>
 <?import javafx.scene.layout.VBox?>
 
-<ScrollPane fx:id="root" hbarPolicy="ALWAYS" pannable="true" styleClass="widget" stylesheets="@../CSS/style.css" vbarPolicy="ALWAYS" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.SummaryViewController">
+<ScrollPane fx:id="root" hbarPolicy="ALWAYS" pannable="true" styleClass="widget" stylesheets="@../CSS/style.css" vbarPolicy="ALWAYS" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.Windows.SummaryViewController">
    <content>
       <VBox fx:id="mainContent" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="1000.0" spacing="12.0" styleClass="widget" stylesheets="@../CSS/style.css">
         <children>

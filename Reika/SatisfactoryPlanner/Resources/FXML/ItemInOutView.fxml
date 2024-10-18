@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<GridPane fx:id="rootGrid" alignment="CENTER_LEFT" hgap="4.0" maxHeight="32.0" stylesheets="@../CSS/style.css" vgap="4.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.ItemInOutViewController">
+<GridPane fx:id="rootGrid" alignment="CENTER_LEFT" hgap="4.0" maxHeight="32.0" stylesheets="@../CSS/style.css" vgap="4.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.Components.ItemInOutViewController">
    <columnConstraints>
       <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
       <ColumnConstraints hgrow="SOMETIMES" />
