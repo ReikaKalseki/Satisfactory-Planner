@@ -50,41 +50,60 @@
 <?import javafx.scene.layout.VBox?>
 <?import org.controlsfx.control.textfield.CustomTextField?>
 
-<VBox fx:id="root" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="600.0" spacing="24.0" stylesheets="@../CSS/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.Windows.SettingsController">
+<VBox fx:id="root" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="600.0" spacing="24.0" styleClass="widget" stylesheets="@../CSS/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.Windows.SettingsController">
   <children>
-      <TitledPane animated="false" collapsible="false" styleClass="panel" text="Application">
+      <TitledPane animated="false" collapsible="false" styleClass="panel" text="General">
          <content>
-            <GridPane alignment="CENTER_LEFT" hgap="12.0" styleClass="widget" vgap="12.0">
+            <GridPane alignment="CENTER_LEFT" hgap="12.0" vgap="12.0">
                <columnConstraints>
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="128.0" />
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" />
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="120.0" />
                </columnConstraints>
-               <rowConstraints>
-                  <RowConstraints vgrow="SOMETIMES" />
-                  <RowConstraints vgrow="SOMETIMES" />
-                  <RowConstraints vgrow="SOMETIMES" />
-                  <RowConstraints vgrow="SOMETIMES" />
-                  <RowConstraints vgrow="SOMETIMES" />
-               </rowConstraints>
                <children>
                   <Label text="Game Install Directory" wrapText="true" />
                   <Button fx:id="chooseGameDir" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Choose Directory" GridPane.columnIndex="2" />
                   <CustomTextField fx:id="gameDirPath" GridPane.columnIndex="1" />
-                  <Label layoutX="14.0" layoutY="18.0" text="Allow Fractional Building Counts" wrapText="true" GridPane.rowIndex="1" />
-                  <CheckBox fx:id="allowFractional" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                  <Label layoutX="18.0" layoutY="72.0" text="Include Surplus Inputs In Factory Net Outputs" wrapText="true" GridPane.rowIndex="2" />
-                  <HBox alignment="CENTER_LEFT" spacing="24.0" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="2">
+                  <Label text="Add Factory To Recent List When..." wrapText="true" GridPane.rowIndex="1" />
+                  <HBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="24.0" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="1">
+                     <children>
+                        <CheckBox fx:id="openRecent" mnemonicParsing="false" text="Opening" />
+                        <CheckBox fx:id="saveRecent" layoutX="10.0" layoutY="19.0" mnemonicParsing="false" selected="true" text="Saving" />
+                        <CheckBox fx:id="inputRecent" layoutX="88.0" layoutY="19.0" mnemonicParsing="false" text="Applying As Input" />
+                     </children>
+                  </HBox>
+               </children>
+               <padding>
+                  <Insets bottom="8.0" left="8.0" right="8.0" top="16.0" />
+               </padding>
+               <rowConstraints>
+                  <RowConstraints />
+                  <RowConstraints />
+               </rowConstraints>
+            </GridPane>
+         </content>
+      </TitledPane>
+      <TitledPane animated="false" collapsible="false" layoutX="14.0" layoutY="14.0" styleClass="panel" text="Display">
+         <content>
+            <GridPane alignment="CENTER_LEFT" hgap="12.0" vgap="12.0">
+               <columnConstraints>
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="128.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="120.0" />
+               </columnConstraints>
+               <children>
+                  <Label layoutX="14.0" layoutY="18.0" text="Allow Fractional Building Counts" wrapText="true" />
+                  <CheckBox fx:id="allowFractional" mnemonicParsing="false" GridPane.columnIndex="1" />
+                  <Label layoutX="18.0" layoutY="72.0" text="Include Surplus Inputs In Factory Net Outputs" wrapText="true" GridPane.rowIndex="1" />
+                  <HBox alignment="CENTER_LEFT" spacing="24.0" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="1">
                      <children>
                         <RadioButton fx:id="excludeInRadio" mnemonicParsing="false" text="Exclude" />
-                        <RadioButton fx:id="mineOnlyRadio" layoutX="10.0" layoutY="19.0" mnemonicParsing="false" text="Mines Only" />
+                        <RadioButton fx:id="mineOnlyRadio" layoutX="10.0" layoutY="19.0" mnemonicParsing="false" selected="true" text="Mines Only" />
                         <RadioButton fx:id="allInRadio" layoutX="87.0" layoutY="19.0" mnemonicParsing="false" text="All Inputs" />
                      </children>
                   </HBox>
-                  <Label layoutX="18.0" layoutY="63.0" text="Automatically Recompute Statistics" wrapText="true" GridPane.rowIndex="3" />
-                  <CheckBox fx:id="autoRecompute" layoutX="158.0" layoutY="72.0" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                  <Label layoutX="18.0" layoutY="155.0" text="Surplus/Deficiency Display Threshold" wrapText="true" GridPane.rowIndex="4" />
-                  <HBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="12.0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4" GridPane.vgrow="ALWAYS">
+                  <Label layoutX="18.0" layoutY="155.0" text="Surplus/Deficiency Display Threshold" wrapText="true" GridPane.rowIndex="2" />
+                  <HBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="12.0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS">
                      <children>
                         <CheckBox fx:id="noSignificanceThreshold" mnemonicParsing="false" selected="true" text="Always Show" />
                         <Spinner fx:id="displayThreshold" disable="true" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
@@ -94,9 +113,22 @@
                <padding>
                   <Insets bottom="8.0" left="8.0" right="8.0" top="16.0" />
                </padding>
+               <rowConstraints>
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+               </rowConstraints>
             </GridPane>
          </content>
       </TitledPane>
+      <TitledPane animated="false" collapsible="false" layoutX="14.0" layoutY="295.0" styleClass="panel" text="Confirmations">
+         <content>
+            <VBox fx:id="confirmationPane" spacing="4.0">
+               <children>
+                  <Label text="Show Confirmation Dialogs For..." />
+               </children>
+            </VBox>
+         </content></TitledPane>
       <TilePane alignment="CENTER" hgap="32.0" vgap="8.0" VBox.vgrow="ALWAYS">
          <children>
             <Button fx:id="cancelButton" layoutX="338.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="32.0" prefWidth="166.0" text="Discard And Close">

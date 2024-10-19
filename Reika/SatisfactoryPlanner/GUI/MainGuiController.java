@@ -18,6 +18,7 @@ import org.controlsfx.control.SearchableComboBox;
 
 import com.google.common.base.Strings;
 
+import Reika.SatisfactoryPlanner.ConfirmationOptions;
 import Reika.SatisfactoryPlanner.FactoryListener;
 import Reika.SatisfactoryPlanner.InclusionPattern;
 import Reika.SatisfactoryPlanner.InternalIcons;
@@ -40,6 +41,7 @@ import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.SimpleProductionS
 import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.SolidResourceNode;
 import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.TieredLogisticSupply;
 import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.WaterExtractor;
+import Reika.SatisfactoryPlanner.GUI.GuiUtil.SearchableSelector;
 import Reika.SatisfactoryPlanner.GUI.Components.FactoryStatisticsContainer;
 import Reika.SatisfactoryPlanner.GUI.Components.GeneratorRowController;
 import Reika.SatisfactoryPlanner.GUI.Components.ItemCountController;
@@ -47,7 +49,6 @@ import Reika.SatisfactoryPlanner.GUI.Components.ListCells.BuildingListCell;
 import Reika.SatisfactoryPlanner.GUI.Components.ListCells.DecoratedListCell;
 import Reika.SatisfactoryPlanner.GUI.Components.ListCells.ItemListCell;
 import Reika.SatisfactoryPlanner.GUI.Components.ListCells.RecipeListCell;
-import Reika.SatisfactoryPlanner.GUI.GuiUtil.SearchableSelector;
 import Reika.SatisfactoryPlanner.GUI.Supplies.ResourceSupplyEntryController;
 import Reika.SatisfactoryPlanner.GUI.Windows.SummaryViewController;
 import Reika.SatisfactoryPlanner.Util.Logging;
@@ -278,6 +279,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	//private Button refreshButton;
 
 	private boolean matrixOptionsActive = true;
+	private boolean rebuilding = false;
 	private String lastNameSavedWith = null;
 
 	private final EnumMap<ToggleableVisiblityGroup, CheckBox> toggleFilters = new EnumMap(ToggleableVisiblityGroup.class);
@@ -403,7 +405,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 			CheckBox cb = new CheckBox(tv.displayName);
 			cb.setSelected(true);
 			cb.selectedProperty().addListener((val, old, nnew) -> {
-				if (old != nnew)
+				if (old != nnew && !rebuilding)
 					factory.setToggle(tv, nnew);
 			});
 			toggleFilters.put(tv, cb);
@@ -429,20 +431,24 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 		GuiUtil.setMenuEvent(neiMenu, () -> this.openChildWindow("Recipe Catalogue", "RecipeCatalog"));
 		GuiUtil.setMenuEvent(itemViewerMenu, () -> this.openChildWindow("Item Catalogue", "ItemCatalog"));
 		GuiUtil.setMenuEvent(customRecipeMenu, () -> this.openChildWindow("Custom Recipe Definition", "CustomRecipeDefinitionDialog"));
-		GuiUtil.setMenuEvent(quitMenu, () -> this.close());
+		GuiUtil.setMenuEvent(quitMenu, () -> {
+			if (!factory.hasUnsavedChanges() || GuiUtil.getToggleableConfirmation(ConfirmationOptions.CLOSE)) {
+				Platform.exit();
+			}
+		});
 		GuiUtil.setMenuEvent(newMenu, () -> {
-			GuiUtil.queueTask("Loading new factory", (id) -> {
-				this.setFactory(new Factory());
-				double pct = 20;
-				WaitDialogManager.instance.setTaskProgress(id, pct);
-				factory.init(pct, id);
-			}, (id) -> this.rebuildEntireUI());
+			if (!factory.hasUnsavedChanges() || GuiUtil.getToggleableConfirmation(ConfirmationOptions.NEWOPEN)) {
+				GuiUtil.queueTask("Loading new factory", (id) -> {
+					this.setFactory(new Factory());
+					double pct = 20;
+					WaitDialogManager.instance.setTaskProgress(id, pct);
+					factory.init(pct, id);
+				}, (id) -> this.rebuildEntireUI());
+			}
 		});
 		GuiUtil.setMenuEvent(saveMenu, () -> {
-			if (!factory.name.equals(lastNameSavedWith)) {
-				if (!GuiUtil.getConfirmation("Factory name changed but you are saving to the original file ("+lastNameSavedWith+"). Do you really want to overwrite?"))
-					return;
-			}
+			if (!factory.name.equals(lastNameSavedWith) && !GuiUtil.getToggleableConfirmation(ConfirmationOptions.SAVEDIFFNAME, lastNameSavedWith))
+				return;
 			lastNameSavedWith = factory.name;
 			factory.save();
 		});
@@ -453,22 +459,27 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 				factory.save(f);
 			}
 		});
-		GuiUtil.setMenuEvent(reloadMenu, () -> factory.reload());
+		GuiUtil.setMenuEvent(reloadMenu, () -> {
+			if (!factory.hasUnsavedChanges() || GuiUtil.getToggleableConfirmation(ConfirmationOptions.RELOAD))
+				factory.reload();
+		});
 		//GuiUtil.setMenuEvent(openMenu, () -> this.openFXMLDialog("Open Factory", "OpenMenuDialog"));
 		GuiUtil.setMenuEvent(openMenu, () -> {
-			File f = this.openFactoryFile();
-			if (f != null)
-				Factory.loadFactory(f, this);
+			if (!factory.hasUnsavedChanges() || GuiUtil.getToggleableConfirmation(ConfirmationOptions.NEWOPEN)) {
+				File f = this.openFactoryFile();
+				if (f != null)
+					Factory.loadFactory(f, this);
+			}
 		});
-		GuiUtil.setMenuEvent(clearMenu, () -> factory.clearRecipes());
-		GuiUtil.setMenuEvent(zeroMenu, () -> {
+		GuiUtil.setMenuEvent(clearMenu, () -> GuiUtil.doWithToggleableConfirmation(ConfirmationOptions.CLEARCRAFT, () -> factory.clearRecipes()));
+		GuiUtil.setMenuEvent(zeroMenu, () -> GuiUtil.doWithToggleableConfirmation(ConfirmationOptions.ZEROCRAFT, () -> {
 			for (Recipe r : new ArrayList<Recipe>(factory.getRecipes())) {
 				factory.setCount(r, 0);
 			}
-		});
-		GuiUtil.setMenuEvent(clearProductMenu, () -> factory.removeProducts(new ArrayList<Consumable>(factory.getDesiredProducts())));
-		GuiUtil.setMenuEvent(isolateMenu, () -> factory.removeExternalSupplies(new ArrayList<ResourceSupply>(factory.getSupplies())));
-		GuiUtil.setMenuEvent(cleanupMenu, () -> factory.cleanup());
+		}));
+		GuiUtil.setMenuEvent(clearProductMenu, () -> GuiUtil.doWithToggleableConfirmation(ConfirmationOptions.CLEARPROD, () -> factory.removeProducts(new ArrayList<Consumable>(factory.getDesiredProducts()))));
+		GuiUtil.setMenuEvent(isolateMenu, () -> GuiUtil.doWithToggleableConfirmation(ConfirmationOptions.ISOLATE, () -> factory.removeExternalSupplies(new ArrayList<ResourceSupply>(factory.getSupplies()))));
+		GuiUtil.setMenuEvent(cleanupMenu, () -> GuiUtil.doWithToggleableConfirmation(ConfirmationOptions.CLEANUP, () -> factory.cleanup()));
 		GuiUtil.setMenuEvent(summaryMenu, () -> this.openChildWindow("Factory Summary", "SummaryView", g -> ((SummaryViewController)g.controller).setFactory(factory)));
 
 		GuiUtil.setMenuEvent(aboutMenu, () -> this.openChildWindow("About This Application", "AboutPage"));
@@ -698,6 +709,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	}
 
 	public void rebuildEntireUI() {
+		rebuilding = true;
 		this.rebuildLists(true, true, true);
 
 		factoryName.setText(factory.name);
@@ -724,6 +736,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 		this.updateStats(true);
 
 		this.layout();
+		rebuilding = false;
 	}
 
 	@Override

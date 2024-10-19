@@ -67,6 +67,10 @@ public class Main {
 			if (settings.has(s.name))
 				s.setting.parse(settings.getString(s.name));
 		}
+		for (ConfirmationOptions co : ConfirmationOptions.values()) {
+			if (settings.has(co.getSettingKey()))
+				co.setState(JSONUtil.getBoolean(settings, co.getSettingKey()));
+		}
 
 		if (recentFilesFile.exists()) {
 			for (String s : FileUtils.readLines(recentFilesFile, Charset.defaultCharset())) {
@@ -88,6 +92,9 @@ public class Main {
 
 		for (SettingRef s : Setting.getSettings()) {
 			settings.put(s.name, s.setting.getString());
+		}
+		for (ConfirmationOptions co : ConfirmationOptions.values()) {
+			settings.put(co.getSettingKey(), co.isEnabled());
 		}
 		Logging.instance.log("Saving settings to "+settingsFile.getCanonicalPath());
 		JSONUtil.saveFile(settingsFile, settings);

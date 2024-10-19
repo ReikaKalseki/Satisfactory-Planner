@@ -169,7 +169,7 @@
                                         <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" valignment="CENTER" vgrow="SOMETIMES" />
                                           <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" valignment="CENTER" vgrow="SOMETIMES" />
                                           <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" valignment="CENTER" vgrow="SOMETIMES" />
-                                          <RowConstraints vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="32.0" vgrow="SOMETIMES" />
                                           <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" prefHeight="32.0" vgrow="SOMETIMES" />
                                           <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" prefHeight="32.0" vgrow="SOMETIMES" />
                                       </rowConstraints>

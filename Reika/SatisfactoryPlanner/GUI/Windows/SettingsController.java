@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import org.controlsfx.control.textfield.CustomTextField;
 
+import Reika.SatisfactoryPlanner.ConfirmationOptions;
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Setting;
 import Reika.SatisfactoryPlanner.Setting.InputInOutputOptions;
@@ -61,18 +62,9 @@ public class SettingsController extends FXMLControllerBase {
 
 	@FXML
 	private Tab visualTab;
-	/*
-	@FXML
-	private RadioButton runLog;
 
 	@FXML
-	private RadioButton sharedLog;
-
-	@FXML
-	private RadioButton noLog;
-
-	private final ToggleGroup loggingOptions = new ToggleGroup();*/
-
+	private VBox confirmationPane;
 
 	@FXML
 	private RadioButton excludeInRadio;
@@ -86,23 +78,22 @@ public class SettingsController extends FXMLControllerBase {
 	private final ToggleGroup includeInputOptions = new ToggleGroup();
 
 	@FXML
-	private CheckBox autoRecompute;
-
-	@FXML
 	private CheckBox noSignificanceThreshold;
 
 	@FXML
 	private Spinner<Double> displayThreshold;
 
+	@FXML
+	private CheckBox openRecent;
+
+	@FXML
+	private CheckBox saveRecent;
+
+	@FXML
+	private CheckBox inputRecent;
+
 	@Override
-	public void init(HostServices services) throws IOException {/*
-		noLog.setToggleGroup(loggingOptions);
-		sharedLog.setToggleGroup(loggingOptions);
-		runLog.setToggleGroup(loggingOptions); //order must match enum
-
-		loggingOptions.selectedToggleProperty().addListener((val, old, nnew) -> Setting.LOG.changeValue(LogOptions.values()[loggingOptions.getToggles().indexOf(nnew)]));
-	 */
-
+	public void init(HostServices services) throws IOException {
 		excludeInRadio.setToggleGroup(includeInputOptions);
 		mineOnlyRadio.setToggleGroup(includeInputOptions);
 		allInRadio.setToggleGroup(includeInputOptions); //order must match enum
@@ -118,6 +109,13 @@ public class SettingsController extends FXMLControllerBase {
 		noSignificanceThreshold.setSelected(any);
 		displayThreshold.setDisable(any);
 		noSignificanceThreshold.selectedProperty().addListener((val, old, nnew) -> {displayThreshold.setDisable(nnew); Setting.IOTHRESH.changeValue(nnew ? 0F : displayThreshold.getValue().floatValue());});
+
+		for (ConfirmationOptions co : ConfirmationOptions.values()) {
+			CheckBox cb = new CheckBox(co.displayName);
+			cb.setSelected(co.isEnabled());
+			cb.selectedProperty().addListener((val, old, nnew) -> co.setState(nnew));
+			confirmationPane.getChildren().add(cb);
+		}
 	}
 
 	@Override
@@ -163,19 +161,26 @@ public class SettingsController extends FXMLControllerBase {
 				gameDirPath.setRight(new ImageView(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/invalid.png"))));
 		});
 
-		allowFractional.selectedProperty().addListener((val, old, nnew) -> {
-			Setting.ALLOWDECIMAL.changeValue(nnew);
-		});
+		this.bindCheckbox(allowFractional, Setting.ALLOWDECIMAL);
+		this.bindCheckbox(openRecent, Setting.OPENRECENT);
+		this.bindCheckbox(saveRecent, Setting.SAVERECENT);
+		this.bindCheckbox(inputRecent, Setting.INPUTRECENT);
 
 		GuiUtil.initWidgets(root);
 
 		this.setFields();
 	}
 
+	private void bindCheckbox(CheckBox cb, Setting<Boolean> s) {
+		cb.setSelected(s.getCurrentValue());
+		cb.selectedProperty().addListener((val, old, nnew) -> {
+			s.changeValue(nnew);
+		});
+	}
+
 	public void setFields() {
 		try {
 			gameDirPath.setText(Setting.GAMEDIR.getString());
-			allowFractional.setSelected(Setting.ALLOWDECIMAL.getCurrentValue());
 		}
 		catch (Exception e) {
 			Logging.instance.log(e);

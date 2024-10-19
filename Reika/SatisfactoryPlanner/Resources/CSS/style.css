@@ -286,19 +286,23 @@
 .widget .radio-button > .radio {
   -fx-background-color: "#AAAAAA";
   -fx-background-insets: 0;
-  -fx-background-radius: 0px;
+  -fx-background-radius: 4px;
 }
 
 .widget .radio-button:hover > .radio {
-  -fx-background-color: "#AAAAAA", "#E69344";
-  -fx-background-insets: 0, 3;
-  -fx-background-radius: 0, 0;
+  -fx-background-color: "#E69344";
+  -fx-background-radius: 4;
 }
 
 .widget .radio-button:selected > .radio > .dot {
   -fx-background-color: "#FFFFFF";
   -fx-background-insets: -2;
-  -fx-background-radius: 0px;
+  -fx-background-radius: 3px;
+}
+
+.widget .radio-button:focused {
+	-fx-border-color: transparent;
+	-fx-background-color: transparent;
 }
 
 .widget .slider {

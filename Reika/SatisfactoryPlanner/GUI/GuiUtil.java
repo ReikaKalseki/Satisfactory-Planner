@@ -14,6 +14,7 @@ import org.controlsfx.control.SearchableComboBox;
 
 import com.nativejavafx.taskbar.TaskbarProgressbar;
 
+import Reika.SatisfactoryPlanner.ConfirmationOptions;
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.NamedIcon;
 import Reika.SatisfactoryPlanner.Data.Objects.Consumable;
@@ -314,6 +315,16 @@ public class GuiUtil {
 		if (getConfirmation(text)) {
 			tryWithErrorHandling(e);
 		}
+	}
+
+	public static void doWithToggleableConfirmation(ConfirmationOptions key, Errorable e, Object... args) {
+		if (getToggleableConfirmation(key, args)) {
+			tryWithErrorHandling(e);
+		}
+	}
+
+	public static boolean getToggleableConfirmation(ConfirmationOptions key, Object... args) {
+		return !key.isEnabled() || getConfirmation(key.getMessage(args));
 	}
 
 	public static ButtonType raiseDialog(AlertType type, String title, String text, ButtonType... buttons) {

@@ -18,6 +18,10 @@ public class Setting<S> {
 	public static final Setting<InputInOutputOptions> INOUT = new Setting<InputInOutputOptions>(InputInOutputOptions.MINES, new EnumConverter(InputInOutputOptions.class)).addChangeCallback(() -> Main.updateMainUI());
 	public static final Setting<Float> IOTHRESH = new Setting<Float>(0F, FloatConverter.instance).addChangeCallback(() -> Main.updateMainUI());
 
+	public static final Setting<Boolean> OPENRECENT = new Setting<Boolean>(true, BoolConverter.instance);
+	public static final Setting<Boolean> SAVERECENT = new Setting<Boolean>(true, BoolConverter.instance);
+	public static final Setting<Boolean> INPUTRECENT = new Setting<Boolean>(false, BoolConverter.instance);
+
 	public final S defaultValue;
 	private S currentValue;
 	private S pendingValue;

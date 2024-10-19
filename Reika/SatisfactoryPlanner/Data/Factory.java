@@ -24,6 +24,7 @@ import org.json.JSONObject;
 import Reika.SatisfactoryPlanner.FactoryListener;
 import Reika.SatisfactoryPlanner.InclusionPattern;
 import Reika.SatisfactoryPlanner.Main;
+import Reika.SatisfactoryPlanner.Setting;
 import Reika.SatisfactoryPlanner.Data.Constants.BeltTier;
 import Reika.SatisfactoryPlanner.Data.Constants.PipeTier;
 import Reika.SatisfactoryPlanner.Data.Constants.RateLimitedSupplyLine;
@@ -94,6 +95,8 @@ public class Factory {
 	private boolean skipNotify;
 	private boolean loading;
 
+	private boolean hasUnsavedChanges;
+
 	private File currentFile;
 
 	private RecipeMatrixContainer gui;
@@ -141,6 +144,7 @@ public class Factory {
 		recipeList.add(r);
 		recipes.put(r, 0F);
 		Collections.sort(recipeList);
+		hasUnsavedChanges = true;
 		if (loading)
 			return;
 		this.rebuildFlows();
@@ -161,6 +165,7 @@ public class Factory {
 			recipeList.add(r);
 			recipes.put(r, 0F);
 		}
+		hasUnsavedChanges = true;
 		Collections.sort(recipeList);
 		if (loading)
 			return;
@@ -174,6 +179,7 @@ public class Factory {
 		recipeLoops.removeIf(p -> p.recipe1.equals(r) || p.recipe2.equals(r));
 		if (recipeList.remove(r)) {
 			recipes.remove(r);
+			hasUnsavedChanges = true;
 			if (!loading) {
 				this.rebuildFlows();
 				this.notifyListeners(c -> c.onRemoveRecipe(r));
@@ -192,6 +198,7 @@ public class Factory {
 			}
 		}
 		skipNotify = false;
+		hasUnsavedChanges = true;
 		if (loading)
 			return;
 		this.rebuildFlows();
@@ -285,6 +292,7 @@ public class Factory {
 			FromFactorySupply ffr = (FromFactorySupply)res;
 			factorySources.addValue(ffr.sourceFactory, ffr);
 		}
+		hasUnsavedChanges = true;
 		return true;
 	}
 
@@ -356,13 +364,14 @@ public class Factory {
 			FromFactorySupply ffr = (FromFactorySupply)res;
 			factorySources.remove(ffr.sourceFactory, ffr);
 		}
+		hasUnsavedChanges = true;
 	}
 
 	public void addFactorySupplies(File f) {
 		if (f != null) {
 			this.handleFactoryFromFile(f, fac -> {
 				this.addFactorySupplies(f, fac);
-			});
+			}, Setting.INPUTRECENT);
 		}
 	}
 
@@ -388,14 +397,14 @@ public class Factory {
 				this.updateResourceSupply(res);
 				if (callback != null)
 					callback.run();
-			});
+			}, Setting.INPUTRECENT);
 		}
 	}
 
-	private void handleFactoryFromFile(File f, Consumer<Factory> c) {
+	private void handleFactoryFromFile(File f, Consumer<Factory> c, Setting<Boolean> setting) {
 		AtomicReference<Factory> ref = new AtomicReference();
 		GuiUtil.queueTask("Parsing factory as input", (id) -> {
-			Future<Factory> fut = Factory.loadFactoryData(f);
+			Future<Factory> fut = Factory.loadFactoryData(f, setting);
 			while (!fut.isDone())
 				Thread.sleep(50);
 			ref.set(fut.get());
@@ -428,6 +437,7 @@ public class Factory {
 				this.updateMatrixStatus(c);
 				this.notifyListeners(l -> l.onRemoveProduct(c));
 			}
+			hasUnsavedChanges = true;
 		}
 	}
 
@@ -438,6 +448,7 @@ public class Factory {
 					this.updateMatrixStatus(cc);
 				this.notifyListeners(l -> l.onRemoveProducts(c));
 			}
+			hasUnsavedChanges = true;
 		}
 	}
 
@@ -527,6 +538,7 @@ public class Factory {
 
 	public void setCount(Recipe r, float amt) {
 		recipes.put(r, amt);
+		hasUnsavedChanges = true;
 		if (loading)
 			return;
 		this.rebuildFlows();
@@ -550,6 +562,7 @@ public class Factory {
 	public void setCount(Generator g, Fuel f, int amt) {
 		int old = generators.get(g).getCount(f);
 		generators.get(g).setCount(f, amt);
+		hasUnsavedChanges = true;
 		if (loading)
 			return;
 		this.rebuildFlows();
@@ -564,6 +577,7 @@ public class Factory {
 	}
 
 	public void updateResourceSupply(ResourceSupply r) {
+		hasUnsavedChanges = true;
 		if (loading)
 			return;
 		this.notifyListeners(c -> c.onUpdateSupply(r));
@@ -701,6 +715,7 @@ public class Factory {
 			toggles.add(tv);
 		else
 			toggles.remove(tv);
+		hasUnsavedChanges = true;
 		this.notifyListeners(c -> c.onSetToggle(tv, state));
 	}
 
@@ -784,6 +799,7 @@ public class Factory {
 		resourceSources.clear();
 		desiredProducts.clear();
 		toggles.clear();
+		hasUnsavedChanges = true;
 		this.rebuildFlows();
 		skipNotify = wasBulk;
 		if (!skipNotify)
@@ -854,20 +870,21 @@ public class Factory {
 			root.put("toggles", toggs);
 
 			JSONUtil.saveFile(f, root);
-			this.setCurrentFile(f, true);
+			hasUnsavedChanges = false;
+			this.setCurrentFile(f, Setting.SAVERECENT.getCurrentValue());
 		});
 	}
 
 	public void reload() {
-		GuiUtil.queueTask("Reloading factory from disk", (id) -> this.load(currentFile, id));
+		GuiUtil.queueTask("Reloading factory from disk", (id) -> this.load(currentFile, id, null));
 	}
 
-	private void load(File f, UUID taskID) throws Exception {
+	private void load(File f, UUID taskID, Setting<Boolean> recent) throws Exception {
 		skipNotify = true;
 		loading = true;
 		this.clear();
 
-		this.setCurrentFile(f, false);
+		this.setCurrentFile(f, recent != null && recent.getCurrentValue());
 
 		WaitDialogManager.instance.setTaskProgress(taskID, 5);
 
@@ -958,6 +975,7 @@ public class Factory {
 		this.queueMatrixAlign();
 		skipNotify = false;
 		loading = false;
+		hasUnsavedChanges = false;
 	}
 
 	private void setCurrentFile(File f, boolean addRecent) {
@@ -969,14 +987,14 @@ public class Factory {
 	}
 
 	public static Future<Factory> loadFactory(File f, FactoryListener... l) {
-		return doLoadFactory(f, () -> new Factory(false), l);
+		return doLoadFactory(f, () -> new Factory(false), Setting.OPENRECENT, l);
 	}
 
-	public static Future<Factory> loadFactoryData(File f, FactoryListener... l) {
-		return doLoadFactory(f, () -> new Factory(true), l);
+	public static Future<Factory> loadFactoryData(File f, Setting<Boolean> setting, FactoryListener... l) {
+		return doLoadFactory(f, () -> new Factory(true), setting, l);
 	}
 
-	private static Future<Factory> doLoadFactory(File f, Callable<Factory> call, FactoryListener... l) {
+	private static Future<Factory> doLoadFactory(File f, Callable<Factory> call, Setting<Boolean> setting, FactoryListener... l) {
 		String msg = "Loading factory from "+f.getAbsolutePath();
 		CompletableFuture<Factory> fut = new CompletableFuture();
 		Logging.instance.log(msg);
@@ -985,7 +1003,7 @@ public class Factory {
 			for (FactoryListener fl : l) {
 				fl.setFactory(ret);
 			}
-			ret.load(f, id);
+			ret.load(f, id, setting);
 			fut.complete(ret);
 		});
 		return fut;
@@ -1015,6 +1033,10 @@ public class Factory {
 
 	public void setLargeMatrixSpinnerStep(boolean large) {
 		scaleMatrix.setSpinnerStep(large ? 10 : 1);
+	}
+
+	public boolean hasUnsavedChanges() {
+		return hasUnsavedChanges;
 	}
 
 }
