@@ -58,7 +58,7 @@ public abstract class ResourceSupplyEntryController<R extends ResourceSupply> ex
 		//Logging.instance.log("Updating supply "+supply.getResource().displayName+"x"+supply.getYield()+": "+fullUpdate);
 		if (yieldDisplay != null) {
 			yieldDisplay.getChildren().clear();
-			GuiUtil.addIconCount(supply.getResource(), supply.getYield(), 4, yieldDisplay);
+			GuiUtil.addIconCount(supply.getResource(), supply.getYield(), 4, false, yieldDisplay);
 		}
 		if (updateFactory)
 			factory.updateResourceSupply(supply);

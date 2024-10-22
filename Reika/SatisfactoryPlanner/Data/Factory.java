@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -39,6 +40,7 @@ import Reika.SatisfactoryPlanner.Data.Warning.WarningSeverity;
 import Reika.SatisfactoryPlanner.Data.Objects.Consumable;
 import Reika.SatisfactoryPlanner.Data.Objects.Fluid;
 import Reika.SatisfactoryPlanner.Data.Objects.Fuel;
+import Reika.SatisfactoryPlanner.Data.Objects.Item;
 import Reika.SatisfactoryPlanner.Data.Objects.Recipe;
 import Reika.SatisfactoryPlanner.Data.Objects.Buildables.Building;
 import Reika.SatisfactoryPlanner.Data.Objects.Buildables.FunctionalBuilding;
@@ -80,7 +82,7 @@ public class Factory {
 
 	private final MultiMap<Consumable, ResourceSupply> resourceSources = new MultiMap();
 	private final MultiMap<String, FromFactorySupply> factorySources = new MultiMap();
-	private final ArrayList<Consumable> desiredProducts = new ArrayList();
+	private final TreeMap<Consumable, FactoryProduct> desiredProducts = new TreeMap();
 
 	//private final HashMap<Consumable, ItemFlow> flow = new HashMap();
 	private final ItemAmountTracker production = new ItemAmountTracker();
@@ -418,13 +420,22 @@ public class Factory {
 	}
 
 	public boolean isDesiredFinalProduct(Consumable c) {
-		return desiredProducts.contains(c);
+		return desiredProducts.containsKey(c);
+	}
+
+	public boolean isProductSinking(Consumable c) {
+		return desiredProducts.containsKey(c) && desiredProducts.get(c).isSinking;
+	}
+
+	public void setProductSinking(Consumable c, boolean sink) {
+		desiredProducts.get(c).isSinking = sink;
+		this.notifyListeners(l -> l.onToggleProductSink(c));
 	}
 
 	public void addProduct(Consumable c) {
-		if (desiredProducts.contains(c))
+		if (desiredProducts.containsKey(c))
 			return;
-		desiredProducts.add(c);
+		desiredProducts.put(c, new FactoryProduct(c));
 		if (loading)
 			return;
 		this.updateMatrixStatus(c);
@@ -432,7 +443,7 @@ public class Factory {
 	}
 
 	public void removeProduct(Consumable c) {
-		if (desiredProducts.remove(c)) {
+		if (desiredProducts.remove(c) != null) {
 			if (!loading) {
 				this.updateMatrixStatus(c);
 				this.notifyListeners(l -> l.onRemoveProduct(c));
@@ -442,7 +453,12 @@ public class Factory {
 	}
 
 	public void removeProducts(Collection<Consumable> c) {
-		if (desiredProducts.removeAll(c)) {
+		boolean flag = false;
+		for (Consumable cc : c) {
+			if (desiredProducts.remove(cc) != null)
+				flag = true;
+		}
+		if (flag) {
 			if (!loading) {
 				for (Consumable cc : c)
 					this.updateMatrixStatus(cc);
@@ -461,8 +477,8 @@ public class Factory {
 		this.removeExternalSupplies(c);
 	}
 
-	public List<Consumable> getDesiredProducts() {
-		return Collections.unmodifiableList(desiredProducts);
+	public Set<Consumable> getDesiredProducts() {
+		return Collections.unmodifiableSet(desiredProducts.keySet());
 	}
 
 	public List<Recipe> getRecipes() {
@@ -710,6 +726,21 @@ public class Factory {
 		}
 	}
 
+	public int computeSinkPoints(TreeMap<Item, Integer> breakdown) {
+		int ret = 0;
+		for (FactoryProduct c : desiredProducts.values()) {
+			if (c.item instanceof Item && c.isSinking) {
+				Item i = (Item)c.item;
+				float rate = this.getTotalProduction(c.item);
+				int amt = (int)(rate*i.sinkValue);
+				ret += amt;
+				if (breakdown != null)
+					breakdown.put(i, amt);
+			}
+		}
+		return ret;
+	}
+
 	public void setToggle(ToggleableVisiblityGroup tv, boolean state) {
 		if (state)
 			toggles.add(tv);
@@ -754,7 +785,7 @@ public class Factory {
 			float sup = this.getExternalInput(c, false);
 			float has = prod+sup;
 			float need = this.getTotalConsumption(c);
-			boolean wanted = desiredProducts.contains(c);
+			boolean wanted = desiredProducts.containsKey(c);
 			if (has > need && !wanted) {
 				call.accept(new ExcessResourceWarning(c, need, has));
 			}
@@ -772,7 +803,7 @@ public class Factory {
 			if (this.getExternalInput(p.item2, false) > 0)
 				call.accept(new Warning(p.item2 instanceof Fluid ? WarningSeverity.SEVERE : WarningSeverity.MINOR, msg+", with "+p.item2.displayName+" also being supplied externally. This risks a deadlock", new ResourceIconName(p.item2)));
 		}
-		for (Consumable c : desiredProducts) {
+		for (Consumable c : desiredProducts.keySet()) {
 			if (this.getTotalProduction(c) <= 0)
 				call.accept(new Warning(WarningSeverity.SEVERE, "Not producing desired product: "+c.displayName, new ResourceIconName(c)));
 		}
@@ -859,8 +890,11 @@ public class Factory {
 			}
 			root.put("resources", resources);
 
-			for (Consumable c : desiredProducts) {
-				products.put(c.id);
+			for (FactoryProduct c : desiredProducts.values()) {
+				JSONObject prod = new JSONObject();
+				prod.put("id", c.item.id);
+				prod.put("sink", c.isSinking);
+				products.put(prod);
 			}
 			root.put("products", products);
 
@@ -930,7 +964,17 @@ public class Factory {
 			}
 			WaitDialogManager.instance.setTaskProgress(taskID, 75);
 			for (Object o : products) {
-				desiredProducts.add(Database.lookupItem((String)o));
+				if (o instanceof String) { //legacy
+					Consumable c = Database.lookupItem((String)o);
+					desiredProducts.put(c, new FactoryProduct(c));
+				}
+				else {
+					JSONObject prod = (JSONObject)o;
+					Consumable c = Database.lookupItem(prod.getString("id"));
+					FactoryProduct pp = new FactoryProduct(c);
+					pp.isSinking = prod.getBoolean("sink");
+					desiredProducts.put(c, pp);
+				}
 			}
 			WaitDialogManager.instance.setTaskProgress(taskID, 80);
 			if (toggs == null) {

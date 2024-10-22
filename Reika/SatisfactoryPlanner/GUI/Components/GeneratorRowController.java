@@ -99,7 +99,7 @@ public class GeneratorRowController extends FXMLControllerBase {
 			lb.setStyle(GuiSystem.getFontStyle(FontModifier.SEMIBOLD)+" -fx-font-size:24; -fx-text-fill:#E69344;");
 			fuelBar.getChildren().add(lb);
 		}
-		if (fuelBar.getChildren().size() > 1) //remove last trailing OR
+		if (fuelBar.getChildren().size() > 1) //remove last trailing +
 			fuelBar.getChildren().removeLast();
 	}
 

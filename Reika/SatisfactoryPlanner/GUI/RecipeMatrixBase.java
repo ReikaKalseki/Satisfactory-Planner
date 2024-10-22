@@ -31,8 +31,8 @@ import Reika.SatisfactoryPlanner.Data.Objects.Fuel;
 import Reika.SatisfactoryPlanner.Data.Objects.Recipe;
 import Reika.SatisfactoryPlanner.Data.Objects.Buildables.Generator;
 import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.ResourceSupply;
-import Reika.SatisfactoryPlanner.GUI.Components.ItemRateController;
 import Reika.SatisfactoryPlanner.GUI.RecipeMatrixContainer.MatrixType;
+import Reika.SatisfactoryPlanner.GUI.Components.ItemRateController;
 import Reika.SatisfactoryPlanner.Util.CountMap;
 import Reika.SatisfactoryPlanner.Util.Errorable.ErrorableWithArgument;
 import Reika.SatisfactoryPlanner.Util.Logging;
@@ -530,6 +530,9 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 
 	@Override
 	public final void onRemoveProducts(Collection<Consumable> c) {}
+
+	@Override
+	public final void onToggleProductSink(Consumable c) {}
 
 	@Override
 	public final void onAddSupply(ResourceSupply s) {

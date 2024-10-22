@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+
+<GridPane hgap="2.0" stylesheets="@../CSS/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Reika.SatisfactoryPlanner.GUI.Components.GeneratorStatRowController">
+   <columnConstraints>
+      <ColumnConstraints fillWidth="false" hgrow="NEVER" />
+      <ColumnConstraints fillWidth="false" hgrow="NEVER" />
+      <ColumnConstraints fillWidth="false" hgrow="NEVER" minWidth="27.0" />
+      <ColumnConstraints fillWidth="false" hgrow="NEVER" />
+      <ColumnConstraints fillWidth="false" hgrow="NEVER" minWidth="64.0" />
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints vgrow="SOMETIMES" />
+   </rowConstraints>
+   <children>
+      <ImageView fx:id="icon" fitHeight="64.0" fitWidth="64.0" pickOnBounds="true" preserveRatio="true" />
+      <Label fx:id="powerGenText" text="power" GridPane.columnIndex="4" />
+      <Label alignment="BOTTOM_RIGHT" text="x" GridPane.columnIndex="1">
+         <padding>
+            <Insets left="4.0" />
+         </padding>
+      </Label>
+      <Label alignment="BOTTOM_RIGHT" layoutX="82.0" layoutY="32.0" text="=" GridPane.columnIndex="3">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+      </Label>
+      <HBox fx:id="fuelBar" alignment="CENTER_LEFT" minHeight="64.0" minWidth="8.0" styleClass="dark-pane" GridPane.columnIndex="5">
+         <GridPane.margin>
+            <Insets left="8.0" />
+         </GridPane.margin></HBox>
+      <Label fx:id="countSumText" layoutX="200.0" layoutY="34.0" text="sum" GridPane.columnIndex="2" />
+   </children>
+</GridPane>

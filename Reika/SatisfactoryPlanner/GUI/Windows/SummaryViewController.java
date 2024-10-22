@@ -7,6 +7,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.EnumSet;
 
 import javax.imageio.ImageIO;
 
@@ -17,7 +18,9 @@ import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Data.Constants.Purity;
 import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Data.Factory;
+import Reika.SatisfactoryPlanner.Data.Objects.Fuel;
 import Reika.SatisfactoryPlanner.Data.Objects.Recipe;
+import Reika.SatisfactoryPlanner.Data.Objects.Buildables.Generator;
 import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.BaseResourceNode;
 import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.FrackingCluster;
 import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.FromFactorySupply;
@@ -30,6 +33,7 @@ import Reika.SatisfactoryPlanner.GUI.GuiSystem;
 import Reika.SatisfactoryPlanner.GUI.GuiUtil;
 import Reika.SatisfactoryPlanner.GUI.UIConstants;
 import Reika.SatisfactoryPlanner.GUI.Components.FactoryStatisticsContainer;
+import Reika.SatisfactoryPlanner.GUI.Components.ItemCountController;
 import Reika.SatisfactoryPlanner.GUI.Components.ItemRateController;
 import Reika.SatisfactoryPlanner.GUI.Components.ListCells.RecipeListCell;
 import Reika.SatisfactoryPlanner.Util.ColorUtil;
@@ -49,6 +53,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TitledPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -83,6 +88,15 @@ public class SummaryViewController extends FactoryStatisticsContainer {
 
 	@FXML
 	protected TilePane buttonBar;
+
+	@FXML
+	protected TitledPane generatorPanel;
+
+	@FXML
+	protected TitledPane supplyPanel;
+
+	@FXML
+	protected VBox generatorList;
 
 	@Override
 	public void init(HostServices services) throws IOException {
@@ -127,12 +141,41 @@ public class SummaryViewController extends FactoryStatisticsContainer {
 	@Override
 	public void setFactory(Factory f) {
 		super.setFactory(f);
-		this.updateStats(true);
+		this.updateStats();
+	}
+
+	private void setPanelVisibility(TitledPane tp, boolean vis) {
+		tp.setVisible(vis);
+		tp.setManaged(vis);
 	}
 
 	@Override
-	public void updateStats(boolean warnings, boolean buildings, boolean production, boolean consuming, boolean local, boolean power, boolean tier) {
-		super.updateStats(warnings, buildings, production, consuming, local, power, tier);
+	public void updateStats(EnumSet<StatFlags> flags) {
+		super.updateStats(flags);
+
+		generatorList.getChildren().clear();
+
+		boolean gens = factory.getTotalGeneratorCount() > 0;
+		this.setPanelVisibility(generatorPanel, gens);
+		if (gens) {
+			for (Generator g : Database.getAllGenerators()) {
+				if (factory.getCount(g) > 0) {
+					HBox hb = new HBox();
+					hb.setSpacing(24);
+					hb.getChildren().add(g.createImageView(32));
+					for (Fuel f : g.getFuels()) {
+						int amt = factory.getCount(g, f);
+						if (amt > 0) {
+							ItemCountController cc = GuiUtil.addIconCount(f.item, amt, 4, true, hb).controller;
+						}
+					}
+					generatorList.getChildren().add(hb);
+				}
+			}
+		}
+
+		this.setPanelVisibility(supplyPanel, !factory.getSupplies().isEmpty());
+		this.setPanelVisibility(warningPanel, this.areWarningsActive());
 
 		wrapperPanel.setText("Factory \""+factory.name+"\"");
 

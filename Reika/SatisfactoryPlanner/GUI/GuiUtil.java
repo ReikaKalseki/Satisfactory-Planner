@@ -463,28 +463,28 @@ public class GuiUtil {
 		return gui;
 	}
 
-	public static final GuiInstance<ItemCountController> addIconCount(Resource c, float amt, int digits, ExpandingTilePane container) {
-		return addIconCount(c, amt, digits, inner -> container.addEntry(inner));
+	public static final GuiInstance<ItemCountController> addIconCount(Resource c, float amt, int digits, boolean compress, ExpandingTilePane container) {
+		return addIconCount(c, amt, digits, compress, inner -> container.addEntry(inner));
 	}
 
-	public static final GuiInstance<ItemCountController> addIconCount(Resource c, float amt, int digits, Pane container) {
-		return addIconCount(c, amt, digits, inner -> container.getChildren().add(inner.rootNode));
+	public static final GuiInstance<ItemCountController> addIconCount(Resource c, float amt, int digits, boolean compress, Pane container) {
+		return addIconCount(c, amt, digits, compress, inner -> container.getChildren().add(inner.rootNode));
 	}
 
-	public static final GuiInstance<ItemCountController> addIconCount(Resource c, float amt, int digits, TabPane container) {
-		return addIconCount(c, amt, digits, inner -> {Tab t = new Tab(); t.setContent(inner.rootNode); container.getTabs().add(t);});
+	public static final GuiInstance<ItemCountController> addIconCount(Resource c, float amt, int digits, boolean compress, TabPane container) {
+		return addIconCount(c, amt, digits, compress, inner -> {Tab t = new Tab(); t.setContent(inner.rootNode); container.getTabs().add(t);});
 	}
 
-	public static final GuiInstance<ItemCountController> addIconCount(Resource c, float amt, int digits, Tab container) {
-		return addIconCount(c, amt, digits, inner -> {container.setContent(inner.rootNode);});
+	public static final GuiInstance<ItemCountController> addIconCount(Resource c, float amt, int digits, boolean compress, Tab container) {
+		return addIconCount(c, amt, digits, compress, inner -> {container.setContent(inner.rootNode);});
 	}
 
-	public static final GuiInstance<ItemCountController> addIconCount(Resource c, float amt, int digits, GridPane container, int col, int row) {
-		return addIconCount(c, amt, digits, inner -> container.add(inner.rootNode, col, row));
+	public static final GuiInstance<ItemCountController> addIconCount(Resource c, float amt, int digits, boolean compress, GridPane container, int col, int row) {
+		return addIconCount(c, amt, digits, compress, inner -> container.add(inner.rootNode, col, row));
 	}
 
-	public static GuiInstance<ItemCountController> addIconCount(Resource r, float amt, int digits, Consumer<GuiInstance<ItemCountController>> acceptor) {
-		ItemCountController c = new ItemCountController(r, amt);
+	public static GuiInstance<ItemCountController> addIconCount(Resource r, float amt, int digits, boolean compress, Consumer<GuiInstance<ItemCountController>> acceptor) {
+		ItemCountController c = new ItemCountController(r, amt, compress);
 		GuiInstance<ItemCountController> gui = new GuiInstance<ItemCountController>(c.getRootNode(), c);
 		gui.controller.setMaxLength(digits);
 		acceptor.accept(gui);
@@ -649,6 +649,8 @@ public class GuiUtil {
 		p.setMinWidth(Region.USE_COMPUTED_SIZE);
 		p.setMaxHeight(Double.MAX_VALUE);
 		p.setMinHeight(Region.USE_COMPUTED_SIZE);
+		p.managedProperty().bind(n.managedProperty());
+		p.visibleProperty().bind(n.visibleProperty());
 		reparent(n, p);
 		GridPane bolts = new GridPane();
 		bolts.setMouseTransparent(true);

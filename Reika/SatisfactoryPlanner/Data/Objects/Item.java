@@ -19,4 +19,8 @@ public class Item extends Consumable {
 		return c instanceof Fluid ? -1 : super.compareTo(c);
 	}
 
+	public boolean isSinkable() {
+		return sinkValue > 0;
+	}
+
 }

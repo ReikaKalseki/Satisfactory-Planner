@@ -211,7 +211,7 @@ public class ResourceNodeController extends RadioTitledPaneSection {
 		yieldDisplay.getChildren().clear();
 		if (res != null && res.getResource() != null && res.getYield() > 0) {
 			res.setClockSpeed(clockSpeed/100F);
-			GuiUtil.addIconCount(res.getResource(), res.getYield(), 4, yieldDisplay);
+			GuiUtil.addIconCount(res.getResource(), res.getYield(), 4, false, yieldDisplay);
 		}
 	}
 

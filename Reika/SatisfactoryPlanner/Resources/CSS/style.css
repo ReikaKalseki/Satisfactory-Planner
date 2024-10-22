@@ -326,6 +326,26 @@
 	-fx-background-color: "#E69344";
 }
 
+.widget .toggle-switch .thumb {
+    -fx-background-color: "#CCCCCC";
+    -fx-border-color: "#3F3F3F";
+    -fx-border-radius: 12;
+    -fx-border-thickness: 1;
+	-thumb-move-animation-time: 1000;
+}
+
+.widget .toggle-switch .thumb-area {
+    -fx-background-color: "#7D7D7D";
+    -fx-border-color: "#3F3F3F";
+    -fx-border-radius: 12;
+    -fx-border-thickness: 1;
+    -fx-min-width: 80;
+}
+
+.widget .toggle-switch:selected .thumb-area {
+    -fx-background-color: #E69344;
+}
+
 .scroll-bar {
 	-fx-font-size: 16px;
 	-fx-background-color: "#7D7D7D";

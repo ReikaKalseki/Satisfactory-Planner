@@ -3,6 +3,7 @@ package Reika.SatisfactoryPlanner.GUI.Components;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -63,6 +64,12 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 	protected ExpandingTilePane<PowerBreakdownEntryController> powerBreakdown;
 
 	@FXML
+	protected ExpandingTilePane<ItemRateController> sinkBreakdown;
+
+	@FXML
+	protected Label sinkPoints;
+
+	@FXML
 	protected GridPane statisticsGrid;
 
 	@FXML
@@ -78,6 +85,8 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 	protected TitledPane wrapperPanel;
 
 	private GuiInstance<TierLampController>[] tierLamps = null;
+
+	private boolean anyWarnings;
 
 	protected Factory factory;
 
@@ -96,10 +105,16 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 		this.bindRowHeight(2, netConsumptionBar);
 		this.bindRowHeight(3, netProductBar);
 		this.bindRowHeight(4, deficiencyBar);
+		if (powerBreakdown != null)
+			this.bindRowHeight(6, powerBreakdown);
+		if (sinkBreakdown != null)
+			this.bindRowHeight(7, sinkBreakdown);
 
 		tierBar.minRowHeight = 32;
 		if (powerBreakdown != null)
 			powerBreakdown.minRowHeight = 32;
+		if (sinkBreakdown != null)
+			sinkBreakdown.minRowHeight = 40;
 		buildingBar.minRowHeight = 40;
 		buildCostBar.minRowHeight = 40;
 		netConsumptionBar.minRowHeight = 40;
@@ -130,13 +145,13 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 	private void updateWarnings() {
 		ArrayList<Warning> li = new ArrayList();
 		factory.getWarnings(w -> li.add(w));
-		boolean any = !li.isEmpty();
+		anyWarnings = !li.isEmpty();
 		Collections.sort(li);
 		warningList.getChildren().clear();
 		for (Warning w : li) {
 			warningList.getChildren().add(w.createUI());
 		}
-		if (!any) {
+		if (!anyWarnings) {
 			Label lb = new Label("None - Your Factory Is Perfectly Efficient!");
 			lb.setFont(GuiSystem.getFont());
 			lb.setStyle("-fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.OKAY_COLOR)+";");
@@ -144,15 +159,20 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 		}
 	}
 
-	public final void updateStats(boolean all) {
-		this.updateStats(all, all, all, all, all, all, all);
+	public final void updateStats() {
+		this.updateStats(EnumSet.allOf(StatFlags.class));
 	}
 
-	public void updateStats(boolean warnings, boolean buildings, boolean production, boolean consuming, boolean local, boolean power, boolean tier) {
-		if (warnings)
+	public final void updateStats(StatFlags... flags) {
+		if (flags.length > 0)
+			this.updateStats(EnumSet.copyOf(JavaUtil.makeListFrom(flags)));
+	}
+
+	public void updateStats(EnumSet<StatFlags> flags) {
+		if (flags.contains(StatFlags.WARNINGS))
 			this.updateWarnings();
 
-		if (buildings) {
+		if (flags.contains(StatFlags.BUILDINGS)) {
 			buildCostBar.clear();
 			buildingBar.clear();
 
@@ -160,7 +180,7 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 			CountMap<Building> bc = factory.getBuildings();
 			for (Building b : JavaUtil.sorted(bc.keySet())) {
 				int amt = bc.get(b);
-				GuiUtil.addIconCount(b, amt, 5, buildingBar);
+				GuiUtil.addIconCount(b, amt, 5, false, buildingBar);
 
 				for (Entry<Item, Integer> e : b.getConstructionCost().entrySet()) {
 					cost.increment(e.getKey(), e.getValue()*amt);
@@ -168,18 +188,33 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 			}
 
 			for (Item i : JavaUtil.sorted(cost.keySet(), (i1, i2) -> i1.compareTo(i2))) {
-				GuiUtil.addIconCount(i, cost.get(i), 5, buildCostBar);
+				GuiUtil.addIconCount(i, cost.get(i), 5, false, buildCostBar);
 			}
 		}
 
-		if (tier) {
+		if (flags.contains(StatFlags.TIER)) {
 			int max = factory.getMaxTier();
 			for (int i = 0; i < tierLamps.length; i++) {
 				tierLamps[i].controller.setState(i <= max);
 			}
 		}
 
-		if (power) {
+		if (flags.contains(StatFlags.SINK)) {
+			TreeMap<Item, Integer> breakdown = sinkBreakdown == null ? null : new TreeMap();
+			int points = factory.computeSinkPoints(breakdown);
+			if (sinkPoints != null)
+				sinkPoints.setText(String.format("%d / min", points));
+			if (sinkBreakdown != null) {
+				sinkBreakdown.getChildren().clear();
+				for (Entry<Item, Integer> e : breakdown.entrySet()) {
+					//ItemSinkPointsController c = new ItemSinkPointsController(e.getKey(), e.getValue());
+					//GuiInstance<ItemSinkPointsController> gui = new GuiInstance<ItemSinkPointsController>(c.getRootNode(), c);
+					this.center(sinkBreakdown, GuiUtil.createItemView(e.getKey(), e.getValue().floatValue(), sinkBreakdown));
+				}
+			}
+		}
+
+		if (flags.contains(StatFlags.POWER)) {
 			float[] avgMinMax = new float[3];
 			TreeMap<FunctionalBuilding, Float> breakdown = powerBreakdown == null ? null : new TreeMap();
 			factory.computeNetPowerProduction(avgMinMax, breakdown);
@@ -224,7 +259,8 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 					GuiUtil.addIconCount(netProductBar, c, amt);
 			}
 		}*/
-		if (consuming) {
+
+		if (flags.contains(StatFlags.CONSUMPTION)) {
 			netConsumptionBar.clear();
 			deficiencyBar.clear();
 
@@ -240,7 +276,8 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 				}
 			}
 		}
-		if (production) {
+
+		if (flags.contains(StatFlags.PRODUCTION)) {
 			netProductBar.clear();
 			HashSet<Consumable> set = new HashSet(factory.getAllProducedItems());
 			if (Setting.INOUT.getCurrentValue() != InputInOutputOptions.EXCLUDE)
@@ -269,6 +306,31 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 		//exp.setVgap(Math.max(exp.getVgap(), 16+8));
 		exp.setPadding(new Insets(0, 4, 0, 4));
 		return gui;
+	}
+
+	protected final EnumSet<StatFlags> getAllExcept(StatFlags... flags) {
+		EnumSet<StatFlags> set = EnumSet.allOf(StatFlags.class);
+		if (flags.length == 1)
+			set.remove(flags[0]);
+		else if (flags.length > 0)
+			set.removeAll(JavaUtil.makeListFrom(flags));
+		return set;
+	}
+
+	protected final boolean areWarningsActive() {
+		return anyWarnings;
+	}
+
+	protected static enum StatFlags {
+		WARNINGS,
+		BUILDINGS,
+		PRODUCTION,
+		CONSUMPTION,
+		LOCALSUPPLY,
+		POWER,
+		TIER,
+		SINK,
+		;
 	}
 }
 

@@ -62,6 +62,15 @@
             "count_Desc_RocketFuel_C": 0
         },
         {
+            "count_Desc_Leaves_C": 0,
+            "count_Desc_Mycelia_C": 0,
+            "count_Desc_Biofuel_C": 0,
+            "id": "Build_GeneratorBiomass_Automated_C",
+            "count_Desc_GenericBiomass_C": 0,
+            "count_Desc_Wood_C": 0,
+            "count_Desc_PackagedBiofuel_C": 0
+        },
+        {
             "count_Desc_FicsoniumFuelRod_C": 0,
             "count_Desc_NuclearFuelRod_C": 0,
             "id": "Build_GeneratorNuclear_C",
@@ -72,25 +81,9 @@
             "count_Desc_CompactedCoal_C": 0,
             "count_Desc_PetroleumCoke_C": 0,
             "id": "Build_GeneratorCoal_C"
-        },
-        {
-            "count_Desc_Leaves_C": 0,
-            "count_Desc_Mycelia_C": 0,
-            "count_Desc_Biofuel_C": 0,
-            "id": "Build_GeneratorBiomass_Automated_C",
-            "count_Desc_GenericBiomass_C": 0,
-            "count_Desc_Wood_C": 0,
-            "count_Desc_PackagedBiofuel_C": 0
         }
     ],
     "resources": [
-        {
-            "item": "Desc_OreCopper_C",
-            "purity": "NORMAL",
-            "clock": 1.5,
-            "type": "MINER",
-            "miner": "TWO"
-        },
         {
             "item": "Desc_Coal_C",
             "purity": "PURE",
@@ -100,21 +93,34 @@
         },
         {
             "item": "Desc_OreIron_C",
-            "purity": "NORMAL",
+            "purity": "PURE",
             "clock": 1,
             "type": "MINER",
             "miner": "TWO"
         },
         {
             "item": "Desc_OreIron_C",
-            "purity": "PURE",
+            "purity": "NORMAL",
             "clock": 1,
+            "type": "MINER",
+            "miner": "TWO"
+        },
+        {
+            "item": "Desc_OreCopper_C",
+            "purity": "NORMAL",
+            "clock": 1.5,
             "type": "MINER",
             "miner": "TWO"
         }
     ],
     "products": [
-        "Desc_Motor_C",
-        "Desc_SpaceElevatorPart_3_C"
+        {
+            "sink": false,
+            "id": "Desc_Motor_C"
+        },
+        {
+            "sink": true,
+            "id": "Desc_SpaceElevatorPart_3_C"
+        }
     ]
 }

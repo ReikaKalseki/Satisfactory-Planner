@@ -46,6 +46,11 @@ public class ExpandingTilePane<C extends SizedControllerBase> extends TilePane {
 		nodes.put(g.rootNode, g);
 	}
 
+	public void removeEntry(GuiInstance<C> g) {
+		this.getChildren().remove(g.rootNode);
+		nodes.remove(g.rootNode, g);
+	}
+
 	private void recomputeSize(double w0) {
 		if (!needsResize)
 			return;

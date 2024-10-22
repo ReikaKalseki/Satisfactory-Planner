@@ -27,12 +27,12 @@ public class ItemCountController extends SizedControllerBase {
 
 	public final Resource item;
 
-	public ItemCountController(Resource c, float amt) {
+	public ItemCountController(Resource c, float amt, boolean compress) {
 		item = c;
 
-		root.setSpacing(4);
+		root.setSpacing(compress ? 8 : 4);
 		root.setAlignment(Pos.CENTER);
-		itemBox = GuiUtil.createItemDisplay(c, 32, false);
+		itemBox = GuiUtil.createItemDisplay(c, 32, compress);
 		root.getChildren().add(itemBox);
 		root.getChildren().add(countLabel);
 		this.setAmount(amt);

@@ -65,6 +65,7 @@
                         <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" valignment="CENTER" vgrow="SOMETIMES" />
                         <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
                         <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" prefHeight="32.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="32.0" vgrow="SOMETIMES" />
                         <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" prefHeight="32.0" vgrow="SOMETIMES" />
                      </rowConstraints>
                      <children>
@@ -78,15 +79,17 @@
                         <ExpandingTilePane fx:id="netProductBar" hgap="16.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" tileAlignment="CENTER_LEFT" vgap="8.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                         <Label layoutX="20.0" layoutY="172.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" text="Net Output" GridPane.rowIndex="3" />
                         <ExpandingTilePane fx:id="netConsumptionBar" hgap="16.0" layoutX="140.0" layoutY="128.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" tileAlignment="CENTER_LEFT" vgap="8.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                        <Label layoutX="20.0" layoutY="164.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Required Tiers" GridPane.rowIndex="6" />
-                        <ExpandingTilePane fx:id="tierBar" layoutX="152.0" layoutY="128.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" tileAlignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                        <Label layoutX="20.0" layoutY="164.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" text="Required Tiers" GridPane.rowIndex="7" />
+                        <ExpandingTilePane fx:id="tierBar" layoutX="152.0" layoutY="128.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" tileAlignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="7" />
                         <Label layoutX="20.0" layoutY="128.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Deficiencies" GridPane.rowIndex="4" />
                         <ExpandingTilePane fx:id="deficiencyBar" hgap="16.0" layoutX="164.0" layoutY="128.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" tileAlignment="CENTER_LEFT" vgap="8.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                        <Label layoutX="20.0" layoutY="196.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Sink Points" GridPane.rowIndex="6" />
+                        <Label fx:id="sinkPoints" layoutX="164.0" layoutY="240.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="0" GridPane.columnIndex="1" GridPane.rowIndex="6" />
                      </children>
                   </GridPane>
                </content>
             </TitledPane>
-            <TitledPane collapsible="false" layoutX="14.0" layoutY="316.0" styleClass="panel" text="Resource Supplies">
+            <TitledPane fx:id="supplyPanel" collapsible="false" layoutX="14.0" layoutY="316.0" styleClass="panel" text="Resource Supplies">
                <content>
                   <GridPane fx:id="supplyGrid" hgap="4.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vgap="4.0">
                      <columnConstraints>
@@ -113,6 +116,11 @@
                         <RowConstraints minHeight="10.0" prefHeight="30.0" />
                      </rowConstraints>
                   </GridPane>
+               </content>
+            </TitledPane>
+            <TitledPane fx:id="generatorPanel" collapsible="false" layoutX="14.0" layoutY="428.0" styleClass="panel" text="Generators">
+               <content>
+                  <VBox fx:id="generatorList" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="8.0" />
                </content>
             </TitledPane>
             <TitledPane fx:id="warningPanel" collapsible="false" styleClass="panel" text="Warnings" VBox.vgrow="ALWAYS">

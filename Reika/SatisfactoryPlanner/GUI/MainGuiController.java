@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map.Entry;
@@ -45,6 +46,7 @@ import Reika.SatisfactoryPlanner.GUI.GuiUtil.SearchableSelector;
 import Reika.SatisfactoryPlanner.GUI.Components.FactoryStatisticsContainer;
 import Reika.SatisfactoryPlanner.GUI.Components.GeneratorRowController;
 import Reika.SatisfactoryPlanner.GUI.Components.ItemCountController;
+import Reika.SatisfactoryPlanner.GUI.Components.ItemOutputController;
 import Reika.SatisfactoryPlanner.GUI.Components.ListCells.BuildingListCell;
 import Reika.SatisfactoryPlanner.GUI.Components.ListCells.DecoratedListCell;
 import Reika.SatisfactoryPlanner.GUI.Components.ListCells.ItemListCell;
@@ -73,14 +75,12 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
@@ -156,6 +156,9 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	private VBox generatorList;
 
 	@FXML
+	private VBox sinkList;
+
+	@FXML
 	private TitledPane gridContainer;
 
 	@FXML
@@ -198,7 +201,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	private Tab powerTab;
 
 	@FXML
-	private ExpandingTilePane productGrid;
+	private ExpandingTilePane<ItemOutputController> productGrid;
 
 	@FXML
 	private MenuItem quitMenu;
@@ -284,7 +287,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 
 	private final EnumMap<ToggleableVisiblityGroup, CheckBox> toggleFilters = new EnumMap(ToggleableVisiblityGroup.class);
 	private final HashMap<Generator, GuiInstance<GeneratorRowController>> generators = new HashMap();
-	private final HashMap<Consumable, ProductButton> productButtons = new HashMap();
+	private final HashMap<Consumable, GuiInstance<ItemOutputController>> productButtons = new HashMap();
 	private final HashMap<ResourceSupply, GuiInstance<? extends ResourceSupplyEntryController>> supplyEntries = new HashMap();
 	private final HashMap<Node, GuiInstance<? extends ResourceSupplyEntryController>> supplyEntryNodes = new HashMap();
 	private int maxAllowedTier = 999;
@@ -712,12 +715,18 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 		rebuilding = true;
 		this.rebuildLists(true, true, true);
 
+		for (GuiInstance<ItemOutputController> g : productButtons.values())
+			productGrid.getChildren().remove(g.rootNode);
+
+		productButtons.clear();
+		supplyEntries.clear();
+		supplyEntryNodes.clear();
+
 		factoryName.setText(factory.name);
 		for (ToggleableVisiblityGroup tv : ToggleableVisiblityGroup.values()) {
 			toggleFilters.get(tv).setSelected(factory.getToggle(tv));
 		}
 
-		productGrid.getChildren().removeIf(n -> n instanceof ProductButton);
 		for (Consumable c : factory.getDesiredProducts())
 			this.onAddProduct(c);
 
@@ -733,16 +742,16 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 			this.onAddSupply(res);
 		}
 
-		this.updateStats(true);
+		this.updateStats();
 
 		this.layout();
 		rebuilding = false;
 	}
 
 	@Override
-	public void updateStats(boolean warnings, boolean buildings, boolean production, boolean consuming, boolean local, boolean power, boolean tier) {
-		super.updateStats(warnings, buildings, production, consuming, local, power, tier);
-		if (local) {
+	public void updateStats(EnumSet<StatFlags> flags) {
+		super.updateStats(flags);
+		if (flags.contains(StatFlags.LOCALSUPPLY)) {
 			localSupplyTotals.getChildren().clear();
 			TreeMap<Consumable, Float> totalSupply = new TreeMap();
 			for (ResourceSupply res : factory.getSupplies()) {
@@ -751,7 +760,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 				totalSupply.put(res.getResource(), put);
 			}
 			for (Consumable c : totalSupply.keySet()) {
-				GuiUtil.addIconCount(c, totalSupply.get(c), 5, localSupplyTotals);
+				GuiUtil.addIconCount(c, totalSupply.get(c), 5, false, localSupplyTotals);
 			}
 		}
 
@@ -761,30 +770,30 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	@Override
 	public void onAddRecipe(Recipe r) {
 		this.rebuildLists(true, false, false);
-		this.updateStats(true, true, true, true, false, true, true);
+		this.updateStats(this.getAllExcept(StatFlags.LOCALSUPPLY));
 	}
 
 	@Override
 	public void onAddRecipes(Collection<Recipe> c) {
 		this.rebuildLists(true, false, false);
-		this.updateStats(true, true, true, true, false, true, true);
+		this.updateStats(this.getAllExcept(StatFlags.LOCALSUPPLY));
 	}
 
 	@Override
 	public void onRemoveRecipe(Recipe r) {
 		this.rebuildLists(true, false, false);
-		this.updateStats(true, true, true, true, false, true, true);
+		this.updateStats(this.getAllExcept(StatFlags.LOCALSUPPLY));
 	}
 
 	@Override
 	public void onRemoveRecipes(Collection<Recipe> c) {
 		this.rebuildLists(true, false, false);
-		this.updateStats(true, true, true, true, false, true, true);
+		this.updateStats(this.getAllExcept(StatFlags.LOCALSUPPLY));
 	}
 
 	@Override
 	public void onSetCount(Recipe r, float count) {
-		this.updateStats(true, true, true, true, false, true, false);
+		this.updateStats(this.getAllExcept(StatFlags.LOCALSUPPLY));
 	}
 
 	@Override
@@ -802,33 +811,39 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 		for (GuiInstance<GeneratorRowController> gui : generators.values()) {
 			gui.controller.setWidths(count, count);
 		}*/
-		this.updateStats(true, true, true, true, false, true, count == 0 || old == 0);
+		EnumSet<StatFlags> set = this.getAllExcept(StatFlags.LOCALSUPPLY, StatFlags.TIER);
+		if (count == 0 || old == 0)
+			set.add(StatFlags.TIER);
+		this.updateStats(set);
 	}
 
 	@Override
 	public void onAddProduct(Consumable c) {
-		productGrid.getChildren().add(new ProductButton(c));
-		this.updateStats(true, false, true, false, false, false, false);
+		ItemOutputController ic = new ItemOutputController(c, factory);
+		GuiInstance<ItemOutputController> gui = new GuiInstance(ic.getRootNode(), ic);
+		productButtons.put(c, gui);
+		productGrid.addEntry(gui);
+		this.updateStats(StatFlags.WARNINGS, StatFlags.PRODUCTION);
 	}
 
 	@Override
 	public void onRemoveProduct(Consumable c) {
-		productGrid.getChildren().remove(productButtons.get(c));
-		this.updateStats(true, false, true, false, false, false, false);
+		productGrid.removeEntry(productButtons.get(c));
+		this.updateStats(StatFlags.WARNINGS, StatFlags.PRODUCTION, StatFlags.SINK);
 	}
 
 	@Override
 	public void onRemoveProducts(Collection<Consumable> c) {
 		for (Consumable cc : c)
-			productGrid.getChildren().remove(productButtons.get(cc));
-		this.updateStats(true, false, true, false, false, false, false);
+			productGrid.removeEntry(productButtons.get(cc));
+		this.updateStats(StatFlags.WARNINGS, StatFlags.PRODUCTION, StatFlags.SINK);
 	}
 
 	@Override
 	public void onAddSupply(ResourceSupply res) {
 		this.addResourceEntry(res);
 		this.rebuildLists(false, false, true);
-		this.updateStats(true, true, true, true, true, true, false);
+		this.updateStats();
 	}
 
 	private void addResourceEntry(ResourceSupply res) {
@@ -859,7 +874,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	public void onAddSupplies(Collection<? extends ResourceSupply> c) {
 		for (ResourceSupply res : c)
 			this.addResourceEntry(res);
-		this.updateStats(true, true, true, true, true, true, false);
+		this.updateStats();
 	}
 
 	private <C extends ResourceSupplyEntryController, R extends ResourceSupply> void addResourceEntry(String fxml, R res) {
@@ -884,14 +899,14 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	@Override
 	public void onRemoveSupply(ResourceSupply s) {
 		inputGrid.getChildren().remove(supplyEntries.get(s).rootNode);
-		this.updateStats(true, true, true, true, true, true, false);
+		this.updateStats();
 	}
 
 	@Override
 	public void onRemoveSupplies(Collection<? extends ResourceSupply> c) {
 		for (ResourceSupply s : c)
 			inputGrid.getChildren().remove(supplyEntries.get(s).rootNode);
-		this.updateStats(true, true, true, true, true, true, false);
+		this.updateStats();
 	}
 
 	@Override
@@ -907,7 +922,12 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 
 	@Override
 	public void onUpdateIO() {
-		this.updateStats(true, true, true, true, true, true, false);
+		this.updateStats();
+	}
+
+	@Override
+	public void onToggleProductSink(Consumable c) {
+		this.updateStats(StatFlags.SINK);
 	}
 
 	@Override
@@ -937,43 +957,6 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	@Override
 	public int getSortIndex() {
 		return Integer.MAX_VALUE;
-	}
-
-	private class ProductButton extends Button {
-
-		public final Consumable item;
-
-		private ProductButton(Consumable c) {
-			item = c;
-			int size = 64;//32;
-			Pane p = new Pane();
-			ImageView ico = new ImageView(c.createIcon(size));
-			p.getChildren().add(ico);
-			GuiUtil.setTooltip(this, c.displayName);
-			this.setPrefWidth(size);
-			this.setPrefHeight(size);
-			this.setMinHeight(Region.USE_PREF_SIZE);
-			this.setMaxHeight(Region.USE_PREF_SIZE);
-			this.setMinWidth(Region.USE_PREF_SIZE);
-			this.setMaxWidth(Region.USE_PREF_SIZE);
-			this.setOnAction(e -> {
-				factory.removeProduct(c);
-			});
-			p.setPrefWidth(size);
-			p.setPrefHeight(size);
-			p.setMinHeight(Region.USE_PREF_SIZE);
-			p.setMaxHeight(Region.USE_PREF_SIZE);
-			p.setMinWidth(Region.USE_PREF_SIZE);
-			p.setMaxWidth(Region.USE_PREF_SIZE);
-			ImageView img = new ImageView(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/delete.png"), 16, 16, true, true));
-			img.layoutXProperty().bind(p.widthProperty().subtract(img.getImage().getWidth()));
-			img.layoutYProperty().bind(p.heightProperty().subtract(img.getImage().getHeight()));
-			p.getChildren().add(img);
-			productButtons.put(c, this);
-			this.setGraphic(p);
-		}
-
-
 	}
 
 	@Override

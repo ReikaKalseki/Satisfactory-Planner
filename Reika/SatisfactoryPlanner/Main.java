@@ -157,7 +157,7 @@ public class Main {
 	public static void updateMainUI() {
 		GuiInstance<MainGuiController> main = GuiSystem.getMainGUI();
 		if (main != null)
-			GuiUtil.runOnJFXThread(() -> main.controller.updateStats(true));
+			GuiUtil.runOnJFXThread(() -> main.controller.updateStats());
 	}
 
 	public static void addRecentFile(File f) {
