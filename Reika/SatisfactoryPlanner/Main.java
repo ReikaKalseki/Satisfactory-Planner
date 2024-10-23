@@ -154,10 +154,16 @@ public class Main {
 		Logging.instance.log("===================");
 	}
 
-	public static void updateMainUI() {
+	public static void updateMainUI(boolean fullRebuild) {
 		GuiInstance<MainGuiController> main = GuiSystem.getMainGUI();
 		if (main != null)
-			GuiUtil.runOnJFXThread(() -> main.controller.updateStats());
+			GuiUtil.runOnJFXThread(() -> {if (fullRebuild) main.controller.rebuildEntireUI(); else main.controller.updateStats();});
+	}
+
+	public static void rebuildMatrices() {
+		GuiInstance<MainGuiController> main = GuiSystem.getMainGUI();
+		if (main != null)
+			GuiUtil.runOnJFXThread(() -> main.controller.getFactory().rebuildMatrices(true));
 	}
 
 	public static void addRecentFile(File f) {

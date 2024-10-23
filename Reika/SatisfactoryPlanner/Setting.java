@@ -15,12 +15,14 @@ public class Setting<S> {
 	//public static final Setting<LogOptions> LOG = new Setting<LogOptions>(LogOptions.RUNTIME, new EnumConverter(LogOptions.class)).addChangeCallback(() -> Logging.instance.updateLogPath());
 	public static final Setting<File> GAMEDIR = new Setting<File>(new File("C:/Program Files (x86)/Steam/steamapps/common/Satisfactory"), FileConverter.instance).addChangeCallback(() -> Main.parseGameData());
 	public static final Setting<Boolean> ALLOWDECIMAL = new Setting<Boolean>(false, BoolConverter.instance);
-	public static final Setting<InputInOutputOptions> INOUT = new Setting<InputInOutputOptions>(InputInOutputOptions.MINES, new EnumConverter(InputInOutputOptions.class)).addChangeCallback(() -> Main.updateMainUI());
-	public static final Setting<Float> IOTHRESH = new Setting<Float>(0F, FloatConverter.instance).addChangeCallback(() -> Main.updateMainUI());
+	public static final Setting<InputInOutputOptions> INOUT = new Setting<InputInOutputOptions>(InputInOutputOptions.MINES, new EnumConverter(InputInOutputOptions.class)).addChangeCallback(() -> Main.updateMainUI(false));
+	public static final Setting<Float> IOTHRESH = new Setting<Float>(0F, FloatConverter.instance).addChangeCallback(() -> Main.updateMainUI(false));
 
 	public static final Setting<Boolean> OPENRECENT = new Setting<Boolean>(true, BoolConverter.instance);
 	public static final Setting<Boolean> SAVERECENT = new Setting<Boolean>(true, BoolConverter.instance);
 	public static final Setting<Boolean> INPUTRECENT = new Setting<Boolean>(false, BoolConverter.instance);
+
+	public static final Setting<Boolean> FIXEDMATRIX = new Setting<Boolean>(false, BoolConverter.instance).addChangeCallback(() -> Main.rebuildMatrices());
 
 	public final S defaultValue;
 	private S currentValue;

@@ -49,6 +49,9 @@ public class SettingsController extends FXMLControllerBase {
 	private CheckBox allowFractional;
 
 	@FXML
+	private CheckBox fixedMatrixSize;
+
+	@FXML
 	private CustomTextField gameDirPath;
 
 	@FXML
@@ -125,7 +128,7 @@ public class SettingsController extends FXMLControllerBase {
 			cancelButton.fire();
 		});
 		GuiUtil.setButtonEvent(chooseGameDir, () -> {
-			File f = this.openDirDialog("Satisfactory Install", Setting.GAMEDIR.getCurrentValue());
+			File f = GuiUtil.openDirDialog(this.getWindow(), "Satisfactory Install", Setting.GAMEDIR.getCurrentValue());
 			if (f != null) {
 				Setting.GAMEDIR.changeValue(f);
 				gameDirPath.setText(Setting.GAMEDIR.getString());
@@ -162,6 +165,7 @@ public class SettingsController extends FXMLControllerBase {
 		});
 
 		this.bindCheckbox(allowFractional, Setting.ALLOWDECIMAL);
+		this.bindCheckbox(fixedMatrixSize, Setting.FIXEDMATRIX);
 		this.bindCheckbox(openRecent, Setting.OPENRECENT);
 		this.bindCheckbox(saveRecent, Setting.SAVERECENT);
 		this.bindCheckbox(inputRecent, Setting.INPUTRECENT);

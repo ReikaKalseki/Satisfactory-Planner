@@ -18,6 +18,7 @@
     "SAVERECENT": "true",
     "INPUTRECENT": "false",
     "CONFIRM_ISOLATE": false,
+    "FIXEDMATRIX": "false",
     "CONFIRM_CLEARCRAFT": false,
     "CONFIRM_SAVEDIFFNAME": true,
     "CONFIRM_NEWOPEN": true,
