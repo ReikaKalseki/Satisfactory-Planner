@@ -1,6 +1,5 @@
 package fxexpansions;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.function.Consumer;
@@ -20,8 +19,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
-import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 public abstract class FXMLControllerBase extends ControllerBase  {
@@ -128,37 +125,6 @@ public abstract class FXMLControllerBase extends ControllerBase  {
 		}
 		put.sizeToScene();
 		put.show();
-	}
-
-	protected final File openDirDialog(String title, File dir) {
-		DirectoryChooser fc = new DirectoryChooser();
-		if (dir != null && dir.exists() && dir.isDirectory())
-			fc.setInitialDirectory(dir);
-		fc.setTitle("Choose "+title+" directory");
-		return fc.showDialog(container);
-	}
-
-	protected final File openFileDialog(String title, File dir, FileChooser.ExtensionFilter... filters) {
-		FileChooser fc = new FileChooser();
-		if (dir != null && dir.exists() && dir.isDirectory())
-			fc.setInitialDirectory(dir);
-		fc.setTitle("Choose "+title+" file");
-		if (filters.length > 0) {
-			for (FileChooser.ExtensionFilter extFilter : filters) {
-				fc.getExtensionFilters().add(extFilter);
-			}
-			fc.setSelectedExtensionFilter(filters[0]);
-		}
-		return fc.showOpenDialog(container);
-	}
-
-	protected final File openSaveAsDialog(String initialName, File dir) {
-		FileChooser fc = new FileChooser();
-		if (dir != null && dir.exists() && dir.isDirectory())
-			fc.setInitialDirectory(dir);
-		fc.setInitialFileName(initialName);
-		fc.setTitle("Choose file");
-		return fc.showSaveDialog(container);
 	}
 
 	protected final void setVisible(Node n, boolean visible) {

@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
@@ -342,7 +343,7 @@ public class Database {
 		String in = obj.getString("mIngredients");
 		String out = obj.getString("mProduct");
 		String time = obj.getString("mManufactoringDuration");
-		FunctionalBuilding b = building == null ? null : (FunctionalBuilding)lookupBuilding(building);
+		CraftingBuilding b = building == null ? null : (CraftingBuilding)lookupBuilding(building);
 		boolean xmas = id.startsWith("Desc_Xmas") || id.startsWith("Recipe_Fireworks") || disp.startsWith("FICSMAS") || obj.getString("mRelevantEvents").contains("EV_Christmas");
 		Recipe r = new Recipe(id, disp, b, Float.parseFloat(time), xmas);
 		tokenizeUERecipeString(in, (c, amt) -> r.addIngredient(c, amt));
@@ -575,8 +576,8 @@ public class Database {
 		Logging.instance.log("Loading direct custom data");
 		loadCustomItemFolder(Main.getRelativeFile("CustomDefinitions/Items"), "Custom", f -> copyTemplate(f, "item"));
 		loadCustomBuildingFolder(Main.getRelativeFile("CustomDefinitions/Buildings"), "Custom", f -> copyTemplate(f, "building"));
-		loadCustomRecipeFolder(Main.getRelativeFile("CustomDefinitions/Recipes"), "Custom", f -> copyTemplate(f, "recipe"));
 		loadCustomMilestoneFolder(Main.getRelativeFile("CustomDefinitions/Milestones"), "Custom", f -> copyTemplate(f, "milestone"));
+		loadCustomRecipeFolder(Main.getRelativeFile("CustomDefinitions/Recipes"), "Custom", f -> copyTemplate(f, "recipe"));
 	}
 
 	private static void copyTemplate(File f, String name) throws IOException {
@@ -593,13 +594,15 @@ public class Database {
 		for (File mod : Main.getModsFolder().listFiles()) {
 			if (mod.isDirectory()) {
 				String name = mod.getName();
+				if (name.startsWith(".git"))
+					continue;
 				Logging.instance.log("Checking mod "+name);
 				File f = new File(mod, "ContentLib");
 				if (f.exists()) {
 					loadCustomItemFolder(new File(f, "Items"), name, null);
 					//loadCustomBuildingFolder(new File(f, "CustomBuildings"), name, null);
-					loadCustomRecipeFolder(new File(f, "Recipes"), name, null);
 					loadCustomMilestoneFolder(new File(f, "Schematics"), name, null);
+					loadCustomRecipeFolder(new File(f, "Recipes"), name, null);
 				}
 				else {
 					Logging.instance.log("No ContentLib. Skipping.");
@@ -681,18 +684,13 @@ public class Database {
 							}
 						}
 					}
-					boolean flag = false;
 					for (Object o : obj.getJSONArray("Recipes")) {
 						String ulock = (String)o;
-						if (allRecipes.containsKey(ulock)) {
-							flag = true;
+						if (allRecipes.containsKey(ulock))
 							m.addRecipe(lookupRecipe(ulock));
-						}
 					}
-					if (flag) {
-						allMilestones.put(obj.getString("ID"), m);
-						allMilestonesSorted.add(m);
-					}
+					allMilestones.put(id, m);
+					allMilestonesSorted.add(m);
 				}
 				catch (Exception e) {
 					Logging.instance.log("Failed to parse custom milestone definition file "+f2.getAbsolutePath());
@@ -715,80 +713,7 @@ public class Database {
 		for (File f2 : f.listFiles()) {
 			if (f2.getName().endsWith(".json") && !f2.getName().startsWith("template")) {
 				try {
-					/* fuck modular java
-				JsonObject data = new Gson().fromJson(new BufferedReader(new FileReader(f2)), JsonObject.class);
-				boolean alt = data.has("alternate") && data.get("alternate").getAsBoolean();
-				Recipe r = new Recipe(data.get("name").getAsString(), alt);
-				for (Entry<String, JsonElement> e : data.get("ingredients").getAsJsonObject().entrySet()) {
-					r.addIngredient(lookupItem(e.getKey()), e.getValue().getAsInt());
-				}
-				for (Entry<String, JsonElement> e : data.get("products").getAsJsonObject().entrySet()) {
-					r.addProduct(lookupItem(e.getKey()), e.getValue().getAsInt());
-				}*/
-					Logging.instance.log("Loading recipe file "+f2);
-					JSONObject obj = new JSONObject(FileUtils.readFileToString(f2, Charsets.UTF_8));
-					String disp = obj.getString("Name");
-					String id = JSONUtil.getString(obj, "ID", f2.getName().replace("Recipe_", ""));
-					Recipe old = allRecipes.get(id);
-					boolean isDelta = false;
-					if (old != null) {
-						isDelta = JSONUtil.getBoolean(obj, "Delta");
-						if (isDelta)
-							Logging.instance.log("Found a custom recipe definition for ID '"+id+"', marked as a delta to "+old+".");
-						else
-							Logging.instance.log("Found a custom recipe definition for ID '"+id+"', which is already mapped to "+old+". It will be replaced.");
-						allAutoRecipesSorted.remove(old);
-					}
-					String build = obj.has("ProducedIn") ? obj.getJSONArray("ProducedIn").getString(0)+"_C" : null;
-					FunctionalBuilding crafter = build == null ? null : (FunctionalBuilding)lookupBuilding(build);
-					if (!isDelta) {
-						if (crafter == null)
-							throw new IllegalArgumentException("Invalid recipe definition - is not a delta but lacks a building");
-					}
-					Recipe r = isDelta ? old : new Recipe(id, disp, crafter, obj.getFloat("ManufacturingDuration"), false);
-					if (isDelta) {
-						if (obj.has("ManufacturingDuration"))
-							r = new Recipe(r.id, r.displayName, r.productionBuilding, obj.getFloat("ManufacturingDuration"), r.isFicsmas);
-						if (crafter != null)
-							r = new Recipe(r.id, r.displayName, crafter, r.craftingTime, r.isFicsmas);
-					}
-					else {
-						r.markModded(mod);
-					}
-					JSONArray ing = JSONUtil.getArray(obj, "Ingredients", null);
-					if (ing == null && !isDelta)
-						throw new IllegalArgumentException("Invalid recipe definition - is not a delta but lacks ingredients");
-					if (ing != null && isDelta)
-						r.clearIngredients();
-					for (Object o : ing) {
-						JSONObject inner = (JSONObject)o;
-						Consumable c = lookupItem(inner.getString("Item")+"_C");
-						int amt = inner.getInt("Amount");
-						if (c instanceof Fluid)
-							amt /= Constants.LIQUID_SCALAR;
-						r.addIngredient(c, amt);
-					}
-					JSONArray prod = JSONUtil.getArray(obj, "Products", null);
-					if (prod == null && !isDelta)
-						throw new IllegalArgumentException("Invalid recipe definition - is not a delta but lacks products");
-					if (prod != null && isDelta)
-						r.clearProducts();
-					for (Object o : prod) {
-						JSONObject inner = (JSONObject)o;
-						Consumable c = lookupItem(inner.getString("Item")+"_C");
-						int amt = inner.getInt("Amount");
-						if (c instanceof Fluid)
-							amt /= Constants.LIQUID_SCALAR;
-						r.addProduct(c, amt);
-					}
-					if (obj.has("UnlockedBy")) {
-						JSONArray milestones = obj.getJSONArray("UnlockedBy");
-						for (int i = 0; i < milestones.length(); i++) {
-							String name = milestones.getString(i)+"_C";
-							if (allMilestones.containsKey(name))
-								r.addMilestone(lookupMilestone(name));
-						}
-					}
+					Recipe r = parseCustomRecipeFile(f2, mod, true);
 					allAutoRecipesSorted.add(r);
 					allRecipes.put(r.id, r);
 					Logging.instance.log("Registered custom recipe type "+r);
@@ -799,6 +724,80 @@ public class Database {
 				}
 			}
 		}
+	}
+
+	public static Recipe parseCustomRecipeFile(File f2, String mod, boolean allowDelta) throws Exception {
+		Logging.instance.log("Loading recipe file "+f2);
+		JSONObject obj = new JSONObject(FileUtils.readFileToString(f2, Charsets.UTF_8));
+		String disp = obj.getString("Name");
+		String id = JSONUtil.getString(obj, "ID", f2.getName().replace("Recipe_", ""));
+		Recipe old = allRecipes.get(id);
+		boolean isDelta = false;
+		if (old != null && allowDelta) {
+			isDelta = JSONUtil.getBoolean(obj, "Delta");
+			if (isDelta)
+				Logging.instance.log("Found a custom recipe definition for ID '"+id+"', marked as a delta to "+old+".");
+			else
+				Logging.instance.log("Found a custom recipe definition for ID '"+id+"', which is already mapped to "+old+". It will be replaced.");
+			allAutoRecipesSorted.remove(old);
+		}
+		String build = obj.has("ProducedIn") ? obj.getJSONArray("ProducedIn").getString(0)+"_C" : null;
+		CraftingBuilding crafter = build == null ? null : (CraftingBuilding)lookupBuilding(build);
+		if (!isDelta) {
+			if (crafter == null)
+				throw new IllegalArgumentException("Invalid recipe definition - is not a delta but lacks a building");
+		}
+		Recipe r = isDelta ? old : new Recipe(id, disp, crafter, obj.getFloat("ManufacturingDuration"), false);
+		if (isDelta) {
+			if (obj.has("ManufacturingDuration"))
+				r = new Recipe(r.id, r.displayName, r.productionBuilding, obj.getFloat("ManufacturingDuration"), r.isFicsmas);
+			if (crafter != null)
+				r = new Recipe(r.id, r.displayName, crafter, r.craftingTime, r.isFicsmas);
+		}
+		else {
+			r.markModded(mod);
+		}
+		JSONArray ing = JSONUtil.getArray(obj, "Ingredients", null);
+		if (ing == null && !isDelta)
+			throw new IllegalArgumentException("Invalid recipe definition - is not a delta but lacks ingredients");
+		if (ing != null && isDelta)
+			r.clearIngredients();
+		for (Object o : ing) {
+			JSONObject inner = (JSONObject)o;
+			Consumable c = lookupItem(inner.getString("Item")+"_C");
+			int amt = inner.getInt("Amount");
+			if (c instanceof Fluid)
+				amt /= Constants.LIQUID_SCALAR;
+			r.addIngredient(c, amt);
+		}
+		JSONArray prod = JSONUtil.getArray(obj, "Products", null);
+		if (prod == null && !isDelta)
+			throw new IllegalArgumentException("Invalid recipe definition - is not a delta but lacks products");
+		if (prod != null && isDelta)
+			r.clearProducts();
+		for (Object o : prod) {
+			JSONObject inner = (JSONObject)o;
+			Consumable c = lookupItem(inner.getString("Item")+"_C");
+			int amt = inner.getInt("Amount");
+			if (c instanceof Fluid)
+				amt /= Constants.LIQUID_SCALAR;
+			r.addProduct(c, amt);
+		}
+		if (obj.has("UnlockedBy")) {
+			JSONArray milestones = obj.getJSONArray("UnlockedBy");
+			for (int i = 0; i < milestones.length(); i++) {
+				String name = milestones.getString(i);
+				if (allMilestones.containsKey(name)) {
+					r.addMilestone(lookupMilestone(name));
+				}
+				else {
+					name = name+"_C";
+					if (allMilestones.containsKey(name))
+						r.addMilestone(lookupMilestone(name));
+				}
+			}
+		}
+		return r;
 	}
 
 	private static void loadCustomItemFolder(File f0, String mod, ErrorableWithArgument<File> createTemplate) throws Exception {
@@ -815,12 +814,14 @@ public class Database {
 			if (f2.getName().endsWith(".json") && !f2.getName().startsWith("template")) {
 				try {
 					JSONObject obj = new JSONObject(FileUtils.readFileToString(f2, Charsets.UTF_8));
-					String form = obj.getString("Form");
+					String form = JSONUtil.getString(obj, "Form", "Solid");
 					boolean gas = form.equalsIgnoreCase("gas") || form.equalsIgnoreCase("plasma");
 					boolean fluid = form.equalsIgnoreCase("liquid") || gas;
 					String disp = obj.getString("Name");
 					String desc = obj.getString("Description");
-					String id = JSONUtil.getString(obj, "ID", f2.getName().replace("Item_", ""));
+					String id = JSONUtil.getString(obj, "ID", f2.getName().replace("Item_", "").replace(".json", ""))+"_C";
+					if (id.endsWith("_C_C"))
+						id = id.substring(0, id.length()-2);
 					String icon = JSONUtil.getString(obj, "Icon", id);
 					String cat = obj.getString("Category");
 					float nrg = JSONUtil.getFloat(obj, "EnergyValue", 0);
@@ -851,13 +852,17 @@ public class Database {
 		}
 	}
 
-	public static File exportCustomRecipe(Recipe r, String mod) throws Exception {
+	public static File exportCustomRecipe(Recipe r, String mod, Function<File, Boolean> alreadyExistsHandler) throws Exception {
 		File dir = Main.getRelativeFile("CustomDefinitions/Recipes");
 		if (!Strings.isNullOrEmpty(mod) && modList.containsKey(mod))
 			dir = new File(Main.getModsFolder(), mod+"/ContentLib/Recipes");
 		dir.mkdirs();
-		File f = new File(dir, r.id+".json");
+		return exportCustomRecipe(r, new File(dir, r.id+".json"), alreadyExistsHandler);
+	}
 
+	public static File exportCustomRecipe(Recipe r, File f, Function<File, Boolean> alreadyExistsHandler) throws Exception {
+		if (f.exists() && !alreadyExistsHandler.apply(f))
+			return null;
 		JSONObject root = new JSONObject();
 		JSONArray ingredients = new JSONArray();
 		JSONArray products = new JSONArray();
@@ -871,16 +876,24 @@ public class Database {
 
 		for (Entry<Consumable, Integer> e : r.getDirectCost().entrySet()) {
 			JSONObject block = new JSONObject();
-			block.put("Item", e.getKey().id.replaceAll("_C$", ""));
-			block.put("Amount", e.getValue());
+			Consumable c = e.getKey();
+			block.put("Item", c.id.replaceAll("_C$", ""));
+			int amt = e.getValue();
+			if (c instanceof Fluid)
+				amt *= Constants.LIQUID_SCALAR;
+			block.put("Amount", amt);
 			ingredients.put(block);
 		}
 		root.put("Ingredients", ingredients);
 
 		for (Entry<Consumable, Integer> e : r.getDirectProducts().entrySet()) {
 			JSONObject block = new JSONObject();
-			block.put("Item", e.getKey().id.replaceAll("_C$", ""));
-			block.put("Amount", e.getValue());
+			Consumable c = e.getKey();
+			block.put("Item", c.id.replaceAll("_C$", ""));
+			int amt = e.getValue();
+			if (c instanceof Fluid)
+				amt *= Constants.LIQUID_SCALAR;
+			block.put("Amount", amt);
 			products.put(block);
 		}
 		root.put("Products", products);

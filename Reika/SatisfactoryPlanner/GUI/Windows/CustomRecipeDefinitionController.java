@@ -2,8 +2,12 @@ package Reika.SatisfactoryPlanner.GUI.Windows;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
+import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import org.controlsfx.control.SearchableComboBox;
@@ -53,7 +57,13 @@ import javafx.stage.Stage;
 public class CustomRecipeDefinitionController extends FXMLControllerBase {
 
 	@FXML
+	private Button loadButton;
+
+	@FXML
 	private Button addButton;
+
+	@FXML
+	private Button clearButton;
 
 	@FXML
 	private TextField idField;
@@ -85,6 +95,8 @@ public class CustomRecipeDefinitionController extends FXMLControllerBase {
 	private final ArrayList<GuiInstance<IngredientDefinitionRowController>> ingredients = new ArrayList();
 	private final ArrayList<GuiInstance<IngredientDefinitionRowController>> products = new ArrayList();
 	private final ArrayList<Milestone> milestones = new ArrayList();
+
+	private File forcedFile;
 
 	@Override
 	public void init(HostServices services) throws IOException {
@@ -130,9 +142,37 @@ public class CustomRecipeDefinitionController extends FXMLControllerBase {
 			for (Milestone m : milestones) {
 				r.addMilestone(m);
 			}
-			File f = Database.exportCustomRecipe(r, modDropdown.getSelectionModel().getSelectedItem());
-			GuiUtil.raiseDialog(AlertType.INFORMATION, "Recipe Exported", "Recipe saved to\n"+GuiUtil.splitToWidth(f.getCanonicalPath(), 400, "(?=[\\s\\\\]+)", GuiSystem.getDefaultFont()), ButtonType.OK);
-			this.close();
+			File f;
+			if (forcedFile == null)
+				f = Database.exportCustomRecipe(r, modDropdown.getSelectionModel().getSelectedItem(), this::verifyFileOverwrite);
+			else
+				f = Database.exportCustomRecipe(r, forcedFile, this::verifyFileOverwrite);
+			if (f != null)
+				GuiUtil.raiseDialog(AlertType.INFORMATION, "Recipe Exported", "Recipe saved to\n"+GuiUtil.splitToWidth(f.getCanonicalPath(), 400, "(?=[\\s\\\\]+)", GuiSystem.getDefaultFont()), ButtonType.OK);
+			//this.close();
+		});
+
+		GuiUtil.setButtonEvent(loadButton, () -> {
+			forcedFile = GuiUtil.openFileDialog(this.getWindow(), "Recipe", Main.getModsFolder());
+			if (forcedFile != null) {
+				Path p1 = Main.getModsFolder().toPath();
+				Path p2 = forcedFile.toPath();
+				String mod = p2.startsWith(p1) ? p1.relativize(p2).toString() : null;
+				if (!Strings.isNullOrEmpty(mod))
+					mod = mod.substring(0, mod.indexOf('\\'));
+				String modInner = mod;
+				try {
+					AtomicReference<Recipe> ref = new AtomicReference();
+					GuiUtil.queueTask("Loading recipe from "+forcedFile.getName(), id -> {ref.set(Database.parseCustomRecipeFile(forcedFile, modInner, false));}, id -> this.setData(ref.get()));
+				}
+				catch (Exception e) {
+					GuiUtil.showException(e, "Recipe could not be loaded.");
+				}
+			}
+		});
+
+		GuiUtil.setButtonEvent(clearButton, () -> {
+			this.setData(null);
 		});
 
 		machineDropdown.setButtonCell(new BuildingListCell("Choose Building...", true));
@@ -142,34 +182,7 @@ public class CustomRecipeDefinitionController extends FXMLControllerBase {
 		GuiUtil.setupAddSelector(milestoneDropdown, new SearchableSelector<Milestone>(){
 			@Override
 			public void accept(Milestone t) {
-				milestoneList.getChildren().add(this.createMilestoneRow(t));
-				milestones.add(t);
-				CustomRecipeDefinitionController.this.getWindow().sizeToScene();
-			}
-
-			private Node createMilestoneRow(Milestone t) {
-				HBox hb = new HBox();
-				hb.setSpacing(12);
-				hb.setAlignment(Pos.CENTER_LEFT);
-				Button b = new Button();
-				b.setGraphic(new ImageView(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/delete.png"))));
-				b.setPrefWidth(32);
-				b.setPrefHeight(32);
-				b.setMinHeight(Region.USE_PREF_SIZE);
-				b.setMaxHeight(Region.USE_PREF_SIZE);
-				b.setMinWidth(Region.USE_PREF_SIZE);
-				b.setMaxWidth(Region.USE_PREF_SIZE);
-				b.setOnAction(e -> {
-					milestones.remove(t);
-					milestoneList.getChildren().remove(hb);
-					CustomRecipeDefinitionController.this.getWindow().sizeToScene();
-				});
-				hb.getChildren().add(b);
-				hb.getChildren().add(new Label(t.displayName));
-				if (milestones.size()%2 == 1) {
-					hb.getStyleClass().add("table-row-darken");
-				}
-				return hb;
+				CustomRecipeDefinitionController.this.addMilestone(t);
 			}
 
 			@Override
@@ -227,6 +240,80 @@ public class CustomRecipeDefinitionController extends FXMLControllerBase {
 		});
 	}
 
+	private boolean verifyFileOverwrite(File f) {
+		return GuiUtil.getConfirmation("Recipe file '"+f.getName()+"' already exists\n(modified "+Main.timeStampFormat.format(new Date(f.lastModified()))+").\n\nDo you want to overwrite it?");
+	}
+
+	private void setData(Recipe r) throws IOException {
+		if (r == null)
+			forcedFile = null;
+		milestoneList.getChildren().removeIf(n -> !(n instanceof ComboBox));
+		milestones.clear();
+		idField.setText(r == null ? "" : r.id);
+		nameField.setText(r == null ? "" : r.displayName);
+		if (r == null || Strings.isNullOrEmpty(r.getMod()))
+			modDropdown.getSelectionModel().clearSelection();
+		else
+			modDropdown.getSelectionModel().select(r.getMod());
+		if (r == null)
+			machineDropdown.getSelectionModel().select(null);
+		else
+			machineDropdown.getSelectionModel().select(r.productionBuilding);
+		if (r == null) {
+			this.createIOSlots(null);
+		}
+		else {
+			for (Milestone t : r.getMilestones()) {
+				this.addMilestone(t);
+			}
+			this.createIOSlots(r.productionBuilding);
+			int i = 0;
+			for (Entry<Consumable, Integer> e : r.getDirectCost().entrySet()) {
+				ingredients.get(i).controller.setItem(e.getKey());
+				ingredients.get(i).controller.setAmount(e.getValue());
+				i++;
+			}
+			i = 0;
+			for (Entry<Consumable, Integer> e : r.getDirectProducts().entrySet()) {
+				products.get(i).controller.setItem(e.getKey());
+				products.get(i).controller.setAmount(e.getValue());
+				i++;
+			}
+		}
+		timeSpinner.getValueFactory().setValue(r == null ? 1 : (double)r.craftingTime);
+	}
+
+	private void addMilestone(Milestone t) {
+		milestoneList.getChildren().add(this.createMilestoneRow(t));
+		milestones.add(t);
+		this.getWindow().sizeToScene();
+	}
+
+	private Node createMilestoneRow(Milestone t) {
+		HBox hb = new HBox();
+		hb.setSpacing(12);
+		hb.setAlignment(Pos.CENTER_LEFT);
+		Button b = new Button();
+		b.setGraphic(new ImageView(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/delete.png"))));
+		b.setPrefWidth(32);
+		b.setPrefHeight(32);
+		b.setMinHeight(Region.USE_PREF_SIZE);
+		b.setMaxHeight(Region.USE_PREF_SIZE);
+		b.setMinWidth(Region.USE_PREF_SIZE);
+		b.setMaxWidth(Region.USE_PREF_SIZE);
+		b.setOnAction(e -> {
+			milestones.remove(t);
+			milestoneList.getChildren().remove(hb);
+			this.getWindow().sizeToScene();
+		});
+		hb.getChildren().add(b);
+		hb.getChildren().add(new Label(t.displayName));
+		if (milestones.size()%2 == 1) {
+			hb.getStyleClass().add("table-row-darken");
+		}
+		return hb;
+	}
+
 	private void createIngredientDefinitionRow(ArrayList<GuiInstance<IngredientDefinitionRowController>> li, VBox container) throws IOException {
 		GuiInstance<IngredientDefinitionRowController> gui = this.loadNestedFXML("IngredientDefinitionRow", (Consumer<GuiInstance>)null);
 		li.add(gui);
@@ -248,42 +335,53 @@ public class CustomRecipeDefinitionController extends FXMLControllerBase {
 	}
 
 	private void createIOSlots(FunctionalBuilding b) throws IOException {
-		switch (b.id) { //TODO make automatic, defined in the building
-			case "Build_OilRefinery_C":
-				this.createIOSlots(1, 1, 1, 1);
-				break;
-			case "Build_FoundryMk1_C":
-				this.createIOSlots(2, 1);
-				break;
-			case "Build_Packager_C":
-				this.createIOSlots(1, 1, 1, 1);
-				break;
-			case "Build_ManufacturerMk1_C":
-				this.createIOSlots(4, 1);
-				break;
-			case "Build_AssemblerMk1_C":
-				this.createIOSlots(2, 1);
-				break;
-			case "Build_Blender_C":
-				this.createIOSlots(2, 2, 2, 2);
-				break;
-			case "Build_SmelterMk1_C":
-				this.createIOSlots(1, 1);
-				break;
-			case "Build_ConstructorMk1_C":
-				this.createIOSlots(1, 1);
-				break;
-			case "Build_QuantumEncoder_C":
-				this.createIOSlots(1, 0, 1, 1);
-				break;
-			case "Build_Converter_C":
-				this.createIOSlots(2, 1);
-				break;
-			case "Build_HadronCollider_C":
-				this.createIOSlots(2, 1);
-				break;
+		if (b == null) {
+			for (int i = 0; i < 4; i++) {
+				GuiInstance<IngredientDefinitionRowController> guiIn = ingredients.get(i);
+				GuiInstance<IngredientDefinitionRowController> guiOut = products.get(i);
+				guiIn.rootNode.setVisible(false);
+				guiIn.rootNode.setManaged(false);
+				guiOut.rootNode.setVisible(false);
+				guiOut.rootNode.setManaged(false);
+			}
 		}
-
+		else {
+			switch (b.id) { //TODO make automatic, defined in the building
+				case "Build_OilRefinery_C":
+					this.createIOSlots(1, 1, 1, 1);
+					break;
+				case "Build_FoundryMk1_C":
+					this.createIOSlots(2, 1);
+					break;
+				case "Build_Packager_C":
+					this.createIOSlots(1, 1, 1, 1);
+					break;
+				case "Build_ManufacturerMk1_C":
+					this.createIOSlots(4, 1);
+					break;
+				case "Build_AssemblerMk1_C":
+					this.createIOSlots(2, 1);
+					break;
+				case "Build_Blender_C":
+					this.createIOSlots(2, 2, 1, 1);
+					break;
+				case "Build_SmelterMk1_C":
+					this.createIOSlots(1, 1);
+					break;
+				case "Build_ConstructorMk1_C":
+					this.createIOSlots(1, 1);
+					break;
+				case "Build_QuantumEncoder_C":
+					this.createIOSlots(1, 0, 1, 1);
+					break;
+				case "Build_Converter_C":
+					this.createIOSlots(2, 1);
+					break;
+				case "Build_HadronCollider_C":
+					this.createIOSlots(2, 1);
+					break;
+			}
+		}
 		this.getWindow().sizeToScene();
 	}
 

@@ -1,5 +1,6 @@
 package Reika.SatisfactoryPlanner.GUI;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.DecimalFormat;
@@ -79,9 +80,12 @@ import javafx.scene.paint.Stop;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.PopupWindow.AnchorLocation;
 import javafx.stage.Screen;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 public class GuiUtil {
@@ -815,6 +819,37 @@ public class GuiUtil {
 			//if (prev != null)
 			//	setTooltip(ref, prev.getText());
 		}
+	}
+
+	public static File openDirDialog(Stage container, String title, File dir) {
+		DirectoryChooser fc = new DirectoryChooser();
+		if (dir != null && dir.exists() && dir.isDirectory())
+			fc.setInitialDirectory(dir);
+		fc.setTitle("Choose "+title+" directory");
+		return fc.showDialog(container);
+	}
+
+	public static File openFileDialog(Stage container, String title, File dir, FileChooser.ExtensionFilter... filters) {
+		FileChooser fc = new FileChooser();
+		if (dir != null && dir.exists() && dir.isDirectory())
+			fc.setInitialDirectory(dir);
+		fc.setTitle("Choose "+title+" file");
+		if (filters.length > 0) {
+			for (FileChooser.ExtensionFilter extFilter : filters) {
+				fc.getExtensionFilters().add(extFilter);
+			}
+			fc.setSelectedExtensionFilter(filters[0]);
+		}
+		return fc.showOpenDialog(container);
+	}
+
+	public static File openSaveAsDialog(Stage container, String initialName, File dir) {
+		FileChooser fc = new FileChooser();
+		if (dir != null && dir.exists() && dir.isDirectory())
+			fc.setInitialDirectory(dir);
+		fc.setInitialFileName(initialName);
+		fc.setTitle("Choose file");
+		return fc.showSaveDialog(container);
 	}
 
 }

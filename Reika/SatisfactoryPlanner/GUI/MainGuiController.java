@@ -456,7 +456,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 			factory.save();
 		});
 		GuiUtil.setMenuEvent(saveAsMenu, () -> {
-			File f = this.openSaveAsDialog(factory.name+".factory", Main.getRelativeFile("Factories"));
+			File f = GuiUtil.openSaveAsDialog(this.getWindow(), factory.name+".factory", Main.getRelativeFile("Factories"));
 			if (f != null) {
 				lastNameSavedWith = factory.name;
 				factory.save(f);
@@ -545,7 +545,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	}
 
 	private File openFactoryFile() {
-		File f = this.openFileDialog("Factory", Main.getRelativeFile("Factories"), new FileChooser.ExtensionFilter("Factory files (*.factory)", "*.factory"));
+		File f = GuiUtil.openFileDialog(this.getWindow(), "Factory", Main.getRelativeFile("Factories"), new FileChooser.ExtensionFilter("Factory files (*.factory)", "*.factory"));
 		return f != null && f.exists() ? f : null;
 	}
 

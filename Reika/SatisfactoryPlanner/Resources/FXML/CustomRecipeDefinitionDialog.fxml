@@ -11,8 +11,8 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.TilePane?>
 <?import javafx.scene.layout.VBox?>
 <?import org.controlsfx.control.SearchableComboBox?>
 
@@ -68,9 +68,27 @@
             </VBox>
          </content>
       </TitledPane>
-      <HBox alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="button-bar" VBox.vgrow="NEVER">
+      <TilePane alignment="CENTER" hgap="64.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="button-bar" VBox.vgrow="NEVER">
          <children>
-            <Button fx:id="addButton" alignment="CENTER" graphicTextGap="12.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" mnemonicParsing="false" prefHeight="32.0" text="Create Recipe" HBox.hgrow="NEVER">
+            <Button fx:id="clearButton" alignment="CENTER" graphicTextGap="12.0" layoutX="398.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" mnemonicParsing="false" prefHeight="32.0" text="Clear Data">
+               <graphic>
+                  <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../Graphics/Icons/button-cancel-icon.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Button fx:id="loadButton" alignment="CENTER" graphicTextGap="12.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" mnemonicParsing="false" prefHeight="32.0" text="Load Existing">
+               <graphic>
+                  <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../Graphics/Icons/button-icon-open.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Button fx:id="addButton" alignment="CENTER" graphicTextGap="12.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" mnemonicParsing="false" prefHeight="32.0" text="Create Recipe">
                <graphic>
                   <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
                      <image>
@@ -80,7 +98,7 @@
                </graphic>
             </Button>
          </children>
-      </HBox>
+      </TilePane>
    </children>
    <padding>
       <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />

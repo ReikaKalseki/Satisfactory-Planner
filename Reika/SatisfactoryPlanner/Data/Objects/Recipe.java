@@ -12,7 +12,7 @@ import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Data.ItemConsumerProducer;
 import Reika.SatisfactoryPlanner.Data.PowerOverride;
 import Reika.SatisfactoryPlanner.Data.RecipeProductLoop;
-import Reika.SatisfactoryPlanner.Data.Objects.Buildables.FunctionalBuilding;
+import Reika.SatisfactoryPlanner.Data.Objects.Buildables.CraftingBuilding;
 import Reika.SatisfactoryPlanner.Util.JavaUtil;
 
 public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
@@ -23,7 +23,7 @@ public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 	public final String id;
 	public final String displayName;
 	public final boolean isAlternate;
-	public final FunctionalBuilding productionBuilding;
+	public final CraftingBuilding productionBuilding;
 
 	public final float craftingTime;
 	public final float timeCoefficient;
@@ -48,7 +48,7 @@ public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 		this(id, dn, b, false, time);
 	}
 	 */
-	public Recipe(String id, String dn, FunctionalBuilding b, float time, boolean ficsmas) {
+	public Recipe(String id, String dn, CraftingBuilding b, float time, boolean ficsmas) {
 		this.id = id;
 		displayName = dn;
 		productionBuilding = b;
