@@ -77,7 +77,7 @@ public class IngredientDefinitionRowController extends FXMLControllerBase {
 
 	private void updateStats() {
 		if (rateDisplay != null) {
-			rateDisplay.setScale(1F/timeCoefficient);
+			rateDisplay.setScale(60F/timeCoefficient);
 		}
 	}
 
@@ -97,6 +97,14 @@ public class IngredientDefinitionRowController extends FXMLControllerBase {
 
 	public int getAmount() {
 		return countSpinner.getValue();
+	}
+
+	public void setItem(Consumable c) {
+		itemDropdown.getSelectionModel().select(c);
+	}
+
+	public void setAmount(int amt) {
+		countSpinner.getValueFactory().setValue(amt);
 	}
 
 }

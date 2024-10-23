@@ -63,7 +63,7 @@ public class ItemOutputController extends SizedControllerBase {
 
 	@Override
 	public double getHeight() {
-		return 40+sinkSwitch.getHeight()+root.getSpacing();
+		return 40+(sinkSwitch == null ? 0 : sinkSwitch.getHeight()+root.getSpacing());
 	}
 
 	private class ProductButton extends Button {

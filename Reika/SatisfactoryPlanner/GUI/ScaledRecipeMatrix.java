@@ -5,15 +5,16 @@ import java.util.HashMap;
 import java.util.List;
 
 import Reika.SatisfactoryPlanner.InclusionPattern;
+import Reika.SatisfactoryPlanner.Setting;
 import Reika.SatisfactoryPlanner.Data.ItemConsumerProducer;
 import Reika.SatisfactoryPlanner.Data.Objects.Consumable;
 import Reika.SatisfactoryPlanner.Data.Objects.Fuel;
 import Reika.SatisfactoryPlanner.Data.Objects.Recipe;
 import Reika.SatisfactoryPlanner.Data.Objects.Buildables.Generator;
+import Reika.SatisfactoryPlanner.GUI.RecipeMatrixContainer.MatrixType;
 import Reika.SatisfactoryPlanner.GUI.Components.ItemRateController;
 import Reika.SatisfactoryPlanner.GUI.Components.ItemRateController.WarningState;
 import Reika.SatisfactoryPlanner.GUI.Components.ListCells.RecipeListCell;
-import Reika.SatisfactoryPlanner.GUI.RecipeMatrixContainer.MatrixType;
 
 import fxexpansions.GuiInstance;
 import javafx.geometry.Insets;
@@ -106,7 +107,8 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 		sumGapRow = this.addRow();
 		sumsRow = this.addRow();
 		this.createRowDivider(titleGapRow, 0);
-		this.createRowDivider(sumGapRow, 1);
+		if (!owner.getRecipes().isEmpty())
+			this.createRowDivider(sumGapRow, 1);
 		for (int row : minorRowGaps)
 			this.createRowDivider(row, 2);
 
@@ -125,18 +127,24 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 			Consumable c = inputs.get(i);
 			int idx = ingredientsStartColumn+inputs.indexOf(c)*2;
 			GuiInstance<ItemRateController> gui = GuiUtil.createItemView(c, owner.getTotalConsumption(c), gp, idx, sumsRow);
+			if (Setting.FIXEDMATRIX.getCurrentValue())
+				gui.controller.setMinWidth("9999.9999");
+			gui.rootNode.getStyleClass().add("matrix-item-cell");
 			sumEntriesIn.put(c, gui);
 			if (i < inputs.size()-1)
-				this.createDivider(idx+1, sumsRow, 2);
+				this.createDivider(idx+1, titleGapRow+1, 2);
 		}
 		for (int i = 0; i < outputs.size(); i++) {
 			Consumable c = outputs.get(i);
 			int idx = productsStartColumn+outputs.indexOf(c)*2;
 			//Logging.instance.log(c+" @ "+idx+" in "+outputs.indexOf(c)+":"+outputs);
 			GuiInstance<ItemRateController> gui = GuiUtil.createItemView(c, this.getAvailable(c), gp, idx, sumsRow);
+			if (Setting.FIXEDMATRIX.getCurrentValue())
+				gui.controller.setMinWidth("9999.9999");
+			gui.rootNode.getStyleClass().add("matrix-item-cell");
 			sumEntriesOut.put(c, gui);
 			if (i < outputs.size()-1)
-				this.createDivider(idx+1, sumsRow, 2);
+				this.createDivider(idx+1, titleGapRow+1, 2);
 		}
 
 		for (ItemConsumerProducer r : recipes) {
@@ -162,7 +170,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 	protected RecipeRow addRecipeRow(ItemConsumerProducer r, int i) throws IOException {
 		RecipeRow rowIndex = super.addRecipeRow(r, i);
 
-		this.createDivider(countGapColumn, rowIndex.rowIndex, 0);
+		//this.createDivider(countGapColumn, rowIndex.rowIndex, 0);
 		if (r instanceof Recipe) {
 			Spinner<Double> counter = new Spinner();
 			GuiUtil.setupCounter(counter, 0, 9999, owner.getCount((Recipe)r), true);

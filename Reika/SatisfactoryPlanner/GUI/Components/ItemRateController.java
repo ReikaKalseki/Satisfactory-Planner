@@ -50,6 +50,7 @@ public class ItemRateController extends SizedControllerBase {
 		mainPanel.setSpacing(6);
 		mainPanel.setMaxHeight(Double.MAX_VALUE);
 		mainPanel.setMaxWidth(Double.MAX_VALUE);
+		mainPanel.getStyleClass().add("item-rate-box");
 
 		countContainer.setAlignment(Pos.CENTER);
 		amount.setPadding(new Insets(-2, 0, -3, 0));

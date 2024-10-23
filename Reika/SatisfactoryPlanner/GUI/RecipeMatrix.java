@@ -5,8 +5,11 @@ import java.util.List;
 
 import Reika.SatisfactoryPlanner.Data.Factory;
 import Reika.SatisfactoryPlanner.Data.ItemConsumerProducer;
+import Reika.SatisfactoryPlanner.Data.Objects.Consumable;
 import Reika.SatisfactoryPlanner.Data.Objects.Recipe;
 import Reika.SatisfactoryPlanner.GUI.RecipeMatrixContainer.MatrixType;
+
+import javafx.scene.layout.GridPane;
 
 public class RecipeMatrix extends RecipeMatrixBase {
 
@@ -47,11 +50,23 @@ public class RecipeMatrix extends RecipeMatrixBase {
 			this.addRecipeRow(recipes.get(i), i);
 		}
 		this.createDivider(mainGapColumn, titlesRow, 0);
-		this.createDivider(inoutGapColumn, titlesRow, 1);
+		//this.createDivider(inoutGapColumn, titlesRow, 1);
 		this.createDivider(buildingGapColumn, titlesRow, 1);
 		this.createRowDivider(titleGapRow, 0);
 		for (int row : minorRowGaps)
 			this.createRowDivider(row, 2);
+
+		GridPane gp = this.getGrid();
+		for (int i = 0; i < inputs.size()-1; i++) {
+			Consumable c = inputs.get(i);
+			int idx = ingredientsStartColumn+inputs.indexOf(c)*2;
+			this.createDivider(idx+1, titleGapRow+1, 2);
+		}
+		for (int i = 0; i < outputs.size()-1; i++) {
+			Consumable c = outputs.get(i);
+			int idx = productsStartColumn+outputs.indexOf(c)*2;
+			this.createDivider(idx+1, titleGapRow+1, 2);
+		}
 
 		this.addTitles();
 	}

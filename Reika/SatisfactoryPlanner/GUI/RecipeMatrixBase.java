@@ -8,12 +8,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.function.Function;
+
+import org.apache.commons.lang3.function.TriConsumer;
 
 import com.google.common.base.Strings;
 
@@ -22,6 +25,7 @@ import Reika.SatisfactoryPlanner.InclusionPattern;
 import Reika.SatisfactoryPlanner.InternalIcons;
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.NamedIcon;
+import Reika.SatisfactoryPlanner.Setting;
 import Reika.SatisfactoryPlanner.Data.Constants.ToggleableVisiblityGroup;
 import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Data.Factory;
@@ -38,7 +42,6 @@ import Reika.SatisfactoryPlanner.Util.Errorable.ErrorableWithArgument;
 import Reika.SatisfactoryPlanner.Util.Logging;
 
 import fxexpansions.GuiInstance;
-import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -49,7 +52,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.RowConstraints;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
@@ -192,6 +194,20 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 			grid.getColumnConstraints().get(grid.getColumnCount()-1).setMinWidth(96);
 	}
 
+	protected final void iterateIO(TriConsumer<Consumable, Integer, Boolean> action) {
+		GridPane gp = this.getGrid();
+		for (int i = 0; i < inputs.size(); i++) {
+			Consumable c = inputs.get(i);
+			int idx = ingredientsStartColumn+inputs.indexOf(c)*2;
+			action.accept(c, idx, true);
+		}
+		for (int i = 0; i < outputs.size(); i++) {
+			Consumable c = outputs.get(i);
+			int idx = productsStartColumn+outputs.indexOf(c)*2;
+			action.accept(c, idx, false);
+		}
+	}
+
 	protected RecipeRow addRecipeRow(ItemConsumerProducer r, int i) throws IOException {
 		int rowIndex = titleGapRow+1+i*2;
 		RecipeRow row = new RecipeRow(r, i, rowIndex);
@@ -201,12 +217,18 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 			Consumable c = e.getKey();
 			int col = ingredientsStartColumn+inputs.indexOf(c)*2;
 			GuiInstance<ItemRateController> gui = GuiUtil.createItemView(c, e.getValue()*this.getMultiplier(r), grid, col, rowIndex);
+			if (Setting.FIXEDMATRIX.getCurrentValue())
+				gui.controller.setMinWidth("9999.9999");
+			gui.rootNode.getStyleClass().add("matrix-item-cell");
 			row.inputSlots.put(c, new RateSlot(gui, col));
 		}
 		for (Entry<Consumable, Float> e : r.getProductsPerMinute().entrySet()) {
 			Consumable c = e.getKey();
 			int col = productsStartColumn+outputs.indexOf(c)*2;
 			GuiInstance<ItemRateController> gui = GuiUtil.createItemView(c, e.getValue()*this.getMultiplier(r), grid, col, rowIndex);
+			if (Setting.FIXEDMATRIX.getCurrentValue())
+				gui.controller.setMinWidth("9999.9999");
+			gui.rootNode.getStyleClass().add("matrix-item-cell");
 			row.outputSlots.put(c, new RateSlot(gui, col));
 		}
 		NamedIcon loc = r.getLocationIcon();
@@ -235,11 +257,11 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 			grid.add(InternalIcons.SUPPLY.createImageView(), buttonColumn, row.rowIndex);
 		}
 
-		this.createDivider(mainGapColumn, rowIndex, 0);
-		this.createDivider(inoutGapColumn, rowIndex, 1);
-		for (int col : minorColumnGaps)
-			this.createDivider(col, rowIndex, 2);
-		this.createDivider(buildingGapColumn, rowIndex, 1);
+		//this.createDivider(mainGapColumn, rowIndex, 0);
+		//this.createDivider(inoutGapColumn, rowIndex, 1);
+		//for (int col : minorColumnGaps)
+		//	this.createDivider(col, rowIndex, 2);
+		//this.createDivider(buildingGapColumn, rowIndex, 1);
 		return row;
 	}
 
@@ -313,24 +335,11 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 				c = "d9d9d9ff";
 				w = 1;
 				break;
-		}
+		}/*
 		ObservableList<ColumnConstraints> li = grid.getColumnConstraints();
-		for (int i = 0; i < li.size(); i++) {/*
-			Rectangle rect = new Rectangle();
-			rect.setFill(c);
-			li.get(i).setFillWidth(true);
-			//rect.widthProperty().bind(li.get(i).maxWidthProperty().subtract(2));
-			//rect.widthProperty().bind(gp.widthProperty().subtract(4+8+4+minorColumnGaps.size()).divide(li.size()-minorColumnGaps.size()+2));
-			rect.setHeight(w);
-			//rect.setWidth(gp.getCellBounds(i, row).getWidth());
-			gp.add(rect, i, row);/*
-			AnchorPane ap = new AnchorPane();
-			ap.getChildren().add(rect);
-			ap.setBottomAnchor(rect, 0D);
-			ap.setTopAnchor(rect, 0D);
-			ap.setLeftAnchor(rect, 0D);
-			ap.setRightAnchor(rect, 0D);
-			gp.add(ap, i, row);*/
+		for (int i = 0; i < li.size(); i++) {
+			if (i >= mainGapColumn && i <= buildingGapColumn && (i == inoutGapColumn || (i-mainGapColumn)%2 == 0) && (w == 1 || (i > mainGapColumn && i < buildingGapColumn && i != inoutGapColumn)))
+				continue;
 			HBox hb = new HBox();
 			hb.setMaxWidth(Double.POSITIVE_INFINITY);
 			hb.setMaxHeight(w);
@@ -338,33 +347,55 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 			hb.setMinHeight(w);
 			hb.setStyle("-fx-background-color: #"+c+";");
 			grid.add(hb, i, row);
-		}
+		}*/
+		HBox hb = new HBox();
+		hb.setMaxWidth(Double.POSITIVE_INFINITY);
+		hb.setMaxHeight(w);
+		//hb.setMinWidth(1);
+		hb.setMinHeight(w);
+		hb.setStyle("-fx-background-color: #"+c+";");
+		hb.setViewOrder(-w);
+		grid.add(hb, 0, row);
+		GridPane.setColumnSpan(hb, GridPane.REMAINING);
 	}
 
-	protected final void createDivider(int col, int row, int tier) {
+	protected final void createDivider(int col, int startRow, int tier) {
 		Rectangle rect = new Rectangle();
-		Color c = Color.BLACK;
+		String c = "000000ff";
 		int w = 8;
 		switch(tier) {
 			case 0:
-				c = Color.gray(0.5);
+				c = "7f7f7fff";
 				break;
 			case 1:
-				c = Color.gray(0.7);
+				c = "b2b2b2ff";
 				w = 4;
 				break;
 			case 2:
-				c = Color.gray(0.85);
+				c = "d9d9d9ff";
 				w = 1;
 				break;
 		}
-		rect.setFill(c);
+		//rect.setFill(c);
 		//rect.widthProperty().bind(gp.getColumnConstraints().get(split).maxWidthProperty().subtract(2));
 		//rect.heightProperty().bind(gp.getRowConstraints().get(i).maxHeightProperty().subtract(2));
+
+		/*
 		rect.setWidth(w);
 		grid.getColumnConstraints().get(col).setMinWidth(w);
 		rect.setHeight(32);
 		grid.add(rect, col, row);
+		 */
+
+		HBox hb = new HBox();
+		hb.setMaxHeight(Double.POSITIVE_INFINITY);
+		hb.setMaxWidth(w);
+		//hb.minHeightProperty().bind(grid.heightProperty());
+		hb.setMinWidth(w);
+		hb.setStyle("-fx-background-color: #"+c+";");
+		hb.setViewOrder(-w);
+		grid.add(hb, col, startRow);
+		GridPane.setRowSpan(hb, GridPane.REMAINING);
 	}
 
 	@Override
@@ -421,6 +452,8 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 		GuiUtil.runOnJFXThread(() -> {
 			long old = System.identityHashCode(grid);
 			grid = new GridPane();
+			grid.getStyleClass().add("recipe-matrix");
+			grid.getStyleClass().add(this.getClass().getName().toLowerCase(Locale.ENGLISH));
 			Logging.instance.log("Beginning rebuild of "+type+" matrix: "+old+" > "+System.identityHashCode(grid)+" ["+System.identityHashCode(container.getMatrix(type))+"]");
 			//gui.setMatrix(type, null); //leave old grid in place
 			GuiUtil.queueTask("Rebuilding "+type+" matrix UI", rebuild, (id) -> {
