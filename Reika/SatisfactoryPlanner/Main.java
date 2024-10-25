@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -38,10 +39,11 @@ public class Main {
 
 	public static boolean isJFXActive;
 
-	private static final boolean isCompiled = Main.class.getResource("Main.class").toString().startsWith("jrt:");
+	public static final boolean isCompiled = Main.class.getResource("Main.class").toString().startsWith("jrt:");
+	public static final SimpleDateFormat timeStampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+	public static final String buildTime = isCompiled ? System.getProperty("BUILD_TIME") : timeStampFormat.format(new Date());
 	public static final Path executionLocation = Paths.get("").toAbsolutePath();
 
-	public static final SimpleDateFormat timeStampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
 	private static final File settingsFile = getRelativeFile("settings.dat");
 	private static final File recentFilesFile = getRelativeFile("recent.dat");

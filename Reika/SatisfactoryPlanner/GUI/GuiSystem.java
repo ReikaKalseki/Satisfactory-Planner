@@ -66,7 +66,7 @@ public class GuiSystem extends Application {
 
 		Main.isJFXActive = true;
 
-		splashGui = GuiInstance.loadFXMLWindow("SplashScreen", loadingStage, null, "Satisfactory Planner");
+		splashGui = GuiInstance.loadFXMLWindow("SplashScreen", loadingStage, null, "Satisfactory Planner "+Main.buildTime);
 		loadingStage.show();
 		loadingStage.sizeToScene();
 		loadingStage.setResizable(false);
@@ -142,7 +142,7 @@ public class GuiSystem extends Application {
 		primaryStage.setWidth(bounds.getWidth());
 		primaryStage.setHeight(bounds.getHeight());
 		Logging.instance.log("Loading main UI");
-		mainGui = GuiInstance.loadFXMLWindow("mainUI-Dynamic", primaryStage, null, "Satisfactory Planner");
+		mainGui = GuiInstance.loadFXMLWindow("mainUI-Dynamic", primaryStage, null, "Satisfactory Planner "+Main.buildTime);
 		Logging.instance.log("Main UI constructed");
 		//this.setFont(root, MainWindow.getGUI().getFont(10));
 		GuiSystem.setSplashProgress(95);

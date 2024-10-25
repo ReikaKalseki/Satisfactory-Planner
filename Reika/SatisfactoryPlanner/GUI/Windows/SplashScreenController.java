@@ -2,6 +2,7 @@ package Reika.SatisfactoryPlanner.GUI.Windows;
 
 import java.io.IOException;
 
+import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.GUI.GuiUtil;
 
 import fxexpansions.FXMLControllerBase;
@@ -19,9 +20,12 @@ public class SplashScreenController extends FXMLControllerBase {
 	@FXML
 	private Label loadingText;
 
+	@FXML
+	private Label buildTime;
+
 	@Override
 	public void init(HostServices services) throws IOException {
-
+		buildTime.setText(Main.buildTime);
 	}
 
 	@Override

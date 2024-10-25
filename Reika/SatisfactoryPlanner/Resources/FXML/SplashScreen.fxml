@@ -8,6 +8,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
@@ -34,6 +35,12 @@
                   <VBox alignment="CENTER_LEFT" spacing="12.0" GridPane.columnIndex="1">
                      <children>
                         <Label text="(Sub)Factory and recipe/production planner" wrapText="true" />
+                        <HBox maxWidth="1.7976931348623157E308" spacing="8.0">
+                           <children>
+                              <Label text="Build Time: " wrapText="true" />
+                              <Label fx:id="buildTime" layoutX="10.0" layoutY="10.0" text="Nothing" wrapText="true" />
+                           </children>
+                        </HBox>
                         <Label layoutX="10.0" layoutY="11.0" text="Copyright ReikaKalseki 2024-Current" wrapText="true" />
                         <Label layoutX="10.0" layoutY="10.0" text="Made with JavaFX" wrapText="true" />
                         <Label layoutX="10.0" layoutY="10.0" text="This tool is neither created nor endorsed by CoffeeStain or any of its employees." wrapText="true" />
