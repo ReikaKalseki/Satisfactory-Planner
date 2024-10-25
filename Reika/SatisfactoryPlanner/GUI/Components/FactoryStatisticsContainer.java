@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import org.apache.commons.lang3.math.Fraction;
+
 import Reika.SatisfactoryPlanner.Setting;
 import Reika.SatisfactoryPlanner.Setting.InputInOutputOptions;
 import Reika.SatisfactoryPlanner.Data.Factory;
@@ -200,16 +202,16 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 		}
 
 		if (flags.contains(StatFlags.SINK)) {
-			TreeMap<Item, Integer> breakdown = sinkBreakdown == null ? null : new TreeMap();
-			int points = factory.computeSinkPoints(breakdown);
+			TreeMap<Item, Fraction> breakdown = sinkBreakdown == null ? null : new TreeMap();
+			float points = factory.computeSinkPoints(breakdown);
 			if (sinkPoints != null)
 				sinkPoints.setText(String.format("%d / min", points));
 			if (sinkBreakdown != null) {
 				sinkBreakdown.getChildren().clear();
-				for (Entry<Item, Integer> e : breakdown.entrySet()) {
+				for (Entry<Item, Fraction> e : breakdown.entrySet()) {
 					//ItemSinkPointsController c = new ItemSinkPointsController(e.getKey(), e.getValue());
 					//GuiInstance<ItemSinkPointsController> gui = new GuiInstance<ItemSinkPointsController>(c.getRootNode(), c);
-					this.center(sinkBreakdown, GuiUtil.createItemView(e.getKey(), e.getValue().floatValue(), sinkBreakdown));
+					this.center(sinkBreakdown, GuiUtil.createItemView(e.getKey(), e.getValue(), sinkBreakdown));
 				}
 			}
 		}
@@ -265,13 +267,13 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 			deficiencyBar.clear();
 
 			for (Consumable c : factory.getAllIngredients()) {
-				float sup = factory.getExternalInput(c, false);
-				float ship = sup-factory.getTotalProduction(c);
-				if (sup > 0 && ship > 0.0001 && ship >= Setting.IOTHRESH.getCurrentValue().floatValue()) {
+				Fraction sup = factory.getExternalInput(c, false);
+				Fraction ship = sup.subtract(factory.getTotalProduction(c));
+				if (sup.doubleValue() > 0 && ship.doubleValue() > 0 && ship.doubleValue() >= Setting.IOTHRESH.getCurrentValue().floatValue()) {
 					this.center(netConsumptionBar, GuiUtil.createItemView(c, ship, netConsumptionBar));
 				}
-				float deficiency = factory.getTotalConsumption(c)-factory.getTotalProduction(c)-factory.getExternalInput(c, false);
-				if (deficiency > 0.0001 && deficiency >= Setting.IOTHRESH.getCurrentValue().floatValue()) {
+				Fraction deficiency = factory.getTotalConsumption(c).subtract(factory.getTotalProduction(c)).subtract(factory.getExternalInput(c, false));
+				if (deficiency.doubleValue() > 0 && deficiency.doubleValue() >= Setting.IOTHRESH.getCurrentValue().floatValue()) {
 					this.center(deficiencyBar, GuiUtil.createItemView(c, deficiency, deficiencyBar)).controller.setState(WarningState.INSUFFICIENT);
 				}
 			}
@@ -287,10 +289,10 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 			ArrayList<Consumable> li = new ArrayList(set);
 			Collections.sort(li);
 			for (Consumable c : li) {
-				float amt = factory.getTotalProduction(c)-factory.getTotalConsumption(c);
+				Fraction amt = factory.getTotalProduction(c).subtract(factory.getTotalConsumption(c));
 				if (Setting.INOUT.getCurrentValue() != InputInOutputOptions.EXCLUDE)
-					amt += factory.getExternalInput(c, Setting.INOUT.getCurrentValue() == InputInOutputOptions.ALL ? false : true);
-				if (amt > 0.0001 && amt >= Setting.IOTHRESH.getCurrentValue().floatValue()) {
+					amt = amt.add(factory.getExternalInput(c, Setting.INOUT.getCurrentValue() == InputInOutputOptions.ALL ? false : true));
+				if (amt.doubleValue() > 0 && amt.doubleValue() >= Setting.IOTHRESH.getCurrentValue().floatValue()) {
 					GuiInstance<ItemRateController> gui = this.center(netProductBar, GuiUtil.createItemView(c, amt, netProductBar));
 					if (!factory.getDesiredProducts().contains(c))
 						gui.controller.setState(WarningState.LEFTOVER);

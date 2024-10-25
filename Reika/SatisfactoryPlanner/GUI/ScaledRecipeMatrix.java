@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.lang3.math.Fraction;
+
 import Reika.SatisfactoryPlanner.InclusionPattern;
 import Reika.SatisfactoryPlanner.Setting;
 import Reika.SatisfactoryPlanner.Data.ItemConsumerProducer;
@@ -57,7 +59,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 		if (buildingGrid)
 			return 1;
 		if (r instanceof Recipe)
-			return owner.getCount((Recipe)r);
+			return owner.getCount((Recipe)r).floatValue();
 		if (r instanceof Fuel) {
 			Fuel f = (Fuel)r;
 			return owner.getCount(f.generator, f);
@@ -166,8 +168,8 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 		gp.getColumnConstraints().get(countColumn).setMinWidth(92);
 	}
 
-	private float getAvailable(Consumable c) {
-		return owner.getTotalProduction(c)+(owner.resourceMatrixRule == InclusionPattern.EXCLUDE ? 0 : owner.getExternalInput(c, false));
+	private Fraction getAvailable(Consumable c) {
+		return owner.getTotalProduction(c).add(owner.resourceMatrixRule == InclusionPattern.EXCLUDE ? Fraction.ZERO : owner.getExternalInput(c, false));
 	}
 
 	@Override
@@ -246,7 +248,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 	}
 
 	@Override
-	public void onSetCount(Recipe r, float amt) {
+	public void onSetCount(Recipe r, Fraction amt) {
 		RecipeRow rr = recipeEntries.get(r);
 		rr.setScale(amt);
 		if (!settingValue && !buildingGrid && this.isGridBuilt())
@@ -279,9 +281,9 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 	public void updateStatuses(Consumable c) {
 		GuiInstance<ItemRateController> gui = sumEntriesIn.get(c);
 		if (gui != null) {
-			float total = owner.getTotalConsumption(c);
+			Fraction total = owner.getTotalConsumption(c);
 			gui.controller.setAmount(total);
-			gui.controller.setState(total > owner.getTotalProduction(c)+owner.getExternalInput(c, false) ? WarningState.INSUFFICIENT : WarningState.NONE);
+			gui.controller.setState(total.compareTo(owner.getTotalProduction(c).add(owner.getExternalInput(c, false))) > 0 ? WarningState.INSUFFICIENT : WarningState.NONE);
 		}
 
 		gui = sumEntriesOut.get(c);

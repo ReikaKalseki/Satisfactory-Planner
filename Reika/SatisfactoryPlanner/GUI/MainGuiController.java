@@ -15,6 +15,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.Fraction;
 import org.controlsfx.control.SearchableComboBox;
 
 import com.google.common.base.Strings;
@@ -477,7 +478,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 		GuiUtil.setMenuEvent(clearMenu, () -> GuiUtil.doWithToggleableConfirmation(ConfirmationOptions.CLEARCRAFT, () -> factory.clearRecipes()));
 		GuiUtil.setMenuEvent(zeroMenu, () -> GuiUtil.doWithToggleableConfirmation(ConfirmationOptions.ZEROCRAFT, () -> {
 			for (Recipe r : new ArrayList<Recipe>(factory.getRecipes())) {
-				factory.setCount(r, 0);
+				factory.setCount(r, Fraction.ZERO);
 			}
 		}));
 		GuiUtil.setMenuEvent(clearProductMenu, () -> GuiUtil.doWithToggleableConfirmation(ConfirmationOptions.CLEARPROD, () -> factory.removeProducts(new ArrayList<Consumable>(factory.getDesiredProducts()))));
@@ -753,7 +754,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 		super.updateStats(flags);
 		if (flags.contains(StatFlags.LOCALSUPPLY)) {
 			localSupplyTotals.getChildren().clear();
-			TreeMap<Consumable, Float> totalSupply = new TreeMap();
+			TreeMap<Consumable, Fraction> totalSupply = new TreeMap();
 			for (ResourceSupply res : factory.getSupplies()) {
 				Float has = totalSupply.get(res.getResource());
 				float put = (has == null ? 0 : has.floatValue())+res.getYield();
@@ -792,7 +793,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	}
 
 	@Override
-	public void onSetCount(Recipe r, float count) {
+	public void onSetCount(Recipe r, Fraction count) {
 		this.updateStats(this.getAllExcept(StatFlags.LOCALSUPPLY));
 	}
 

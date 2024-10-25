@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.math.Fraction;
+
 import Reika.SatisfactoryPlanner.Data.Constants;
 import Reika.SatisfactoryPlanner.Data.ItemConsumerProducer;
 import Reika.SatisfactoryPlanner.Data.Objects.Buildables.Generator;
@@ -16,8 +18,8 @@ public class Fuel implements ItemConsumerProducer, Comparable<Fuel> {
 	public final Generator generator;
 	public final Consumable item;
 	public final Consumable secondaryItem;
-	public final float primaryBurnRate;
-	public final float secondaryBurnRate;
+	public final Fraction primaryBurnRate;
+	public final Fraction secondaryBurnRate;
 
 	public final Consumable byproduct;
 	public final int byproductAmount;
@@ -58,33 +60,33 @@ public class Fuel implements ItemConsumerProducer, Comparable<Fuel> {
 	}
 
 	/** Per minute */
-	private float computePrimaryRate() {
-		float ret = item.energyValue > 0 ? generator.powerGenerationMW/item.energyValue*60 : 0;
+	private Fraction computePrimaryRate() {
+		Fraction ret = item.energyValue > 0 ? Fraction.getFraction(generator.powerGenerationMW*60, item.energyValue) : Fraction.ZERO;
 		if (item instanceof Fluid)
-			ret /= Constants.LIQUID_SCALAR;
+			ret = ret.divideBy(Fraction.getFraction(Constants.LIQUID_SCALAR));
 		return ret;
 	}
 
-	private float computeSecondaryRate() {
+	private Fraction computeSecondaryRate() {
 		if (secondaryItem == null)
-			return 0;
-		float ret = 60 * generator.powerGenerationMW * generator.supplementalRatio;//generator.getSecondaryBurnRate(1);
+			return Fraction.ZERO;
+		Fraction ret = Fraction.getFraction(60 * generator.powerGenerationMW * generator.supplementalRatio);//generator.getSecondaryBurnRate(1);
 		if (secondaryItem instanceof Fluid)
-			ret /= Constants.LIQUID_SCALAR;
+			ret = ret.divideBy(Fraction.getFraction(Constants.LIQUID_SCALAR));
 		return ret;
 	}
 
-	public float getByproductRate() {
-		return byproductAmount*primaryBurnRate;
+	public Fraction getByproductRate() {
+		return primaryBurnRate.multiplyBy(byproductAmount);
 	}
 
 	@Override
-	public Map<Consumable, Float> getIngredientsPerMinute() {
+	public Map<Consumable, Fraction> getIngredientsPerMinute() {
 		return secondaryItem == null ? Map.of(item, primaryBurnRate) : Map.of(item, primaryBurnRate, secondaryItem, secondaryBurnRate);
 	}
 
 	@Override
-	public Map<Consumable, Float> getProductsPerMinute() {
+	public Map<Consumable, Fraction> getProductsPerMinute() {
 		return byproduct == null ? Map.of() : Map.of(byproduct, this.getByproductRate());
 	}
 

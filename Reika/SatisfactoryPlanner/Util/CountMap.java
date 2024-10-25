@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.lang3.math.Fraction;
+
 
 public class CountMap<V> {
 
@@ -129,6 +131,14 @@ public class CountMap<V> {
 			K c = e.getKey();
 			Float has = map.get(c);
 			map.put(c, (has == null ? 0 : has.floatValue())+e.getValue()*scale);
+		}
+	}
+
+	public static <K> void incrementMapByMapFrac(Map<K, Fraction> map, Map<K, Fraction> by, float scale) {
+		for (Entry<K, Fraction> e : by.entrySet()) {
+			K c = e.getKey();
+			Fraction has = map.get(c);
+			map.put(c, (has == null ? Fraction.ZERO : has).add(e.getValue().multiplyBy(scale)));
 		}
 	}
 

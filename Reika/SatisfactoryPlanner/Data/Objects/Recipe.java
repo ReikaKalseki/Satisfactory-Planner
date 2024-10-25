@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Predicate;
 
+import org.apache.commons.lang3.math.Fraction;
+
 import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Data.ItemConsumerProducer;
 import Reika.SatisfactoryPlanner.Data.PowerOverride;
@@ -26,7 +28,7 @@ public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 	public final CraftingBuilding productionBuilding;
 
 	public final float craftingTime;
-	public final float timeCoefficient;
+	public final Fraction timeCoefficient;
 
 	public final boolean isFicsmas;
 
@@ -34,8 +36,8 @@ public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 
 	private final TreeMap<Consumable, Integer> costsRaw = new TreeMap();
 	private final TreeMap<Consumable, Integer> productsRaw = new TreeMap();
-	private final TreeMap<Consumable, Float> costsPerMinute = new TreeMap();
-	private final TreeMap<Consumable, Float> productPerMinute = new TreeMap();
+	private final TreeMap<Consumable, Fraction> costsPerMinute = new TreeMap();
+	private final TreeMap<Consumable, Fraction> productPerMinute = new TreeMap();
 
 	private final HashSet<Milestone> unlocks = new HashSet();
 
@@ -54,7 +56,7 @@ public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 		productionBuilding = b;
 		isAlternate = id.startsWith("Recipe_Alternate") && !id.equalsIgnoreCase("Recipe_Alternate_PolyesterFabric_C");
 		craftingTime = time;
-		timeCoefficient = 60F/craftingTime;
+		timeCoefficient = Fraction.getFraction(60F, craftingTime);
 
 		isFicsmas = ficsmas;
 	}
@@ -84,7 +86,7 @@ public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 
 	public Recipe addIngredient(Consumable i, int amt) {
 		costsRaw.put(i, amt);
-		costsPerMinute.put(i, amt*timeCoefficient);
+		costsPerMinute.put(i, timeCoefficient.multiplyBy(amt));
 		maxIngredients = Math.max(costsPerMinute.size(), maxIngredients);
 		usesFluids |= i instanceof Fluid;
 		return this;
@@ -92,7 +94,7 @@ public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 
 	public Recipe addProduct(Consumable i, int amt) {
 		productsRaw.put(i, amt);
-		productPerMinute.put(i, amt*timeCoefficient);
+		productPerMinute.put(i, timeCoefficient.multiplyBy(amt));
 		maxProducts = Math.max(productPerMinute.size(), maxProducts);
 		usesFluids |= i instanceof Fluid;
 		return this;
@@ -149,11 +151,11 @@ public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 		return Collections.unmodifiableMap(productsRaw);
 	}
 
-	public Map<Consumable, Float> getIngredientsPerMinute() {
+	public Map<Consumable, Fraction> getIngredientsPerMinute() {
 		return Collections.unmodifiableMap(costsPerMinute);
 	}
 
-	public Map<Consumable, Float> getProductsPerMinute() {
+	public Map<Consumable, Fraction> getProductsPerMinute() {
 		return Collections.unmodifiableMap(productPerMinute);
 	}
 

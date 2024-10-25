@@ -2,6 +2,8 @@ package Reika.SatisfactoryPlanner.Data;
 
 import java.util.Map;
 
+import org.apache.commons.lang3.math.Fraction;
+
 import Reika.SatisfactoryPlanner.NamedIcon;
 import Reika.SatisfactoryPlanner.Data.Objects.Consumable;
 
@@ -11,9 +13,9 @@ public interface ItemConsumerProducer {
 
 	public NamedIcon getLocationIcon();
 
-	public Map<Consumable, Float> getIngredientsPerMinute();
+	public Map<Consumable, Fraction> getIngredientsPerMinute();
 
-	public Map<Consumable, Float> getProductsPerMinute();
+	public Map<Consumable, Fraction> getProductsPerMinute();
 
 	//public boolean isPackaging();
 
