@@ -33,6 +33,8 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 
 	protected int countGapColumn;
 	protected int countColumn;
+	//protected int countFracGapColumn;
+	//protected int fractionColumn;
 
 	protected int sumGapRow;
 	protected int sumsRow;
@@ -92,6 +94,8 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 
 		countGapColumn = this.addColumn();
 		countColumn = this.addColumn();
+		//countFracGapColumn = this.addColumn();
+		//fractionColumn = this.addColumn();
 
 		ingredientsStartColumn = /*2*/mainGapColumn+1;
 		productsStartColumn = /*2+in.size()+1*/inoutGapColumn+1;
@@ -173,7 +177,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 		//this.createDivider(countGapColumn, rowIndex.rowIndex, 0);
 		if (r instanceof Recipe) {
 			Spinner<Double> counter = new Spinner();
-			GuiUtil.setupCounter(counter, 0, 9999, owner.getCount((Recipe)r), true);
+			GuiUtil.setupCounter(counter, 0, 9999, owner.getCount((Recipe)r), true, true);
 			counter.setPrefHeight(32);
 			counter.setMinHeight(Region.USE_PREF_SIZE);
 			counter.setMaxHeight(Region.USE_PREF_SIZE);
@@ -186,6 +190,11 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 				}
 			});
 			this.getGrid().add(counter, countColumn, rowIndex.rowIndex);
+			//CheckBox cb = new CheckBox("Fraction");
+			//cb.selectedProperty().addListener((val, old, nnew) -> {
+			//
+			//});
+			//this.getGrid().add(cb, fractionColumn, rowIndex.rowIndex);
 			Tooltip t = GuiUtil.setTooltip(counter, "");
 			HBox hb = new HBox();
 			hb.setPadding(new Insets(-4, -4, -4, -4));

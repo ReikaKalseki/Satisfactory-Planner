@@ -105,7 +105,7 @@ public class SettingsController extends FXMLControllerBase {
 
 		includeInputOptions.selectedToggleProperty().addListener((val, old, nnew) -> Setting.INOUT.changeValue(InputInOutputOptions.values()[includeInputOptions.getToggles().indexOf(nnew)]));
 
-		GuiUtil.setupCounter(displayThreshold, 0, 999, Setting.IOTHRESH.getCurrentValue().doubleValue(), true);
+		GuiUtil.setupCounter(displayThreshold, 0, 999, Setting.IOTHRESH.getCurrentValue().doubleValue(), true, false);
 		((DoubleSpinnerValueFactory)displayThreshold.getValueFactory()).setAmountToStepBy(0.125);
 		displayThreshold.getValueFactory().valueProperty().addListener((val, old, nnew) -> {Setting.IOTHRESH.changeValue(nnew.floatValue());});
 		boolean any = Setting.IOTHRESH.getCurrentValue() <= 0;

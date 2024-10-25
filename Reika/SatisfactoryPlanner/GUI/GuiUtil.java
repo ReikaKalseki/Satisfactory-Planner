@@ -13,6 +13,7 @@ import java.util.function.Consumer;
 
 import org.controlsfx.control.SearchableComboBox;
 
+import com.google.common.base.Strings;
 import com.nativejavafx.taskbar.TaskbarProgressbar;
 
 import Reika.SatisfactoryPlanner.ConfirmationOptions;
@@ -31,6 +32,7 @@ import Reika.SatisfactoryPlanner.Util.Logging;
 
 import fxexpansions.ControllerBase;
 import fxexpansions.ExpandingTilePane;
+import fxexpansions.FractionHandlingDoubleConverter;
 import fxexpansions.GuiInstance;
 import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
@@ -263,7 +265,7 @@ public class GuiUtil {
 
 	}
 
-	public static void setupCounter(Spinner<Double> spinner, double min, double max, double init, boolean allowEdit) {
+	public static void setupCounter(Spinner<Double> spinner, double min, double max, double init, boolean allowEdit, boolean allowFractions) {
 		SpinnerValueFactory.DoubleSpinnerValueFactory vf = new SpinnerValueFactory.DoubleSpinnerValueFactory(min, max, init);
 		spinner.setValueFactory(vf);
 		spinner.setEditable(allowEdit);
@@ -278,13 +280,30 @@ public class GuiUtil {
 		if (allowEdit) {
 			TextField txt = spinner.getEditor();
 			txt.textProperty().addListener((val, old, nnew) -> {
-				nnew = nnew.replaceAll("[^\\d\\.]", "");
-				if (!nnew.isEmpty() && Double.parseDouble(nnew) > max)
-					nnew = String.format("%.3f", max);
-				//if (nnew.length() > maxChars)
-				//	txt.setText(nnew.substring(0, maxChars));
-				txt.setText(nnew);
+				if (allowFractions) {
+					nnew = nnew.replaceAll("[^\\d\\.\\/]", "");
+					Double from = FractionHandlingDoubleConverter.instance.fromString(nnew);
+					if (from == null)
+						txt.setText(old);
+					else if (from.doubleValue() > max)
+						txt.setText(String.format("%.4f", max));
+				}
+				else {
+					nnew = nnew.replaceAll("[^\\d\\.]", "");
+					if (!Strings.isNullOrEmpty(nnew)) {
+						try {
+							double from = Double.parseDouble(nnew);
+							if (from > max)
+								txt.setText(String.format("%.4f", max));
+						}
+						catch (NumberFormatException e) {
+							txt.setText(old);
+						}
+					}
+				}
 			});
+			if (allowFractions)
+				vf.setConverter(FractionHandlingDoubleConverter.instance);
 		}
 		vf.setValue(init);
 	}

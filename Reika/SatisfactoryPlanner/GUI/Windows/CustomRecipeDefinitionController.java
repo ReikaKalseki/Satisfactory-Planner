@@ -229,7 +229,7 @@ public class CustomRecipeDefinitionController extends FXMLControllerBase {
 		modDropdown.getSelectionModel().select(0);
 
 		timeSpinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0.1, 999, 1));
-		GuiUtil.setupCounter(timeSpinner, 0.1, 999, 1, true);
+		GuiUtil.setupCounter(timeSpinner, 0.1, 999, 1, true, false);
 		timeSpinner.valueProperty().addListener((val, old, nnew) -> {
 			for (GuiInstance<IngredientDefinitionRowController> gui : ingredients) {
 				gui.controller.setTimeCoefficient(nnew.floatValue());
