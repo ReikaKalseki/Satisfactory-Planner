@@ -3,7 +3,6 @@ package Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies;
 import java.io.File;
 import java.util.function.Consumer;
 
-import org.apache.commons.lang3.math.Fraction;
 import org.json.JSONObject;
 
 import Reika.SatisfactoryPlanner.InternalIcons;
@@ -17,11 +16,11 @@ import Reika.SatisfactoryPlanner.Data.Objects.Buildables.Building;
 public class FromFactorySupply<R extends Consumable> implements ResourceSupply<FromFactorySupply<R>, R> {
 
 	public final R item;
-	public Fraction amount;
+	public float amount;
 	public final String sourceFactory;
 	public final File sourceFactoryFile;
 
-	public FromFactorySupply(R c, Fraction amt, String name, File f) {
+	public FromFactorySupply(R c, float amt, String name, File f) {
 		item = c;
 		amount = amt;
 		sourceFactory = name;
@@ -66,7 +65,7 @@ public class FromFactorySupply<R extends Consumable> implements ResourceSupply<F
 	}
 
 	@Override
-	public Fraction getYield() {
+	public float getYield() {
 		return amount;
 	}
 

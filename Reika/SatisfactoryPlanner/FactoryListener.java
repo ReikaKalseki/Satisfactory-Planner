@@ -4,8 +4,6 @@ import java.io.File;
 import java.util.Collection;
 import java.util.concurrent.Future;
 
-import org.apache.commons.lang3.math.Fraction;
-
 import Reika.SatisfactoryPlanner.Data.Constants.ToggleableVisiblityGroup;
 import Reika.SatisfactoryPlanner.Data.Factory;
 import Reika.SatisfactoryPlanner.Data.Objects.Consumable;
@@ -24,7 +22,7 @@ public interface FactoryListener extends Comparable<FactoryListener> {
 	public void onAddRecipes(Collection<Recipe> cc);
 	public void onRemoveRecipe(Recipe r);
 	public void onRemoveRecipes(Collection<Recipe> c);
-	public void onSetCount(Recipe r, Fraction count);
+	public void onSetCount(Recipe r, float count);
 	public void onSetCount(Generator g, Fuel fuel, int old, int count);
 	public void onAddProduct(Consumable c);
 	public void onRemoveProduct(Consumable c);

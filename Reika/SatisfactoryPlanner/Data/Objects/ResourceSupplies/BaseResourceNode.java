@@ -2,7 +2,6 @@ package Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies;
 
 import java.util.function.Consumer;
 
-import org.apache.commons.lang3.math.Fraction;
 import org.json.JSONObject;
 
 import Reika.SatisfactoryPlanner.Data.Constants.BeltTier;
@@ -59,9 +58,9 @@ public abstract class BaseResourceNode<S extends BaseResourceNode<S, R>, R exten
 
 	@Override
 	public void getWarnings(Consumer<Warning> c) {
-		Fraction yield = this.getYield();
+		float yield = this.getYield();
 		int max = this.getMaximumThroughput();
-		if (yield.doubleValue() > max) {
+		if (yield > max) {
 			c.accept(new PortThroughputWarning(this.getDescriptiveName(), yield, resource instanceof Fluid ? PipeTier.TWO : BeltTier.SIX, 1));
 		}
 	}

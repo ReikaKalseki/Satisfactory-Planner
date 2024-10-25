@@ -1,6 +1,5 @@
 package Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies;
 
-import org.apache.commons.lang3.math.Fraction;
 import org.json.JSONObject;
 
 import Reika.SatisfactoryPlanner.Data.Constants.BeltTier;
@@ -33,8 +32,8 @@ public class SolidResourceNode extends BaseResourceNode<SolidResourceNode, Item>
 	}
 
 	@Override
-	public Fraction getYield() {
-		return purityLevel == null || minerLevel == null ? Fraction.ZERO : (int)(purityLevel.getSolidYield()*minerLevel.speedMultiplier*this.getClockSpeed());
+	public float getYield() {
+		return purityLevel == null || minerLevel == null ? 0 : (int)(purityLevel.getSolidYield()*minerLevel.speedMultiplier*this.getClockSpeed());
 	}
 
 	@Override

@@ -4,8 +4,6 @@ import org.apache.commons.lang3.math.Fraction;
 
 import com.google.common.base.Strings;
 
-import Reika.SatisfactoryPlanner.GUI.GuiUtil;
-
 import javafx.util.StringConverter;
 
 
@@ -22,7 +20,7 @@ public class FractionHandlingDoubleConverter extends StringConverter<Double> {
 	@Override
 	public String toString(Double val) {
 		Fraction f = Fraction.getFraction(val.doubleValue()); //this is hiding a LOT of math, yet seems to perform fine...
-		return GuiUtil.formatProductionDecimal(f);
+		return f.toString();//GuiUtil.formatProductionDecimal(val.floatValue());
 	}
 
 	@Override

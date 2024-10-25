@@ -4,7 +4,6 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import org.apache.commons.lang3.math.Fraction;
 import org.json.JSONObject;
 
 import Reika.SatisfactoryPlanner.NamedIcon;
@@ -40,7 +39,7 @@ public interface ResourceSupply<S extends ResourceSupply<S, R>, R extends Consum
 
 	};
 
-	public Fraction getYield();
+	public float getYield();
 	public R getResource();
 
 	public void save(JSONObject block);
@@ -59,12 +58,12 @@ public interface ResourceSupply<S extends ResourceSupply<S, R>, R extends Consum
 		return this.getDisplayName()+" ["+this.getResource().displayName+"]";
 	}
 
-	public default Map<Consumable, Fraction> getIngredientsPerMinute() {
+	public default Map<Consumable, Float> getIngredientsPerMinute() {
 		return Map.of();
 	}
 
-	public default Map<Consumable, Fraction> getProductsPerMinute() {
-		return Map.of(this.getResource(), this.getYield());
+	public default Map<Consumable, Float> getProductsPerMinute() {
+		return Map.of(this.getResource(), (float)this.getYield());
 	}
 
 	@Override

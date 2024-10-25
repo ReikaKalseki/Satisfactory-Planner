@@ -11,7 +11,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import org.apache.commons.lang3.math.Fraction;
 import org.controlsfx.control.SearchableComboBox;
 
 import com.google.common.base.Strings;
@@ -458,10 +457,6 @@ public class GuiUtil {
 		DecimalFormat df = new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
 		df.setMaximumFractionDigits(4);
 		return df.format(amt);
-	}
-
-	public static String formatProductionDecimal(Fraction amt) {
-		return amt.toString();
 	}
 
 	public static final GuiInstance<ItemRateController> createItemView(Consumable c, float baseAmount, ExpandingTilePane container) {

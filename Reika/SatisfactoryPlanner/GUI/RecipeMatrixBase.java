@@ -17,7 +17,6 @@ import java.util.concurrent.Future;
 import java.util.function.Function;
 
 import org.apache.commons.lang3.function.TriConsumer;
-import org.apache.commons.lang3.math.Fraction;
 
 import com.google.common.base.Strings;
 
@@ -214,19 +213,19 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 		RecipeRow row = new RecipeRow(r, i, rowIndex);
 		recipeEntries.put(r, row);
 		grid.add(row.label, nameColumn, rowIndex);
-		for (Entry<Consumable, Fraction> e : r.getIngredientsPerMinute().entrySet()) {
+		for (Entry<Consumable, Float> e : r.getIngredientsPerMinute().entrySet()) {
 			Consumable c = e.getKey();
 			int col = ingredientsStartColumn+inputs.indexOf(c)*2;
-			GuiInstance<ItemRateController> gui = GuiUtil.createItemView(c, e.getValue().multiplyBy(this.getMultiplier(r)), grid, col, rowIndex);
+			GuiInstance<ItemRateController> gui = GuiUtil.createItemView(c, e.getValue()*this.getMultiplier(r), grid, col, rowIndex);
 			if (Setting.FIXEDMATRIX.getCurrentValue())
 				gui.controller.setMinWidth("9999.9999");
 			gui.rootNode.getStyleClass().add("matrix-item-cell");
 			row.inputSlots.put(c, new RateSlot(gui, col));
 		}
-		for (Entry<Consumable, Fraction> e : r.getProductsPerMinute().entrySet()) {
+		for (Entry<Consumable, Float> e : r.getProductsPerMinute().entrySet()) {
 			Consumable c = e.getKey();
 			int col = productsStartColumn+outputs.indexOf(c)*2;
-			GuiInstance<ItemRateController> gui = GuiUtil.createItemView(c, e.getValue().multiplyBy(this.getMultiplier(r)), grid, col, rowIndex);
+			GuiInstance<ItemRateController> gui = GuiUtil.createItemView(c, e.getValue()*this.getMultiplier(r), grid, col, rowIndex);
 			if (Setting.FIXEDMATRIX.getCurrentValue())
 				gui.controller.setMinWidth("9999.9999");
 			gui.rootNode.getStyleClass().add("matrix-item-cell");
@@ -603,10 +602,10 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 				break;
 			case MERGE:
 				Consumable item = r.getResource();
-				Fraction sum = Fraction.ZERO;
+				int sum = 0;
 				for (ResourceSupply r2 : owner.getSupplies()) {
 					if (r2.getResource() == item)
-						sum = sum.add(r2.getYield());
+						sum += r2.getYield();
 				}
 				recipeEntries.get(supplyGroup).setAmount(item, sum, false, true);
 				break;
@@ -701,7 +700,7 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 			return auxNodes.get(id);
 		}
 
-		public void setScale(Fraction scale) {
+		public void setScale(float scale) {
 			for (RateSlot gui : inputSlots.values()) {
 				gui.gui.controller.setScale(scale);
 				if (RecipeMatrixBase.this.isGridBuilt())
@@ -716,7 +715,7 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 				RecipeMatrixBase.this.resizeGrid();
 		}
 
-		public void setAmount(Consumable c, Fraction amt, boolean in, boolean out) {
+		public void setAmount(Consumable c, float amt, boolean in, boolean out) {
 			if (in) {
 				RateSlot gui = inputSlots.get(c);
 				if (gui != null) {
@@ -776,23 +775,23 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 		}
 
 		@Override
-		public Map<Consumable, Fraction> getIngredientsPerMinute() {
-			HashMap<Consumable, Fraction> map = new HashMap();
+		public Map<Consumable, Float> getIngredientsPerMinute() {
+			HashMap<Consumable, Float> map = new HashMap();
 			for (P r : producers) {
 				float scale = countFetch.apply(r);
 				if (scale > 0)
-					CountMap.incrementMapByMapFrac(map, r.getIngredientsPerMinute(), scale);
+					CountMap.incrementMapByMap(map, r.getIngredientsPerMinute(), scale);
 			}
 			return map;
 		}
 
 		@Override
-		public Map<Consumable, Fraction> getProductsPerMinute() {
-			HashMap<Consumable, Fraction> map = new HashMap();
+		public Map<Consumable, Float> getProductsPerMinute() {
+			HashMap<Consumable, Float> map = new HashMap();
 			for (P r : producers) {
 				float scale = countFetch.apply(r);
 				if (scale > 0)
-					CountMap.incrementMapByMapFrac(map, r.getProductsPerMinute(), scale);
+					CountMap.incrementMapByMap(map, r.getProductsPerMinute(), scale);
 			}
 			return map;
 		}
