@@ -10,11 +10,6 @@ public abstract class Building extends HandBuildable implements Comparable<Build
 	}
 
 	@Override
-	protected final String getIconFolder() {
-		return "Buildings";
-	}
-
-	@Override
 	public int compareTo(Building o) {
 		BuildingCategory s1 = this.getCategory();
 		BuildingCategory s2 = o.getCategory();

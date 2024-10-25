@@ -14,11 +14,6 @@ public class Vehicle extends HandBuildable implements Comparable<Vehicle> {
 	}
 
 	@Override
-	protected String getIconFolder() {
-		return "Buildings";//"Vehicles";
-	}
-
-	@Override
 	public int compareTo(Vehicle o) {
 		return String.CASE_INSENSITIVE_ORDER.compare(id, o.id);
 	}

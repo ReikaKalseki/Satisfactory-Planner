@@ -25,13 +25,15 @@
                       <ColumnConstraints hgrow="SOMETIMES" />
                     </columnConstraints>
                     <rowConstraints>
-                      <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" vgrow="SOMETIMES" />
-                        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" vgrow="SOMETIMES" />
-                        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" prefHeight="40.0" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="1.7976931348623157E308" minHeight="40.0" vgrow="ALWAYS" />
+                      <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" prefHeight="40.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" prefHeight="40.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" prefHeight="40.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" prefHeight="40.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" prefHeight="40.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" prefHeight="40.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" prefHeight="40.0" vgrow="SOMETIMES" />
                         <RowConstraints vgrow="SOMETIMES" />
                     </rowConstraints>
                      <children>
@@ -39,8 +41,8 @@
                         <Label layoutX="10.0" layoutY="17.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" text="Description" GridPane.rowIndex="1" />
                         <Label layoutX="10.0" layoutY="47.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Native Class" GridPane.rowIndex="2" />
                         <Label layoutX="10.0" layoutY="77.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" text="Energy Value" GridPane.rowIndex="3" />
-                        <Label layoutX="10.0" layoutY="107.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Flags" GridPane.rowIndex="6" />
-                        <GridPane GridPane.columnIndex="1" GridPane.rowIndex="6">
+                        <Label layoutX="10.0" layoutY="107.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Flags" GridPane.rowIndex="8" />
+                        <GridPane GridPane.columnIndex="1" GridPane.rowIndex="8">
                           <columnConstraints>
                               <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" percentWidth="14.286" />
                               <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" percentWidth="14.286" prefWidth="100.0" />
@@ -118,6 +120,55 @@
                               <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
                                  <image>
                                     <Image url="@../Graphics/Icons/copypaste.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                        </Button>
+                        <Label layoutX="10.0" layoutY="210.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" text="Source Mod" GridPane.rowIndex="7" />
+                        <Label layoutX="10.0" layoutY="170.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Tint Color" GridPane.rowIndex="6" />
+                        <Label fx:id="mod" layoutX="106.0" layoutY="210.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="table-row-darken" text="N/A" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                        <GridPane hgap="8.0" GridPane.columnIndex="1" GridPane.rowIndex="6">
+                           <columnConstraints>
+                              <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" percentWidth="33.333" />
+                              <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" percentWidth="33.333" prefWidth="100.0" />
+                              <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" percentWidth="33.333" prefWidth="100.0" />
+                           </columnConstraints>
+                           <rowConstraints>
+                              <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                              <RowConstraints vgrow="SOMETIMES" />
+                           </rowConstraints>
+                           <children>
+                              <Label fx:id="colorText" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              <Label fx:id="colorHex" alignment="CENTER" layoutX="141.0" layoutY="20.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                              <Label alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Preview" />
+                              <Label alignment="CENTER" layoutX="10.0" layoutY="8.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Unreal RGB" GridPane.columnIndex="1" />
+                              <Label alignment="CENTER" layoutX="164.0" layoutY="8.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Hex" GridPane.columnIndex="2" />
+                              <Button fx:id="copyColor" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
+                                 <graphic>
+                                    <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@../Graphics/Icons/copypaste.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic>
+                              </Button>
+                              <Button fx:id="copyHex" layoutX="368.0" layoutY="30.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
+                                 <graphic>
+                                    <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@../Graphics/Icons/copypaste.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic>
+                              </Button>
+                              <ImageView fx:id="colorBox" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="1" />
+                           </children>
+                        </GridPane>
+                        <Button fx:id="openMod" layoutX="638.0" layoutY="170.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="7">
+                           <graphic>
+                              <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../Graphics/Icons/button-icon-open.png" />
                                  </image>
                               </ImageView>
                            </graphic>

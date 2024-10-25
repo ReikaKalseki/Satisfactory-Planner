@@ -86,7 +86,7 @@ public abstract class Consumable extends Resource implements Comparable<Consumab
 		isRawResource = cat.equalsIgnoreCase("FGResourceDescriptor");
 		isEquipment = cat.equalsIgnoreCase("FGEquipmentDescriptor");
 		isFindable = findableOrder.contains(id);
-		isAlien = alienOrder.contains(id);
+		isAlien = alienOrder.contains(id); //"mIsAlienItem" is true
 		isBiomass = (cat.equalsIgnoreCase("FGItemDescriptorBiomass") && energyValue > 0) || remainsIDs.contains(id) || id.equalsIgnoreCase("Desc_AlienProtein_C") || id.equalsIgnoreCase("Desc_AlienDNACapsule_C");
 		isFicsmas = id.startsWith("Desc_Xmas") || id.equalsIgnoreCase("Desc_Snow_C") || displayName.startsWith("FICSMAS") || id.startsWith("Desc_Fireworks_Projectile") || id.startsWith("BP_EquipmentDescriptorCandyCane_C");
 		byCategory.addValue(cat, this);
@@ -146,11 +146,6 @@ public abstract class Consumable extends Resource implements Comparable<Consumab
 		if (idx1 == -1 || idx2 == -1)
 			return idx1 == idx2 ? fallback : idx1 == -1 ? 1 : -1;
 		return Integer.compare(idx1, idx2);
-	}
-
-	@Override
-	protected final String getIconFolder() {
-		return "Items";
 	}
 
 	public static Collection<Consumable> getForClass(String nat) {

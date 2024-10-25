@@ -27,6 +27,8 @@ public abstract class Resource implements NamedIcon {
 
 	private String sourceMod;
 
+	private File forcedIconFolder;
+
 	private final HashMap<Integer, Image> iconCache = new HashMap();
 
 	protected Resource(String id, String dn, String img) {
@@ -45,6 +47,12 @@ public abstract class Resource implements NamedIcon {
 		return this;
 	}
 
+	public final Resource setIconFolder(File f) {
+		forcedIconFolder = f;
+		iconCache.clear();
+		return this;
+	}
+
 	public final String getMod() {
 		return sourceMod;
 	}
@@ -53,8 +61,12 @@ public abstract class Resource implements NamedIcon {
 		return displayName;
 	}
 
+	protected final File getIconFolder() {
+		return forcedIconFolder != null && forcedIconFolder.exists() ? forcedIconFolder : new File(Setting.GAMEDIR.getCurrentValue(), "FactoryGame/Icons");
+	}
+
 	private InputStream getIcon() {
-		File f = new File(Setting.GAMEDIR.getCurrentValue(), "FactoryGame/Icons/"+iconName+".png");
+		File f = new File(this.getIconFolder(), iconName+".png");
 		try {
 			if (!f.exists()) {
 				missingAnyIcons = true;
@@ -105,8 +117,6 @@ public abstract class Resource implements NamedIcon {
 		GuiUtil.setTooltip(ret, displayName);
 		return ret;
 	}
-
-	protected abstract String getIconFolder();
 
 	public static void resetIconCheck() {
 		anyIcons = false;

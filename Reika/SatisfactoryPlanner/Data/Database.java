@@ -574,7 +574,12 @@ public class Database {
 
 	public static void loadCustomData() throws Exception {
 		Logging.instance.log("Loading direct custom data");
-		loadCustomItemFolder(Main.getRelativeFile("CustomDefinitions/Items"), "Custom", f -> copyTemplate(f, "item"));
+		File ico = Main.getRelativeFile("CustomDefinitions/Icons");
+		if (!ico.exists()) {
+			Logging.instance.log("No custom item icon folder exists; creating.");
+			ico.mkdirs();
+		}
+		loadCustomItemFolder(Main.getRelativeFile("CustomDefinitions/Items"), "Custom", false, f -> copyTemplate(f, "item"));
 		loadCustomBuildingFolder(Main.getRelativeFile("CustomDefinitions/Buildings"), "Custom", f -> copyTemplate(f, "building"));
 		loadCustomMilestoneFolder(Main.getRelativeFile("CustomDefinitions/Milestones"), "Custom", f -> copyTemplate(f, "milestone"));
 		loadCustomRecipeFolder(Main.getRelativeFile("CustomDefinitions/Recipes"), "Custom", f -> copyTemplate(f, "recipe"));
@@ -599,7 +604,7 @@ public class Database {
 				Logging.instance.log("Checking mod "+name);
 				File f = new File(mod, "ContentLib");
 				if (f.exists()) {
-					loadCustomItemFolder(new File(f, "Items"), name, null);
+					loadCustomItemFolder(new File(f, "Items"), name, true, null);
 					//loadCustomBuildingFolder(new File(f, "CustomBuildings"), name, null);
 					loadCustomMilestoneFolder(new File(f, "Schematics"), name, null);
 					loadCustomRecipeFolder(new File(f, "Recipes"), name, null);
@@ -800,7 +805,7 @@ public class Database {
 		return r;
 	}
 
-	private static void loadCustomItemFolder(File f0, String mod, ErrorableWithArgument<File> createTemplate) throws Exception {
+	private static void loadCustomItemFolder(File f0, String mod, boolean contentLib, ErrorableWithArgument<File> createTemplate) throws Exception {
 		if (!f0.exists()) {
 			if (createTemplate != null) {
 				Logging.instance.log("No custom item folder exists, creating templates.");
@@ -822,7 +827,24 @@ public class Database {
 					String id = JSONUtil.getString(obj, "ID", f2.getName().replace("Item_", "").replace(".json", ""))+"_C";
 					if (id.endsWith("_C_C"))
 						id = id.substring(0, id.length()-2);
-					String icon = JSONUtil.getString(obj, "Icon", id);
+					String icon;
+					File iconFolder = null;
+					if (contentLib) {
+						String visName = JSONUtil.getString(obj, "VisualKit", f2.getName().replace(".json", ""));
+						File visKit = new File(f0.getParentFile(), "VisualKits/"+visName+".json");
+						if (visKit.exists()) {
+							JSONObject vis = new JSONObject(FileUtils.readFileToString(visKit, Charsets.UTF_8));
+							icon = vis.getString("BigIcon");
+							iconFolder = new File(f0.getParentFile(), "Icons");
+						}
+						else {
+							icon = null;
+						}
+					}
+					else {
+						icon = JSONUtil.getString(obj, "Icon", id);
+						iconFolder = Main.getRelativeFile("CustomDefinitions/Icons");
+					}
 					String cat = obj.getString("Category");
 					float nrg = JSONUtil.getFloat(obj, "EnergyValue", 0);
 					boolean resource = obj.has("ResourceItem");
@@ -830,6 +852,7 @@ public class Database {
 						String clr = JSONUtil.getString(obj, "Color", null);
 						Fluid f = new Fluid(id, disp, icon, desc, cat, nrg, clr == null ? Color.BLACK : parseColor(clr), gas);
 						f.markModded(mod);
+						f.setIconFolder(iconFolder);
 						allItems.put(f.id, f);
 						allItemsSorted.add(f);
 						if (resource)
@@ -838,6 +861,7 @@ public class Database {
 					else {
 						Item i = new Item(id, disp, icon, desc, cat, nrg, getStackSize(obj), JSONUtil.getInt(obj, "ResourceSinkPoints", 0), JSONUtil.getFloat(obj, "RadioactiveDecay", 0));
 						i.markModded(mod);
+						i.setIconFolder(iconFolder);
 						allItems.put(i.id, i);
 						allItemsSorted.add(i);
 						if (resource)
