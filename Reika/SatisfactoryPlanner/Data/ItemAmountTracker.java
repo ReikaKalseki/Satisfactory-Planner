@@ -8,15 +8,15 @@ import Reika.SatisfactoryPlanner.Data.Objects.Consumable;
 
 public class ItemAmountTracker {
 
-	private final TreeMap<Consumable, Float> data = new TreeMap();
+	private final TreeMap<Consumable, Double> data = new TreeMap();
 
-	public void add(Consumable c, float amt) {
+	public void add(Consumable c, double amt) {
 		data.put(c, this.get(c)+amt);
 	}
 
-	public float get(Consumable c) {
-		Float get = data.get(c);
-		return get == null ? 0 : get.floatValue();
+	public double get(Consumable c) {
+		Double get = data.get(c);
+		return get == null ? 0 : get.doubleValue();
 	}
 
 	public Set<Consumable> getItems() {

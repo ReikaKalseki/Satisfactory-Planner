@@ -71,11 +71,11 @@ public class RecipeListCell extends DecoratedListCell<Recipe> {
 		return graphicBar;
 	}
 
-	public static HBox buildIODisplay(Recipe r, boolean compact, float rateScale) {
+	public static HBox buildIODisplay(Recipe r, boolean compact, double rateScale) {
 		return buildIODisplay(r, compact, rateScale, null);
 	}
 
-	public static HBox buildIODisplay(Recipe r, boolean compact, float rateScale, Consumable keyItem) {
+	public static HBox buildIODisplay(Recipe r, boolean compact, double rateScale, Consumable keyItem) {
 		HBox ingredients = new HBox();
 		HBox products = new HBox();
 		boolean rates = rateScale >= 0;
@@ -100,12 +100,12 @@ public class RecipeListCell extends DecoratedListCell<Recipe> {
 		ingredients.setAlignment(Pos.CENTER_RIGHT);
 		products.setAlignment(Pos.CENTER_LEFT);
 
-		for (Entry<Consumable, Float> e : r.getIngredientsPerMinute().entrySet()) {
+		for (Entry<Consumable, Double> e : r.getIngredientsPerMinute().entrySet()) {
 			if (keyItem != null && e.getKey() == keyItem)
 				continue;
 			ingredients.getChildren().add(createItemNode(e, rateScale, rates));
 		}
-		for (Entry<Consumable, Float> e : r.getProductsPerMinute().entrySet()) {
+		for (Entry<Consumable, Double> e : r.getProductsPerMinute().entrySet()) {
 			if (keyItem != null && e.getKey() == keyItem)
 				continue;
 			products.getChildren().add(createItemNode(e, rateScale, rates));
@@ -126,11 +126,11 @@ public class RecipeListCell extends DecoratedListCell<Recipe> {
 		return itemBar;
 	}
 
-	private static Node createItemNode(Entry<Consumable, Float> e, float rateScale, boolean rates) {
+	private static Node createItemNode(Entry<Consumable, Double> e, double rateScale, boolean rates) {
 		return createItemNode(e.getKey(), e.getValue(), rateScale, rates);
 	}
 
-	private static Node createItemNode(Consumable c, float amt, float rateScale, boolean rates) {
+	private static Node createItemNode(Consumable c, double amt, double rateScale, boolean rates) {
 		if (rates)
 			return new ItemRateController(c, amt*rateScale, false).setMinWidth("000.00").getRootNode();
 		else

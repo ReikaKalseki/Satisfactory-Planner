@@ -11,9 +11,9 @@ public interface ItemConsumerProducer {
 
 	public NamedIcon getLocationIcon();
 
-	public Map<Consumable, Float> getIngredientsPerMinute();
+	public Map<Consumable, Double> getIngredientsPerMinute();
 
-	public Map<Consumable, Float> getProductsPerMinute();
+	public Map<Consumable, Double> getProductsPerMinute();
 
 	//public boolean isPackaging();
 

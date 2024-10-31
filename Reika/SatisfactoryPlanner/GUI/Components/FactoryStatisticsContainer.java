@@ -200,13 +200,13 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 		}
 
 		if (flags.contains(StatFlags.SINK)) {
-			TreeMap<Item, Integer> breakdown = sinkBreakdown == null ? null : new TreeMap();
-			int points = factory.computeSinkPoints(breakdown);
+			TreeMap<Item, Double> breakdown = sinkBreakdown == null ? null : new TreeMap();
+			double points = factory.computeSinkPoints(breakdown);
 			if (sinkPoints != null)
-				sinkPoints.setText(String.format("%d / min", points));
+				sinkPoints.setText(String.format("%.2f / min", points));
 			if (sinkBreakdown != null) {
 				sinkBreakdown.getChildren().clear();
-				for (Entry<Item, Integer> e : breakdown.entrySet()) {
+				for (Entry<Item, Double> e : breakdown.entrySet()) {
 					//ItemSinkPointsController c = new ItemSinkPointsController(e.getKey(), e.getValue());
 					//GuiInstance<ItemSinkPointsController> gui = new GuiInstance<ItemSinkPointsController>(c.getRootNode(), c);
 					this.center(sinkBreakdown, GuiUtil.createItemView(e.getKey(), e.getValue().floatValue(), sinkBreakdown));
@@ -265,12 +265,12 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 			deficiencyBar.clear();
 
 			for (Consumable c : factory.getAllIngredients()) {
-				float sup = factory.getExternalInput(c, false);
-				float ship = sup-factory.getTotalProduction(c);
+				double sup = factory.getExternalInput(c, false);
+				double ship = sup-factory.getTotalProduction(c);
 				if (sup > 0 && ship > 0.0001 && ship >= Setting.IOTHRESH.getCurrentValue().floatValue()) {
 					this.center(netConsumptionBar, GuiUtil.createItemView(c, ship, netConsumptionBar));
 				}
-				float deficiency = factory.getTotalConsumption(c)-factory.getTotalProduction(c)-factory.getExternalInput(c, false);
+				double deficiency = factory.getTotalConsumption(c)-factory.getTotalProduction(c)-factory.getExternalInput(c, false);
 				if (deficiency > 0.0001 && deficiency >= Setting.IOTHRESH.getCurrentValue().floatValue()) {
 					this.center(deficiencyBar, GuiUtil.createItemView(c, deficiency, deficiencyBar)).controller.setState(WarningState.INSUFFICIENT);
 				}
@@ -287,10 +287,10 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 			ArrayList<Consumable> li = new ArrayList(set);
 			Collections.sort(li);
 			for (Consumable c : li) {
-				float amt = factory.getTotalProduction(c)-factory.getTotalConsumption(c);
+				double amt = factory.getTotalProduction(c)-factory.getTotalConsumption(c);
 				if (Setting.INOUT.getCurrentValue() != InputInOutputOptions.EXCLUDE)
 					amt += factory.getExternalInput(c, Setting.INOUT.getCurrentValue() == InputInOutputOptions.ALL ? false : true);
-				if (amt > 0.0001 && amt >= Setting.IOTHRESH.getCurrentValue().floatValue()) {
+				if (amt > 0.0001 && amt >= Setting.IOTHRESH.getCurrentValue().doubleValue()) {
 					GuiInstance<ItemRateController> gui = this.center(netProductBar, GuiUtil.createItemView(c, amt, netProductBar));
 					if (!factory.getDesiredProducts().contains(c))
 						gui.controller.setState(WarningState.LEFTOVER);

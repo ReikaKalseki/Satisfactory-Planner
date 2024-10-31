@@ -22,7 +22,7 @@ public interface FactoryListener extends Comparable<FactoryListener> {
 	public void onAddRecipes(Collection<Recipe> cc);
 	public void onRemoveRecipe(Recipe r);
 	public void onRemoveRecipes(Collection<Recipe> c);
-	public void onSetCount(Recipe r, float count);
+	public void onSetCount(Recipe r, double count);
 	public void onSetCount(Generator g, Fuel fuel, int old, int count);
 	public void onAddProduct(Consumable c);
 	public void onRemoveProduct(Consumable c);

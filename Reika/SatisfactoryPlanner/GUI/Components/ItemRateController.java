@@ -37,13 +37,13 @@ public class ItemRateController extends SizedControllerBase {
 
 	public final Consumable item;
 
-	private float baseAmount;
+	private double baseAmount;
 
 	private String minimumWidth = "min";
 
 	private final StackPane itemBox;
 
-	public ItemRateController(Consumable c, float amt, boolean table) {
+	public ItemRateController(Consumable c, double amt, boolean table) {
 		item = c;
 		baseAmount = amt;
 
@@ -92,17 +92,17 @@ public class ItemRateController extends SizedControllerBase {
 		GuiUtil.sizeToContent(minLabel);
 	}
 
-	public ItemRateController setAmount(float amt) {
+	public ItemRateController setAmount(double amt) {
 		baseAmount = amt;
 		this.setAmountText(amt);
 		return this;
 	}
 
-	public ItemRateController setScale(float scale) {
+	public ItemRateController setScale(double scale) {
 		return this.setAmountText(baseAmount*scale);
 	}
 
-	private ItemRateController setAmountText(float amt) {
+	private ItemRateController setAmountText(double amt) {
 		String txt = GuiUtil.formatProductionDecimal(amt);
 		amount.setText(txt);
 		this.setMinWidth(txt);

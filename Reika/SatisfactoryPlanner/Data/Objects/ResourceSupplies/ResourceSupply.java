@@ -39,7 +39,7 @@ public interface ResourceSupply<S extends ResourceSupply<S, R>, R extends Consum
 
 	};
 
-	public float getYield();
+	public double getYield();
 	public R getResource();
 
 	public void save(JSONObject block);
@@ -58,12 +58,12 @@ public interface ResourceSupply<S extends ResourceSupply<S, R>, R extends Consum
 		return this.getDisplayName()+" ["+this.getResource().displayName+"]";
 	}
 
-	public default Map<Consumable, Float> getIngredientsPerMinute() {
+	public default Map<Consumable, Double> getIngredientsPerMinute() {
 		return Map.of();
 	}
 
-	public default Map<Consumable, Float> getProductsPerMinute() {
-		return Map.of(this.getResource(), (float)this.getYield());
+	public default Map<Consumable, Double> getProductsPerMinute() {
+		return Map.of(this.getResource(), this.getYield());
 	}
 
 	@Override

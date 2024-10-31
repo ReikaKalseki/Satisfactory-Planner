@@ -120,15 +120,15 @@ public class CountMap<V> {
 		return Collections.unmodifiableMap(data);
 	}
 
-	public static <K> void incrementMapByMap(Map<K, Float> map, Map<K, Float> by) {
+	public static <K> void incrementMapByMap(Map<K, Double> map, Map<K, Double> by) {
 		incrementMapByMap(map, by, 1);
 	}
 
-	public static <K> void incrementMapByMap(Map<K, Float> map, Map<K, Float> by, float scale) {
-		for (Entry<K, Float> e : by.entrySet()) {
+	public static <K> void incrementMapByMap(Map<K, Double> map, Map<K, Double> by, double scale) {
+		for (Entry<K, Double> e : by.entrySet()) {
 			K c = e.getKey();
-			Float has = map.get(c);
-			map.put(c, (has == null ? 0 : has.floatValue())+e.getValue()*scale);
+			Double has = map.get(c);
+			map.put(c, (has == null ? 0 : has.doubleValue())+e.getValue()*scale);
 		}
 	}
 

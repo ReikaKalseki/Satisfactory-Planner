@@ -27,7 +27,7 @@ public abstract class LogisticSupply<S extends LogisticSupply<S, R>, R extends C
 	}
 
 	@Override
-	public final float getYield() {
+	public final double getYield() {
 		return chosenThroughput;
 	}
 

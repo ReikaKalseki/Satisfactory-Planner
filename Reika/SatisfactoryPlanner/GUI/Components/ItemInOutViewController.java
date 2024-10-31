@@ -61,12 +61,12 @@ public class ItemInOutViewController extends FXMLControllerBase {
 		outputs.getChildren().add(v.getRootNode());
 	}
 	 */
-	public void addInput(Consumable in, float amt) throws IOException {
+	public void addInput(Consumable in, double amt) throws IOException {
 		GuiInstance<ItemRateController> gui = GuiUtil.createItemView(in, amt, inputs);
 		inputViews.put(in, gui);
 	}
 
-	public void addOutput(Consumable out, float amt) throws IOException {
+	public void addOutput(Consumable out, double amt) throws IOException {
 		GuiInstance<ItemRateController> gui = GuiUtil.createItemView(out, amt, outputs);
 		outputViews.put(out, gui);
 	}

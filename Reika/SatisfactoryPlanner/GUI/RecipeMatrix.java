@@ -82,7 +82,7 @@ public class RecipeMatrix extends RecipeMatrixBase {
 	}
 
 	@Override
-	public void onSetCount(Recipe r, float count) {
+	public void onSetCount(Recipe r, double count) {
 
 	}
 

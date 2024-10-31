@@ -19,6 +19,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
+import org.apache.commons.lang3.math.Fraction;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -67,7 +68,7 @@ public class Factory {
 	public static final File saveDir = Main.getRelativeFile("Factories");
 
 	//private final CountMap<Recipe> recipes = new CountMap();
-	private final HashMap<Recipe, Float> recipes = new HashMap();
+	private final HashMap<Recipe, Fraction> recipes = new HashMap();
 	private final ArrayList<Recipe> recipeList = new ArrayList();
 	private final ArrayList<RecipeProductLoop> recipeLoops = new ArrayList();
 
@@ -144,7 +145,7 @@ public class Factory {
 				recipeLoops.add(c);
 		}
 		recipeList.add(r);
-		recipes.put(r, 0F);
+		recipes.put(r, Fraction.ZERO);
 		Collections.sort(recipeList);
 		hasUnsavedChanges = true;
 		if (loading)
@@ -165,7 +166,7 @@ public class Factory {
 					recipeLoops.add(c);
 			}
 			recipeList.add(r);
-			recipes.put(r, 0F);
+			recipes.put(r, Fraction.ZERO);
 		}
 		hasUnsavedChanges = true;
 		Collections.sort(recipeList);
@@ -380,7 +381,7 @@ public class Factory {
 	private void addFactorySupplies(File f, Factory fac) {
 		Collection<FromFactorySupply> li = new ArrayList();
 		for (Consumable c : fac.getDesiredProducts()) { //could also look at all produced items but this seems more right
-			float amt = fac.getTotalProduction(c)+fac.getExternalInput(c, false)-fac.getTotalConsumption(c);
+			double amt = fac.getTotalProduction(c)+fac.getExternalInput(c, false)-fac.getTotalConsumption(c);
 			if (amt > 0) {
 				li.add(new FromFactorySupply(c, amt, fac.name, f));
 			}
@@ -509,7 +510,7 @@ public class Factory {
 		return mines.getItems();
 	}
 
-	public float getTotalConsumption(Consumable c) {/*
+	public double getTotalConsumption(Consumable c) {/*
 		float amt = 0;
 		for (Recipe r : this.getRecipes()) {
 			Float get = r.getIngredientsPerMinute().get(c);
@@ -520,7 +521,7 @@ public class Factory {
 		return consumption.get(c);
 	}
 
-	public float getTotalProduction(Consumable c) {/*
+	public double getTotalProduction(Consumable c) {/*
 		float amt = 0;
 		for (Recipe r : this.getRecipes()) {
 			Float get = r.getProductsPerMinute().get(c);
@@ -531,7 +532,7 @@ public class Factory {
 		return production.get(c);
 	}
 
-	public float getExternalInput(Consumable c, boolean minesOnly) {
+	public double getExternalInput(Consumable c, boolean minesOnly) {
 		return minesOnly ? mines.get(c) : externalInput.get(c);
 	}
 	/*
@@ -548,18 +549,18 @@ public class Factory {
 	}
 	 */
 
-	public float getCount(Recipe r) {
-		return recipes.get(r);
+	public double getCount(Recipe r) {
+		return recipes.get(r).doubleValue();
 	}
 
-	public void setCount(Recipe r, float amt) {
+	public void setCount(Recipe r, Fraction amt) {
 		recipes.put(r, amt);
 		hasUnsavedChanges = true;
 		if (loading)
 			return;
 		this.rebuildFlows();
 		if (invalidMatrices.isEmpty())
-			this.notifyListeners(c -> c.onSetCount(r, amt));
+			this.notifyListeners(c -> c.onSetCount(r, amt.doubleValue()));
 		if (!skipNotify)
 			this.queueMatrixAlign();
 	}
@@ -609,13 +610,13 @@ public class Factory {
 		externalInput.clear();
 		consumption.clear();
 		for (Recipe r : recipes.keySet()) {
-			for (Entry<Consumable, Float> e : r.getIngredientsPerMinute().entrySet()) {
+			for (Entry<Consumable, Double> e : r.getIngredientsPerMinute().entrySet()) {
 				//this.getOrCreateFlow(e.getKey()).consumption += e.getValue();
-				consumption.add(e.getKey(), e.getValue()*recipes.get(r));
+				consumption.add(e.getKey(), e.getValue()*recipes.get(r).doubleValue());
 			}
-			for (Entry<Consumable, Float> e : r.getProductsPerMinute().entrySet()) {
+			for (Entry<Consumable, Double> e : r.getProductsPerMinute().entrySet()) {
 				//this.getOrCreateFlow(e.getKey()).production += e.getValue();
-				production.add(e.getKey(), e.getValue()*recipes.get(r));
+				production.add(e.getKey(), e.getValue()*recipes.get(r).doubleValue());
 			}
 		}
 		for (ResourceSupply r : this.getSupplies()) {
@@ -711,7 +712,7 @@ public class Factory {
 		avgMinMax[1] = avgMinMax[0];
 		avgMinMax[2] = avgMinMax[0];
 		for (Recipe r : recipeList) {
-			float amt = r.getPowerCost()*this.getCount(r);
+			float amt = (float)(r.getPowerCost()*this.getCount(r));
 			avgMinMax[0] -= amt;
 			avgMinMax[1] -= r.getMinPowerCost()*this.getCount(r);
 			avgMinMax[2] -= r.getMaxPowerCost()*this.getCount(r);
@@ -726,13 +727,13 @@ public class Factory {
 		}
 	}
 
-	public int computeSinkPoints(TreeMap<Item, Integer> breakdown) {
-		int ret = 0;
+	public double computeSinkPoints(TreeMap<Item, Double> breakdown) {
+		double ret = 0;
 		for (FactoryProduct c : desiredProducts.values()) {
 			if (c.item instanceof Item && c.isSinking) {
 				Item i = (Item)c.item;
-				float rate = this.getTotalProduction(c.item);
-				int amt = (int)(rate*i.sinkValue);
+				double rate = this.getTotalProduction(c.item);
+				double amt = rate*i.sinkValue;
 				ret += amt;
 				if (breakdown != null)
 					breakdown.put(i, amt);
@@ -774,17 +775,17 @@ public class Factory {
 				call.accept(new MultipleBeltsWarning(f.item, f.getTotalAvailable(), lim));
 		}*/
 		for (Consumable c : this.getAllIngredients()) {
-			float has = this.getExternalInput(c, false)+this.getTotalProduction(c);
-			float need = this.getTotalConsumption(c);
-			if (has < need) {
+			double has = this.getExternalInput(c, false)+this.getTotalProduction(c);
+			double need = this.getTotalConsumption(c);
+			if (has < need+0.0001) {
 				call.accept(new InsufficientResourceWarning(c, need, has));
 			}
 		}
 		for (Consumable c : this.getAllProducedItems()) {
-			float prod = this.getTotalProduction(c);
-			float sup = this.getExternalInput(c, false);
-			float has = prod+sup;
-			float need = this.getTotalConsumption(c);
+			double prod = this.getTotalProduction(c);
+			double sup = this.getExternalInput(c, false);
+			double has = prod+sup;
+			double need = this.getTotalConsumption(c);
 			boolean wanted = desiredProducts.containsKey(c);
 			if (has > need && !wanted) {
 				call.accept(new ExcessResourceWarning(c, need, has));
@@ -867,7 +868,7 @@ public class Factory {
 			for (Recipe r : recipeList) {
 				JSONObject block = new JSONObject();
 				block.put("id", r.id);
-				block.put("count", String.format("%.3f", recipes.get(r)));
+				block.put("count", String.format("%.18f", recipes.get(r).doubleValue()));
 				rec.put(block);
 			}
 			root.put("recipes", rec);
@@ -940,7 +941,7 @@ public class Factory {
 			this.recipes.set(r, block.getInt("count"));
 				 */
 				this.addRecipe(r);
-				this.setCount(r, block.getFloat("count"));
+				this.setCount(r, Fraction.getFraction(block.getDouble("count")));
 			}
 			WaitDialogManager.instance.setTaskProgress(taskID, 50);
 			for (Object o : gens) {

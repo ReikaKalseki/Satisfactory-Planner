@@ -27,7 +27,7 @@ public class RecipeDecompositionChain {
 	}
 
 	public void compute(Recipe root) {
-		Map<Consumable, Float> cost = root.getIngredientsPerMinute();
+		Map<Consumable, Double> cost = root.getIngredientsPerMinute();
 	}
 
 }

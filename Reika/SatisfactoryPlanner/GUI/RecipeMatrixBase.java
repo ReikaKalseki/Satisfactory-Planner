@@ -108,7 +108,7 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 	}
 
 	@Deprecated
-	protected float getMultiplier(ItemConsumerProducer r) {
+	protected double getMultiplier(ItemConsumerProducer r) {
 		return 1;
 	}
 
@@ -213,7 +213,7 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 		RecipeRow row = new RecipeRow(r, i, rowIndex);
 		recipeEntries.put(r, row);
 		grid.add(row.label, nameColumn, rowIndex);
-		for (Entry<Consumable, Float> e : r.getIngredientsPerMinute().entrySet()) {
+		for (Entry<Consumable, Double> e : r.getIngredientsPerMinute().entrySet()) {
 			Consumable c = e.getKey();
 			int col = ingredientsStartColumn+inputs.indexOf(c)*2;
 			GuiInstance<ItemRateController> gui = GuiUtil.createItemView(c, e.getValue()*this.getMultiplier(r), grid, col, rowIndex);
@@ -222,7 +222,7 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 			gui.rootNode.getStyleClass().add("matrix-item-cell");
 			row.inputSlots.put(c, new RateSlot(gui, col));
 		}
-		for (Entry<Consumable, Float> e : r.getProductsPerMinute().entrySet()) {
+		for (Entry<Consumable, Double> e : r.getProductsPerMinute().entrySet()) {
 			Consumable c = e.getKey();
 			int col = productsStartColumn+outputs.indexOf(c)*2;
 			GuiInstance<ItemRateController> gui = GuiUtil.createItemView(c, e.getValue()*this.getMultiplier(r), grid, col, rowIndex);
@@ -700,7 +700,7 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 			return auxNodes.get(id);
 		}
 
-		public void setScale(float scale) {
+		public void setScale(double scale) {
 			for (RateSlot gui : inputSlots.values()) {
 				gui.gui.controller.setScale(scale);
 				if (RecipeMatrixBase.this.isGridBuilt())
@@ -715,7 +715,7 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 				RecipeMatrixBase.this.resizeGrid();
 		}
 
-		public void setAmount(Consumable c, float amt, boolean in, boolean out) {
+		public void setAmount(Consumable c, double amt, boolean in, boolean out) {
 			if (in) {
 				RateSlot gui = inputSlots.get(c);
 				if (gui != null) {
@@ -775,8 +775,8 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 		}
 
 		@Override
-		public Map<Consumable, Float> getIngredientsPerMinute() {
-			HashMap<Consumable, Float> map = new HashMap();
+		public Map<Consumable, Double> getIngredientsPerMinute() {
+			HashMap<Consumable, Double> map = new HashMap();
 			for (P r : producers) {
 				float scale = countFetch.apply(r);
 				if (scale > 0)
@@ -786,8 +786,8 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 		}
 
 		@Override
-		public Map<Consumable, Float> getProductsPerMinute() {
-			HashMap<Consumable, Float> map = new HashMap();
+		public Map<Consumable, Double> getProductsPerMinute() {
+			HashMap<Consumable, Double> map = new HashMap();
 			for (P r : producers) {
 				float scale = countFetch.apply(r);
 				if (scale > 0)

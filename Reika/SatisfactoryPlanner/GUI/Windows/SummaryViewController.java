@@ -239,7 +239,7 @@ public class SummaryViewController extends FactoryStatisticsContainer {
 			Region lb = new Label(r.displayName);
 			if (r.isAlternate)
 				lb = GuiUtil.createSpacedHBox(lb, Database.lookupItem("Desc_HardDrive_C").createImageView(), null);
-			float amt = factory.getCount(r);
+			double amt = factory.getCount(r);
 			Node io = RecipeListCell.buildIODisplay(r, false, amt);
 			StackPane bld = GuiUtil.createItemDisplay(r.productionBuilding, 32, false);
 			Label ct = new Label(String.format("x%.2f", amt));

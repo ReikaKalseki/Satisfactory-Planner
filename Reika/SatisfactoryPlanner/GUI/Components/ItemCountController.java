@@ -27,7 +27,7 @@ public class ItemCountController extends SizedControllerBase {
 
 	public final Resource item;
 
-	public ItemCountController(Resource c, float amt, boolean compress) {
+	public ItemCountController(Resource c, double amt, boolean compress) {
 		item = c;
 
 		root.setSpacing(compress ? 8 : 4);
@@ -39,7 +39,7 @@ public class ItemCountController extends SizedControllerBase {
 		//countLabel.setStyle("-fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.FICSIT_COLOR)+"; "+GuiSystem.getFontStyle(FontModifier.BOLD));
 	}
 
-	public void setAmount(float amt) {
+	public void setAmount(double amt) {
 		countLabel.setText("x"+GuiUtil.formatProductionDecimal(amt));
 	}
 

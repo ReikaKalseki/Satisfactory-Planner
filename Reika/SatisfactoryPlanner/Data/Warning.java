@@ -94,7 +94,7 @@ public class Warning implements Comparable<Warning> {
 
 	public static class InsufficientResourceWarning extends Warning {
 
-		public InsufficientResourceWarning(Consumable c, float need, float have) {
+		public InsufficientResourceWarning(Consumable c, double need, double have) {
 			super(WarningSeverity.SEVERE, String.format("Consumption (%s) exceeds production/supply (%s) of %s", GuiUtil.formatProductionDecimal(need), GuiUtil.formatProductionDecimal(have), c.displayName), new ResourceIconName(c));
 		}
 
@@ -102,7 +102,7 @@ public class Warning implements Comparable<Warning> {
 
 	public static class ExcessResourceWarning extends Warning {
 
-		public ExcessResourceWarning(Consumable c, float need, float have) {
+		public ExcessResourceWarning(Consumable c, double need, double have) {
 			super(WarningSeverity.MINOR, String.format("Production (%s) exceeds requirements (%s) of %s", GuiUtil.formatProductionDecimal(have), GuiUtil.formatProductionDecimal(need), c.displayName), new ResourceIconName(c));
 		}
 
@@ -118,7 +118,7 @@ public class Warning implements Comparable<Warning> {
 
 	public static class MultipleBeltsWarning extends Warning {
 
-		public MultipleBeltsWarning(Consumable c, float amt, RateLimitedSupplyLine lim) {
+		public MultipleBeltsWarning(Consumable c, double amt, RateLimitedSupplyLine lim) {
 			super(WarningSeverity.INFO, String.format("Flow (%s) of %s exceeds the capacity (%d) of a single %s. Multiple (%d) parallel lines will be needed, and/or production of %s must be segmented", GuiUtil.formatProductionDecimal(amt), c.displayName, lim.getMaxThroughput(), lim.getDesc().toLowerCase(Locale.ENGLISH), (int)Math.ceil(amt/lim.getMaxThroughput()), c.displayName), THROUGHPUT_BOTTLENECK);
 		}
 
@@ -126,7 +126,7 @@ public class Warning implements Comparable<Warning> {
 
 	public static class PortThroughputWarning extends Warning {
 
-		public PortThroughputWarning(String desc, float amt, RateLimitedSupplyLine max, int count) {
+		public PortThroughputWarning(String desc, double amt, RateLimitedSupplyLine max, int count) {
 			super(WarningSeverity.SEVERE, String.format("%s: Flow rate (%.0f) exceeds maximum throughput (%d) of possible %ss (%d)", desc, amt, max.getMaxThroughput()*count, max.getDesc().toLowerCase(Locale.ENGLISH), count), THROUGHPUT_BOTTLENECK);
 		}
 

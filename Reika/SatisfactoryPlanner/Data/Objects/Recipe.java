@@ -26,7 +26,7 @@ public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 	public final CraftingBuilding productionBuilding;
 
 	public final float craftingTime;
-	public final float timeCoefficient;
+	public final double timeCoefficient;
 
 	public final boolean isFicsmas;
 
@@ -34,8 +34,8 @@ public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 
 	private final TreeMap<Consumable, Integer> costsRaw = new TreeMap();
 	private final TreeMap<Consumable, Integer> productsRaw = new TreeMap();
-	private final TreeMap<Consumable, Float> costsPerMinute = new TreeMap();
-	private final TreeMap<Consumable, Float> productPerMinute = new TreeMap();
+	private final TreeMap<Consumable, Double> costsPerMinute = new TreeMap();
+	private final TreeMap<Consumable, Double> productPerMinute = new TreeMap();
 
 	private final HashSet<Milestone> unlocks = new HashSet();
 
@@ -54,7 +54,7 @@ public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 		productionBuilding = b;
 		isAlternate = id.startsWith("Recipe_Alternate") && !id.equalsIgnoreCase("Recipe_Alternate_PolyesterFabric_C");
 		craftingTime = time;
-		timeCoefficient = 60F/craftingTime;
+		timeCoefficient = 60D/craftingTime;
 
 		isFicsmas = ficsmas;
 	}
@@ -149,11 +149,11 @@ public class Recipe implements ItemConsumerProducer, Comparable<Recipe> {
 		return Collections.unmodifiableMap(productsRaw);
 	}
 
-	public Map<Consumable, Float> getIngredientsPerMinute() {
+	public Map<Consumable, Double> getIngredientsPerMinute() {
 		return Collections.unmodifiableMap(costsPerMinute);
 	}
 
-	public Map<Consumable, Float> getProductsPerMinute() {
+	public Map<Consumable, Double> getProductsPerMinute() {
 		return Collections.unmodifiableMap(productPerMinute);
 	}
 

@@ -1,31 +1,31 @@
 {
     "recipes": [
         {
-            "count": "1.000",
+            "count": "1.333333333333333300",
             "id": "Recipe_Cable_C"
         },
         {
-            "count": "3.000",
-            "id": "Recipe_Alternate_Wire_2_C"
-        },
-        {
-            "count": "12.000",
+            "count": "12.000000000000000000",
             "id": "Recipe_QuartzCrystal_C"
         },
         {
-            "count": "11.000",
+            "count": "3.000000000000000000",
+            "id": "Recipe_Alternate_Wire_2_C"
+        },
+        {
+            "count": "11.083333333333334000",
             "id": "Recipe_Alternate_Quickwire_C"
         },
         {
-            "count": "2.000",
-            "id": "Recipe_PackagedBiofuel_C"
-        },
-        {
-            "count": "9.000",
+            "count": "9.000000000000000000",
             "id": "Recipe_ResidualRubber_C"
         },
         {
-            "count": "4.000",
+            "count": "2.000000000000000000",
+            "id": "Recipe_PackagedBiofuel_C"
+        },
+        {
+            "count": "4.500000000000000000",
             "id": "Recipe_Alternate_InstantPlutoniumCell_C"
         }
     ],
@@ -40,36 +40,33 @@
     "name": "temptest",
     "generators": [
         {
-            "count_Desc_LiquidTurboFuel_C": 0,
-            "count_Desc_LiquidBiofuel_C": 0,
-            "count_Desc_LiquidFuel_C": 2,
-            "id": "Build_GeneratorFuel_C"
-        },
-        {
             "count_Desc_Coal_C": 16,
             "count_Desc_CompactedCoal_C": 0,
             "count_Desc_PetroleumCoke_C": 0,
             "id": "Build_GeneratorCoal_C"
         },
         {
-            "count_Desc_HatcherParts_C": 0,
-            "count_Desc_Leaves_C": 0,
-            "count_Desc_SpitterParts_C": 0,
-            "count_Desc_Biofuel_C": 0,
-            "count_Desc_StingerParts_C": 0,
-            "count_Desc_HogParts_C": 0,
-            "count_Desc_Mycelia_C": 0,
-            "count_Desc_FlowerPetals_C": 0,
-            "id": "Build_GeneratorBiomass_C",
-            "count_Desc_Fabric_C": 0,
-            "count_Desc_GenericBiomass_C": 0,
-            "count_Desc_PackagedBiofuel_C": 0,
-            "count_Desc_Wood_C": 0
-        },
-        {
+            "count_Desc_FicsoniumFuelRod_C": 0,
             "count_Desc_NuclearFuelRod_C": 4,
             "id": "Build_GeneratorNuclear_C",
             "count_Desc_PlutoniumFuelRod_C": 0
+        },
+        {
+            "count_Desc_Leaves_C": 0,
+            "count_Desc_Mycelia_C": 0,
+            "count_Desc_Biofuel_C": 0,
+            "id": "Build_GeneratorBiomass_Automated_C",
+            "count_Desc_GenericBiomass_C": 0,
+            "count_Desc_Wood_C": 0,
+            "count_Desc_PackagedBiofuel_C": 0
+        },
+        {
+            "count_Desc_IonizedFuel_C": 0,
+            "count_Desc_LiquidTurboFuel_C": 0,
+            "count_Desc_LiquidBiofuel_C": 0,
+            "count_Desc_LiquidFuel_C": 2,
+            "id": "Build_GeneratorFuel_C",
+            "count_Desc_RocketFuel_C": 0
         }
     ],
     "resources": [
@@ -80,12 +77,23 @@
             "type": "OIL"
         },
         {
+            "item": "Desc_LiquidFuel_C",
+            "amount": 400,
+            "pipe": "TWO",
+            "type": "PIPE"
+        },
+        {
             "normal": 4,
             "item": "Desc_NitrogenGas_C",
             "clock": 1,
             "type": "FRACKING",
             "pure": 3,
             "impure": 2
+        },
+        {
+            "item": "Desc_Rubber_C",
+            "amount": 33,
+            "type": "TRUCK"
         },
         {
             "count": 32,
@@ -100,34 +108,41 @@
             "miner": "THREE"
         },
         {
-            "item": "BP_EquipmentDescriptorCandyCane_C",
-            "amount": 3,
-            "type": "DRONE"
-        },
-        {
-            "item": "Desc_LiquidFuel_C",
-            "amount": 400,
-            "pipe": "TWO",
-            "type": "PIPE"
-        },
-        {
-            "item": "Desc_Rubber_C",
-            "amount": 33,
-            "type": "TRUCK"
-        },
-        {
             "item": "Desc_Berry_C",
             "amount": 2330,
             "belt": "THREE",
             "type": "BELT"
+        },
+        {
+            "item": "BP_EquipmentDescriptorCandyCane_C",
+            "amount": 3,
+            "type": "DRONE"
         }
     ],
     "products": [
-        "Desc_CartridgeStandard_C",
-        "Desc_OreCopper_C",
-        "Desc_XmasBall3_C",
-        "Desc_SpaceElevatorPart_4_C",
-        "Desc_Berry_C",
-        "Desc_QuartzCrystal_C"
+        {
+            "sink": false,
+            "id": "Desc_OreCopper_C"
+        },
+        {
+            "sink": false,
+            "id": "Desc_Berry_C"
+        },
+        {
+            "sink": false,
+            "id": "Desc_CartridgeStandard_C"
+        },
+        {
+            "sink": false,
+            "id": "Desc_QuartzCrystal_C"
+        },
+        {
+            "sink": false,
+            "id": "Desc_XmasBall3_C"
+        },
+        {
+            "sink": false,
+            "id": "Desc_SpaceElevatorPart_4_C"
+        }
     ]
 }

@@ -16,8 +16,8 @@ public class Fuel implements ItemConsumerProducer, Comparable<Fuel> {
 	public final Generator generator;
 	public final Consumable item;
 	public final Consumable secondaryItem;
-	public final float primaryBurnRate;
-	public final float secondaryBurnRate;
+	public final double primaryBurnRate;
+	public final double secondaryBurnRate;
 
 	public final Consumable byproduct;
 	public final int byproductAmount;
@@ -58,14 +58,14 @@ public class Fuel implements ItemConsumerProducer, Comparable<Fuel> {
 	}
 
 	/** Per minute */
-	private float computePrimaryRate() {
+	private double computePrimaryRate() {
 		float ret = item.energyValue > 0 ? generator.powerGenerationMW/item.energyValue*60 : 0;
 		if (item instanceof Fluid)
 			ret /= Constants.LIQUID_SCALAR;
 		return ret;
 	}
 
-	private float computeSecondaryRate() {
+	private double computeSecondaryRate() {
 		if (secondaryItem == null)
 			return 0;
 		float ret = 60 * generator.powerGenerationMW * generator.supplementalRatio;//generator.getSecondaryBurnRate(1);
@@ -74,17 +74,17 @@ public class Fuel implements ItemConsumerProducer, Comparable<Fuel> {
 		return ret;
 	}
 
-	public float getByproductRate() {
+	public double getByproductRate() {
 		return byproductAmount*primaryBurnRate;
 	}
 
 	@Override
-	public Map<Consumable, Float> getIngredientsPerMinute() {
+	public Map<Consumable, Double> getIngredientsPerMinute() {
 		return secondaryItem == null ? Map.of(item, primaryBurnRate) : Map.of(item, primaryBurnRate, secondaryItem, secondaryBurnRate);
 	}
 
 	@Override
-	public Map<Consumable, Float> getProductsPerMinute() {
+	public Map<Consumable, Double> getProductsPerMinute() {
 		return byproduct == null ? Map.of() : Map.of(byproduct, this.getByproductRate());
 	}
 

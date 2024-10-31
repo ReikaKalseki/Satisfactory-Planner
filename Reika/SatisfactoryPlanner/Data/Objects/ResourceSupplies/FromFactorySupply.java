@@ -16,11 +16,11 @@ import Reika.SatisfactoryPlanner.Data.Objects.Buildables.Building;
 public class FromFactorySupply<R extends Consumable> implements ResourceSupply<FromFactorySupply<R>, R> {
 
 	public final R item;
-	public float amount;
+	public double amount;
 	public final String sourceFactory;
 	public final File sourceFactoryFile;
 
-	public FromFactorySupply(R c, float amt, String name, File f) {
+	public FromFactorySupply(R c, double amt, String name, File f) {
 		item = c;
 		amount = amt;
 		sourceFactory = name;
@@ -28,7 +28,7 @@ public class FromFactorySupply<R extends Consumable> implements ResourceSupply<F
 	}
 
 	private FromFactorySupply(JSONObject obj) {
-		this((R)Database.lookupItem(obj.getString("item")), obj.getFloat("amount"), obj.getString("name"), new File(obj.getString("path")));
+		this((R)Database.lookupItem(obj.getString("item")), obj.getDouble("amount"), obj.getString("name"), new File(obj.getString("path")));
 	}
 
 	@Override
@@ -65,7 +65,7 @@ public class FromFactorySupply<R extends Consumable> implements ResourceSupply<F
 	}
 
 	@Override
-	public float getYield() {
+	public double getYield() {
 		return amount;
 	}
 

@@ -29,7 +29,7 @@ public class SimpleProductionSupply implements ResourceSupply<SimpleProductionSu
 	}
 
 	@Override
-	public final float getYield() {
+	public final double getYield() {
 		return producer.getProductionRate()*count;
 	}
 
