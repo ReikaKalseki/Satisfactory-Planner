@@ -148,7 +148,7 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 			case INDIVIDUAL:
 				for (Generator g : Database.getAllGenerators()) {
 					for (Fuel f : g.getFuels()) {
-						int amt = owner.getCount(g, f);
+						double amt = owner.getCount(g, f);
 						if (amt > 0)
 							ret.add(f);
 					}
@@ -549,7 +549,7 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 	}
 
 	@Override
-	public void onSetCount(Generator g, Fuel fuel, int old, int count) {
+	public void onSetCount(Generator g, Fuel fuel, double old, double count) {
 		if ((old <= 0 && count > 0) || (count <= 0 && old > 0)) {
 			this.rebuild(true);
 		}

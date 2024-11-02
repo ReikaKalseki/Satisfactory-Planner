@@ -565,19 +565,19 @@ public class Factory {
 			this.queueMatrixAlign();
 	}
 
-	public int getCount(Generator g, Fuel f) {
+	public double getCount(Generator g, Fuel f) {
 		return generators.get(g).getCount(f);
 	}
 
-	public int getTotalGeneratorCount() {
+	public double getTotalGeneratorCount() {
 		int ret = 0;
 		for (FuelChoices fc : generators.values())
 			ret += fc.getTotal();
 		return ret;
 	}
 
-	public void setCount(Generator g, Fuel f, int amt) {
-		int old = generators.get(g).getCount(f);
+	public void setCount(Generator g, Fuel f, double amt) {
+		double old = generators.get(g).getCount(f);
 		generators.get(g).setCount(f, amt);
 		hasUnsavedChanges = true;
 		if (loading)
@@ -629,7 +629,7 @@ public class Factory {
 			for (FuelChoices fc : generators.values()) {
 				//this.getOrCreateFlow(r.getResource()).externalInput += r.getYield();
 				for (Fuel f : fc.generator.getFuels()) {
-					int amt = fc.getCount(f);
+					double amt = fc.getCount(f);
 					if (amt <= 0)
 						continue;
 					consumption.add(f.item, f.primaryBurnRate*amt);
@@ -662,7 +662,7 @@ public class Factory {
 		for (Recipe r : recipeList)
 			map.increment(r.productionBuilding, (int)Math.ceil(this.getCount(r)));
 		for (FuelChoices f : generators.values())
-			map.increment(f.generator, f.getTotal());
+			map.increment(f.generator, (int)Math.ceil(f.getTotal())+1);
 		for (ResourceSupply res : resourceSources.allValues(false)) {
 			Building b = res.getBuilding();
 			if (b != null)
@@ -674,7 +674,7 @@ public class Factory {
 		return map;
 	}
 
-	public int getCount(Generator g) {
+	public double getCount(Generator g) {
 		return generators.get(g).getTotal();
 	}
 	/*
@@ -688,12 +688,12 @@ public class Factory {
 		return map;
 	}*/
 
-	public void computeNetPowerProduction(float[] avgMinMax, Map<FunctionalBuilding, Float> breakdown) {
+	public void computeNetPowerProduction(double[] avgMinMax, Map<FunctionalBuilding, Double> breakdown) {
 		avgMinMax[0] = 0;
 		avgMinMax[1] = 0;
 		avgMinMax[2] = 0;
 		for (Generator g : generators.keySet()) {
-			float amt = g.powerGenerationMW*this.getCount(g);
+			double amt = g.powerGenerationMW*this.getCount(g);
 			avgMinMax[0] += amt;
 			if (breakdown != null && Math.abs(amt) > 0.01)
 				breakdown.put(g, amt);
@@ -703,8 +703,8 @@ public class Factory {
 			if (breakdown != null) {
 				Building b = r.getBuilding();
 				if (b instanceof FunctionalBuilding && Math.abs(((FunctionalBuilding)b).basePowerCostMW) > 0.01) {
-					Float has = breakdown.get(b);
-					float val = has == null ? 0 : has.floatValue();
+					Double has = breakdown.get(b);
+					double val = has == null ? 0 : has.doubleValue();
 					breakdown.put((FunctionalBuilding)b, val-r.getPowerCost());
 				}
 			}
@@ -712,15 +712,15 @@ public class Factory {
 		avgMinMax[1] = avgMinMax[0];
 		avgMinMax[2] = avgMinMax[0];
 		for (Recipe r : recipeList) {
-			float amt = (float)(r.getPowerCost()*this.getCount(r));
+			double amt = r.getPowerCost()*this.getCount(r);
 			avgMinMax[0] -= amt;
 			avgMinMax[1] -= r.getMinPowerCost()*this.getCount(r);
 			avgMinMax[2] -= r.getMaxPowerCost()*this.getCount(r);
 			if (breakdown != null) {
 				FunctionalBuilding b = r.productionBuilding;
 				if (Math.abs(b.basePowerCostMW) > 0.01) {
-					Float has = breakdown.get(b);
-					float val = has == null ? 0 : has.floatValue();
+					Double has = breakdown.get(b);
+					double val = has == null ? 0 : has.doubleValue();
 					breakdown.put(b, val-amt);
 				}
 			}
@@ -760,7 +760,7 @@ public class Factory {
 			return false;
 		//ItemFlow f = this.getFlow(c);
 		//return f != null && f.getTotalAvailable() > f.getConsumption();
-		return this.getTotalProduction(c)+this.getExternalInput(c, false) > this.getTotalConsumption(c);
+		return this.getTotalProduction(c)+this.getExternalInput(c, false) > this.getTotalConsumption(c)+0.0001;
 	}
 
 	public void getWarnings(Consumer<Warning> call) {/*
@@ -777,7 +777,7 @@ public class Factory {
 		for (Consumable c : this.getAllIngredients()) {
 			double has = this.getExternalInput(c, false)+this.getTotalProduction(c);
 			double need = this.getTotalConsumption(c);
-			if (has < need+0.0001) {
+			if (need > 0 && has+0.0001 < need) {
 				call.accept(new InsufficientResourceWarning(c, need, has));
 			}
 		}
@@ -953,7 +953,7 @@ public class Factory {
 				for (Fuel ff : r.getFuels()) {
 					String key = "count_"+ff.item.id;
 					if (block.has(key))
-						generators.get(r).setCount(ff, block.getInt(key));
+						generators.get(r).setCount(ff, block.getDouble(key));
 				}
 			}
 			WaitDialogManager.instance.setTaskProgress(taskID, 60);

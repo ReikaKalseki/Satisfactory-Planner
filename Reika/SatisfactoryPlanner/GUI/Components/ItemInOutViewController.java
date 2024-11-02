@@ -115,7 +115,7 @@ public class ItemInOutViewController extends FXMLControllerBase {
 		rootGrid.add(n, col, row);
 	}
 
-	public void setScale(float sc) {
+	public void setScale(double sc) {
 		for (GuiInstance<ItemRateController> v : inputViews.values()) {
 			v.controller.setScale(sc);
 		}

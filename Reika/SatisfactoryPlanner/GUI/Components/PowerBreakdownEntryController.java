@@ -18,13 +18,13 @@ import javafx.scene.layout.RowConstraints;
 public class PowerBreakdownEntryController extends SizedControllerBase {
 
 	public final FunctionalBuilding building;
-	public final float powerCost;
+	public final double powerCost;
 
 	private final GridPane root = new GridPane();
 	private final ImageView icon;
 	private final Label powerLabel = new Label();
 
-	public PowerBreakdownEntryController(FunctionalBuilding b, float pwr) {
+	public PowerBreakdownEntryController(FunctionalBuilding b, double pwr) {
 		building = b;
 		powerCost = pwr;
 

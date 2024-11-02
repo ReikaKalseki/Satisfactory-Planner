@@ -46,10 +46,12 @@
             "id": "Build_GeneratorCoal_C"
         },
         {
-            "count_Desc_FicsoniumFuelRod_C": 0,
-            "count_Desc_NuclearFuelRod_C": 4,
-            "id": "Build_GeneratorNuclear_C",
-            "count_Desc_PlutoniumFuelRod_C": 0
+            "count_Desc_IonizedFuel_C": 0,
+            "count_Desc_LiquidTurboFuel_C": 0,
+            "count_Desc_LiquidBiofuel_C": 0,
+            "count_Desc_LiquidFuel_C": 2,
+            "id": "Build_GeneratorFuel_C",
+            "count_Desc_RocketFuel_C": 0
         },
         {
             "count_Desc_Leaves_C": 0,
@@ -61,12 +63,10 @@
             "count_Desc_PackagedBiofuel_C": 0
         },
         {
-            "count_Desc_IonizedFuel_C": 0,
-            "count_Desc_LiquidTurboFuel_C": 0,
-            "count_Desc_LiquidBiofuel_C": 0,
-            "count_Desc_LiquidFuel_C": 2,
-            "id": "Build_GeneratorFuel_C",
-            "count_Desc_RocketFuel_C": 0
+            "count_Desc_FicsoniumFuelRod_C": 0,
+            "count_Desc_NuclearFuelRod_C": 4,
+            "id": "Build_GeneratorNuclear_C",
+            "count_Desc_PlutoniumFuelRod_C": 0
         }
     ],
     "resources": [
@@ -83,22 +83,9 @@
             "type": "PIPE"
         },
         {
-            "normal": 4,
-            "item": "Desc_NitrogenGas_C",
-            "clock": 1,
-            "type": "FRACKING",
-            "pure": 3,
-            "impure": 2
-        },
-        {
             "item": "Desc_Rubber_C",
             "amount": 33,
             "type": "TRUCK"
-        },
-        {
-            "count": 32,
-            "clock": 1.5,
-            "type": "WATER"
         },
         {
             "item": "Desc_Coal_C",
@@ -106,6 +93,19 @@
             "clock": 2.5,
             "type": "MINER",
             "miner": "THREE"
+        },
+        {
+            "count": 32,
+            "clock": 1.5,
+            "type": "WATER"
+        },
+        {
+            "normal": 4,
+            "item": "Desc_NitrogenGas_C",
+            "clock": 1,
+            "type": "FRACKING",
+            "pure": 3,
+            "impure": 2
         },
         {
             "item": "Desc_Berry_C",

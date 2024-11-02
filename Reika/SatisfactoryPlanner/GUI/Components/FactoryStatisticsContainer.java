@@ -215,8 +215,8 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 		}
 
 		if (flags.contains(StatFlags.POWER)) {
-			float[] avgMinMax = new float[3];
-			TreeMap<FunctionalBuilding, Float> breakdown = powerBreakdown == null ? null : new TreeMap();
+			double[] avgMinMax = new double[3];
+			TreeMap<FunctionalBuilding, Double> breakdown = powerBreakdown == null ? null : new TreeMap();
 			factory.computeNetPowerProduction(avgMinMax, breakdown);
 			String text = String.format("%.2fMW", avgMinMax[0]);
 			if (Math.abs(avgMinMax[1]-avgMinMax[2]) > 0.1) {
@@ -236,7 +236,7 @@ public abstract class FactoryStatisticsContainer extends FXMLControllerBase {
 			}
 			if (powerBreakdown != null) {
 				powerBreakdown.getChildren().clear();
-				for (Entry<FunctionalBuilding, Float> e : breakdown.entrySet()) {
+				for (Entry<FunctionalBuilding, Double> e : breakdown.entrySet()) {
 					PowerBreakdownEntryController c = new PowerBreakdownEntryController(e.getKey(), e.getValue());
 					GuiInstance<PowerBreakdownEntryController> gui = new GuiInstance<PowerBreakdownEntryController>(c.getRootNode(), c);
 					powerBreakdown.addEntry(gui);

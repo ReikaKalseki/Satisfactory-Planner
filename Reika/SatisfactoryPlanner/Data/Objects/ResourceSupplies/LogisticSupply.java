@@ -16,13 +16,13 @@ public abstract class LogisticSupply<S extends LogisticSupply<S, R>, R extends C
 
 	public final R resource;
 
-	private int chosenThroughput;
+	private double chosenThroughput;
 
 	protected LogisticSupply(R c) {
 		resource = c;
 	}
 
-	public final void setAmount(int amt) {
+	public final void setAmount(double amt) {
 		chosenThroughput = amt;
 	}
 
@@ -60,7 +60,7 @@ public abstract class LogisticSupply<S extends LogisticSupply<S, R>, R extends C
 
 	@Override
 	public int fineCompare(LogisticSupply r) {
-		return Integer.compare(chosenThroughput, r.chosenThroughput);
+		return Double.compare(chosenThroughput, r.chosenThroughput);
 	}
 
 }

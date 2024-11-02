@@ -15,7 +15,7 @@ public class InputBelt extends TieredLogisticSupply<InputBelt, BeltTier, Item> {
 
 	private InputBelt(JSONObject obj) {
 		this((Item)Database.lookupItem(obj.getString("item")), BeltTier.valueOf(obj.getString("belt")));
-		this.setAmount(obj.getInt("amount"));
+		this.setAmount(obj.getDouble("amount"));
 	}
 
 	@Override

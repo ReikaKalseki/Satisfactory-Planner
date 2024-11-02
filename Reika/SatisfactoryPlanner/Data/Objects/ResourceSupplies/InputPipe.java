@@ -15,7 +15,7 @@ public class InputPipe extends TieredLogisticSupply<InputPipe, PipeTier, Fluid> 
 
 	private InputPipe(JSONObject obj) {
 		this((Fluid)Database.lookupItem(obj.getString("item")), PipeTier.valueOf(obj.getString("pipe")));
-		this.setAmount(obj.getInt("amount"));
+		this.setAmount(obj.getDouble("amount"));
 	}
 
 	@Override

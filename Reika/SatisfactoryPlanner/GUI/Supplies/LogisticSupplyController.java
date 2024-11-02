@@ -51,7 +51,7 @@ public class LogisticSupplyController extends RadioTitledPaneSection {
 	private GridPane extraGrid;
 
 	@FXML
-	private Spinner<Integer> itemAmount;
+	private Spinner<Double> itemAmount;
 
 	@FXML
 	private SearchableComboBox<Consumable> itemDropdown;
@@ -137,7 +137,7 @@ public class LogisticSupplyController extends RadioTitledPaneSection {
 
 		//radioButtons.selectToggle(beltRadio); do not initial select because need to finish initializing to access owner for item filters
 
-		GuiUtil.setupCounter(itemAmount, 0, 9999, 0, true);
+		GuiUtil.setupCounter(itemAmount, 0, 9999, 0, true, true);
 		GuiUtil.setupCounter(trainStationCount, 0, 99, 0, false);
 
 		addButton.setOnAction(e -> {

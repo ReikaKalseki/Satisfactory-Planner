@@ -21,7 +21,7 @@ public class DroneStation extends LogisticSupply<DroneStation, Item> {
 
 	private DroneStation(JSONObject obj) {
 		this((Item)Database.lookupItem(obj.getString("item")));
-		this.setAmount(obj.getInt("amount"));
+		this.setAmount(obj.getDouble("amount"));
 	}
 
 	@Override

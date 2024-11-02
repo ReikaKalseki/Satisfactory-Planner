@@ -1,32 +1,34 @@
 package Reika.SatisfactoryPlanner.Data;
 
+import java.util.HashMap;
+
 import Reika.SatisfactoryPlanner.Data.Objects.Fuel;
 import Reika.SatisfactoryPlanner.Data.Objects.Buildables.Generator;
-import Reika.SatisfactoryPlanner.Util.CountMap;
 
 public class FuelChoices {
 
 	public final Generator generator;
 
-	private final CountMap<Fuel> counts = new CountMap();
+	private final HashMap<Fuel, Double> counts = new HashMap();
 
 	public FuelChoices(Generator g) {
 		generator = g;
 	}
 
-	public void setCount(Fuel f, int amt) {
+	public void setCount(Fuel f, double amt) {
 		if (!generator.getFuels().contains(f))
 			throw new IllegalArgumentException(generator.displayName+" does not accept "+f.item.displayName+" as fuel!");
-		counts.set(f, amt);
+		counts.put(f, amt);
 	}
 
-	public int getCount(Fuel f) {
-		return counts.get(f);
+	public double getCount(Fuel f) {
+		Double d = counts.get(f);
+		return d == null ? 0 : d.doubleValue();
 	}
 
-	public int getTotal() {
-		int sum = 0;
-		for (int val : counts.view().values())
+	public double getTotal() {
+		double sum = 0;
+		for (double val : counts.values())
 			sum += val;
 		return sum;
 	}

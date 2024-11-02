@@ -158,7 +158,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 				this.onSetCount((Recipe)r, owner.getCount((Recipe)r));
 			if (r instanceof Fuel) {
 				Fuel f = (Fuel)r;
-				int amt = owner.getCount(f.generator, f);
+				double amt = owner.getCount(f.generator, f);
 				this.onSetCount(f.generator, f, amt, amt);
 			}
 		}
@@ -215,8 +215,15 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 		}
 		else if (r instanceof Fuel) {
 			Fuel f = (Fuel)r;
-			Label lb = new Label(String.valueOf(owner.getCount(f.generator, f)));
-			lb.setPadding(new Insets(2, 2, 2, 8));
+			Region lb = Setting.FRACTION.getCurrentValue().format(owner.getCount(f.generator, f), false, false);
+			if (lb instanceof HBox) {
+				((HBox)lb).setAlignment(Pos.CENTER_LEFT);
+				lb.setPadding(new Insets(0, 0, 0, 8));
+			}
+			else {
+				lb.setPadding(new Insets(2, 2, 2, 8));
+			}
+			lb.setMaxHeight(40);
 			this.getGrid().add(lb, countColumn, rowIndex.rowIndex);
 		}
 		return rowIndex;
@@ -257,7 +264,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 	}
 
 	@Override
-	public void onSetCount(Generator g, Fuel fuel, int old, int count) {
+	public void onSetCount(Generator g, Fuel fuel, double old, double count) {
 		super.onSetCount(g, fuel, old, count);
 		if (count > 0 && recipeEntries.containsKey(fuel))
 			recipeEntries.get(fuel).setScale(count);
@@ -283,7 +290,7 @@ public class ScaledRecipeMatrix extends RecipeMatrixBase {
 		if (gui != null) {
 			double total = owner.getTotalConsumption(c);
 			gui.controller.setAmount(total);
-			gui.controller.setState(total > owner.getTotalProduction(c)+owner.getExternalInput(c, false) ? WarningState.INSUFFICIENT : WarningState.NONE);
+			gui.controller.setState(total > owner.getTotalProduction(c)+owner.getExternalInput(c, false)+0.0001 ? WarningState.INSUFFICIENT : WarningState.NONE);
 		}
 
 		gui = sumEntriesOut.get(c);

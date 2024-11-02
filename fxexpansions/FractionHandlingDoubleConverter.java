@@ -26,13 +26,15 @@ public class FractionHandlingDoubleConverter extends StringConverter<Double> {
 		if (idx < 0 || raw.length()-idx <= 4) //allow up to three decimal places
 			return GuiUtil.formatProductionDecimal(val.doubleValue());
 		Fraction f = Fraction.getFraction(val.doubleValue()); //this is hiding a LOT of math, yet seems to perform fine...
-		return f.toString();//GuiUtil.formatProductionDecimal(val.doubleValue());
+		return f.toProperString();//GuiUtil.formatProductionDecimal(val.doubleValue());
 	}
 
 	@Override
 	public Double fromString(String s) {
 		if (Strings.isNullOrEmpty(s))
 			return 0D;
+		try {
+			/*
 		try {
 			int div = s.indexOf('/');
 			if (div == -1) {
@@ -45,6 +47,17 @@ public class FractionHandlingDoubleConverter extends StringConverter<Double> {
 		}
 		catch (NumberFormatException e) {
 			return null;
+		}*/
+			char end = s.charAt(s.length()-1);
+			if (end == '.')
+				return Double.parseDouble(s.substring(0, s.length()-1));
+			else if (end == '/')
+				return Double.parseDouble(s.substring(0, s.length()-1).trim());
+			else
+				return Fraction.getFraction(s).doubleValue();
+		}
+		catch (NumberFormatException e) {
+			return 0D;
 		}
 	}
 

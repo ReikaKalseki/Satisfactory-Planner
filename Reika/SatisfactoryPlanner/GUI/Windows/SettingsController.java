@@ -8,6 +8,7 @@ import org.controlsfx.control.textfield.CustomTextField;
 import Reika.SatisfactoryPlanner.ConfirmationOptions;
 import Reika.SatisfactoryPlanner.Main;
 import Reika.SatisfactoryPlanner.Setting;
+import Reika.SatisfactoryPlanner.Setting.FractionDisplayOptions;
 import Reika.SatisfactoryPlanner.Setting.InputInOutputOptions;
 import Reika.SatisfactoryPlanner.Setting.SettingRef;
 import Reika.SatisfactoryPlanner.GUI.GuiUtil;
@@ -95,15 +96,32 @@ public class SettingsController extends FXMLControllerBase {
 	@FXML
 	private CheckBox inputRecent;
 
+	@FXML
+	private RadioButton decimalRadio;
+
+	@FXML
+	private RadioButton mixedFracRadio;
+
+	@FXML
+	private RadioButton improperFracRadio;
+
+	private final ToggleGroup fractionDisplayOptions = new ToggleGroup();
+
 	@Override
 	public void init(HostServices services) throws IOException {
 		excludeInRadio.setToggleGroup(includeInputOptions);
 		mineOnlyRadio.setToggleGroup(includeInputOptions);
 		allInRadio.setToggleGroup(includeInputOptions); //order must match enum
 
-		includeInputOptions.selectToggle(includeInputOptions.getToggles().get(Setting.INOUT.getCurrentValue().ordinal()));
+		decimalRadio.setToggleGroup(fractionDisplayOptions);
+		mixedFracRadio.setToggleGroup(fractionDisplayOptions);
+		improperFracRadio.setToggleGroup(fractionDisplayOptions); //order must match enum
 
+		includeInputOptions.selectToggle(includeInputOptions.getToggles().get(Setting.INOUT.getCurrentValue().ordinal()));
 		includeInputOptions.selectedToggleProperty().addListener((val, old, nnew) -> Setting.INOUT.changeValue(InputInOutputOptions.values()[includeInputOptions.getToggles().indexOf(nnew)]));
+
+		fractionDisplayOptions.selectToggle(fractionDisplayOptions.getToggles().get(Setting.FRACTION.getCurrentValue().ordinal()));
+		fractionDisplayOptions.selectedToggleProperty().addListener((val, old, nnew) -> Setting.FRACTION.changeValue(FractionDisplayOptions.values()[fractionDisplayOptions.getToggles().indexOf(nnew)]));
 
 		GuiUtil.setupCounter(displayThreshold, 0, 999, Setting.IOTHRESH.getCurrentValue().doubleValue(), true, false);
 		((DoubleSpinnerValueFactory)displayThreshold.getValueFactory()).setAmountToStepBy(0.125);

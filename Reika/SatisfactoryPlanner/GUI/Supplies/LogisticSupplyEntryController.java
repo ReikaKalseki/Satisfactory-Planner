@@ -14,7 +14,7 @@ import javafx.stage.Stage;
 public class LogisticSupplyEntryController<S extends LogisticSupply> extends ResourceSupplyEntryController<S> {
 
 	@FXML
-	private Spinner<Integer> amount;
+	private Spinner<Double> amount;
 
 	@FXML
 	private HBox countRow;
@@ -23,7 +23,7 @@ public class LogisticSupplyEntryController<S extends LogisticSupply> extends Res
 	protected void postInit(Stage w) throws IOException {
 		super.postInit(w);
 
-		GuiUtil.setupCounter(amount, 0, 9999, 0, true);
+		GuiUtil.setupCounter(amount, 0, 9999, 0, true, true);
 
 		amount.valueProperty().addListener((val, old, nnew) -> {
 			supply.setAmount(nnew);
@@ -41,7 +41,7 @@ public class LogisticSupplyEntryController<S extends LogisticSupply> extends Res
 
 	@Override
 	protected void onSetSupply(Factory f, LogisticSupply res) {
-		amount.getValueFactory().setValue((int)res.getYield());
+		amount.getValueFactory().setValue(res.getYield());
 		f.updateMatrixStatus(res.getResource());
 		countRow.getChildren().add(0, GuiUtil.createItemDisplay(supply.getResource(), 32, false));
 	}

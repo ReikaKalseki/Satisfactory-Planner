@@ -7,8 +7,22 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import org.apache.commons.lang3.math.Fraction;
+
+import Reika.SatisfactoryPlanner.GUI.UIConstants;
 import Reika.SatisfactoryPlanner.GUI.WaitDialogManager;
+import Reika.SatisfactoryPlanner.Util.ColorUtil;
 import Reika.SatisfactoryPlanner.Util.Errorable;
+
+import fxexpansions.FractionHandlingDoubleConverter;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.scene.shape.Line;
+import javafx.scene.shape.StrokeLineCap;
+import javafx.scene.shape.StrokeType;
 
 public class Setting<S> {
 
@@ -16,6 +30,7 @@ public class Setting<S> {
 	public static final Setting<File> GAMEDIR = new Setting<File>(new File("C:/Program Files (x86)/Steam/steamapps/common/Satisfactory"), FileConverter.instance).addChangeCallback(() -> Main.parseGameData());
 	public static final Setting<Boolean> ALLOWDECIMAL = new Setting<Boolean>(false, BoolConverter.instance);
 	public static final Setting<InputInOutputOptions> INOUT = new Setting<InputInOutputOptions>(InputInOutputOptions.MINES, new EnumConverter(InputInOutputOptions.class)).addChangeCallback(() -> Main.updateMainUI(false));
+	public static final Setting<FractionDisplayOptions> FRACTION = new Setting<FractionDisplayOptions>(FractionDisplayOptions.MIXED, new EnumConverter(FractionDisplayOptions.class)).addChangeCallback(() -> {Main.updateMainUI(true); Main.rebuildMatrices();});
 	public static final Setting<Float> IOTHRESH = new Setting<Float>(0F, FloatConverter.instance).addChangeCallback(() -> Main.updateMainUI(false));
 
 	public static final Setting<Boolean> OPENRECENT = new Setting<Boolean>(true, BoolConverter.instance);
@@ -216,6 +231,56 @@ public class Setting<S> {
 		EXCLUDE,
 		MINES,
 		ALL;
+	}
+
+	public enum FractionDisplayOptions {
+		DECIMAL,
+		MIXED,
+		IMPROPER;
+
+		public Region format(double amt, boolean includeX, boolean color) {
+			switch (Setting.FRACTION.getCurrentValue()) {
+				case DECIMAL:
+					return new Label(String.format("%s%.3f", includeX ? "x" : "", amt));
+				case MIXED:
+					String[] parts = FractionHandlingDoubleConverter.instance.toString(amt).split(" ");
+					Label lb = new Label(/*String.format("x%.2f", amt)*/(includeX ? "x" : "")+parts[0]);
+					if (parts.length == 2) {
+						String[] parts2 = parts[1].split("/");
+						VBox sp = new VBox();
+						sp.setSpacing(-2);
+						sp.setAlignment(Pos.CENTER);
+						HBox hb = new HBox();
+						hb.setAlignment(Pos.CENTER);
+						hb.setSpacing(2);
+						hb.getChildren().add(lb);
+						Line l = new Line();
+						l.setStrokeWidth(1);
+						l.setStrokeType(StrokeType.CENTERED);
+						l.setStrokeLineCap(StrokeLineCap.ROUND);
+						Label lb1 = new Label(parts2[0]);
+						Label lb2 = new Label(parts2[1]);
+						if (color) {
+							l.setStroke(UIConstants.WARN_COLOR);
+							lb.setStyle("-fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.WARN_COLOR));
+							lb1.setStyle("-fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.WARN_COLOR));
+							lb2.setStyle("-fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.WARN_COLOR));
+						}
+						sp.getChildren().add(lb1);
+						sp.getChildren().add(l);
+						sp.getChildren().add(lb2);
+						hb.getChildren().add(sp);
+						l.endXProperty().bind(lb2.widthProperty());
+						return hb;
+					}
+					else {
+						return lb;
+					}
+				case IMPROPER:
+					return new Label((includeX ? "x" : "")+Fraction.getFraction(amt).toString());
+			}
+			return null;
+		}
 	}
 
 }

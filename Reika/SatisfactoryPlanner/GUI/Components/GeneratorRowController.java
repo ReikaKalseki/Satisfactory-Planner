@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.TreeMap;
 
+import Reika.SatisfactoryPlanner.Setting;
 import Reika.SatisfactoryPlanner.Data.Factory;
 import Reika.SatisfactoryPlanner.Data.Objects.Fuel;
 import Reika.SatisfactoryPlanner.Data.Objects.Buildables.Generator;
@@ -21,12 +22,13 @@ import javafx.scene.control.Spinner;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class GeneratorRowController extends FXMLControllerBase {
 
 	@FXML
-	private Label countSumText;
+	private VBox countContainer;
 
 	@FXML
 	private HBox fuelBar;
@@ -107,12 +109,12 @@ public class GeneratorRowController extends FXMLControllerBase {
 		this.setCount(0);
 	}
 
-	public void setCount(int c) {
+	public void setCount(double c) {
 		for (Fuel f : generator.getFuels())
 			this.setCount(f, c);
 	}
 
-	public void setCount(Fuel f, int c) {
+	public void setCount(Fuel f, double c) {
 		if (settingValue.contains(f))
 			return;
 		settingValue.add(f);
@@ -120,9 +122,10 @@ public class GeneratorRowController extends FXMLControllerBase {
 		//Thread.dumpStack();
 		fuels.get(f).counter.getValueFactory().setValue(c);
 		//Logging.instance.log(generator.displayName+" x "+c+" > "+powerGenText.getText());
-		int sum = factory.getCount(generator);
+		double sum = factory.getCount(generator);
 		powerGenText.setText(String.format("%.0fMW", generator.powerGenerationMW*sum));
-		countSumText.setText(String.valueOf(sum));
+		countContainer.getChildren().clear();
+		countContainer.getChildren().add(Setting.FRACTION.getCurrentValue().format(sum, false, false));
 		settingValue.remove(f);
 	}
 	/*
@@ -143,15 +146,15 @@ public class GeneratorRowController extends FXMLControllerBase {
 
 		private final GuiInstance<ItemInOutViewController> gui;
 		private final Fuel fuel;
-		private final Spinner<Integer> counter;
+		private final Spinner<Double> counter;
 
 		private FuelBlock(GuiInstance<ItemInOutViewController> g, Fuel f) {
 			gui = g;
 			fuel = f;
 
 			int row = gui.controller.addRow();
-			counter = new Spinner<Integer>();//new Button("Choose");
-			GuiUtil.setupCounter(counter, 0, 9999, 0, true);
+			counter = new Spinner<Double>();//new Button("Choose");
+			GuiUtil.setupCounter(counter, 0, 9999, 0, true, true);
 			counter.valueProperty().addListener((val, old, nnew) -> {
 				factory.setCount(generator, fuel, nnew == null ? 0 : nnew);
 				gui.controller.setScale(nnew);

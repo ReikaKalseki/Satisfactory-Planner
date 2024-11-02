@@ -1,0 +1,71 @@
+{
+    "recipes": [{
+        "count": "0.666666666666666600",
+        "id": "Recipe_IngotIron_C"
+    }],
+    "toggles": [
+        "FLUID",
+        "FICSMAS",
+        "ALTERNATE",
+        "PACKAGING"
+    ],
+    "name": "fracdemo",
+    "generators": [
+        {
+            "count_Desc_Leaves_C": 0,
+            "count_Desc_Mycelia_C": 0,
+            "count_Desc_Biofuel_C": 0,
+            "id": "Build_GeneratorBiomass_Automated_C",
+            "count_Desc_GenericBiomass_C": 0,
+            "count_Desc_Wood_C": 0,
+            "count_Desc_PackagedBiofuel_C": 0
+        },
+        {
+            "count_Desc_FicsoniumFuelRod_C": 0,
+            "count_Desc_NuclearFuelRod_C": 0,
+            "id": "Build_GeneratorNuclear_C",
+            "count_Desc_PlutoniumFuelRod_C": 0
+        },
+        {
+            "count_Desc_IonizedFuel_C": 0,
+            "count_Desc_LiquidTurboFuel_C": 1.3333333333333333,
+            "count_Desc_LiquidBiofuel_C": 0,
+            "count_Desc_LiquidFuel_C": 2.5,
+            "id": "Build_GeneratorFuel_C",
+            "count_Desc_RocketFuel_C": 0.8571428571428571
+        },
+        {
+            "count_Desc_Coal_C": 0,
+            "count_Desc_CompactedCoal_C": 0,
+            "count_Desc_PetroleumCoke_C": 0,
+            "id": "Build_GeneratorCoal_C"
+        }
+    ],
+    "resources": [
+        {
+            "item": "Desc_LiquidFuel_C",
+            "amount": 50,
+            "pipe": "ONE",
+            "type": "PIPE"
+        },
+        {
+            "item": "Desc_LiquidTurboFuel_C",
+            "amount": 10,
+            "pipe": "ONE",
+            "type": "PIPE"
+        },
+        {
+            "item": "Desc_OreIron_C",
+            "amount": 20,
+            "belt": "ONE",
+            "type": "BELT"
+        },
+        {
+            "item": "Desc_RocketFuel_C",
+            "amount": 3.5714285714285716,
+            "pipe": "ONE",
+            "type": "PIPE"
+        }
+    ],
+    "products": []
+}

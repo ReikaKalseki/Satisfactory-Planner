@@ -28,7 +28,7 @@ public class TrainStation<R extends Consumable> extends LogisticSupply<TrainStat
 
 	private TrainStation(JSONObject obj) {
 		this((R)Database.lookupItem(obj.getString("item")), obj.getInt("stations"));
-		this.setAmount(obj.getInt("amount"));
+		this.setAmount(obj.getDouble("amount"));
 	}
 
 	@Override

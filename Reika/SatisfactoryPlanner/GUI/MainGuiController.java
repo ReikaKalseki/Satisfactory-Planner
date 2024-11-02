@@ -798,7 +798,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	}
 
 	@Override
-	public void onSetCount(Generator g, Fuel fuel, int old, int count) {
+	public void onSetCount(Generator g, Fuel fuel, double old, double count) {
 		generators.get(g).controller.setCount(fuel, count);/*
 		double maxCountW = -1;
 		double maxPowerW = -1;/*

@@ -15,6 +15,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 
 import Reika.SatisfactoryPlanner.Main;
+import Reika.SatisfactoryPlanner.Setting;
 import Reika.SatisfactoryPlanner.Data.Constants.Purity;
 import Reika.SatisfactoryPlanner.Data.Database;
 import Reika.SatisfactoryPlanner.Data.Factory;
@@ -52,6 +53,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.control.Labeled;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TitledPane;
 import javafx.scene.image.ImageView;
@@ -164,7 +166,7 @@ public class SummaryViewController extends FactoryStatisticsContainer {
 					hb.setSpacing(24);
 					hb.getChildren().add(g.createImageView(32));
 					for (Fuel f : g.getFuels()) {
-						int amt = factory.getCount(g, f);
+						double amt = factory.getCount(g, f);
 						if (amt > 0) {
 							ItemCountController cc = GuiUtil.addIconCount(f.item, amt, 4, true, hb).controller;
 						}
@@ -242,7 +244,7 @@ public class SummaryViewController extends FactoryStatisticsContainer {
 			double amt = factory.getCount(r);
 			Node io = RecipeListCell.buildIODisplay(r, false, amt);
 			StackPane bld = GuiUtil.createItemDisplay(r.productionBuilding, 32, false);
-			Label ct = new Label(String.format("x%.2f", amt));
+			Region ct = Setting.FRACTION.getCurrentValue().format(amt, true, true);
 			if (amt-(int)amt > 0.01)
 				ct.setStyle("-fx-text-fill: "+ColorUtil.getCSSHex(UIConstants.WARN_COLOR));
 			lb.setPadding(new Insets(0, 4, 0, 4));
@@ -250,11 +252,12 @@ public class SummaryViewController extends FactoryStatisticsContainer {
 			recipeGrid.add(io, 1, i);
 			recipeGrid.add(bld, 2, i);
 			recipeGrid.add(ct, 3, i);
-			lb.setMaxWidth(Double.MAX_VALUE);
-			lb.setMaxHeight(Double.MAX_VALUE);
 			ct.setMaxWidth(Double.MAX_VALUE);
 			ct.setMaxHeight(Double.MAX_VALUE);
-			ct.setAlignment(Pos.CENTER);
+			lb.setMaxWidth(Double.MAX_VALUE);
+			lb.setMaxHeight(Double.MAX_VALUE);
+			if (ct instanceof Labeled)
+				((Labeled)ct).setAlignment(Pos.CENTER);
 
 			GuiUtil.setHeight(recipeGrid.getRowConstraints().get(i), 40);
 			if (i%2 == 1) {
