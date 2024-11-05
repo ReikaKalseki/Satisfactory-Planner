@@ -1125,7 +1125,11 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 		hb.getChildren().add(b);
 		hb.getChildren().add(lb);
 		hb.getChildren().add(RecipeListCell.buildIODisplay(r, false, 1));
-		HBox ret = GuiUtil.createSpacedHBox(hb, counter, null);
+		HBox hb2 = new HBox();
+		hb2.setSpacing(8);
+		hb2.getChildren().add(r.productionBuilding.createImageView());
+		hb2.getChildren().add(counter);
+		HBox ret = GuiUtil.createSpacedHBox(hb, hb2, null);
 		ret.setPrefHeight(40);
 		ret.setMinHeight(Region.USE_PREF_SIZE);
 		ret.setMaxHeight(Region.USE_PREF_SIZE);
