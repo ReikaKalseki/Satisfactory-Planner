@@ -9,6 +9,7 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
@@ -19,6 +20,7 @@ import org.apache.commons.lang3.math.Fraction;
 import org.controlsfx.control.SearchableComboBox;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.HashBiMap;
 
 import Reika.SatisfactoryPlanner.ConfirmationOptions;
 import Reika.SatisfactoryPlanner.FactoryListener;
@@ -61,8 +63,7 @@ import fxexpansions.GuiInstance;
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.event.EventHandler;
-import javafx.event.EventTarget;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -71,8 +72,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -89,11 +88,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -117,7 +114,7 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	protected TitledPane outputGridContainer;
 
 	@FXML
-	protected ListView<ActiveRecipe> recipeListView;
+	protected VBox recipeListView;
 
 	@FXML
 	private ScrollPane overviewScroll;
@@ -308,12 +305,21 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	private final HashMap<Consumable, GuiInstance<ItemOutputController>> productButtons = new HashMap();
 	private final HashMap<ResourceSupply, GuiInstance<? extends ResourceSupplyEntryController>> supplyEntries = new HashMap();
 	private final HashMap<Node, GuiInstance<? extends ResourceSupplyEntryController>> supplyEntryNodes = new HashMap();
+	private final HashBiMap<Recipe, Node> recipeListEntries = HashBiMap.create();
 	private int maxAllowedTier = 999;
 
 	private final Comparator<Node> supplySorter = new Comparator<Node>() {
 		@Override
 		public int compare(Node o1, Node o2) {
 			return supplyEntryNodes.get(o1).controller.compareTo(supplyEntryNodes.get(o2).controller);
+		}
+	};
+
+	private final Comparator<Node> recipeListSorter = new Comparator<Node>() {
+		@Override
+		public int compare(Node o1, Node o2) {
+			Map<Node, Recipe> map = recipeListEntries.inverse();
+			return map.get(o1).compareTo(map.get(o2));
 		}
 	};
 
@@ -407,19 +413,6 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 			@Override
 			public boolean clearOnSelect() {
 				return true;
-			}
-		});
-
-		recipeListView.setCellFactory(c -> new ActiveRecipeListCell());
-		//recipeListView.setSelectionModel(null);
-		recipeListView.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
-
-			@Override
-			public void handle(MouseEvent event) {
-				EventTarget n = event.getTarget();
-				if (n instanceof Button || n instanceof StackPane || (n instanceof Node && ((Node)n).getParent() instanceof TextField))
-					return;
-				event.consume();
 			}
 		});
 
@@ -752,8 +745,9 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 		for (GuiInstance<ItemOutputController> g : productButtons.values())
 			productGrid.getChildren().remove(g.rootNode);
 
-		recipeListView.getItems().clear();
+		recipeListView.getChildren().clear();
 
+		recipeListEntries.clear();
 		productButtons.clear();
 		supplyEntries.clear();
 		supplyEntryNodes.clear();
@@ -806,30 +800,58 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	@Override
 	public void onAddRecipe(Recipe r) {
 		this.rebuildLists(true, false, false);
-		GuiUtil.addSortedEntry(recipeListView, new ActiveRecipe(r));
 		this.updateStats(this.getAllExcept(StatFlags.LOCALSUPPLY));
+		this.addRecipeToList(r);
 	}
 
 	@Override
 	public void onAddRecipes(Collection<Recipe> c) {
 		this.rebuildLists(true, false, false);
-		for (Recipe r : c)
-			GuiUtil.addSortedEntry(recipeListView, new ActiveRecipe(r));
+		for (Recipe r : c) {
+			this.addRecipeToList(r);
+		}
 		this.updateStats(this.getAllExcept(StatFlags.LOCALSUPPLY));
+	}
+
+	private void addRecipeToList(Recipe r) {
+		Node n = this.createActiveRecipeCell(r);
+		recipeListEntries.put(r, n);
+		GuiUtil.addSortedNode(recipeListView, n, recipeListSorter);
+		this.updateRecipeListShading();
+	}
+
+	private void updateRecipeListShading() {
+		int i = 0;
+		for (Node n : recipeListView.getChildren()) {
+			ObservableList<String> styles = n.getStyleClass();
+			if (i%2 == 1) {
+				if (!styles.contains("table-row-darken"))
+					styles.add("table-row-darken");
+			}
+			else
+				styles.removeIf(s -> s.equals("table-row-darken"));
+			i++;
+			n.applyCss();
+		}
 	}
 
 	@Override
 	public void onRemoveRecipe(Recipe r) {
 		this.rebuildLists(true, false, false);
-		recipeListView.getItems().removeIf(a -> a.recipe.id.equals(r.id));
+		recipeListView.getChildren().remove(recipeListEntries.get(r));
+		recipeListEntries.remove(r);
+		this.updateRecipeListShading();
 		this.updateStats(this.getAllExcept(StatFlags.LOCALSUPPLY));
 	}
 
 	@Override
 	public void onRemoveRecipes(Collection<Recipe> c) {
 		this.rebuildLists(true, false, false);
-		for (Recipe r : c)
-			recipeListView.getItems().removeIf(a -> a.recipe.id.equals(r.id));
+		for (Recipe r : c) {
+			recipeListView.getChildren().remove(recipeListEntries.get(r));
+			recipeListEntries.remove(r);
+		}
+		this.updateRecipeListShading();
 		this.updateStats(this.getAllExcept(StatFlags.LOCALSUPPLY));
 	}
 
@@ -1059,98 +1081,58 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 		});
 	}
 
-	class ActiveRecipe implements Comparable<ActiveRecipe> {
-
-		public final Recipe recipe;
-		public double amount;
-
-		public ActiveRecipe(Recipe r) {
-			recipe = r;
-		}
-
-		@Override
-		public int compareTo(ActiveRecipe o) {
-			return recipe.compareTo(o.recipe);
-		}
-
-	}
-
-	class ActiveRecipeListCell extends ListCell<ActiveRecipe> {
-
-		@Override
-		protected final void updateItem(ActiveRecipe r, boolean empty) {
-			super.updateItem(r, empty);
-			if (empty || r == null) {
-				this.setText("");
-				this.setGraphic(null);
+	private HBox createActiveRecipeCell(Recipe r) {
+		Spinner<Double> counter = new Spinner();
+		GuiUtil.setupCounter(counter, 0, 9999, factory.getCount(r), true, true);
+		counter.setPrefHeight(32);
+		counter.setMinHeight(Region.USE_PREF_SIZE);
+		counter.setMaxHeight(Region.USE_PREF_SIZE);
+		//counter.getValueFactory().setValue(owner.get);
+		counter.valueProperty().addListener((val, old, nnew) -> {
+			if (nnew != null) {
+				factory.setCount(r, Fraction.getFraction(counter.getEditor().getText()));
 			}
-			else {
-				//this.setText(r.name);
-				this.setText("");
-				this.setGraphic(this.createCellContent(r));
-			}
-			this.setMaxWidth(Double.MAX_VALUE);
-			this.setMinWidth(Region.USE_COMPUTED_SIZE);
-			this.setPrefWidth(Region.USE_COMPUTED_SIZE);
-			this.setMaxHeight(40);
-			this.setMinHeight(40);
-			this.setFocusTraversable(false);
-		}
-
-		private Node createCellContent(ActiveRecipe r) {
-			Spinner<Double> counter = new Spinner();
-			GuiUtil.setupCounter(counter, 0, 9999, factory.getCount(r.recipe), true, true);
-			counter.setPrefHeight(32);
-			counter.setMinHeight(Region.USE_PREF_SIZE);
-			counter.setMaxHeight(Region.USE_PREF_SIZE);
-			//counter.getValueFactory().setValue(owner.get);
-			counter.valueProperty().addListener((val, old, nnew) -> {
-				if (nnew != null) {
-					factory.setCount(r.recipe, Fraction.getFraction(counter.getEditor().getText()));
-				}
-			});
-			counter.setTooltip(new Tooltip(r.recipe.displayName));
-			Label lb = new Label(r.recipe.displayName);
-			lb.setMinWidth(400);
-			HBox hb = new HBox();
-			hb.setSpacing(6);
-			hb.setAlignment(Pos.CENTER_LEFT);
-			Button b = new Button();
-			b.setGraphic(new ImageView(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/button-cancel-icon.png"), 32, 32, true, true)));
-			b.setPrefWidth(32);
-			b.setPrefHeight(32);
-			b.setMinHeight(Region.USE_PREF_SIZE);
-			b.setMaxHeight(Region.USE_PREF_SIZE);
-			b.setMinWidth(Region.USE_PREF_SIZE);
-			b.setMaxWidth(Region.USE_PREF_SIZE);
-			b.setOnAction(e -> {
-				factory.removeRecipe(r.recipe);
-			});
-			hb.getChildren().add(b);
-			b = new Button();
-			b.setGraphic(new ImageView(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/button-reset-icon.png"), 32, 32, true, true)));
-			b.setPrefWidth(32);
-			b.setPrefHeight(32);
-			b.setMinHeight(Region.USE_PREF_SIZE);
-			b.setMaxHeight(Region.USE_PREF_SIZE);
-			b.setMinWidth(Region.USE_PREF_SIZE);
-			b.setMaxWidth(Region.USE_PREF_SIZE);
-			b.setOnAction(e -> {
-				counter.getValueFactory().setValue(0D);
-			});
-			hb.getChildren().add(b);
-			hb.getChildren().add(lb);
-			hb.getChildren().add(RecipeListCell.buildIODisplay(r.recipe, false, 1));
-			HBox ret = GuiUtil.createSpacedHBox(hb, counter, null);
-			ret.setPrefHeight(40);
-			ret.setMinHeight(Region.USE_PREF_SIZE);
-			ret.setMaxHeight(Region.USE_PREF_SIZE);
-			ret.setMaxWidth(Double.MAX_VALUE);
-			ret.setMinWidth(Region.USE_COMPUTED_SIZE);
-			ret.setPrefWidth(Region.USE_COMPUTED_SIZE);
-			ret.setPadding(new Insets(4, 0, 0, 0));
-			return ret;
-		}
-
+		});
+		counter.setTooltip(new Tooltip(r.displayName));
+		Label lb = new Label(r.displayName);
+		lb.setMinWidth(400);
+		HBox hb = new HBox();
+		hb.setSpacing(6);
+		hb.setAlignment(Pos.CENTER_LEFT);
+		Button b = new Button();
+		b.setGraphic(new ImageView(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/button-cancel-icon.png"), 32, 32, true, true)));
+		b.setPrefWidth(32);
+		b.setPrefHeight(32);
+		b.setMinHeight(Region.USE_PREF_SIZE);
+		b.setMaxHeight(Region.USE_PREF_SIZE);
+		b.setMinWidth(Region.USE_PREF_SIZE);
+		b.setMaxWidth(Region.USE_PREF_SIZE);
+		b.setOnAction(e -> {
+			factory.removeRecipe(r);
+		});
+		hb.getChildren().add(b);
+		b = new Button();
+		b.setGraphic(new ImageView(new Image(Main.class.getResourceAsStream("Resources/Graphics/Icons/button-reset-icon.png"), 32, 32, true, true)));
+		b.setPrefWidth(32);
+		b.setPrefHeight(32);
+		b.setMinHeight(Region.USE_PREF_SIZE);
+		b.setMaxHeight(Region.USE_PREF_SIZE);
+		b.setMinWidth(Region.USE_PREF_SIZE);
+		b.setMaxWidth(Region.USE_PREF_SIZE);
+		b.setOnAction(e -> {
+			counter.getValueFactory().setValue(0D);
+		});
+		hb.getChildren().add(b);
+		hb.getChildren().add(lb);
+		hb.getChildren().add(RecipeListCell.buildIODisplay(r, false, 1));
+		HBox ret = GuiUtil.createSpacedHBox(hb, counter, null);
+		ret.setPrefHeight(40);
+		ret.setMinHeight(Region.USE_PREF_SIZE);
+		ret.setMaxHeight(Region.USE_PREF_SIZE);
+		ret.setMaxWidth(Double.MAX_VALUE);
+		ret.setMinWidth(Region.USE_COMPUTED_SIZE);
+		ret.setPrefWidth(Region.USE_COMPUTED_SIZE);
+		ret.setPadding(new Insets(4, 0, 0, 0));
+		return ret;
 	}
 }
