@@ -53,10 +53,8 @@ import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.ResourceSupply;
 import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.SimpleProductionSupply;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem;
 import Reika.SatisfactoryPlanner.GUI.GuiUtil;
-import Reika.SatisfactoryPlanner.GUI.RecipeMatrix;
 import Reika.SatisfactoryPlanner.GUI.RecipeMatrixContainer;
 import Reika.SatisfactoryPlanner.GUI.RecipeMatrixContainer.MatrixType;
-import Reika.SatisfactoryPlanner.GUI.ScaledRecipeMatrix;
 import Reika.SatisfactoryPlanner.GUI.WaitDialogManager;
 import Reika.SatisfactoryPlanner.Util.CountMap;
 import Reika.SatisfactoryPlanner.Util.JSONUtil;
@@ -76,8 +74,8 @@ public class Factory {
 
 	private final ArrayList<FactoryListener> changeCallback = new ArrayList();
 
-	private final RecipeMatrix matrix;
-	private final ScaledRecipeMatrix scaleMatrix;
+	//TODO//private final RecipeMatrix matrix;
+	//TODO//private final ScaledRecipeMatrix scaleMatrix;
 
 	private final EnumSet<MatrixType> invalidMatrices = EnumSet.noneOf(MatrixType.class);
 
@@ -116,11 +114,8 @@ public class Factory {
 	}
 
 	private Factory(boolean nonUI) {
-		matrix = nonUI ? null : new RecipeMatrix(this);
-		scaleMatrix = nonUI ? null : new ScaledRecipeMatrix(matrix);
-
-		//matrix.buildGrid();
-		//scaleMatrix.buildGrid();
+		//TODO//matrix = nonUI ? null : new RecipeMatrix(this);
+		//TODO//scaleMatrix = nonUI ? null : new ScaledRecipeMatrix(matrix);
 
 		for (Generator g : Database.getAllGenerators())
 			generators.put(g, new FuelChoices(g));
@@ -213,27 +208,30 @@ public class Factory {
 		this.removeRecipes(new ArrayList(recipes.keySet()));
 	}
 
-	public void rebuildMatrices(boolean updateIO) {
+	public void rebuildMatrices(boolean updateIO) {//TODO//
+		/*
 		if (matrix == null) //non-UI factory
 			return;
 		matrix.rebuild(updateIO);
 		scaleMatrix.rebuild(updateIO);
 
-		this.alignMatrices();
+		this.alignMatrices();*/
 	}
 
-	private void queueMatrixAlign() {
+	private void queueMatrixAlign() {//TODO//
+		/*
 		if (matrix == null)
 			return;
-		GuiUtil.runOnJFXThread(() -> this.alignMatrices());
+		GuiUtil.runOnJFXThread(() -> this.alignMatrices());*/
 	}
 
-	private void alignMatrices() {
+	private void alignMatrices() {//TODO//
+		/*
 		if (!invalidMatrices.isEmpty() || matrix == null)
 			return;
 		Logging.instance.log("Aligning matrices");
 		matrix.alignWith(scaleMatrix);
-		scaleMatrix.alignWith(matrix);
+		scaleMatrix.alignWith(matrix);*/
 	}
 
 	public void setGridBuilt(MatrixType mt, boolean built) {
@@ -250,8 +248,8 @@ public class Factory {
 	public void updateMatrixStatus(Consumable c) {
 		if (skipNotify)
 			return;
-		matrix.updateStatuses(c);
-		scaleMatrix.updateStatuses(c);
+		//TODO//matrix.updateStatuses(c);
+		//TODO//scaleMatrix.updateStatuses(c);
 	}
 	/*
 	public void refreshMatrices() {
@@ -662,7 +660,7 @@ public class Factory {
 		for (Recipe r : recipeList)
 			map.increment(r.productionBuilding, (int)Math.ceil(this.getCount(r)));
 		for (FuelChoices f : generators.values())
-			map.increment(f.generator, (int)Math.ceil(f.getTotal())+1);
+			map.increment(f.generator, (int)Math.ceil(f.getTotal()));
 		for (ResourceSupply res : resourceSources.allValues(false)) {
 			Building b = res.getBuilding();
 			if (b != null)
@@ -1056,8 +1054,8 @@ public class Factory {
 
 	public void setUI(RecipeMatrixContainer gui) {
 		this.gui = gui;
-		matrix.setUI(gui);
-		scaleMatrix.setUI(gui);
+		//TODO//matrix.setUI(gui);
+		//TODO//scaleMatrix.setUI(gui);
 	}
 
 	public void prepareDisposal() {
@@ -1077,7 +1075,7 @@ public class Factory {
 	}
 
 	public void setLargeMatrixSpinnerStep(boolean large) {
-		scaleMatrix.setSpinnerStep(large ? 10 : 1);
+		//TODO//scaleMatrix.setSpinnerStep(large ? 10 : 1);
 	}
 
 	public boolean hasUnsavedChanges() {

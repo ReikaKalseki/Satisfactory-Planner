@@ -19,6 +19,7 @@
 *:focused {
     -fx-background-color: white;
 	-fx-border-color: transparent;
+	-fx-border-thickness: 0;
 }
 
 .dark-pane {
@@ -343,7 +344,28 @@
 }
 
 .widget .toggle-switch:selected .thumb-area {
-    -fx-background-color: #E69344;
+    -fx-background-color: "#E69344";
+}
+
+.widget .list-view .list-cell * {
+    -fx-text-fill: "#000000" !important;
+    -fx-border-thickness: 0 !important;
+}
+
+.widget .list-view .list-cell:even {
+    -fx-background-color: "#FFFFFF";
+}
+
+.widget .list-view .list-cell:odd {
+    -fx-background-color: "#F0F0F0";
+}
+
+.widget .list-view .list-cell:selected {
+    -fx-background-color: "#E69344";
+}
+
+.widget .list-view .list-cell:focused {
+    -fx-background-color: "#E69344";
 }
 
 .scroll-bar {

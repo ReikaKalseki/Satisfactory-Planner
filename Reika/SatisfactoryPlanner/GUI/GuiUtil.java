@@ -52,6 +52,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
+import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Spinner;
@@ -735,6 +736,8 @@ public class GuiUtil {
 	}
 
 	public static void applyToAllNodes(Node n, Consumer<Node> call) {
+		if (n == null)
+			return;
 		call.accept(n);
 		if (n instanceof TabPane) {
 			for (Tab t : ((TabPane)n).getTabs()) {
@@ -752,6 +755,10 @@ public class GuiUtil {
 				applyToAllNodes(n2, call);
 			}
 		}
+	}
+
+	public static void disableFocus(Node root) {
+		applyToAllNodes(root, n -> n.setFocusTraversable(false));
 	}
 
 	public static StackPane createItemDisplay(NamedIcon c, int size, boolean compress) {
@@ -779,6 +786,21 @@ public class GuiUtil {
 
 	public static void addSortedNode(Pane p, Node n, Comparator<Node> compare) {
 		ObservableList<Node> li = p.getChildren();
+		for (int i = li.size()-1; i >= 0; i--) {
+			if (compare.compare(n, li.get(i)) > 0) { //comes after i, add after i
+				li.add(i+1, n);
+				return;
+			}
+		}
+		li.add(0, n); //smaller than every entry, add to beginning
+	}
+
+	public static <E extends Comparable<E>> void addSortedEntry(ListView<E> p, E n) {
+		addSortedEntry(p, n, Comparator.naturalOrder());
+	}
+
+	public static <E> void addSortedEntry(ListView<E> p, E n, Comparator<E> compare) {
+		ObservableList<E> li = p.getItems();
 		for (int i = li.size()-1; i >= 0; i--) {
 			if (compare.compare(n, li.get(i)) > 0) { //comes after i, add after i
 				li.add(i+1, n);

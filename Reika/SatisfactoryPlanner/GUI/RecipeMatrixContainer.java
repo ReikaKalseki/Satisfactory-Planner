@@ -8,8 +8,8 @@ public interface RecipeMatrixContainer {
 	public GridPane getMatrix(MatrixType mt);
 
 	public static enum MatrixType {
-		MAIN,
-		SCALE,
+		IN,
+		OUT,
 	}
 
 }
