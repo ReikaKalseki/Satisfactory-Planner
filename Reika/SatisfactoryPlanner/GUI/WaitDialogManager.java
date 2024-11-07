@@ -60,8 +60,9 @@ public class WaitDialogManager {
 
 	public void completeTask(UUID id) {
 		this.setTaskProgress(id, 100);
-		currentTasks.remove(id);
-		Logging.instance.log("Removing queued task "+id+" from wait UI, task list = "+currentTasks);
+		WaitTask tt = currentTasks.remove(id);
+		long dur = System.currentTimeMillis()-tt.startTime;
+		Logging.instance.log("Removing queued task "+id+", finished in "+dur+" ms, from wait UI, task list = "+currentTasks);
 		if (currentTasks.isEmpty()) {
 			this.closeUI();
 		}
@@ -160,11 +161,13 @@ public class WaitDialogManager {
 	private class WaitTask {
 
 		private final String description;
+		private final long startTime;
 
 		private double percentageComplete;
 
 		private WaitTask(String desc) {
 			description = desc;
+			startTime = System.currentTimeMillis();
 		}
 
 		@Override

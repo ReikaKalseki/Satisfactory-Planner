@@ -321,7 +321,7 @@
                <content>
                   <ScrollPane fx:id="craftingScroll" fitToHeight="true" fitToWidth="true" hbarPolicy="ALWAYS" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" pannable="true" vbarPolicy="ALWAYS">
                      <content>
-                        <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="24.0">
+                        <VBox alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="24.0">
                            <children>
                               <TitledPane animated="false" collapsible="false" styleClass="panel" text="Options" VBox.vgrow="NEVER">
                                  <content>
@@ -357,8 +357,8 @@
                                  <content>
                                     <VBox fx:id="recipeListView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
                                  </content></TitledPane>
-                              <TitledPane fx:id="inputGridContainer" collapsible="false" styleClass="panel" text="Input Matrix" VBox.vgrow="ALWAYS" />
                               <TitledPane fx:id="outputGridContainer" collapsible="false" layoutX="14.0" layoutY="296.0" styleClass="panel" text="Output Matrix" />
+                              <TitledPane fx:id="inputGridContainer" collapsible="false" styleClass="panel" text="Input Matrix" VBox.vgrow="ALWAYS" />
                            </children>
                            <padding>
                               <Insets bottom="8.0" left="4.0" right="4.0" top="8.0" />

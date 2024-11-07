@@ -53,6 +53,8 @@ import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.ResourceSupply;
 import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.SimpleProductionSupply;
 import Reika.SatisfactoryPlanner.GUI.GuiSystem;
 import Reika.SatisfactoryPlanner.GUI.GuiUtil;
+import Reika.SatisfactoryPlanner.GUI.InputMatrix;
+import Reika.SatisfactoryPlanner.GUI.OutputMatrix;
 import Reika.SatisfactoryPlanner.GUI.RecipeMatrixContainer;
 import Reika.SatisfactoryPlanner.GUI.RecipeMatrixContainer.MatrixType;
 import Reika.SatisfactoryPlanner.GUI.WaitDialogManager;
@@ -74,8 +76,8 @@ public class Factory {
 
 	private final ArrayList<FactoryListener> changeCallback = new ArrayList();
 
-	//TODO//private final RecipeMatrix matrix;
-	//TODO//private final ScaledRecipeMatrix scaleMatrix;
+	private final InputMatrix matrixIn;
+	private final OutputMatrix matrixOut;
 
 	private final EnumSet<MatrixType> invalidMatrices = EnumSet.noneOf(MatrixType.class);
 
@@ -114,8 +116,8 @@ public class Factory {
 	}
 
 	private Factory(boolean nonUI) {
-		//TODO//matrix = nonUI ? null : new RecipeMatrix(this);
-		//TODO//scaleMatrix = nonUI ? null : new ScaledRecipeMatrix(matrix);
+		matrixIn = nonUI ? null : new InputMatrix(this);
+		matrixOut = nonUI ? null : new OutputMatrix(this);
 
 		for (Generator g : Database.getAllGenerators())
 			generators.put(g, new FuelChoices(g));
@@ -208,30 +210,27 @@ public class Factory {
 		this.removeRecipes(new ArrayList(recipes.keySet()));
 	}
 
-	public void rebuildMatrices(boolean updateIO) {//TODO//
-		/*
-		if (matrix == null) //non-UI factory
+	public void rebuildMatrices(boolean updateIO) {
+		if (matrixIn == null) //non-UI factory
 			return;
-		matrix.rebuild(updateIO);
-		scaleMatrix.rebuild(updateIO);
+		matrixIn.rebuild(updateIO);
+		matrixOut.rebuild(updateIO);
 
-		this.alignMatrices();*/
+		this.alignMatrices();
 	}
 
-	private void queueMatrixAlign() {//TODO//
-		/*
-		if (matrix == null)
+	private void queueMatrixAlign() {
+		if (matrixIn == null)
 			return;
-		GuiUtil.runOnJFXThread(() -> this.alignMatrices());*/
+		GuiUtil.runOnJFXThread(() -> this.alignMatrices());
 	}
 
-	private void alignMatrices() {//TODO//
-		/*
-		if (!invalidMatrices.isEmpty() || matrix == null)
+	private void alignMatrices() {
+		if (!invalidMatrices.isEmpty() || matrixIn == null)
 			return;
 		Logging.instance.log("Aligning matrices");
-		matrix.alignWith(scaleMatrix);
-		scaleMatrix.alignWith(matrix);*/
+		matrixIn.alignWith(matrixOut);
+		matrixOut.alignWith(matrixIn);
 	}
 
 	public void setGridBuilt(MatrixType mt, boolean built) {
@@ -248,15 +247,10 @@ public class Factory {
 	public void updateMatrixStatus(Consumable c) {
 		if (skipNotify)
 			return;
-		//TODO//matrix.updateStatuses(c);
-		//TODO//scaleMatrix.updateStatuses(c);
+		matrixIn.updateStatuses(c);
+		matrixOut.updateStatuses(c);
 	}
-	/*
-	public void refreshMatrices() {
-		matrix.refreshGridPositioning();
-		scaleMatrix.refreshGridPositioning();
-	}
-	 */
+
 	public void addExternalSupply(ResourceSupply res) {
 		if (!this.registerSupply(res))
 			return;
@@ -1054,8 +1048,8 @@ public class Factory {
 
 	public void setUI(RecipeMatrixContainer gui) {
 		this.gui = gui;
-		//TODO//matrix.setUI(gui);
-		//TODO//scaleMatrix.setUI(gui);
+		matrixIn.setUI(gui);
+		matrixOut.setUI(gui);
 	}
 
 	public void prepareDisposal() {
@@ -1074,8 +1068,10 @@ public class Factory {
 		return ret;
 	}
 
+	@Deprecated
 	public void setLargeMatrixSpinnerStep(boolean large) {
-		//TODO//scaleMatrix.setSpinnerStep(large ? 10 : 1);
+		matrixIn.setSpinnerStep(large ? 10 : 1);
+		matrixOut.setSpinnerStep(large ? 10 : 1);
 	}
 
 	public boolean hasUnsavedChanges() {

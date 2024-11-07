@@ -768,9 +768,9 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 		}
 
 		inputGrid.getChildren().removeIf(n -> !(n instanceof Button));
-		for (ResourceSupply res : factory.getSupplies()) {
-			this.onAddSupply(res);
-		}
+
+		this.onAddSupplies(factory.getSupplies());
+		this.onAddRecipes(factory.getRecipes());
 
 		this.updateStats();
 
@@ -1054,12 +1054,14 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	}
 
 	@Override
+	@Deprecated
 	protected void onKeyPressed(KeyCode code) {
 		if (code == KeyCode.SHIFT)
 			factory.setLargeMatrixSpinnerStep(true);
 	}
 
 	@Override
+	@Deprecated
 	protected void onKeyReleased(KeyCode code) {
 		if (code == KeyCode.SHIFT)
 			factory.setLargeMatrixSpinnerStep(false);
