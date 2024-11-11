@@ -42,6 +42,7 @@ import Reika.SatisfactoryPlanner.Util.Errorable.ErrorableWithArgument;
 import Reika.SatisfactoryPlanner.Util.Logging;
 
 import fxexpansions.GuiInstance;
+import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.ColumnConstraints;
@@ -131,26 +132,26 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 			}
 		}
 		ret.addAll(owner.getRecipes());
-		if (type == MatrixType.IN) {
-			switch(owner.generatorMatrixRule) {
-				case EXCLUDE:
-					break;
-				case MERGE:
-					if (owner.getTotalGeneratorCount() > 0) {
-						generatorGroup = new GroupedProducer<Fuel>("Generators", InternalIcons.POWER, Fuel.getFuels(), f -> (float)owner.getCount(f.generator, f));
-						ret.add(generatorGroup);
-					}
-					break;
-				case INDIVIDUAL:
-					for (Generator g : Database.getAllGenerators()) {
-						for (Fuel f : g.getFuels()) {
+		switch(owner.generatorMatrixRule) {
+			case EXCLUDE:
+				break;
+			case MERGE:
+				if (owner.getTotalGeneratorCount() > 0 && (type == MatrixType.IN || owner.producingFuelByproducts())) {
+					generatorGroup = new GroupedProducer<Fuel>("Generators", InternalIcons.POWER, Fuel.getFuels(), f -> (float)owner.getCount(f.generator, f));
+					ret.add(generatorGroup);
+				}
+				break;
+			case INDIVIDUAL:
+				for (Generator g : Database.getAllGenerators()) {
+					for (Fuel f : g.getFuels()) {
+						if (type == MatrixType.IN || f.byproduct != null) {
 							double amt = owner.getCount(g, f);
 							if (amt > 0)
 								ret.add(f);
 						}
 					}
-					break;
-			}
+				}
+				break;
 		}
 		return ret;
 	}
@@ -241,11 +242,16 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 		itemLabel = new Label(this.getItemHeader());
 		itemLabel.getStyleClass().add("table-header");
 		grid.add(itemLabel, itemsStartColumn, titlesRow);
-		buildingLabel = new Label("In");
-		buildingLabel.getStyleClass().add("table-header");
-		grid.add(buildingLabel, buildingColumn, titlesRow);
-		grid.setColumnSpan(itemLabel, buildingGapColumn-itemsStartColumn);
-		grid.setColumnSpan(buildingLabel, 1);
+		if (buildingColumn >= 0) {
+			buildingLabel = new Label("In");
+			buildingLabel.getStyleClass().add("table-header");
+			grid.add(buildingLabel, buildingColumn, titlesRow);
+			grid.setColumnSpan(buildingLabel, 1);
+			grid.setColumnSpan(itemLabel, buildingGapColumn-itemsStartColumn);
+		}
+		else {
+			grid.setColumnSpan(itemLabel, GridPane.REMAINING);
+		}
 	}
 
 	protected final int addRow() {
@@ -386,7 +392,7 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 			this.initializeWidths();
 			Logging.instance.log("Finished rebuilding "+type+" matrix");
 			if (updateIO)
-				this.onUpdateIO();
+				Platform.runLater(() -> this.onUpdateIO());
 			//Logging.instance.log(sum+" of "+Arrays.toString(w));
 			//Platform.runLater(() -> grid.layout());
 		};
@@ -414,7 +420,8 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 	}
 
 	private void initializeWidths() {
-		grid.getColumnConstraints().get(buildingColumn).setMinWidth(32);
+		if (buildingColumn >= 0)
+			grid.getColumnConstraints().get(buildingColumn).setMinWidth(32);
 		grid.layout();
 		contentWidths = new double[grid.getColumnCount()];
 		this.computeWidths(contentWidths, true);

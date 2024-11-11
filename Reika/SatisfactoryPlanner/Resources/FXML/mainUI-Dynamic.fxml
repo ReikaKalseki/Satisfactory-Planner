@@ -359,6 +359,7 @@
                                  </content></TitledPane>
                               <TitledPane fx:id="outputGridContainer" collapsible="false" layoutX="14.0" layoutY="296.0" styleClass="panel" text="Output Matrix" />
                               <TitledPane fx:id="inputGridContainer" collapsible="false" styleClass="panel" text="Input Matrix" VBox.vgrow="ALWAYS" />
+                              <TitledPane fx:id="totalGridContainer" collapsible="false" layoutX="14.0" layoutY="398.0" styleClass="panel" text="Totals" />
                            </children>
                            <padding>
                               <Insets bottom="8.0" left="4.0" right="4.0" top="8.0" />

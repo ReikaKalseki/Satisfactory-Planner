@@ -10,6 +10,7 @@ public interface RecipeMatrixContainer {
 	public static enum MatrixType {
 		IN,
 		OUT,
+		SUM;
 	}
 
 }

@@ -8,25 +8,11 @@ import Reika.SatisfactoryPlanner.Data.ItemConsumerProducer;
 import Reika.SatisfactoryPlanner.Data.Objects.Consumable;
 import Reika.SatisfactoryPlanner.Data.Objects.ResourceSupplies.ResourceSupply;
 import Reika.SatisfactoryPlanner.GUI.RecipeMatrixContainer.MatrixType;
-import Reika.SatisfactoryPlanner.GUI.Components.ItemRateController;
-import Reika.SatisfactoryPlanner.GUI.Components.ItemRateController.WarningState;
-
-import fxexpansions.GuiInstance;
 
 public class OutputMatrix extends ScaledRecipeMatrix {
 
 	public OutputMatrix(Factory f) {
 		super(f, MatrixType.OUT);
-	}
-
-	@Override
-	protected boolean sumAtTop() {
-		return false;
-	}
-
-	@Override
-	public double getAmount(Consumable c) {
-		return this.getAvailable(c);
 	}
 	/*
 	@Override
@@ -38,14 +24,6 @@ public class OutputMatrix extends ScaledRecipeMatrix {
 		Collections.sort(items);
 	}
 	 */
-	@Override
-	public void updateStatuses(Consumable c) {
-		GuiInstance<ItemRateController> gui = sumEntries.get(c);
-		if (gui != null) {
-			gui.controller.setAmount(this.getAvailable(c));
-			gui.controller.setState(owner.isExcess(c) ? WarningState.LEFTOVER : WarningState.NONE);
-		}
-	}
 
 	@Override
 	protected Set<Entry<Consumable, Double>> getItemRates(ItemConsumerProducer r) {

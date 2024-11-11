@@ -1,7 +1,6 @@
 package Reika.SatisfactoryPlanner.GUI;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -12,10 +11,9 @@ import Reika.SatisfactoryPlanner.Data.ItemConsumerProducer;
 import Reika.SatisfactoryPlanner.Data.Objects.Consumable;
 import Reika.SatisfactoryPlanner.Data.Objects.Fuel;
 import Reika.SatisfactoryPlanner.Data.Objects.Recipe;
+import Reika.SatisfactoryPlanner.Data.Objects.Buildables.Generator;
 import Reika.SatisfactoryPlanner.GUI.RecipeMatrixContainer.MatrixType;
-import Reika.SatisfactoryPlanner.GUI.Components.ItemRateController;
 
-import fxexpansions.GuiInstance;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -28,13 +26,7 @@ public abstract class ScaledRecipeMatrix extends RecipeMatrixBase {
 	protected int countGapColumn;
 	protected int countColumn;
 
-	protected int sumGapRow;
-	protected int sumsRow;
-
-	protected Label sumsLabel;
 	protected Label countLabel;
-
-	protected final HashMap<Consumable, GuiInstance<ItemRateController>> sumEntries = new HashMap();
 
 	private boolean buildingGrid;
 	private boolean settingValue;
@@ -66,14 +58,7 @@ public abstract class ScaledRecipeMatrix extends RecipeMatrixBase {
 		titleGapRow = this.addRow();
 		minorRowGaps.clear();
 
-		if (this.sumAtTop()) {
-			sumsRow = this.addRow();
-			sumGapRow = this.addRow();
-			recipeStartRow = sumGapRow+1;
-		}
-		else {
-			recipeStartRow = titleGapRow+1;
-		}
+		recipeStartRow = titleGapRow+1;
 		for (int i = 0; i < recipes.size(); i++) {
 			this.addRow();
 			if (i < recipes.size()-1)
@@ -103,34 +88,17 @@ public abstract class ScaledRecipeMatrix extends RecipeMatrixBase {
 		this.createDivider(buildingGapColumn, titlesRow, 1);
 		this.createDivider(countGapColumn, titlesRow, 0);
 
-		if (!this.sumAtTop()) {
-			sumGapRow = this.addRow();
-			sumsRow = this.addRow();
-		}
-
 		this.createRowDivider(titleGapRow, 0);
-		if (!owner.getRecipes().isEmpty())
-			this.createRowDivider(sumGapRow, 1);
 		for (int row : minorRowGaps)
 			this.createRowDivider(row, 2);
-
-		sumEntries.clear();
-
-		this.createDivider(mainGapColumn, sumsRow, 0);
-		this.createDivider(countGapColumn, sumsRow, 0);
-		this.createDivider(buildingGapColumn, sumsRow, 1);
 
 		buildingGrid = false;
 
 		GridPane gp = this.getGrid();
+
 		for (int i = 0; i < items.size(); i++) {
 			Consumable c = items.get(i);
 			int idx = itemsStartColumn+items.indexOf(c)*2;
-			GuiInstance<ItemRateController> gui = GuiUtil.createItemView(c, this.getAmount(c), gp, idx, sumsRow);
-			if (Setting.FIXEDMATRIX.getCurrentValue())
-				gui.controller.setMinWidth("9999.9999");
-			gui.rootNode.getStyleClass().add("matrix-item-cell");
-			sumEntries.put(c, gui);
 			if (i < items.size()-1)
 				this.createDivider(idx+1, titleGapRow+1, 2);
 		}
@@ -148,6 +116,14 @@ public abstract class ScaledRecipeMatrix extends RecipeMatrixBase {
 		this.addTitles();
 
 		gp.getColumnConstraints().get(countColumn).setMinWidth(92);
+	}
+
+	@Override
+	public final void onSetCount(Generator g, Fuel fuel, double old, double count) {
+		super.onSetCount(g, fuel, old, count);
+		if (count > 0 && recipeEntries.containsKey(fuel))
+			recipeEntries.get(fuel).setScale(count);
+		this.updateStatuses(fuel);
 	}
 
 	protected final double getAvailable(Consumable c) {
@@ -190,9 +166,6 @@ public abstract class ScaledRecipeMatrix extends RecipeMatrixBase {
 	protected void addTitles() {
 		super.addTitles();
 
-		sumsLabel = new Label("Total");
-		sumsLabel.getStyleClass().add("table-header");
-		this.getGrid().add(sumsLabel, nameColumn, sumsRow);
 		countLabel = new Label("Counts");
 		countLabel.getStyleClass().add("table-header");
 		this.getGrid().add(countLabel, countColumn, titlesRow);
@@ -225,9 +198,5 @@ public abstract class ScaledRecipeMatrix extends RecipeMatrixBase {
 			((DoubleSpinnerValueFactory)((Spinner<Double>)rr.getChildNode("counter")).getValueFactory()).setAmountToStepBy(amount);
 		}*/
 	}
-
-	protected abstract boolean sumAtTop();
-
-	public abstract double getAmount(Consumable c);
 
 }

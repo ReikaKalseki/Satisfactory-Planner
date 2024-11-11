@@ -114,6 +114,9 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	protected TitledPane outputGridContainer;
 
 	@FXML
+	protected TitledPane totalGridContainer;
+
+	@FXML
 	protected VBox recipeListView;
 
 	@FXML
@@ -1033,6 +1036,9 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 			case OUT:
 				tp = outputGridContainer;
 				break;
+			case SUM:
+				tp = totalGridContainer;
+				break;
 		}
 
 		tp.setContent(g);
@@ -1047,6 +1053,9 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 				break;
 			case OUT:
 				tp = outputGridContainer;
+				break;
+			case SUM:
+				tp = totalGridContainer;
 				break;
 		}
 

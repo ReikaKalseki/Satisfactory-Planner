@@ -57,6 +57,7 @@ import Reika.SatisfactoryPlanner.GUI.InputMatrix;
 import Reika.SatisfactoryPlanner.GUI.OutputMatrix;
 import Reika.SatisfactoryPlanner.GUI.RecipeMatrixContainer;
 import Reika.SatisfactoryPlanner.GUI.RecipeMatrixContainer.MatrixType;
+import Reika.SatisfactoryPlanner.GUI.SumsRecipeMatrix;
 import Reika.SatisfactoryPlanner.GUI.WaitDialogManager;
 import Reika.SatisfactoryPlanner.Util.CountMap;
 import Reika.SatisfactoryPlanner.Util.JSONUtil;
@@ -78,6 +79,7 @@ public class Factory {
 
 	private final InputMatrix matrixIn;
 	private final OutputMatrix matrixOut;
+	private final SumsRecipeMatrix matrixSum;
 
 	private final EnumSet<MatrixType> invalidMatrices = EnumSet.noneOf(MatrixType.class);
 
@@ -118,6 +120,7 @@ public class Factory {
 	private Factory(boolean nonUI) {
 		matrixIn = nonUI ? null : new InputMatrix(this);
 		matrixOut = nonUI ? null : new OutputMatrix(this);
+		matrixSum = nonUI ? null : new SumsRecipeMatrix(this);
 
 		for (Generator g : Database.getAllGenerators())
 			generators.put(g, new FuelChoices(g));
@@ -215,6 +218,7 @@ public class Factory {
 			return;
 		matrixIn.rebuild(updateIO);
 		matrixOut.rebuild(updateIO);
+		matrixSum.rebuild(updateIO);
 
 		this.alignMatrices();
 	}
@@ -231,6 +235,9 @@ public class Factory {
 		Logging.instance.log("Aligning matrices");
 		matrixIn.alignWith(matrixOut);
 		matrixOut.alignWith(matrixIn);
+		matrixSum.alignWith(matrixIn);
+		matrixOut.alignWith(matrixSum);
+		matrixIn.alignWith(matrixSum);
 	}
 
 	public void setGridBuilt(MatrixType mt, boolean built) {
@@ -249,6 +256,7 @@ public class Factory {
 			return;
 		matrixIn.updateStatuses(c);
 		matrixOut.updateStatuses(c);
+		matrixSum.updateStatuses(c);
 	}
 
 	public void addExternalSupply(ResourceSupply res) {
@@ -755,6 +763,16 @@ public class Factory {
 		return this.getTotalProduction(c)+this.getExternalInput(c, false) > this.getTotalConsumption(c)+0.0001;
 	}
 
+	public boolean producingFuelByproducts() {
+		for (FuelChoices fc : generators.values()) {
+			for (Fuel f : fc.generator.getFuels()) {
+				if (f.byproduct != null && this.getCount(fc.generator, f) > 0)
+					return true;
+			}
+		}
+		return false;
+	}
+
 	public void getWarnings(Consumer<Warning> call) {/*
 		for (ItemFlow f : flow.values()) {
 			if (f.isDeficit()) {
@@ -1050,6 +1068,7 @@ public class Factory {
 		this.gui = gui;
 		matrixIn.setUI(gui);
 		matrixOut.setUI(gui);
+		matrixSum.setUI(gui);
 	}
 
 	public void prepareDisposal() {
@@ -1072,6 +1091,7 @@ public class Factory {
 	public void setLargeMatrixSpinnerStep(boolean large) {
 		matrixIn.setSpinnerStep(large ? 10 : 1);
 		matrixOut.setSpinnerStep(large ? 10 : 1);
+		matrixSum.setSpinnerStep(large ? 10 : 1);
 	}
 
 	public boolean hasUnsavedChanges() {
