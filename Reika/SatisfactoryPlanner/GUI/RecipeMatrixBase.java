@@ -497,7 +497,7 @@ public abstract class RecipeMatrixBase implements FactoryListener {
 
 	@Override
 	public final Future<Void> onLoaded() {
-		return this.rebuild(false);
+		return this.rebuild(true);
 	}
 
 	@Override

@@ -357,9 +357,88 @@
                                  <content>
                                     <VBox fx:id="recipeListView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
                                  </content></TitledPane>
-                              <TitledPane fx:id="outputGridContainer" collapsible="false" layoutX="14.0" layoutY="296.0" styleClass="panel" text="Output Matrix" />
-                              <TitledPane fx:id="inputGridContainer" collapsible="false" styleClass="panel" text="Input Matrix" VBox.vgrow="ALWAYS" />
-                              <TitledPane fx:id="totalGridContainer" collapsible="false" layoutX="14.0" layoutY="398.0" styleClass="panel" text="Totals" />
+                              <VBox fx:id="matrixShuffle" spacing="24.0">
+                                 <children>
+                                    <TitledPane fx:id="outputGridContainer" collapsible="false" graphicTextGap="8.0" styleClass="panel" text="Output Matrix">
+                                       <graphic>
+                                          <VBox spacing="4.0">
+                                             <children>
+                                                <Button fx:id="outputMatrixUp" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="16.0" prefWidth="16.0">
+                                                   <graphic>
+                                                      <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                                         <image>
+                                                            <Image url="@../Graphics/Icons/up-triangle-small.png" />
+                                                         </image>
+                                                      </ImageView>
+                                                   </graphic>
+                                                </Button>
+                                                <Button fx:id="outputMatrixDown" layoutX="10.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="16.0" prefWidth="16.0">
+                                                   <graphic>
+                                                      <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                                         <image>
+                                                            <Image url="@../Graphics/Icons/dropdown-arrow-small.png" />
+                                                         </image>
+                                                      </ImageView>
+                                                   </graphic>
+                                                </Button>
+                                             </children>
+                                          </VBox>
+                                       </graphic>
+                                    </TitledPane>
+                                    <TitledPane fx:id="inputGridContainer" collapsible="false" graphicTextGap="8.0" styleClass="panel" text="Input Matrix" VBox.vgrow="ALWAYS">
+                                       <graphic>
+                                          <VBox spacing="4.0">
+                                             <children>
+                                                <Button fx:id="inputMatrixUp" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="16.0" prefWidth="16.0">
+                                                   <graphic>
+                                                      <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                                         <image>
+                                                            <Image url="@../Graphics/Icons/up-triangle-small.png" />
+                                                         </image>
+                                                      </ImageView>
+                                                   </graphic>
+                                                </Button>
+                                                <Button fx:id="inputMatrixDown" layoutX="10.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="16.0" prefWidth="16.0">
+                                                   <graphic>
+                                                      <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                                         <image>
+                                                            <Image url="@../Graphics/Icons/dropdown-arrow-small.png" />
+                                                         </image>
+                                                      </ImageView>
+                                                   </graphic>
+                                                </Button>
+                                             </children>
+                                          </VBox>
+                                       </graphic>
+                                    </TitledPane>
+                                    <TitledPane fx:id="totalGridContainer" collapsible="false" graphicTextGap="8.0" styleClass="panel" text="Totals">
+                                       <graphic>
+                                          <VBox spacing="4.0">
+                                             <children>
+                                                <Button fx:id="netMatrixUp" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="16.0" prefWidth="16.0">
+                                                   <graphic>
+                                                      <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                                         <image>
+                                                            <Image url="@../Graphics/Icons/up-triangle-small.png" />
+                                                         </image>
+                                                      </ImageView>
+                                                   </graphic>
+                                                </Button>
+                                                <Button fx:id="netMatrixDown" layoutX="10.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="16.0" prefWidth="16.0">
+                                                   <graphic>
+                                                      <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                                         <image>
+                                                            <Image url="@../Graphics/Icons/dropdown-arrow-small.png" />
+                                                         </image>
+                                                      </ImageView>
+                                                   </graphic>
+                                                </Button>
+                                             </children>
+                                          </VBox>
+                                       </graphic>
+                                    </TitledPane>
+                                 </children>
+                              </VBox>
                            </children>
                            <padding>
                               <Insets bottom="8.0" left="4.0" right="4.0" top="8.0" />

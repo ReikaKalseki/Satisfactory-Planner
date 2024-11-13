@@ -6,9 +6,11 @@ import java.io.StringWriter;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.controlsfx.control.SearchableComboBox;
@@ -646,6 +648,12 @@ public class GuiUtil {
 		return n;
 	}
 
+	public static Node getRealParentFromWrappedNode(Node n) {
+		while (n.getStyleClass().contains("bolt-wrapped"))
+			n = n.getParent();
+		return n;
+	}
+
 	public static void initWidgets(ControllerBase c) {
 		initWidgets(c.getRootNode());
 	}
@@ -891,6 +899,34 @@ public class GuiUtil {
 		fc.setInitialFileName(initialName);
 		fc.setTitle("Choose file");
 		return fc.showSaveDialog(container);
+	}
+
+	public static void moveBack(Node n) {
+		moveOne(n, -1, (c, f) -> {if (f)c.toBack(); else c.toFront();});
+	}
+
+	public static void moveForward(Node n) {
+		moveOne(n, 1, (c, f) -> {if (f)c.toFront(); else c.toBack();});
+	}
+
+	private static void moveOne(Node n, int moveStep, BiConsumer<Node, Boolean> movement) {
+		List<Node> li = n.getParent().getChildrenUnmodifiable();
+		int at = li.indexOf(n);
+		boolean forward = at >= li.size()/2;
+		int target = at+moveStep;
+		if (forward) {
+			movement.accept(li.get(target), forward);
+			movement.accept(n, forward);
+			int num = li.size()-target-1;
+			for (int i = 0; i < num; i++)
+				movement.accept(li.get(at), forward);
+		}
+		else {
+			movement.accept(n, forward);
+			int num = target;
+			for (int i = 0; i < num; i++)
+				movement.accept(li.get(target), forward);
+		}
 	}
 
 }

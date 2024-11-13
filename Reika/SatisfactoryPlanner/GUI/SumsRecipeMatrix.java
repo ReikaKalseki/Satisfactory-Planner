@@ -190,15 +190,18 @@ public class SumsRecipeMatrix extends RecipeMatrixBase {
 
 	@Override
 	public void updateStatuses(Consumable c) {
+		//Logging.instance.log("Styling sums for "+c);
 		GuiInstance<ItemRateController> gui = sumEntriesIn.get(c);
 		if (gui != null) {
 			double total = owner.getTotalConsumption(c);
+			//Logging.instance.log("consuming "+total+", "+(total > owner.getTotalProduction(c)+owner.getExternalInput(c, false)+0.0001));
 			gui.controller.setAmount(total);
 			gui.controller.setState(total > owner.getTotalProduction(c)+owner.getExternalInput(c, false)+0.0001 ? WarningState.INSUFFICIENT : WarningState.NONE);
 		}
 
 		gui = sumEntriesOut.get(c);
 		if (gui != null) {
+			//Logging.instance.log("producing "+this.getAvailable(c)+", "+owner.isExcess(c));
 			gui.controller.setAmount(this.getAvailable(c));
 			gui.controller.setState(owner.isExcess(c) ? WarningState.LEFTOVER : WarningState.NONE);
 		}

@@ -120,6 +120,27 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 	protected VBox recipeListView;
 
 	@FXML
+	protected VBox matrixShuffle;
+
+	@FXML
+	private Button outputMatrixDown;
+
+	@FXML
+	private Button outputMatrixUp;
+
+	@FXML
+	private Button inputMatrixDown;
+
+	@FXML
+	private Button inputMatrixUp;
+
+	@FXML
+	private Button netMatrixDown;
+
+	@FXML
+	private Button netMatrixUp;
+
+	@FXML
 	private ScrollPane overviewScroll;
 
 	@FXML
@@ -460,6 +481,14 @@ public class MainGuiController extends FactoryStatisticsContainer implements Fac
 			factory.refreshMatrices();
 		});
 		 */
+
+		GuiUtil.setButtonEvent(outputMatrixUp, () -> GuiUtil.moveBack(GuiUtil.getRealParentFromWrappedNode(outputGridContainer)));
+		GuiUtil.setButtonEvent(outputMatrixDown, () -> GuiUtil.moveForward(GuiUtil.getRealParentFromWrappedNode(outputGridContainer)));
+		GuiUtil.setButtonEvent(inputMatrixUp, () -> GuiUtil.moveBack(GuiUtil.getRealParentFromWrappedNode(inputGridContainer)));
+		GuiUtil.setButtonEvent(inputMatrixDown, () -> GuiUtil.moveForward(GuiUtil.getRealParentFromWrappedNode(inputGridContainer)));
+		GuiUtil.setButtonEvent(netMatrixUp, () -> GuiUtil.moveBack(GuiUtil.getRealParentFromWrappedNode(totalGridContainer)));
+		GuiUtil.setButtonEvent(netMatrixDown, () -> GuiUtil.moveForward(GuiUtil.getRealParentFromWrappedNode(totalGridContainer)));
+
 		GuiUtil.setMenuEvent(settingsMenu, () -> this.openChildWindow("Application Settings", "Settings"));
 		GuiUtil.setMenuEvent(neiMenu, () -> this.openChildWindow("Recipe Catalogue", "RecipeCatalog"));
 		GuiUtil.setMenuEvent(itemViewerMenu, () -> this.openChildWindow("Item Catalogue", "ItemCatalog"));
